@@ -1,0 +1,1 @@
+export { useConsolidatedMetrics } from "@/shared/hooks/useConsolidatedMetrics";

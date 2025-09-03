@@ -1,0 +1,1 @@
+export { usePerformanceMonitor } from "@/shared/hooks/usePerformanceMonitor";
