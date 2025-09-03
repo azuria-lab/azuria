@@ -2,6 +2,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+// Dev-only security headers (approximation). In production, set headers at the reverse proxy.
+import { generateCSP, SECURITY_CONFIG } from "./src/config/security";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,7 +17,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8080
+    port: 8080,
+    headers: {
+      "Content-Security-Policy": generateCSP(),
+      ...SECURITY_CONFIG.HEADERS,
+    }
   },
   build: {
     rollupOptions: {
