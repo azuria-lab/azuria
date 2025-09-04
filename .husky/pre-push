@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running type-check before push..."
+npm run -s type-check
+if [ $? -ne 0 ]; then
+  echo "Type-check failed. Aborting push."
+  exit 1
+fi
+
+echo "Running unit tests before push..."
+npm run -s test
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Aborting push."
+  exit 1
+fi
+
+echo "Pre-push checks passed. Proceeding with push."

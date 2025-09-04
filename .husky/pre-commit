@@ -3,9 +3,3 @@
 
 # Run lint-staged
 npx lint-staged
-
-# Run type checking
-npm run type-check
-
-# Run tests
-npm run test:coverage
