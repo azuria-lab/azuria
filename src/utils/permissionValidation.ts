@@ -4,7 +4,7 @@ import { AuditLogService } from "@/services/auditLogService";
 export interface Permission {
   resource: string;
   action: 'read' | 'write' | 'delete' | 'admin';
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 export class PermissionValidator {
@@ -150,10 +150,11 @@ export class PermissionValidator {
    */
   private static checkResourceOwnership(
     user: UserProfileWithDisplayData,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): boolean {
-    if (!context || !context.userId) {return true;} // No ownership context provided
-    return context.userId === user.id;
+    const ownerId = (context as { userId?: string } | undefined)?.userId;
+    if (!ownerId) {return true;}
+    return ownerId === user.id;
   }
 
   /**

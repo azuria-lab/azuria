@@ -6,9 +6,11 @@ import Footer from "@/components/layout/Footer";
 import ProCalculator from "@/components/calculators/ProCalculator";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import LoadingState from "@/components/calculators/LoadingState";
 import ProUpgradeBanner from "@/components/calculators/ProUpgradeBanner";
 import ProCalculatorHeader from "@/components/calculators/ProCalculatorHeader";
+import { logger } from "@/services/logger";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,7 +36,7 @@ export default function ProCalculatorPage() {
   const navigate = useNavigate();
   const [isPro, setIsPro] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Verificar se o usuário está logado e é PRO
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function ProCalculatorPage() {
         
         setIsLoading(false);
       } catch (error) {
-        console.error("Erro ao verificar sessão:", error);
+        logger.error("Erro ao verificar sessão:", error);
         setIsLoading(false);
         navigate("/login");
       }

@@ -14,6 +14,47 @@ export const useUserProfile = (
   setIsLoading: (loading: boolean) => void,
   setError: (error: string | null) => void
 ) => {
+  // Criar perfil para usuários novos
+  const createUserProfile = useCallback(async (userId: string) => {
+    try {
+      const isPro = localStorage.getItem("isPro") === "true";
+
+      const userMetadata = user?.user_metadata;
+      const name = userMetadata?.name || user?.email?.split("@")[0] || "Usuário";
+
+      // Use properly typed insert
+      const profileData: TablesInsert<"user_profiles"> = {
+        id: userId,
+        name,
+        is_pro: isPro,
+        email: user?.email
+      };
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .insert(profileData)
+        .select()
+        .single();
+
+      if (error) { throw error; }
+
+      setUserProfile({
+        id: userId,
+        name,
+        email: user?.email ?? "",
+        isPro,
+        createdAt: data.created_at,
+        avatar_url: data.avatar_url
+      });
+
+      return data;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao criar perfil";
+      setError(message);
+      return null;
+    }
+  }, [user, setUserProfile, setError]);
+
   // Buscar perfil do usuário no banco de dados
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
@@ -34,7 +75,7 @@ export const useUserProfile = (
 
       // Definir status PRO com base no perfil ou localStorage como fallback
       const isPro = data?.is_pro ?? localStorage.getItem("isPro") === "true";
-      
+
       setUserProfile({
         id: data.id,
         name: data.name,
@@ -47,53 +88,11 @@ export const useUserProfile = (
       // Atualizar localStorage para compatibilidade
       localStorage.setItem("isPro", isPro ? "true" : "false");
       localStorage.setItem("isLoggedIn", "true");
-      
-    } catch (err: any) {
-      console.error("Erro ao buscar perfil:", err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao buscar perfil";
+      setError(message);
     }
-  }, [user, setUserProfile, setError]);
-
-  // Criar perfil para usuários novos
-  const createUserProfile = async (userId: string) => {
-    try {
-      const isPro = localStorage.getItem("isPro") === "true";
-      
-      const userMetadata = user?.user_metadata;
-      const name = userMetadata?.name || user?.email?.split("@")[0] || "Usuário";
-      
-      // Use properly typed insert
-      const profileData: TablesInsert<"user_profiles"> = {
-        id: userId,
-        name,
-        is_pro: isPro,
-        email: user?.email
-      };
-      
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .insert(profileData)
-        .select()
-        .single();
-
-      if (error) {throw error;}
-      
-      setUserProfile({
-        id: userId,
-        name,
-        email: user?.email ?? "",
-        isPro,
-        createdAt: data.created_at,
-        avatar_url: data.avatar_url
-      });
-
-      return data;
-    } catch (err: any) {
-      console.error("Erro ao criar perfil:", err);
-      setError(err.message);
-      return null;
-    }
-  };
+  }, [user, setUserProfile, setError, createUserProfile]);
 
   // Atualizar perfil
   const updateProfile = async (profileData: Partial<UserProfileWithDisplayData>) => {
@@ -116,25 +115,13 @@ export const useUserProfile = (
       
       if (error) {throw error;}
       
-      // Atualizar estado local
-      if (profileData) {
-        const updatedProfile: UserProfileWithDisplayData = {
-          id: user.id,
-          name: profileData.name || null,
-          email: user.email || "",
-          isPro: profileData.isPro !== undefined ? profileData.isPro : false,
-          createdAt: "",  // Este valor será mantido do estado anterior
-          avatar_url: profileData.avatar_url
-        };
-        
-        // Buscar o perfil atualizado para ter todos os dados
-        await fetchUserProfile(user.id);
-      }
+      // Buscar o perfil atualizado para ter todos os dados
+      await fetchUserProfile(user.id);
       
       return true;
-    } catch (err: any) {
-      console.error("Erro ao atualizar perfil:", err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao atualizar perfil";
+      setError(message);
       return false;
     } finally {
       setIsLoading(false);
@@ -168,9 +155,9 @@ export const useUserProfile = (
       await fetchUserProfile(user.id);
       
       return true;
-    } catch (err: any) {
-      console.error("Erro ao atualizar status PRO:", err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao atualizar status PRO";
+      setError(message);
       return false;
     } finally {
       setIsLoading(false);

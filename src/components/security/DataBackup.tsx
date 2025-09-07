@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -14,8 +14,7 @@ import {
   Cloud, 
   Database, 
   Download,
-  HardDrive,
-  Shield
+  HardDrive
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

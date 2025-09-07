@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,32 +17,20 @@ interface FeatureCardProps {
   feature: FeatureItem;
 }
 
-export const itemVariants = {
+const itemVariants = {
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1 }
 };
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
   const [mounted, setMounted] = useState(false);
-  const [routerReady, setRouterReady] = useState(false);
-
-  // Safely check router context
-  let location = null;
-  try {
-    location = useLocation();
-    if (!routerReady) {
-      setRouterReady(true);
-    }
-  } catch (error) {
-    console.log('Router context not ready yet');
-  }
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Render basic version without any Link components until router is ready
-  if (!mounted || !routerReady) {
+  if (!mounted) {
     return (
       <div className="block h-full">
         <Card className="h-full border-brand-100 hover:border-brand-300 hover:shadow-md transition-all">

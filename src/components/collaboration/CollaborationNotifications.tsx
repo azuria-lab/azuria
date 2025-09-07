@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCollaborationNotifications, useMarkNotificationAsRead } from '@/hooks/useCollaboration';
 import { Bell, Check, MessageSquare, Share2, UserCheck, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { logger } from "@/services/logger";
 import { ptBR } from 'date-fns/locale';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -46,7 +47,7 @@ export default function CollaborationNotifications() {
     try {
       await markAsRead.mutateAsync(notificationId);
     } catch (error) {
-      console.error('Erro ao marcar notificação como lida:', error);
+  logger.error('Erro ao marcar notificação como lida:', error);
     }
   };
 

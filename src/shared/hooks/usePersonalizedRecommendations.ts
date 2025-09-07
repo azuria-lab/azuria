@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { PersonalizedRecommendation } from "@/types/ai";
+import { logger } from "@/services/logger";
 
 interface UserContext {
   calculationsCount: number;
@@ -105,7 +106,7 @@ export const usePersonalizedRecommendations = (userContext: UserContext) => {
 
   const markAsImplemented = useCallback((id: string) => {
     // Em produção, salvaria no backend
-    console.log(`Recommendation ${id} marked as implemented`);
+    logger.info(`Recommendation ${id} marked as implemented`);
     dismissRecommendation(id);
   }, [dismissRecommendation]);
 

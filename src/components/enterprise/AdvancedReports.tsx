@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function AdvancedReports() {
-  const { reports, isGenerating, generateReport, scheduleReport } = useAdvancedReports();
+  const { reports, isGenerating, generateReport, scheduleReport: _scheduleReport } = useAdvancedReports();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const [reportType, setReportType] = useState<AdvancedReport['type']>("calculations");

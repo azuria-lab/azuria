@@ -80,7 +80,6 @@ afterEach(() => {
 })
 
 // Silenciar avisos ruidosos do Recharts sobre width/height 0 em ambiente de teste (JSDOM)
-/* eslint-disable no-console */
 const suppressedMessages = [
   'The width(0) and height(0) of chart should be greater than 0'
 ]
@@ -103,4 +102,3 @@ console.error = (...args: unknown[]) => {
   }
   originalError(...args)
 }
-/* eslint-enable no-console */

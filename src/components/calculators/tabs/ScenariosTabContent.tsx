@@ -4,13 +4,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ScenarioSimulator from "../ScenarioSimulator";
 
+interface ScenarioLike {
+  name: string;
+  costVariation: number;
+  marginVariation: number;
+  taxVariation: number;
+  result: number | null;
+}
+
 interface ScenariosTabContentProps {
   sellingPrice: number | null;
   cost: string;
   targetProfit: number;
   taxPercent: string;
   setActiveTab: (tab: string) => void;
-  onSaveScenario: (scenario: any) => void;
+  onSaveScenario: (scenario: ScenarioLike) => void;
 }
 
 export default function ScenariosTabContent({

@@ -1,30 +1,18 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { OptimizedImage } from "@/components/performance/OptimizedImage";
 
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
-  const [routerReady, setRouterReady] = useState(false);
-
-  // Safely get location with error handling
-  let location = null;
-  try {
-    location = useLocation();
-    if (!routerReady) {
-      setRouterReady(true);
-    }
-  } catch (error) {
-    console.log('Router context not ready yet in Footer');
-  }
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Render basic footer without Link components until router is ready
-  if (!mounted || !routerReady) {
+  if (!mounted) {
     return (
       <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
         <div className="container mx-auto py-12 px-4">

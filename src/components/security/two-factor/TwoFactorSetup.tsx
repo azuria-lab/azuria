@@ -18,7 +18,7 @@ interface TwoFactorSetupProps {
 }
 
 const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
-  userId,
+  userId: _userId,
   totpSecret,
   qrCodeData,
   onVerifyAndEnable,

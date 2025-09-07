@@ -1,21 +1,13 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Wifi, WifiOff } from "lucide-react";
+import { Download, WifiOff } from "lucide-react";
+import { usePWA } from "@/shared/hooks/usePWA";
 
 export default function OfflineIndicator() {
-  // Safe hook usage with error handling
-  let isOnline = true;
-  
-  try {
-    const { usePWA } = require('@/hooks/usePWA');
-    const pwaData = usePWA();
-    isOnline = pwaData?.isOnline ?? true;
-  } catch (error) {
-    console.log('PWA hook not available yet, defaulting to online');
-    // Default to online if hook fails
-    isOnline = true;
-  }
+  // Call hook unconditionally
+  const pwaData = usePWA();
+  const isOnline = pwaData?.isOnline ?? true;
 
   if (isOnline) {
     return null;
@@ -27,9 +19,7 @@ export default function OfflineIndicator() {
         <div className="flex items-center gap-3">
           <WifiOff className="h-5 w-5 text-yellow-600" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-yellow-800">
-              Modo Offline
-            </p>
+            <p className="text-sm font-medium text-yellow-800">Modo Offline</p>
             <p className="text-xs text-yellow-600">
               Suas calculadoras funcionam normalmente. Os dados serão sincronizados quando voltar online.
             </p>

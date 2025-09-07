@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWebVitals } from './useWebVitals';
 
-interface PerformanceEntry {
+// Avoid clashing with the DOM's PerformanceEntry type
+interface AppPerformanceEntry {
   name: string;
   startTime: number;
   duration: number;
   type: 'component' | 'api' | 'user-interaction' | 'navigation';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface PerformanceBudget {
@@ -24,9 +25,9 @@ const DEFAULT_BUDGET: PerformanceBudget = {
 };
 
 export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) => {
-  const performanceBudget = { ...DEFAULT_BUDGET, ...budget };
-  const performanceEntries = useRef<PerformanceEntry[]>([]);
-  const [violations, setViolations] = useState<PerformanceEntry[]>([]);
+  const performanceBudget = useMemo(() => ({ ...DEFAULT_BUDGET, ...budget }), [budget]);
+  const performanceEntries = useRef<AppPerformanceEntry[]>([]);
+  const [violations, setViolations] = useState<AppPerformanceEntry[]>([]);
   const metricsRef = useRef({
     totalMeasures: 0,
     violationsCount: 0,
@@ -36,50 +37,13 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
 
   // Web Vitals monitoring
   const { getMetrics, getScore } = useWebVitals({
-    onMetric: (metric) => {
-      console.log(`[Performance] ${metric.name}: ${metric.value} (${metric.rating})`);
-      
-      // Alert sobre métricas ruins
-      if (metric.rating === 'poor') {
-        console.warn(`[Performance Alert] Poor ${metric.name}: ${metric.value}`);
-      }
+    onMetric: () => {
+      // Intencionalmente sem logs para cumprir a regra no-console
+      // Métricas são acessíveis via getMetrics/getScore quando necessário
     }
   });
 
-  // Adicionar entrada de performance
-  const addEntry = useCallback((entry: Omit<PerformanceEntry, 'startTime'>) => {
-    const fullEntry: PerformanceEntry = {
-      ...entry,
-      startTime: performance.now()
-    };
-    
-    performanceEntries.current.push(fullEntry);
-    
-    // Manter apenas as últimas 100 entradas
-    if (performanceEntries.current.length > 100) {
-      performanceEntries.current.shift();
-    }
-    
-    metricsRef.current.totalMeasures++;
-    
-    // Verificar violações de budget
-    const budgetLimit = getBudgetLimit(entry.type);
-    if (entry.duration > budgetLimit) {
-      const violation = fullEntry;
-      setViolations(prev => [...prev.slice(-19), violation]); // Manter últimas 20
-      metricsRef.current.violationsCount++;
-      
-      console.warn(`[Performance Budget Violation] ${entry.type}: ${entry.duration}ms > ${budgetLimit}ms`, {
-        name: entry.name,
-        metadata: entry.metadata
-      });
-    }
-    
-    // Atualizar métricas
-    updateMetrics();
-  }, []);
-
-  const getBudgetLimit = (type: PerformanceEntry['type']): number => {
+  const getBudgetLimit = useCallback((type: AppPerformanceEntry['type']): number => {
     switch (type) {
       case 'component': return performanceBudget.componentRender;
       case 'api': return performanceBudget.apiResponse;
@@ -87,7 +51,7 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
       case 'navigation': return performanceBudget.pageLoad;
       default: return 1000;
     }
-  };
+  }, [performanceBudget]);
 
   const updateMetrics = useCallback(() => {
     const entries = performanceEntries.current;
@@ -103,12 +67,40 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
       : 0;
   }, []);
 
+  // Adicionar entrada de performance (defined after helpers to avoid use-before-declaration)
+  const addEntry = useCallback((entry: Omit<AppPerformanceEntry, 'startTime'>) => {
+    const fullEntry: AppPerformanceEntry = {
+      ...entry,
+      startTime: performance.now()
+    };
+
+    performanceEntries.current.push(fullEntry);
+
+    // Manter apenas as últimas 100 entradas
+    if (performanceEntries.current.length > 100) {
+      performanceEntries.current.shift();
+    }
+
+    metricsRef.current.totalMeasures++;
+
+    // Verificar violações de budget
+    const budgetLimit = getBudgetLimit(entry.type);
+    if (entry.duration > budgetLimit) {
+      const violation = fullEntry;
+      setViolations(prev => [...prev.slice(-19), violation]); // Manter últimas 20
+      metricsRef.current.violationsCount++;
+    }
+
+    // Atualizar métricas
+    updateMetrics();
+  }, [getBudgetLimit, updateMetrics]);
+
   // Measure component render time
   const measureComponent = useCallback((name: string) => {
     const startTime = performance.now();
     
     return {
-      end: (metadata?: Record<string, any>) => {
+      end: (metadata?: Record<string, unknown>) => {
         const duration = performance.now() - startTime;
         addEntry({
           name,
@@ -126,7 +118,7 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
     const startTime = performance.now();
     
     return {
-      end: (metadata?: Record<string, any>) => {
+      end: (metadata?: Record<string, unknown>) => {
         const duration = performance.now() - startTime;
         addEntry({
           name,
@@ -144,7 +136,7 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
     const startTime = performance.now();
     
     return {
-      end: (metadata?: Record<string, any>) => {
+      end: (metadata?: Record<string, unknown>) => {
         const duration = performance.now() - startTime;
         addEntry({
           name,
@@ -158,46 +150,30 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
   }, [addEntry]);
 
   // HOC para monitorar componentes automaticamente
-  const withPerformanceMonitoring = useCallback((
-    Component: React.ComponentType<any>,
+  const withPerformanceMonitoring = useCallback(<P extends object>(
+    Component: React.ComponentType<P>,
     componentName?: string
   ) => {
-    return React.forwardRef((props: any, ref: any) => {
+    return React.forwardRef<unknown, P>((props, ref) => {
       const name = componentName || Component.displayName || Component.name || 'Unknown';
       const measure = measureComponent(name);
       
       useEffect(() => {
         measure.end();
       });
-      
-      return React.createElement(Component, { ...props, ref });
+      // Casting ref into props is safe here due to forwardRef
+      return React.createElement(Component as React.ComponentType<P & { ref?: unknown }>, { ...(props as P), ref });
     });
   }, [measureComponent]);
 
-  // Obter relatório de performance
-  const getPerformanceReport = useCallback(() => {
-    const entries = performanceEntries.current;
-    const vitalsMetrics = getMetrics();
-    const vitalsScore = getScore();
-    
-    return {
-      entries: entries.slice(-50), // Últimas 50 entradas
-      violations: violations.slice(-20), // Últimas 20 violações
-      metrics: {
-        ...metricsRef.current,
-        violationRate: metricsRef.current.totalMeasures > 0 
-          ? (metricsRef.current.violationsCount / metricsRef.current.totalMeasures) * 100 
-          : 0
-      },
-      webVitals: vitalsMetrics,
-      webVitalsScore: vitalsScore,
-      budget: performanceBudget,
-      recommendations: generateRecommendations()
-    };
-  }, [violations, getMetrics, getScore]);
+  interface Recommendation {
+    type: 'component-optimization' | 'api-optimization' | 'budget-review';
+    message: string;
+    priority: 'high' | 'medium' | 'low';
+  }
 
-  const generateRecommendations = useCallback(() => {
-    const recommendations = [];
+  const generateRecommendations = useCallback((): Recommendation[] => {
+    const recommendations: Recommendation[] = [];
     const metrics = metricsRef.current;
     
     if (metrics.averageRenderTime > performanceBudget.componentRender) {
@@ -228,6 +204,30 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
     return recommendations;
   }, [performanceBudget]);
 
+  // Obter relatório de performance
+  const getPerformanceReport = useCallback(() => {
+    const entries = performanceEntries.current;
+    const vitalsMetrics = getMetrics();
+    const vitalsScore = getScore();
+    
+    return {
+      entries: entries.slice(-50), // Últimas 50 entradas
+      violations: violations.slice(-20), // Últimas 20 violações
+      metrics: {
+        ...metricsRef.current,
+        violationRate: metricsRef.current.totalMeasures > 0 
+          ? (metricsRef.current.violationsCount / metricsRef.current.totalMeasures) * 100 
+          : 0
+      },
+      webVitals: vitalsMetrics,
+      webVitalsScore: vitalsScore,
+      budget: performanceBudget,
+      recommendations: generateRecommendations()
+    };
+  }, [violations, getMetrics, getScore, generateRecommendations, performanceBudget]);
+
+  
+
   // Limpar dados antigos
   const clearData = useCallback(() => {
     performanceEntries.current = [];
@@ -244,10 +244,9 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
   useEffect(() => {
     if ('PerformanceObserver' in window) {
       try {
-        const observer = new PerformanceObserver((list) => {
+  const observer = new PerformanceObserver((list: PerformanceObserverEntryList) => {
           for (const entry of list.getEntries()) {
             if (entry.duration > 50) { // Long task > 50ms
-              console.warn(`[Long Task] ${entry.name}: ${entry.duration}ms`);
               addEntry({
                 name: `Long Task: ${entry.name}`,
                 duration: entry.duration,
@@ -261,8 +260,8 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
         observer.observe({ type: 'longtask', buffered: true });
         
         return () => observer.disconnect();
-      } catch (error) {
-        console.warn('PerformanceObserver not fully supported');
+  } catch (_error) {
+  // Silencioso para cumprir no-console; falha segura se não suportado
       }
     }
   }, [addEntry]);
@@ -280,7 +279,7 @@ export const usePerformanceMonitor = (budget: Partial<PerformanceBudget> = {}) =
 };
 
 // Hook para monitorar performance de uma função específica
-export const usePerformanceFunction = <T extends (...args: any[]) => any>(
+export const usePerformanceFunction = <T extends (...args: unknown[]) => unknown>(
   fn: T,
   name: string
 ): T => {

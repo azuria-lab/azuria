@@ -4,7 +4,13 @@ import ProCalculatorDetails from "@/components/calculators/ProCalculatorDetails"
 
 interface ResultsSectionBreakdownProps {
   sellingPrice: number | null;
-  breakdown: any;
+  breakdown: {
+    cost: number;
+    tax: number;
+    marketplaceFee: number;
+    shipping: number;
+    profit: number;
+  } | null;
   taxPercent: number;
   marketplaceName: string;
   marketplaceFee: number;

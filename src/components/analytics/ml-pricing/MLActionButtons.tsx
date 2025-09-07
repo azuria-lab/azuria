@@ -8,7 +8,7 @@ interface MLActionButtonsProps {
   suggestedPrice: number;
 }
 
-export default function MLActionButtons({ onNewAnalysis, onApplyPrice, suggestedPrice }: MLActionButtonsProps) {
+export default function MLActionButtons({ onNewAnalysis, onApplyPrice, suggestedPrice: _suggestedPrice }: MLActionButtonsProps) {
   return (
     <div className="flex gap-2">
       <Button 

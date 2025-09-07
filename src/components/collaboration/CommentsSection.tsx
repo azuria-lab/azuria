@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,7 +14,7 @@ interface CommentsSectionProps {
 }
 
 export default function CommentsSection({ calculationId }: CommentsSectionProps) {
-  const { data: comments = [], isLoading } = useCalculationComments(calculationId);
+  const { data: comments = [] } = useCalculationComments(calculationId);
   const addCommentMutation = useAddComment();
   const [newComment, setNewComment] = useState('');
   const [replyToComment, setReplyToComment] = useState<string | null>(null);

@@ -2,7 +2,6 @@
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SyncSettings as SyncSettingsType } from "@/types/ecommerce";
 import { Bell, Calculator, Settings } from "lucide-react";
@@ -13,7 +12,7 @@ interface SyncSettingsProps {
 }
 
 export default function SyncSettings({ settings, onUpdateSettings }: SyncSettingsProps) {
-  const updatePriceRules = (key: string, value: any) => {
+  const updatePriceRules = <K extends keyof SyncSettingsType['priceRules']>(key: K, value: SyncSettingsType['priceRules'][K]) => {
     onUpdateSettings({
       priceRules: {
         ...settings.priceRules,
@@ -22,7 +21,7 @@ export default function SyncSettings({ settings, onUpdateSettings }: SyncSetting
     });
   };
 
-  const updateNotifications = (key: string, value: any) => {
+  const updateNotifications = <K extends keyof SyncSettingsType['notifications']>(key: K, value: SyncSettingsType['notifications'][K]) => {
     onUpdateSettings({
       notifications: {
         ...settings.notifications,

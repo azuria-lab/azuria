@@ -24,7 +24,6 @@ interface PlanCardProps {
     yearlyNote?: string;
   };
   billingCycle: "monthly" | "yearly";
-  index: number;
 }
 
 const itemVariants = {
@@ -32,7 +31,7 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 }
 };
 
-export default function PlanCard({ plan, billingCycle, index }: PlanCardProps) {
+export default function PlanCard({ plan, billingCycle }: PlanCardProps) {
   return (
     <motion.div
       variants={itemVariants}

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calculator, Crown, History, LogOut, Settings, UserCircle } from "lucide-react";
+import { Calculator, Crown, History, LogOut, Settings } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 const UserProfileButton: React.FC = () => {
@@ -27,31 +27,12 @@ const UserProfileButton: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Safe auth context access
-  const getAuthData = () => {
-    if (!isReady) {
-      return {
-        userProfile: null,
-        isAuthenticated: false,
-        isPro: false,
-        logout: async () => false
-      };
-    }
-    
-    try {
-      return useAuthContext();
-    } catch (error) {
-      console.log("Auth context not ready yet");
-      return {
-        userProfile: null,
-        isAuthenticated: false,
-        isPro: false,
-        logout: async () => false
-      };
-    }
-  };
-
-  const { userProfile, isAuthenticated, isPro, logout } = getAuthData();
+  // Read auth context at top-level (hooks must not be conditional)
+  const auth = useAuthContext();
+  const userProfile = auth?.userProfile ?? null;
+  const isAuthenticated = auth?.isAuthenticated ?? false;
+  const isPro = auth?.isPro ?? false;
+  const logout = auth?.logout ?? (async () => false);
   
   const handleLogout = async () => {
     try {
@@ -61,8 +42,7 @@ const UserProfileButton: React.FC = () => {
       } else {
         toast.error("Erro ao sair. Tente novamente.");
       }
-    } catch (error) {
-      console.error("Error during logout:", error);
+    } catch (_error) {
       toast.error("Erro ao sair. Tente novamente.");
     }
   };

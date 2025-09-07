@@ -7,7 +7,7 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   change: number;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
 }
 

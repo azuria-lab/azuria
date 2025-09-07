@@ -1,7 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Calculator, TrendingUp, Zap } from "lucide-react";
+import { Calculator, TrendingUp } from "lucide-react";
 
 interface AdvancedLoadingSpinnerProps {
   variant?: "default" | "calculator" | "dashboard" | "minimal";

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Permission, Team, TeamMember } from "@/types/enterprise";
 import { useAuthContext } from "@/domains/auth";
 import { toast } from "@/components/ui/use-toast";
@@ -7,11 +7,10 @@ export const useTeamManagement = (teamId?: string) => {
   const { user } = useAuthContext();
   const [team, setTeam] = useState<Team | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
-  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Permissões disponíveis no sistema
-  const availablePermissions: Permission[] = [
+  const availablePermissions: Permission[] = useMemo(() => ([
     { id: 'calc_create', name: 'Criar Cálculos', description: 'Criar novos cálculos de preço', category: 'calculators' },
     { id: 'calc_edit', name: 'Editar Cálculos', description: 'Modificar cálculos existentes', category: 'calculators' },
     { id: 'calc_delete', name: 'Deletar Cálculos', description: 'Remover cálculos do sistema', category: 'calculators' },
@@ -22,9 +21,9 @@ export const useTeamManagement = (teamId?: string) => {
     { id: 'api_manage', name: 'Gerenciar API Keys', description: 'Criar e gerenciar chaves de API', category: 'api' },
     { id: 'reports_create', name: 'Criar Relatórios', description: 'Gerar relatórios personalizados', category: 'reports' },
     { id: 'reports_schedule', name: 'Agendar Relatórios', description: 'Configurar relatórios automáticos', category: 'reports' }
-  ];
+  ]), []);
 
-  const getRolePermissions = (role: TeamMember['role']): string[] => {
+  const getRolePermissions = useCallback((role: TeamMember['role']): string[] => {
     switch (role) {
       case 'owner':
         return availablePermissions.map(p => p.id);
@@ -44,7 +43,7 @@ export const useTeamManagement = (teamId?: string) => {
       default:
         return [];
     }
-  };
+  }, [availablePermissions]);
 
   const loadTeam = useCallback(async () => {
     if (!teamId || !user) {return;}
@@ -108,16 +107,14 @@ export const useTeamManagement = (teamId?: string) => {
         updatedAt: new Date()
       };
 
-      setTeam(mockTeam);
-      setMembers(mockMembers);
-      setPermissions(availablePermissions);
-    } catch (error: any) {
-      console.error('Erro ao carregar dados da equipe:', error);
+  setTeam(mockTeam);
+  setMembers(mockMembers);
+    } catch (_err) {
       toast.error("Erro ao carregar dados da equipe");
     } finally {
       setIsLoading(false);
     }
-  }, [teamId, user]);
+  }, [teamId, user, availablePermissions, getRolePermissions]);
 
   const inviteMember = useCallback(async (email: string, role: TeamMember['role']) => {
     if (!teamId || !user) {return;}
@@ -148,13 +145,12 @@ export const useTeamManagement = (teamId?: string) => {
 
       setMembers(prev => [...prev, newMember]);
       toast.success(`Membro adicionado como ${role}`);
-    } catch (error: any) {
-      console.error('Erro ao convidar membro:', error);
+    } catch (_err) {
       toast.error("Erro ao convidar membro");
     } finally {
       setIsLoading(false);
     }
-  }, [teamId, user, members, availablePermissions]);
+  }, [teamId, user, members, availablePermissions, getRolePermissions]);
 
   const updateMemberRole = useCallback(async (memberId: string, newRole: TeamMember['role']) => {
     try {
@@ -174,13 +170,12 @@ export const useTeamManagement = (teamId?: string) => {
       ));
       
       toast.success("Permissões atualizadas com sucesso");
-    } catch (error: any) {
-      console.error('Erro ao atualizar permissões:', error);
+    } catch (_err) {
       toast.error("Erro ao atualizar permissões");
     } finally {
       setIsLoading(false);
     }
-  }, [availablePermissions]);
+  }, [availablePermissions, getRolePermissions]);
 
   const removeMember = useCallback(async (memberId: string) => {
     try {
@@ -191,8 +186,7 @@ export const useTeamManagement = (teamId?: string) => {
       
       setMembers(prev => prev.filter(member => member.id !== memberId));
       toast.success("Membro removido da equipe");
-    } catch (error: any) {
-      console.error('Erro ao remover membro:', error);
+    } catch (_err) {
       toast.error("Erro ao remover membro");
     } finally {
       setIsLoading(false);
@@ -208,7 +202,7 @@ export const useTeamManagement = (teamId?: string) => {
   return {
     team,
     members,
-    permissions: availablePermissions,
+  permissions: availablePermissions,
     isLoading,
     inviteMember,
     updateMemberRole,

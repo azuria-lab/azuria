@@ -11,8 +11,8 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const pendingTasks = useRef(new Map<string, {
-    resolve: (value: any) => void;
-    reject: (reason: any) => void;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
   }>());
 
   // Inicializar worker
@@ -25,9 +25,8 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
 
       workerRef.current.onmessage = (event: MessageEvent<CalculationResult>) => {
         const { type, id, data, progress: workerProgress } = event.data;
-        
         switch (type) {
-          case 'RESULT':
+          case 'RESULT': {
             const resultTask = pendingTasks.current.get(id);
             if (resultTask) {
               resultTask.resolve(data);
@@ -35,36 +34,35 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
               setIsLoading(pendingTasks.current.size > 0);
             }
             break;
-            
-          case 'ERROR':
+          }
+          case 'ERROR': {
             const errorTask = pendingTasks.current.get(id);
             if (errorTask) {
-              const error = new Error(data.error);
+              const error = new Error((data as unknown as { error: string }).error);
               errorTask.reject(error);
               pendingTasks.current.delete(id);
               options.onError?.(error);
               setIsLoading(pendingTasks.current.size > 0);
             }
             break;
-            
-          case 'PROGRESS':
+          }
+          case 'PROGRESS': {
             if (workerProgress !== undefined) {
               setProgress(workerProgress);
               options.onProgress?.(workerProgress);
             }
             break;
+          }
         }
       };
 
-      workerRef.current.onerror = (error) => {
-        console.error('Worker error:', error);
+      workerRef.current.onerror = (_error) => {
         options.onError?.(new Error('Worker execution failed'));
       };
 
-    } catch (error) {
-      console.warn('Web Workers not supported, falling back to main thread');
+    } catch (_error) {
+      // no-op: workers not supported
     }
-
     return () => {
       if (workerRef.current) {
         workerRef.current.terminate();
@@ -73,9 +71,9 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
     };
   }, [options]);
 
-  const executeTask = useCallback(<T = any>(
+  const executeTask = useCallback(<T = unknown>(
     type: CalculationMessage['type'],
-    data: any
+    data: unknown
   ): Promise<T> => {
     return new Promise((resolve, reject) => {
       const id = Math.random().toString(36).substr(2, 9);
@@ -86,7 +84,7 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
         return;
       }
 
-      pendingTasks.current.set(id, { resolve, reject });
+  pendingTasks.current.set(id, { resolve: resolve as unknown as (value: unknown) => void, reject });
       setIsLoading(true);
       setProgress(0);
 
@@ -104,15 +102,15 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
     });
   }, []);
 
-  const calculateBatch = useCallback((products: any[]) => {
+  const calculateBatch = useCallback((products: unknown[]) => {
     return executeTask('CALCULATE_BATCH', { products });
   }, [executeTask]);
 
-  const calculateScenarios = useCallback((baseData: any, scenarios: any[]) => {
+  const calculateScenarios = useCallback((baseData: unknown, scenarios: unknown[]) => {
     return executeTask('CALCULATE_SCENARIOS', { baseData, scenarios });
   }, [executeTask]);
 
-  const calculateMarketAnalysis = useCallback((data: any) => {
+  const calculateMarketAnalysis = useCallback((data: unknown) => {
     return executeTask('CALCULATE_MARKET_ANALYSIS', data);
   }, [executeTask]);
 

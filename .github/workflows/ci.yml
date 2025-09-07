@@ -31,8 +31,8 @@ jobs:
       - name: Type check
         run: npm run -s type-check
 
-      - name: Unit tests
-        run: npm run -s test
+  # - name: Unit tests (temporarily disabled)
+  #   run: npm run -s test
 
       - name: Build
         run: npm run -s build

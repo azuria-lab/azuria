@@ -1,43 +1,6 @@
-import React, { ComponentType, lazy, Suspense } from 'react';
+import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface LazyWrapperProps {
-  fallback?: React.ReactNode;
-  minDelay?: number;
-}
-
-// HOC para lazy loading com loading state melhorado
-export const withLazyLoading = <P = {}>(
-  importFn: () => Promise<{ default: ComponentType<P> }>,
-  options: LazyWrapperProps = {}
-) => {
-  const { fallback, minDelay = 200 } = options;
-  
-  const LazyComponent = lazy(() => {
-    // Adicionar delay mínimo para evitar flash
-    const componentPromise = importFn();
-    
-    if (minDelay > 0) {
-      return Promise.all([
-        componentPromise,
-        new Promise(resolve => setTimeout(resolve, minDelay))
-      ]).then(([component]) => component);
-    }
-    
-    return componentPromise;
-  });
-
-  const WrappedComponent = (props: P) => (
-    <Suspense fallback={fallback || <DefaultSkeleton />}>
-      <LazyComponent {...(props as any)} />
-    </Suspense>
-  );
-
-  // Preservar nome do componente para debugging
-  WrappedComponent.displayName = `LazyWrapper(Component)`;
-
-  return WrappedComponent;
-};
+import { useLazyLoading } from '@/lib/lazy';
 
 // Skeleton padrão para loading
 const DefaultSkeleton = () => (
@@ -105,30 +68,7 @@ export const TableSkeleton = ({ rows = 5, cols = 4 }: { rows?: number; cols?: nu
 );
 
 // Hook para controlar lazy loading
-export const useLazyLoading = (threshold = 0.1) => {
-  const [isVisible, setIsVisible] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return { ref, isVisible };
-};
+// useLazyLoading hook is provided by lib/lazy, to keep this file exporting only components
 
 // Lazy loading baseado em interseção
 export const LazyOnView: React.FC<{

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,17 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Activity, 
-  AlertTriangle, 
-  BarChart3, 
-  Clock, 
-  RefreshCw,
-  Settings,
-  Shield,
-  TrendingUp,
-  Users
-} from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Clock, RefreshCw, Shield, TrendingUp } from 'lucide-react';
 import { useAdvancedRateLimit } from '@/hooks/useAdvancedRateLimit';
 
 export default function AdvancedRateLimitDashboard() {
@@ -33,7 +23,8 @@ export default function AdvancedRateLimitDashboard() {
 
   const rateLimit = useAdvancedRateLimit(config);
   const [isTestRunning, setIsTestRunning] = useState(false);
-  const [testResults, setTestResults] = useState<any[]>([]);
+  type TestResult = { id: number; timestamp: Date; allowed: boolean; remaining: number; metrics: unknown };
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
 
   // Simulação de requests para teste
   const runLoadTest = async () => {

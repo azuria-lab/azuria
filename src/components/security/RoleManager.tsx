@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, Shield, UserPlus, X } from 'lucide-react';
 import { AppRole, useGrantRole, useRevokeRole, useUserRoles } from '@/hooks/useUserRoles';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface RoleManagerProps {
   userId?: string;
@@ -18,6 +18,7 @@ const RoleManager: React.FC<RoleManagerProps> = ({ userId, organizationId, teamI
   const { data: userRoles, isLoading } = useUserRoles();
   const grantRole = useGrantRole();
   const revokeRole = useRevokeRole();
+  const { toast } = useToast();
 
   const roleColors = {
     owner: 'bg-red-100 text-red-800',
@@ -35,18 +36,18 @@ const RoleManager: React.FC<RoleManagerProps> = ({ userId, organizationId, teamI
         organizationId,
         teamId
       });
-      toast.success(`Role ${role} concedido com sucesso`);
-    } catch (error) {
-      toast.error('Erro ao conceder role');
+  toast({ title: 'Sucesso', description: `Role ${role} concedido com sucesso` });
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro ao conceder role', variant: 'destructive' });
     }
   };
 
   const handleRevokeRole = async (roleId: string) => {
     try {
       await revokeRole.mutateAsync(roleId);
-      toast.success('Role revogado com sucesso');
-    } catch (error) {
-      toast.error('Erro ao revogar role');
+  toast({ title: 'Sucesso', description: 'Role revogado com sucesso' });
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro ao revogar role', variant: 'destructive' });
     }
   };
 

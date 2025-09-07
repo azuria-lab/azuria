@@ -3,7 +3,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ExportData } from "@/types/export";
+import { ExportCalculationItem, ExportData } from "@/types/export";
+import type { CalculationHistory } from "@/domains/calculator/types/calculator";
 
 export const generatePDFReport = async (data: ExportData, fileName: string): Promise<void> => {
   const doc = new jsPDF();
@@ -41,7 +42,11 @@ export const generatePDFReport = async (data: ExportData, fileName: string): Pro
   doc.save(`${fileName}.pdf`);
 };
 
-const addExecutiveSummary = (doc: jsPDF, summary: any, yPosition: number): number => {
+const addExecutiveSummary = (
+  doc: jsPDF,
+  summary: NonNullable<ExportData["summary"]>,
+  yPosition: number
+): number => {
   doc.setFontSize(16);
   doc.setTextColor(40);
   doc.text("📊 Resumo Executivo", 20, yPosition);
@@ -68,10 +73,14 @@ const addExecutiveSummary = (doc: jsPDF, summary: any, yPosition: number): numbe
     }
   });
   
-  return (doc as any).lastAutoTable.finalY + 20;
+  return (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
 };
 
-const addChartsSection = (doc: jsPDF, charts: any, yPosition: number): number => {
+const addChartsSection = (
+  doc: jsPDF,
+  charts: NonNullable<ExportData["charts"]>,
+  yPosition: number
+): number => {
   doc.setFontSize(16);
   doc.setTextColor(40);
   doc.text("📈 Análise Visual", 20, yPosition);
@@ -99,13 +108,19 @@ const addChartsSection = (doc: jsPDF, charts: any, yPosition: number): number =>
       }
     });
     
-    yPosition = (doc as any).lastAutoTable.finalY + 15;
+  yPosition = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   }
   
   return yPosition;
 };
 
-const addCalculationsTable = (doc: jsPDF, calculations: any[], yPosition: number): void => {
+type CalcRow = ExportCalculationItem | CalculationHistory;
+
+const addCalculationsTable = (
+  doc: jsPDF,
+  calculations: Array<CalcRow>,
+  yPosition: number
+): void => {
   // Check if we need a new page
   if (yPosition > 200) {
     doc.addPage();
@@ -117,16 +132,29 @@ const addCalculationsTable = (doc: jsPDF, calculations: any[], yPosition: number
   doc.text("📋 Detalhamento dos Cálculos", 20, yPosition);
   yPosition += 10;
   
-  const tableData = calculations.slice(0, 100).map((calc, index) => [
-    (index + 1).toString(),
-    format(new Date(calc.date), "dd/MM/yyyy", { locale: ptBR }),
-    `R$ ${calc.cost}`,
-    `${calc.margin}%`,
-    calc.tax ? `${calc.tax}%` : "-",
-    calc.cardFee ? `${calc.cardFee}%` : "-",
-    calc.shipping && parseFloat(calc.shipping) > 0 ? `R$ ${parseFloat(calc.shipping).toFixed(2)}` : "-",
-    calc.result?.sellingPrice ? `R$ ${calc.result.sellingPrice.toFixed(2)}` : "-"
-  ]);
+  const tableData = calculations.slice(0, 100).map((calc, index) => {
+    const date = 'date' in calc ? calc.date : new Date();
+    const cost = 'cost' in calc && calc.cost ? calc.cost : '0';
+    const margin = 'margin' in calc && typeof calc.margin === 'number' ? `${calc.margin}` : '-';
+    const tax = 'tax' in calc && calc.tax ? `${calc.tax}%` : '-';
+    const cardFee = 'cardFee' in calc && calc.cardFee ? `${calc.cardFee}%` : '-';
+    const shippingStr = 'shipping' in calc && calc.shipping ? calc.shipping : '0';
+    const shipping = parseFloat(shippingStr);
+    const selling = 'result' in calc && calc.result?.sellingPrice !== null && calc.result?.sellingPrice !== undefined
+      ? `R$ ${calc.result.sellingPrice.toFixed(2)}`
+      : '-';
+
+    return [
+      (index + 1).toString(),
+      format(new Date(date), "dd/MM/yyyy", { locale: ptBR }),
+      `R$ ${cost}`,
+      `${margin}%`,
+      tax,
+      cardFee,
+      shipping > 0 ? `R$ ${shipping.toFixed(2)}` : "-",
+      selling
+    ];
+  });
   
   autoTable(doc, {
     head: [['#', 'Data', 'Custo', 'Margem', 'Impostos', 'Taxa Cartão', 'Frete', 'Preço Final']],
@@ -148,7 +176,8 @@ const addCalculationsTable = (doc: jsPDF, calculations: any[], yPosition: number
   });
   
   if (calculations.length > 100) {
-    const finalY = (doc as any).lastAutoTable?.finalY + 10 || 200;
+  const lat = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
+  const finalY = (lat ? lat.finalY + 10 : 200);
     doc.setFontSize(8);
     doc.setTextColor(100);
     doc.text(`Nota: Mostrando os primeiros 100 registros de ${calculations.length} total.`, 20, finalY);

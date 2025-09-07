@@ -1,11 +1,10 @@
-
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, Share, Smartphone, Wifi, WifiOff } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { usePWA } from "@/hooks/usePWA";
 import { useMobileFeatures } from "@/hooks/useMobileFeatures";
+import { logger } from "@/services/logger";
 
 export default function PWAInstallBanner() {
   const { isInstallable, isInstalled, isOnline, installApp } = usePWA();
@@ -21,7 +20,7 @@ export default function PWAInstallBanner() {
         toast.error("Não foi possível instalar o app. Tente novamente.");
       }
     } catch (error) {
-      console.error('Error installing app:', error);
+  logger.error('Error installing app:', error);
       toast.error("Erro ao instalar o app.");
     }
   };
@@ -39,7 +38,7 @@ export default function PWAInstallBanner() {
         toast.success("Link compartilhado!");
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+  logger.error('Error sharing:', error);
     }
   };
 

@@ -1,9 +1,10 @@
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Dashboard, DashboardTemplate, DashboardWidget } from '@/types/dashboard';
 import { useAuthContext } from '@/domains/auth';
+import { logger } from '@/services/logger';
 
 // Mock data for now - later will integrate with Supabase
 const mockDashboards: Dashboard[] = [
@@ -127,7 +128,7 @@ export const useDashboard = () => {
   const updateDashboardMutation = useMutation({
     mutationFn: async (dashboard: Dashboard) => {
       // Mock implementation
-      console.log('Updating dashboard:', dashboard);
+  logger.info('Updating dashboard:', { dashboard });
       return dashboard;
     },
     onSuccess: () => {
@@ -145,7 +146,7 @@ export const useDashboard = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      console.log('Creating dashboard:', newDashboard);
+  logger.info('Creating dashboard:', { dashboard: newDashboard });
       return newDashboard;
     },
     onSuccess: () => {

@@ -1,8 +1,5 @@
 
 import React, { useState } from "react";
-import { Download, QrCode, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tooltip } from "@/components/ui/TutorialTooltip";
 import AdvancedExportOptions from "@/components/calculators/AdvancedExportOptions";
 import QRCodeModal from "@/components/integrations/QRCodeModal";
 

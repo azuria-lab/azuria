@@ -1,13 +1,19 @@
 
 import React from "react";
-import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import ResultsSectionBreakdown from "./results/ResultsSectionBreakdown";
 import ResultsSectionDiscounts from "./results/ResultsSectionDiscounts";
 import ResultsSectionExport from "./results/ResultsSectionExport";
 
 interface ResultsSectionProps {
   sellingPrice: number | null;
-  breakdown: any;
+  breakdown: {
+    cost?: number;
+    tax?: number;
+    marketplaceFee?: number;
+    shipping?: number;
+    profit?: number;
+    [key: string]: unknown;
+  } | null;
   taxPercent: number;
   marketplaceName: string;
   marketplaceFee: number;
@@ -44,11 +50,23 @@ export default function ResultsSection({
   cost,
   productInfo
 }: ResultsSectionProps) {
+  const toBreakdown = (b: ResultsSectionProps['breakdown']): {
+    cost: number; tax: number; marketplaceFee: number; shipping: number; profit: number;
+  } | null => {
+    if (!b) { return null; }
+    return {
+      cost: Number((b as unknown as { cost?: number }).cost ?? 0),
+      tax: Number((b as unknown as { tax?: number }).tax ?? 0),
+      marketplaceFee: Number((b as unknown as { marketplaceFee?: number }).marketplaceFee ?? 0),
+      shipping: Number(b.shipping ?? 0),
+      profit: Number((b as unknown as { profit?: number }).profit ?? 0)
+    };
+  };
   return (
     <div className="space-y-6">
       <ResultsSectionBreakdown 
         sellingPrice={sellingPrice}
-        breakdown={breakdown}
+        breakdown={toBreakdown(breakdown)}
         taxPercent={taxPercent}
         marketplaceName={marketplaceName}
         marketplaceFee={marketplaceFee}
@@ -67,15 +85,15 @@ export default function ResultsSection({
         />
       )}
 
-      {sellingPrice ? (
+  {sellingPrice ? (
         <ResultsSectionExport 
           data={{
             sellingPrice: sellingPrice,
             cost: Number(cost),
             margin: targetProfit,
             tax: taxPercent,
-            marketplaceFee: marketplaceFee,
-            shipping: includeShipping ? Number(breakdown?.shipping) : undefined,
+    marketplaceFee: marketplaceFee,
+    shipping: includeShipping ? Number((breakdown?.shipping ?? 0)) : undefined,
             productName: productInfo.name
           }}
           onExportPdf={handleExportPdf}

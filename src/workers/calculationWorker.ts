@@ -5,19 +5,20 @@
 
 export interface CalculationMessage {
   type: 'CALCULATE_BATCH' | 'CALCULATE_SCENARIOS' | 'CALCULATE_MARKET_ANALYSIS';
-  data: any;
+  data: unknown;
   id: string;
 }
 
 export interface CalculationResult {
   type: 'RESULT' | 'ERROR' | 'PROGRESS';
-  data: any;
+  data: unknown;
   id: string;
   progress?: number;
 }
 
 // Cálculo em lote otimizado
-const calculateBatch = (products: any[]) => {
+type ProductInput = { cost: number | string; margin: number | string; tax: number | string } & Record<string, unknown>;
+const calculateBatch = (products: ProductInput[]) => {
   const results = [];
   const total = products.length;
   
@@ -25,15 +26,15 @@ const calculateBatch = (products: any[]) => {
     const product = products[i];
     
     // Cálculo otimizado de preço
-    const cost = parseFloat(product.cost) || 0;
-    const margin = parseFloat(product.margin) || 0;
-    const tax = parseFloat(product.tax) || 0;
+  const cost = parseFloat(String(product.cost)) || 0;
+  const margin = parseFloat(String(product.margin)) || 0;
+  const tax = parseFloat(String(product.tax)) || 0;
     
     const basePrice = cost / (1 - margin / 100);
     const finalPrice = basePrice * (1 + tax / 100);
     
     results.push({
-      ...product,
+      ...(product as Record<string, unknown>),
       calculatedPrice: finalPrice,
       profit: finalPrice - cost,
       profitMargin: ((finalPrice - cost) / finalPrice) * 100
@@ -53,21 +54,23 @@ const calculateBatch = (products: any[]) => {
 };
 
 // Análise de cenários
-const calculateScenarios = (baseData: any, scenarios: any[]) => {
-  return scenarios.map(scenario => {
-    const cost = parseFloat(baseData.cost) || 0;
-    const margin = parseFloat(scenario.margin) || 0;
-    const tax = parseFloat(scenario.tax) || 0;
+type ScenarioInput = { margin: number | string; tax: number | string; marketPrice?: number } & Record<string, unknown>;
+type BaseData = { cost: number | string } & Record<string, unknown>;
+const calculateScenarios = (baseData: BaseData, scenarios: ScenarioInput[]) => {
+  return scenarios.map((scenario) => {
+    const cost = parseFloat(String(baseData.cost)) || 0;
+    const margin = parseFloat(String(scenario.margin)) || 0;
+    const tax = parseFloat(String(scenario.tax)) || 0;
     
     const basePrice = cost / (1 - margin / 100);
     const finalPrice = basePrice * (1 + tax / 100);
     
     return {
-      ...scenario,
+      ...(scenario as Record<string, unknown>),
       price: finalPrice,
       profit: finalPrice - cost,
       profitMargin: ((finalPrice - cost) / finalPrice) * 100,
-      competitiveness: calculateCompetitiveness(finalPrice, scenario.marketPrice)
+      competitiveness: calculateCompetitiveness(finalPrice, Number((scenario as Record<string, unknown>).marketPrice))
     };
   });
 };
@@ -90,27 +93,30 @@ self.addEventListener('message', (event: MessageEvent<CalculationMessage>) => {
   const { type, data, id } = event.data;
   
   try {
-    let result: any;
+  let result: unknown;
     
     switch (type) {
       case 'CALCULATE_BATCH':
-        result = calculateBatch(data.products);
+        result = calculateBatch((data as { products: ProductInput[] }).products);
         break;
         
       case 'CALCULATE_SCENARIOS':
-        result = calculateScenarios(data.baseData, data.scenarios);
+        result = calculateScenarios((data as { baseData: BaseData; scenarios: ScenarioInput[] }).baseData, (data as { baseData: BaseData; scenarios: ScenarioInput[] }).scenarios);
         break;
         
       case 'CALCULATE_MARKET_ANALYSIS':
         // Análise de mercado complexa
-        result = {
-          competitorAnalysis: data.competitors.map((c: any) => ({
-            ...c,
-            priceAdvantage: ((data.ourPrice - c.price) / c.price) * 100
-          })),
-          marketPosition: calculateMarketPosition(data.ourPrice, data.competitors),
-          recommendations: generateRecommendations(data)
-        };
+        {
+          const d = data as { ourPrice: number; averageMarketPrice?: number; margin?: number; competitors: Array<{ price: number } & Record<string, unknown>> };
+          result = {
+            competitorAnalysis: d.competitors.map((c) => ({
+              ...(c as Record<string, unknown>),
+              priceAdvantage: ((d.ourPrice - c.price) / c.price) * 100,
+            })),
+            marketPosition: calculateMarketPosition(d.ourPrice, d.competitors),
+            recommendations: generateRecommendations({ ourPrice: d.ourPrice, averageMarketPrice: d.averageMarketPrice, margin: d.margin }),
+          };
+        }
         break;
         
       default:
@@ -132,10 +138,10 @@ self.addEventListener('message', (event: MessageEvent<CalculationMessage>) => {
   }
 });
 
-const calculateMarketPosition = (ourPrice: number, competitors: any[]) => {
+const calculateMarketPosition = (ourPrice: number, competitors: Array<{ price: number }>) => {
   if (!competitors.length) {return 'unknown';}
   
-  const prices = competitors.map(c => c.price).sort((a, b) => a - b);
+  const prices = competitors.map((c) => c.price).sort((a, b) => a - b);
   const position = prices.findIndex(p => p >= ourPrice);
   
   if (position === -1) {return 'highest';}
@@ -145,10 +151,10 @@ const calculateMarketPosition = (ourPrice: number, competitors: any[]) => {
   return 'high';
 };
 
-const generateRecommendations = (data: any) => {
+const generateRecommendations = (data: { ourPrice: number; averageMarketPrice?: number; margin?: number }) => {
   const recommendations = [];
   
-  if (data.ourPrice > data.averageMarketPrice * 1.2) {
+  if (data.averageMarketPrice && data.ourPrice > data.averageMarketPrice * 1.2) {
     recommendations.push({
       type: 'price-reduction',
       message: 'Considere reduzir o preço para ficar mais competitivo',
@@ -156,7 +162,7 @@ const generateRecommendations = (data: any) => {
     });
   }
   
-  if (data.margin < 20) {
+  if (typeof data.margin === 'number' && data.margin < 20) {
     recommendations.push({
       type: 'margin-increase',
       message: 'Margem muito baixa, considere otimizar custos',

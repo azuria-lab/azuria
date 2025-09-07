@@ -19,7 +19,8 @@ export const usePWA = () => {
     // Detectar se o app está instalado
     const checkIfInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      const isInApp = (window.navigator as any).standalone === true;
+      const nav = window.navigator as unknown as { standalone?: boolean };
+      const isInApp = nav.standalone === true;
       setIsInstalled(isStandalone || isInApp);
     };
 
@@ -66,9 +67,9 @@ export const usePWA = () => {
       } else {
         return false;
       }
-    } catch (error) {
-      console.error('Erro ao instalar app:', error);
-      throw error;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao instalar app';
+      throw new Error(message);
     }
   };
 

@@ -5,7 +5,7 @@ export interface BusinessMetric {
   metric_value: number;
   period_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
   period_date: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -23,7 +23,7 @@ export interface SalesData {
   advertising_cost: number;
   shipping_cost: number;
   sale_date: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
 }
 
@@ -67,7 +67,7 @@ export interface WidgetLayout {
   type: string;
   position: { x: number; y: number };
   size: { w: number; h: number };
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 export interface FinancialSummary {
@@ -104,6 +104,6 @@ export interface AIInsight {
   title: string;
   message: string;
   confidence: number;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   created_at: string;
 }

@@ -3,7 +3,7 @@
  * Centraliza todos os pontos críticos para produção
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,12 +17,8 @@ import {
   Clock, 
   Database, 
   Download,
-  Eye,
   Flag,
-  Shield,
-  TrendingUp,
-  Upload,
-  Zap
+  
 } from 'lucide-react';
 import { useHealthCheck } from '@/services/healthCheck';
 import { useErrorTracking } from '@/services/errorTracking';

@@ -18,8 +18,14 @@ interface Recommendation {
   reasoning: string[];
 }
 
+type UserHistoryEvent = {
+  type: string;
+  timestamp: string | number | Date;
+  payload?: unknown;
+};
+
 interface PersonalizedRecommendationsProps {
-  userHistory?: any[];
+  userHistory?: UserHistoryEvent[];
   currentProduct?: {
     category: string;
     currentPrice: number;
@@ -29,8 +35,8 @@ interface PersonalizedRecommendationsProps {
 }
 
 export default function PersonalizedRecommendations({
-  userHistory = [],
-  currentProduct
+  userHistory: _userHistory = [],
+  currentProduct: _currentProduct
 }: PersonalizedRecommendationsProps) {
   
   // Gerar recomendações baseadas no histórico e contexto

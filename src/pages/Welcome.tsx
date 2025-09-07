@@ -7,7 +7,7 @@ import HeroLandingSection from "@/components/landing/HeroLandingSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CaseStudiesSection from "@/components/landing/CaseStudiesSection";
 import TrialBanner from "@/components/landing/TrialBanner";
-import { ArrowRight, BarChart, Calculator, Check, DollarSign, Layers, LineChart, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, Calculator, DollarSign, Layers, Sparkles, TrendingUp, Zap } from "lucide-react";
 
 export default function Welcome() {
   return (

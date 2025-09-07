@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronDown, Store } from 'lucide-react';
-import { useMultiTenant } from '@/contexts/MultiTenantContext';
+import { Building2, Store } from 'lucide-react';
+import type { Organization as OrganizationType, Store as StoreType } from '@/types/multi-tenant';
+import { useMultiTenant } from '@/contexts/useMultiTenant';
 
 export default function OrganizationSelector() {
   const { 
@@ -30,7 +30,7 @@ export default function OrganizationSelector() {
             <SelectValue placeholder="Selecionar organização" />
           </SelectTrigger>
           <SelectContent>
-            {organizations.map((org) => (
+              {organizations.map((org: OrganizationType) => (
               <SelectItem key={org.id} value={org.id}>
                 <div className="flex items-center justify-between w-full">
                   <span>{org.name}</span>
@@ -59,7 +59,7 @@ export default function OrganizationSelector() {
             <SelectValue placeholder="Selecionar loja" />
           </SelectTrigger>
           <SelectContent>
-            {stores.map((store) => (
+              {stores.map((store: StoreType) => (
               <SelectItem key={store.id} value={store.id}>
                 <div className="flex items-center justify-between w-full">
                   <span>{store.name}</span>

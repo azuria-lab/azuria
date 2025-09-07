@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useApproveCalculation, useRequestApproval } from '@/hooks/useCollaboration';
-import { AlertCircle, CheckCircle, Clock, Send, UserCheck, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, UserCheck, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
@@ -20,6 +20,17 @@ interface ApprovalSystemProps {
 interface ApprovalRequestDialogProps {
   calculationId: string;
   onSuccess?: () => void;
+}
+
+interface ApprovalRecord {
+  id: string;
+  calculation_id: string;
+  requested_by: string;
+  approver_id?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  comment?: string;
+  created_at: string;
+  approved_at?: string;
 }
 
 function ApprovalRequestDialog({ calculationId, onSuccess }: ApprovalRequestDialogProps) {
@@ -38,7 +49,7 @@ function ApprovalRequestDialog({ calculationId, onSuccess }: ApprovalRequestDial
     try {
       await requestApproval.mutateAsync({
         calculationId,
-        approverId: approverEmail // Em um cenário real, você buscaria o ID do usuário pelo email
+        approverId: approverEmail, // Em um cenário real, buscaria o ID pelo email
       });
 
       toast.success('Solicitação de aprovação enviada!');
@@ -46,7 +57,7 @@ function ApprovalRequestDialog({ calculationId, onSuccess }: ApprovalRequestDial
       setApproverEmail('');
       setReason('');
       onSuccess?.();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro ao solicitar aprovação');
     }
   };
@@ -87,8 +98,8 @@ function ApprovalRequestDialog({ calculationId, onSuccess }: ApprovalRequestDial
             <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
               Cancelar
             </Button>
-            <Button 
-              onClick={handleRequest} 
+            <Button
+              onClick={handleRequest}
               disabled={requestApproval.isPending || !approverEmail}
               className="flex-1"
             >
@@ -102,7 +113,7 @@ function ApprovalRequestDialog({ calculationId, onSuccess }: ApprovalRequestDial
 }
 
 interface ApprovalItemProps {
-  approval: any;
+  approval: ApprovalRecord;
   canApprove?: boolean;
   onApprove?: (approvalId: string, status: 'approved' | 'rejected', comment?: string) => void;
 }
@@ -149,15 +160,15 @@ function ApprovalItem({ approval, canApprove, onApprove }: ApprovalItemProps) {
               Solicitado por: Usuário {approval.requested_by.slice(-4)}
             </div>
             <div className="text-sm text-muted-foreground">
-              {formatDistanceToNow(new Date(approval.created_at), { 
-                addSuffix: true, 
-                locale: ptBR 
+              {formatDistanceToNow(new Date(approval.created_at), {
+                addSuffix: true,
+                locale: ptBR
               })}
             </div>
           </div>
         </div>
         <Badge className={getStatusColor(approval.status)}>
-          {approval.status === 'pending' ? 'Pendente' : 
+          {approval.status === 'pending' ? 'Pendente' :
            approval.status === 'approved' ? 'Aprovado' : 'Rejeitado'}
         </Badge>
       </div>
@@ -218,7 +229,7 @@ function ApprovalItem({ approval, canApprove, onApprove }: ApprovalItemProps) {
 
 export default function ApprovalSystem({ calculationId, currentUserId }: ApprovalSystemProps) {
   // Mock data - em um cenário real, você buscaria do banco
-  const [approvals] = useState([
+  const [approvals] = useState<ApprovalRecord[]>([
     {
       id: '1',
       calculation_id: calculationId,
@@ -250,7 +261,7 @@ export default function ApprovalSystem({ calculationId, currentUserId }: Approva
       });
 
       toast.success(status === 'approved' ? 'Cálculo aprovado!' : 'Cálculo rejeitado!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro ao processar aprovação');
     }
   };

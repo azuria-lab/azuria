@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 
 export default function PrefetchOnIdle() {
-  // Avoid prefetching in development to prevent pulling in modules with build issues
-  if (import.meta.env.DEV) {
-    return null;
-  }
   useEffect(() => {
+    // Avoid prefetching in development to prevent pulling in modules with build issues
+    if (import.meta.env.DEV) {
+      return;
+    }
     const prefetch = () => {
       // Prefetch rotas-chave e módulos pesados em idle
       const tasks = [
@@ -37,9 +37,10 @@ export default function PrefetchOnIdle() {
     };
 
     // Executa em idle ou após pequeno atraso
-    const hasRIC = typeof (window as any).requestIdleCallback === "function";
-    if (hasRIC) {
-      (window as any).requestIdleCallback(prefetch, { timeout: 2000 });
+    const w = window as Window & typeof globalThis & { requestIdleCallback?: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number };
+    const hasRIC = typeof w.requestIdleCallback === "function";
+    if (hasRIC && w.requestIdleCallback) {
+      w.requestIdleCallback(prefetch, { timeout: 2000 });
     } else {
       setTimeout(prefetch, 1200);
     }

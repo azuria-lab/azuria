@@ -13,20 +13,21 @@ import {
   Package,
   RefreshCw,
   Search,
-  ShoppingBag,
+  
   Star,
   Target,
   TrendingUp,
-  Users
+  
 } from "lucide-react";
 import { useAuth } from "@/hooks/auth";
 import { useRealMarketplaceData } from "@/hooks/useRealMarketplaceData";
 import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import CompetitiveAnalysisPanel from "@/components/marketplace/CompetitiveAnalysisPanel";
 import MarketplaceInsights from "@/components/marketplace/MarketplaceInsights";
+import { logger } from "@/services/logger";
 
 export default function MarketplacePage() {
-  const { user, isPro } = useAuth();
+  const { isPro } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const { products, isLoading, error, searchProducts, refreshData } = useRealMarketplaceData();
   
@@ -42,32 +43,7 @@ export default function MarketplacePage() {
     recommendation: "Seu preço está competitivo. Considere aumentar 3-5% para melhorar margem mantendo competitividade."
   };
 
-  const marketplaceStats = [
-    {
-      icon: <Package className="h-5 w-5" />,
-      title: "Produtos Monitorados",
-      value: "12.4k",
-      color: "text-blue-600"
-    },
-    {
-      icon: <ShoppingBag className="h-5 w-5" />,
-      title: "Marketplaces",
-      value: "8",
-      color: "text-green-600"
-    },
-    {
-      icon: <Users className="h-5 w-5" />,
-      title: "Vendedores Ativos",
-      value: "2.1k",
-      color: "text-purple-600"
-    },
-    {
-      icon: <TrendingUp className="h-5 w-5" />,
-      title: "Atualizações/dia",
-      value: "50k",
-      color: "text-orange-600"
-    }
-  ];
+  // Removed unused marketplaceStats mock to satisfy no-unused-vars
 
   const handleSearch = () => {
     searchProducts(searchTerm);
@@ -278,7 +254,7 @@ export default function MarketplacePage() {
           <TabsContent value="analysis" className="space-y-6">
             <CompetitiveAnalysisPanel 
               data={competitiveData}
-              onPriceAdjust={(newPrice) => console.log('Ajustar preço para:', newPrice)}
+              onPriceAdjust={(newPrice) => logger.info('Ajustar preço para:', newPrice)}
             />
           </TabsContent>
 

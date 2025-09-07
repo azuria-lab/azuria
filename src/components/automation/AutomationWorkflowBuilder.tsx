@@ -1,19 +1,10 @@
 
-import { useState } from 'react';
+//
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAdvancedAutomation } from '@/hooks/useAdvancedAutomation';
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
-  Pause, 
-  Play,
-  Plus,
-  Settings,
-  Workflow
-} from 'lucide-react';
+import { Clock, Pause, Play, Plus, Settings, Workflow } from 'lucide-react';
 
 export function AutomationWorkflowBuilder() {
   const { workflows, isLoading } = useAdvancedAutomation();

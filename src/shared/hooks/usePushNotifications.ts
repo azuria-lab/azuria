@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/services/logger';
 
 interface NotificationPermission {
   granted: boolean;
@@ -42,7 +43,7 @@ export const usePushNotifications = () => {
       setPermission(newPermission);
       return newPermission.granted;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      logger.error('Error requesting notification permission:', error);
       return false;
     }
   };
@@ -58,7 +59,7 @@ export const usePushNotifications = () => {
       });
       return true;
     } catch (error) {
-      console.error('Error showing notification:', error);
+      logger.error('Error showing notification:', error);
       return false;
     }
   };

@@ -10,6 +10,7 @@ import { Eye, FileText, Trash2 } from "lucide-react";
 import HistoryDetailDialog from "./HistoryDetailDialog";
 import { generatePDF } from "@/utils/pdf/generatePDF";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/services/logger";
 
 interface HistoryListProps {
   history: CalculationHistory[];
@@ -36,7 +37,7 @@ export default function HistoryList({
         description: "O download do PDF foi iniciado automaticamente.",
       });
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
+      logger.error("Erro ao gerar PDF:", error);
       toast({
         title: "Erro ao gerar PDF",
         description: "Não foi possível criar o arquivo PDF.",

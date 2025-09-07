@@ -4,13 +4,13 @@ import { motion } from "framer-motion";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, CheckCircle, Download, FileText, FileUp } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { logger } from "@/services/logger";
 
 interface ProductImport {
   id: string;
@@ -140,7 +140,7 @@ export default function ImportPage() {
       
     } catch (error) {
       toast.error("Erro ao processar dados CSV");
-      console.error(error);
+      logger.error(error);
     } finally {
       setIsProcessing(false);
       setProgress(0);

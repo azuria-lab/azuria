@@ -4,16 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, ExternalLink } from "lucide-react";
-import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.error(...args);
+  }
+};
+
 interface Props {
   isPro: boolean;
   subscriptionEnd: Date | null;
-  onCancel: () => void;
-  onUpgrade: () => void;
+  onCancel?: () => void;
+  onUpgrade?: () => void;
 }
 
 const SettingsSubscriptionTab: React.FC<Props> = ({
@@ -31,7 +37,7 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
       const { data, error } = await supabase.functions.invoke('customer-portal');
       
       if (error) {
-        console.error("Erro ao abrir portal:", error);
+        devLog("Erro ao abrir portal:", error);
         toast.error("Erro ao abrir portal de gerenciamento");
         return;
       }
@@ -41,7 +47,7 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
         toast.success("Abrindo portal de gerenciamento...");
       }
     } catch (error) {
-      console.error("Erro no portal:", error);
+      devLog("Erro no portal:", error);
       toast.error("Erro inesperado. Tente novamente.");
     } finally {
       setIsLoading(false);
@@ -49,6 +55,10 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
   };
 
   const handleUpgradeClick = () => {
+    if (onUpgrade) {
+      onUpgrade();
+      return;
+    }
     navigate("/planos");
   };
 
@@ -162,6 +172,9 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
             <ExternalLink className="h-4 w-4" />
             {isLoading ? "Carregando..." : "Gerenciar Assinatura"}
           </Button>
+          {onCancel && (
+            <Button variant="destructive" onClick={onCancel}>Cancelar Assinatura</Button>
+          )}
         </CardFooter>
       )}
     </Card>

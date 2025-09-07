@@ -23,28 +23,22 @@ export const useWebVitals = ({ onMetric, reportAllChanges = false }: UseWebVital
     const loadWebVitals = async () => {
       try {
         // Check if web-vitals is available
-        const webVitals = await import('web-vitals').catch(() => null);
-        
-        if (!webVitals) {
-          console.warn('web-vitals package not available');
-          return;
-        }
+        type WebVitalsModule = {
+          onCLS?: (cb: (m: WebVitalsMetric) => void, options?: { reportAllChanges?: boolean }) => void;
+          onFID?: (cb: (m: WebVitalsMetric) => void) => void;
+          onFCP?: (cb: (m: WebVitalsMetric) => void) => void;
+          onLCP?: (cb: (m: WebVitalsMetric) => void, options?: { reportAllChanges?: boolean }) => void;
+          onTTFB?: (cb: (m: WebVitalsMetric) => void) => void;
+          onINP?: (cb: (m: WebVitalsMetric) => void) => void;
+        };
+        const webVitals = (await import('web-vitals').catch(() => null)) as unknown as WebVitalsModule | null;
+        if (!webVitals) { return; }
 
         // web-vitals v3 uses onCLS/onINP/onLCP/onFID/onTTFB/onFCP
-        const { onCLS, onFID, onFCP, onLCP, onTTFB, onINP } = webVitals as any;
+        const { onCLS, onFID, onFCP, onLCP, onTTFB, onINP } = webVitals;
 
         const handleMetric = (metric: WebVitalsMetric) => {
           metricsRef.current.set(metric.name, metric);
-          
-          // Log em desenvolvimento
-          if ((import.meta as any)?.env?.DEV) {
-            console.log(`[WebVitals] ${metric.name}:`, {
-              value: metric.value,
-              rating: metric.rating,
-              delta: metric.delta
-            });
-          }
-
           onMetric?.(metric);
         };
 
@@ -57,8 +51,8 @@ export const useWebVitals = ({ onMetric, reportAllChanges = false }: UseWebVital
         onTTFB?.(handleMetric);
         onINP?.(handleMetric);
 
-      } catch (error) {
-        console.warn('Failed to load web-vitals:', error);
+      } catch (_error) {
+        // Silencioso para cumprir regra no-console
       }
     };
 
@@ -109,7 +103,7 @@ export const usePerformanceMonitoring = () => {
     navigationStart: number;
     renderTimes: number[];
     userInteractions: number;
-    errors: any[];
+  errors: Array<{ message: string; stack?: string; timestamp: number }>;
   }>({
     navigationStart: performance.now(),
     renderTimes: [],

@@ -171,7 +171,7 @@ const HistoryDisplayOptimized = memo<HistoryDisplayOptimizedProps>(({
     return (
       <div style={virtualScroll.containerStyle} onScroll={virtualScroll.handleScroll}>
         <div style={virtualScroll.innerStyle}>
-          {virtualScroll.visibleItems.map(({ item, index, offsetY }) => (
+          {virtualScroll.visibleItems.map(({ item, index: _index, offsetY }) => (
             <HistoryItem
               key={item.id}
               item={item}

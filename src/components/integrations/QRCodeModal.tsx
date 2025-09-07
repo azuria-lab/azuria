@@ -25,7 +25,7 @@ export default function QRCodeModal({
   text, 
   title = "QR Code" 
 }: QRCodeModalProps) {
-  const [size, setSize] = useState(250);
+  const [size, _setSize] = useState(250);
 
   const handleDownload = () => {
     const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;

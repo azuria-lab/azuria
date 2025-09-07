@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Crown, Plus, Settings, Store } from 'lucide-react';
+import { Crown, Settings, Store } from 'lucide-react';
 import { MARKETPLACE_TEMPLATES, type MarketplaceTemplate } from '@/types/marketplaceTemplates';
 
 interface MarketplaceTemplateSelectorProps {
@@ -251,9 +251,9 @@ export default function MarketplaceTemplateSelector({
                       </div>
                       {field.type === 'boolean' ? (
                         <Switch
-                          checked={field.defaultValue as boolean}
+                          checked={(field.defaultValue as boolean) ?? false}
                           onCheckedChange={(checked) => {
-                            const newFields = [...editingTemplate.customFields!];
+                            const newFields = [...(editingTemplate.customFields ?? [])];
                             newFields[index] = { ...field, defaultValue: checked };
                             setEditingTemplate({
                               ...editingTemplate,
@@ -266,9 +266,9 @@ export default function MarketplaceTemplateSelector({
                           type="number"
                           step="0.1"
                           className="w-20"
-                          value={field.defaultValue as number}
+                          value={(field.defaultValue as number) ?? 0}
                           onChange={(e) => {
-                            const newFields = [...editingTemplate.customFields!];
+                            const newFields = [...(editingTemplate.customFields ?? [])];
                             newFields[index] = { ...field, defaultValue: parseFloat(e.target.value) || 0 };
                             setEditingTemplate({
                               ...editingTemplate,

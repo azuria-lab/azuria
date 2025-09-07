@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, Calendar, TrendingDown, Users } from "lucide-react";
 
 // Dados mockados para análise de churn
@@ -126,7 +126,7 @@ export default function ChurnAnalysis() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value: any) => `${value}%`} />
+                  <Tooltip formatter={(value: number | string) => `${value}%`} />
                   <Legend />
                   <Line 
                     type="monotone" 
@@ -173,7 +173,7 @@ export default function ChurnAnalysis() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip formatter={(value: number | string) => `${value}%`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -196,7 +196,7 @@ export default function ChurnAnalysis() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="cohort" />
                 <YAxis domain={[0, 100]} />
-                <Tooltip formatter={(value: any) => `${value}%`} />
+                <Tooltip formatter={(value: number | string) => `${value}%`} />
                 <Legend />
                 <Line type="monotone" dataKey="month_1" name="Mês 1" stroke="#3b82f6" />
                 <Line type="monotone" dataKey="month_2" name="Mês 2" stroke="#22c55e" />

@@ -22,40 +22,41 @@ import {
   useSecurityMetrics 
 } from '@/hooks/useSecurityMonitoring';
 import { useTableStats } from '@/hooks/useTableStats';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const PerformanceOptimizationDashboard: React.FC = () => {
   const { data: metrics } = useSecurityMetrics('day');
-  const { data: rlsMetrics } = useRLSPerformanceMetrics();
+  const { data: _rlsMetrics } = useRLSPerformanceMetrics();
   const { data: tableStats } = useTableStats();
   const optimizeTables = useOptimizeTables();
   const cleanupAnalytics = useCleanupOldAnalytics();
   const maintenanceCleanup = useMaintenanceCleanupMutation();
+  const { toast } = useToast();
 
   const handleOptimize = async () => {
     try {
-      await optimizeTables.mutateAsync();
-      toast.success('Otimização executada com sucesso');
-    } catch (error) {
-      toast.error('Erro na otimização');
+  await optimizeTables.mutateAsync();
+  toast({ title: 'Sucesso', description: 'Otimização executada com sucesso' });
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro na otimização', variant: 'destructive' });
     }
   };
 
   const handleCleanup = async () => {
     try {
-      await cleanupAnalytics.mutateAsync();
-      toast.success('Limpeza executada com sucesso');
-    } catch (error) {
-      toast.error('Erro na limpeza');
+  await cleanupAnalytics.mutateAsync();
+  toast({ title: 'Sucesso', description: 'Limpeza executada com sucesso' });
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro na limpeza', variant: 'destructive' });
     }
   };
 
   const handleMaintenanceCleanup = async () => {
     try {
-      await maintenanceCleanup.mutateAsync();
-      toast.success('Limpeza completa executada com sucesso');
-    } catch (error) {
-      toast.error('Erro na limpeza completa');
+  await maintenanceCleanup.mutateAsync();
+  toast({ title: 'Sucesso', description: 'Limpeza completa executada com sucesso' });
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro na limpeza completa', variant: 'destructive' });
     }
   };
 

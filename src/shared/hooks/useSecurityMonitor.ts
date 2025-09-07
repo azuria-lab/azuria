@@ -2,8 +2,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuditLog } from './useAuditLog';
 import { useRateLimit } from './useRateLimit';
-import { securityMiddleware } from '@/middleware/securityMiddleware';
-import { SECURITY_CONFIG } from '@/config/security';
 
 interface SecurityAlert {
   id: string;
@@ -20,6 +18,26 @@ export const useSecurityMonitor = () => {
   const authRateLimit = useRateLimit({ maxRequests: 5, windowMs: 300000, identifier: 'auth' });
   
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+
+  const addAlert = useCallback((alertData: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>) => {
+    const alert: SecurityAlert = {
+      ...alertData,
+      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      timestamp: new Date(),
+      resolved: false
+    };
+
+    setAlerts(prev => [alert, ...prev.slice(0, 49)]); // Keep last 50 alerts
+    
+    // Log the security alert
+    logAction('Security Alert Generated', 'security', {
+      alert_type: alert.type,
+      severity: alert.severity,
+      message: alert.message
+    }, alert.severity === 'critical' ? 'high' : 'medium');
+
+    return alert;
+  }, [logAction]);
 
   // Monitor for suspicious patterns
   useEffect(() => {
@@ -61,27 +79,8 @@ export const useSecurityMonitor = () => {
 
     const interval = setInterval(checkSecurity, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
-  }, [getAuditLogs, apiRateLimit.isLimited, authRateLimit.isLimited]);
+  }, [getAuditLogs, apiRateLimit.isLimited, authRateLimit.isLimited, addAlert]);
 
-  const addAlert = useCallback((alertData: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>) => {
-    const alert: SecurityAlert = {
-      ...alertData,
-      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-      timestamp: new Date(),
-      resolved: false
-    };
-
-    setAlerts(prev => [alert, ...prev.slice(0, 49)]); // Keep last 50 alerts
-    
-    // Log the security alert
-    logAction('Security Alert Generated', 'security', {
-      alert_type: alert.type,
-      severity: alert.severity,
-      message: alert.message
-    }, alert.severity === 'critical' ? 'high' : 'medium');
-
-    return alert;
-  }, [logAction]);
 
   const resolveAlert = useCallback((alertId: string) => {
     setAlerts(prev => prev.map(alert => 

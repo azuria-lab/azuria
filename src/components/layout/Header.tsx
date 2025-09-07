@@ -1,7 +1,6 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/domains/auth";
 import UserProfileButton from "@/components/auth/UserProfileButton";
@@ -14,26 +13,17 @@ import { OptimizedImage } from "@/components/performance/OptimizedImage";
 
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const { isPro } = useProStatus();
-  
-  let location = null;
-  let isAuthenticated = false;
-  
-  try {
-    location = useLocation();
-    const authContext = useAuthContext();
-    isAuthenticated = authContext?.isAuthenticated || false;
-  } catch (error) {
-    console.log('Router context not ready yet');
-  }
+  useLocation();
+  const authContext = useAuthContext();
+  const isAuthenticated = authContext?.isAuthenticated || false;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const filteredNavLinks = useFilteredNavLinks(isAuthenticated, isPro);
+  useFilteredNavLinks(isAuthenticated, isPro);
 
 
   if (!mounted) {
@@ -58,10 +48,7 @@ export default function Header() {
     );
   }
 
-  const isActivePath = (path: string) => {
-    if (!location) {return false;}
-    return location.pathname === path;
-  };
+  // const isActivePath = (path: string) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">

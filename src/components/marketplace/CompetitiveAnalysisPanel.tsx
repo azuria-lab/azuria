@@ -21,7 +21,7 @@ interface CompetitiveAnalysisPanelProps {
   onPriceAdjust?: (newPrice: number) => void;
 }
 
-export default function CompetitiveAnalysisPanel({ data, onPriceAdjust }: CompetitiveAnalysisPanelProps) {
+export default function CompetitiveAnalysisPanel({ data, onPriceAdjust: _onPriceAdjust }: CompetitiveAnalysisPanelProps) {
   const getPositionColor = (position: string) => {
     switch (position) {
       case 'aggressive': return 'text-red-600 bg-red-50 border-red-200';

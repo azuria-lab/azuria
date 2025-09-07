@@ -39,7 +39,7 @@ function mapAlert(row: z.infer<typeof automationAlertRow>): AutomationAlert {
     title: parsed.title,
     message: parsed.message,
     severity: parsed.severity,
-    data: parsed.data,
+  data: (parsed.data ?? undefined) as Record<string, unknown> | undefined,
     is_read: parsed.is_read,
     is_resolved: parsed.is_resolved,
     notification_channels: parsed.notification_channels ?? ["app"],
@@ -59,7 +59,7 @@ function mapWorkflow(row: z.infer<typeof automationWorkflowRow>): AutomationWork
     description: parsed.description ?? undefined,
     is_active: parsed.is_active,
     trigger_type: parsed.trigger_type,
-    trigger_config: parsed.trigger_config ?? {},
+  trigger_config: (parsed.trigger_config ?? {}) as Record<string, unknown>,
     steps,
     approval_required: parsed.approval_required,
     approval_users: parsed.approval_users ?? [],
@@ -84,7 +84,7 @@ function mapExecution(row: Database["public"]["Tables"]["automation_executions"]
     execution_time_ms: row.execution_time_ms ?? undefined,
     started_at: row.started_at,
     completed_at: row.completed_at ?? undefined,
-    metadata: row.metadata ?? undefined,
+  metadata: (row.metadata ?? undefined) as Record<string, unknown> | undefined,
   };
 }
 

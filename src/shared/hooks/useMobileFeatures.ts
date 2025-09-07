@@ -8,7 +8,8 @@ export const useMobileFeatures = () => {
     // Check if running as standalone app
     try {
       const standalone = window.matchMedia('(display-mode: standalone)').matches;
-      const iosStandalone = (window.navigator as any).standalone === true;
+      const nav = window.navigator as unknown as { standalone?: boolean };
+      const iosStandalone = nav.standalone === true;
       setIsStandalone(standalone || iosStandalone);
     } catch {
       setIsStandalone(false);
@@ -20,8 +21,7 @@ export const useMobileFeatures = () => {
       try {
         await navigator.share(data);
         return true;
-      } catch (error) {
-        console.error('Error sharing:', error);
+      } catch (_err: unknown) {
         return false;
       }
     }

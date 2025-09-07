@@ -1,12 +1,13 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DollarSign, Target, TrendingUp, Users } from "lucide-react";
+import type { BusinessMetrics as BusinessMetricsType, CohortData } from "@/shared/hooks/useBusinessMetrics";
 
 interface BusinessMetricsProps {
-  businessMetrics: any;
-  cohortData: any[];
+  businessMetrics: BusinessMetricsType | null;
+  cohortData: CohortData[];
   isLoading: boolean;
 }
 
@@ -35,7 +36,7 @@ export default function BusinessMetrics({ businessMetrics, cohortData, isLoading
     { stage: 'Conversões', value: businessMetrics.conversionFunnel.conversions, color: '#EF4444' }
   ];
 
-  const revenueData = cohortData.map(item => ({
+  const revenueData = cohortData.map((item) => ({
     ...item,
     mrr: businessMetrics.mrr * (Math.random() * 0.3 + 0.85) // Simulate MRR variation
   }));

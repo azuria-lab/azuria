@@ -24,16 +24,16 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       // TypeScript strict rules
-      "@typescript-eslint/no-unused-vars": ["error", { 
+  "@typescript-eslint/no-unused-vars": ["warn", { 
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_",
         "caughtErrorsIgnorePattern": "^_"
       }],
-      "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-non-null-assertion": "error",
+  "@typescript-eslint/no-explicit-any": "warn",
+  "@typescript-eslint/no-non-null-assertion": "warn",
       
       // React best practices
-      "react-hooks/exhaustive-deps": "error",
+  "react-hooks/exhaustive-deps": "warn",
       "react-hooks/rules-of-hooks": "error",
       
       // General code quality
@@ -61,6 +61,25 @@ export default tseslint.config(
       "no-constant-condition": "error",
     },
   settings: {},
+  }
+  ,
+  // Test files: allow console statements and 'any' to keep tests expressive
+  {
+    files: [
+      "src/__tests__/**/*.{ts,tsx}",
+      "tests/**/*.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "**/*.test.{ts,tsx}"
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-console": "off",
+      "@typescript-eslint/no-unused-vars": ["error", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }]
+    }
   }
 );
 

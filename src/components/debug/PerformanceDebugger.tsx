@@ -29,8 +29,8 @@ export const PerformanceDebugger: React.FC = () => {
       const loadTime = navigation ? navigation.loadEventEnd - navigation.loadEventStart : 0;
       
       // Get memory usage if available
-      const memory = (performance as any).memory;
-      const memoryUsage = memory ? memory.usedJSHeapSize / 1048576 : undefined; // MB
+  const memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
+  const memoryUsage = memory ? memory.usedJSHeapSize / 1048576 : undefined; // MB
       
       setMetrics({
         loadTime,

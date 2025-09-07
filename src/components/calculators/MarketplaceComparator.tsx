@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,6 @@ import { ArrowRightLeft, Store, TrendingDown, TrendingUp } from "lucide-react";
 import { marketplaces } from "@/data/marketplaces";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency } from "@/utils/calculator/formatCurrency";
-import { parseInputValue } from "@/utils/calculator/parseInputValue";
 import { MarketplaceComparisonChart } from "./MarketplaceComparisonChart";
 import { useToast } from "@/hooks/use-toast";
 

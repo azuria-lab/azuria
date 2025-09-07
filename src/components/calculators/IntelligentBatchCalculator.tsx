@@ -1,13 +1,11 @@
 
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { Brain, Crown, Download, Target, TrendingUp, Zap } from "lucide-react";
+import { Brain, Crown, Zap } from "lucide-react";
 import BatchConfigurationPanel from "./intelligent-batch/BatchConfigurationPanel";
 import AIInsightsPanel from "./intelligent-batch/AIInsightsPanel";
 import CompetitiveAnalysisPanel from "./intelligent-batch/CompetitiveAnalysisPanel";
@@ -15,29 +13,17 @@ import ScenarioSimulationPanel from "./intelligent-batch/ScenarioSimulationPanel
 import BatchResultsTable from "./intelligent-batch/BatchResultsTable";
 import ExportOptionsPanel from "./intelligent-batch/ExportOptionsPanel";
 import { useToast } from "@/hooks/use-toast";
+import type { AIInsightsData, BatchItem as SharedBatchItem } from "./intelligent-batch/types";
 
 interface IntelligentBatchCalculatorProps {
   isPro: boolean;
   userId?: string;
 }
 
-interface BatchItem {
-  id: string;
-  quantity: number;
-  unitCost: number;
-  discountPercent: number;
-  targetMargin: number;
-  aiSuggestedPrice?: number;
-  competitivePrice?: number;
-  scenarioResults?: Array<{
-    scenario: string;
-    price: number;
-    margin: number;
-    demandImpact: number;
-  }>;
-}
+type BatchItem = SharedBatchItem;
 
 export default function IntelligentBatchCalculator({ isPro, userId }: IntelligentBatchCalculatorProps) {
+  void userId; // keep signature without unused var warnings
   const { toast } = useToast();
   const [batches, setBatches] = useState<BatchItem[]>([
     {
@@ -52,7 +38,7 @@ export default function IntelligentBatchCalculator({ isPro, userId }: Intelligen
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [category, setCategory] = useState("eletrônicos");
   const [marketCondition, setMarketCondition] = useState<'high' | 'medium' | 'low'>('medium');
-  const [aiInsights, setAIInsights] = useState<any>(null);
+  const [aiInsights, setAIInsights] = useState<AIInsightsData | null>(null);
 
   const runIntelligentAnalysis = async () => {
     if (!isPro) {
@@ -70,7 +56,7 @@ export default function IntelligentBatchCalculator({ isPro, userId }: Intelligen
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     try {
-      const insights = {
+  const insights: AIInsightsData = {
         optimalQuantities: [25, 50, 100, 250],
         recommendedDiscounts: [0, 5, 12, 20],
         marketAnalysis: {
@@ -114,7 +100,7 @@ export default function IntelligentBatchCalculator({ isPro, userId }: Intelligen
         id: (index + 1).toString(),
         quantity: rec.quantity,
         unitCost: 100,
-        discountPercent: insights.recommendedDiscounts[index],
+        discountPercent: (insights.recommendedDiscounts ?? [0,0,0,0])[index] ?? 0,
         targetMargin: 30,
         aiSuggestedPrice: rec.suggestedPrice,
         competitivePrice: insights.marketAnalysis.competitorAvgPrice * (0.95 + Math.random() * 0.1)
@@ -126,7 +112,7 @@ export default function IntelligentBatchCalculator({ isPro, userId }: Intelligen
         title: "Análise Inteligente Concluída",
         description: `IA analisou ${updatedBatches.length} cenários otimizados para sua estratégia.`,
       });
-    } catch (error) {
+  } catch (_error) {
       toast({
         title: "Erro na Análise",
         description: "Não foi possível completar a análise inteligente.",

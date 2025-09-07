@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Tooltip } from "@/components/ui/TutorialTooltip";
+import { TutorialTooltip as Tooltip } from "@/components/ui/TutorialTooltip";
 import MarketplaceSelector from "../../MarketplaceSelector";
 import ProductInfoForm from "../../ProductInfoForm";
 import { Marketplace } from "@/data/marketplaces";
@@ -21,7 +21,7 @@ export default function ProductSection({
   setProductInfo
 }: ProductSectionProps) {
   // Function to handle product info submission
-  const handleProductInfoSubmit = (data: any) => {
+  const handleProductInfoSubmit = (data: { name: string; sku: string; category: string }) => {
     setProductInfo(data);
   };
 

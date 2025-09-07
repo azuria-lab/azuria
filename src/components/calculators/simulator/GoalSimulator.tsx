@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -13,7 +12,7 @@ interface GoalSimulatorProps {
 export default function GoalSimulator({
   monthlyGoal,
   setMonthlyGoal,
-  profit,
+  profit: _profit,
   unitsForGoal
 }: GoalSimulatorProps) {
   return (

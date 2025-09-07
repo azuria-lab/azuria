@@ -8,6 +8,7 @@ import { Download, FileText } from "lucide-react";
 import { generateCalculationPDF } from "@/utils/pdf/pdfGenerator";
 import { CalculationResult } from "@/types/simpleCalculator";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/services/logger";
 
 interface PdfExportDialogProps {
   calculation: {
@@ -67,7 +68,7 @@ export const PdfExportDialog = ({ calculation, result, disabled }: PdfExportDial
       setObservations("");
       
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
+      logger.error("Erro ao gerar PDF:", error);
       toast({
         title: "Erro ao gerar PDF",
         description: "Ocorreu um erro ao gerar o relatório. Tente novamente.",

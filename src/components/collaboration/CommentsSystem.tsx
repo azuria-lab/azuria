@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAddComment, useCalculationComments } from '@/hooks/useCollaboration';
-import { Flag, Heart, MessageSquare, MoreVertical, Reply, Send } from 'lucide-react';
+import { Flag, Heart, MessageSquare, Reply, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
@@ -14,13 +14,23 @@ interface CommentsSystemProps {
   calculationId: string;
 }
 
+interface CommentModel {
+  id: string;
+  calculation_id: string | null;
+  user_id: string | null;
+  content: string;
+  created_at: string | null;
+  updated_at: string | null;
+  parent_id?: string | null;
+}
+
 interface CommentItemProps {
-  comment: any;
+  comment: CommentModel;
   onReply?: (parentId: string) => void;
   isReply?: boolean;
 }
 
-function CommentItem({ comment, onReply, isReply = false }: CommentItemProps) {
+function CommentItem({ comment, onReply: _onReply, isReply = false }: CommentItemProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const [liked, setLiked] = useState(false);
@@ -32,7 +42,7 @@ function CommentItem({ comment, onReply, isReply = false }: CommentItemProps) {
 
     try {
       await addComment.mutateAsync({
-        calculationId: comment.calculation_id,
+        calculationId: comment.calculation_id ?? '',
         content: replyContent,
         parentId: comment.id
       });
@@ -40,12 +50,13 @@ function CommentItem({ comment, onReply, isReply = false }: CommentItemProps) {
       setReplyContent('');
       setShowReplyForm(false);
       toast.success('Resposta adicionada!');
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao adicionar resposta');
     }
   };
 
-  const getUserInitials = (userId: string) => {
+  const getUserInitials = (userId: string | null) => {
+    if (!userId) {return 'US';}
     return userId.slice(0, 2).toUpperCase();
   };
 
@@ -60,9 +71,9 @@ function CommentItem({ comment, onReply, isReply = false }: CommentItemProps) {
         
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-sm">Usuário {comment.user_id.slice(-4)}</span>
+            <span className="font-medium text-sm">Usuário {(comment.user_id ?? 'user').slice(-4)}</span>
             <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(comment.created_at), { 
+              {formatDistanceToNow(new Date(comment.created_at || Date.now()), { 
                 addSuffix: true, 
                 locale: ptBR 
               })}
@@ -162,13 +173,13 @@ export default function CommentsSystem({ calculationId }: CommentsSystemProps) {
       
       setNewComment('');
       toast.success('Comentário adicionado!');
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao adicionar comentário');
     }
   };
 
   // Organizar comentários em threads
-  const organizeComments = (comments: any[]) => {
+  const organizeComments = (comments: CommentModel[]) => {
     const topLevel = comments.filter(c => !c.parent_id);
     const replies = comments.filter(c => c.parent_id);
     
@@ -238,7 +249,7 @@ export default function CommentsSystem({ calculationId }: CommentsSystemProps) {
                 <CommentItem comment={comment} />
                 
                 {/* Respostas */}
-                {comment.replies?.map((reply: any) => (
+                {comment.replies?.map((reply: CommentModel) => (
                   <CommentItem
                     key={reply.id}
                     comment={reply}

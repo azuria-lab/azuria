@@ -46,7 +46,7 @@ export interface WebhookEvent {
   id: string;
   platform: string;
   event: 'product_updated' | 'price_changed' | 'inventory_updated';
-  payload: any;
+  payload: unknown;
   processed: boolean;
   receivedAt: Date;
 }

@@ -26,7 +26,7 @@ export function OnboardingSystem() {
   const [completedSteps, setCompletedSteps] = React.useState<Set<string>>(new Set());
   const [isMinimized, setIsMinimized] = React.useState(false);
 
-  const steps: OnboardingStep[] = [
+  const steps: OnboardingStep[] = React.useMemo(() => [
     {
       id: 'welcome',
       title: 'Bem-vindo ao Azuria+',
@@ -34,7 +34,7 @@ export function OnboardingSystem() {
       icon: <Star className="w-6 h-6" />,
       action: {
         text: 'Vamos começar!',
-        onClick: () => nextStep()
+        onClick: () => setCurrentStep((s) => s + 1)
       }
     },
     {
@@ -82,16 +82,21 @@ export function OnboardingSystem() {
         onClick: () => window.location.href = '/profile'
       }
     }
-  ];
+  ], []);
+
+  const completeOnboarding = React.useCallback(() => {
+    localStorage.setItem('onboarding_completed', 'true');
+    setIsActive(false);
+    const event = new CustomEvent('onboarding-completed');
+    window.dispatchEvent(event);
+  }, []);
 
   React.useEffect(() => {
-    // Check if user should see onboarding
     const hasSeenOnboarding = localStorage.getItem('onboarding_completed');
     if (!hasSeenOnboarding) {
       setIsActive(true);
     }
 
-    // Check completed steps
     const completed = new Set<string>();
     steps.forEach(step => {
       if (step.completion?.check()) {
@@ -100,25 +105,22 @@ export function OnboardingSystem() {
     });
     setCompletedSteps(completed);
 
-    // Auto-advance if step is completed
     const interval = setInterval(() => {
       const currentStepData = steps[currentStep];
       if (currentStepData?.completion?.check() && !completedSteps.has(currentStepData.id)) {
         setCompletedSteps(prev => new Set([...prev, currentStepData.id]));
-        setTimeout(() => nextStep(), 1000);
+        setTimeout(() => {
+          setCurrentStep((s) => {
+            if (s < steps.length - 1) {return s + 1;}
+            completeOnboarding();
+            return s;
+          });
+        }, 1000);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentStep, completedSteps]);
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeOnboarding();
-    }
-  };
+  }, [currentStep, completedSteps, steps, completeOnboarding]);
 
   const prevStep = () => {
     if (currentStep > 0) {
@@ -129,15 +131,6 @@ export function OnboardingSystem() {
   const skipOnboarding = () => {
     localStorage.setItem('onboarding_completed', 'true');
     setIsActive(false);
-  };
-
-  const completeOnboarding = () => {
-    localStorage.setItem('onboarding_completed', 'true');
-    setIsActive(false);
-    
-    // Show completion celebration
-    const event = new CustomEvent('onboarding-completed');
-    window.dispatchEvent(event);
   };
 
   const progressPercentage = ((currentStep + 1) / steps.length) * 100;
@@ -284,7 +277,13 @@ export function OnboardingSystem() {
                         )}
                         
                         <Button
-                          onClick={nextStep}
+                          onClick={() => {
+                            if (currentStep === steps.length - 1) {
+                              completeOnboarding();
+                            } else {
+                              setCurrentStep((s) => s + 1);
+                            }
+                          }}
                           variant={isStepCompleted ? "default" : "outline"}
                           disabled={currentStepData.completion && !isStepCompleted}
                         >

@@ -16,11 +16,10 @@ export function useCompetitors(sellingPrice: number | null) {
   // Update competitor differences when selling price changes
   useEffect(() => {
     if (sellingPrice) {
-      const updated = competitors.map(comp => ({
+      setCompetitors(prev => prev.map(comp => ({
         ...comp,
         difference: sellingPrice - comp.price
-      }));
-      setCompetitors(updated);
+      })));
     }
   }, [sellingPrice]);
 

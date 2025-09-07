@@ -1,125 +1,14 @@
-import React, { createContext, ReactNode, useContext, useMemo, useReducer } from "react";
+import React, { ReactNode, useCallback, useMemo, useReducer } from "react";
+import { MarketplaceContext } from './MarketplaceContextBase.tsx';
+import * as T from './types.ts';
 
-// Marketplace State Types
-interface MarketplaceState {
-  // Search
-  searchQuery: string;
-  searchResults: MarketplaceProduct[];
-  selectedMarketplace: string;
-  
-  // Pricing Intelligence
-  pricingData: PricingData | null;
-  competitors: CompetitorProduct[];
-  
-  // Trends
-  trends: MarketTrend[];
-  
-  // UI State
-  isLoading: boolean;
-  error: string | null;
-  
-  // Settings
-  settings: {
-    autoSync: boolean;
-    updateInterval: number; // minutes
-    enableAlerts: boolean;
-    targetMarketplaces: string[];
-  };
-}
-
-interface MarketplaceProduct {
-  id: string;
-  title: string;
-  price: number;
-  rating: number;
-  seller: string;
-  marketplace: string;
-  url: string;
-  image?: string;
-  availability: 'in_stock' | 'out_of_stock' | 'limited';
-}
-
-interface PricingData {
-  averagePrice: number;
-  minPrice: number;
-  maxPrice: number;
-  suggestedPrice: number;
-  confidence: number;
-  lastUpdated: Date;
-}
-
-interface CompetitorProduct {
-  id: string;
-  product: MarketplaceProduct;
-  priceHistory: PricePoint[];
-  isTracked: boolean;
-}
-
-interface PricePoint {
-  price: number;
-  timestamp: Date;
-}
-
-interface MarketTrend {
-  id: string;
-  category: string;
-  trend: 'up' | 'down' | 'stable';
-  percentage: number;
-  timeframe: string;
-}
-
-// Marketplace Actions
-type MarketplaceAction =
-  | { type: 'SET_SEARCH_QUERY'; payload: string }
-  | { type: 'SET_SEARCH_RESULTS'; payload: MarketplaceProduct[] }
-  | { type: 'SET_SELECTED_MARKETPLACE'; payload: string }
-  | { type: 'SET_PRICING_DATA'; payload: PricingData }
-  | { type: 'SET_COMPETITORS'; payload: CompetitorProduct[] }
-  | { type: 'ADD_COMPETITOR'; payload: CompetitorProduct }
-  | { type: 'REMOVE_COMPETITOR'; payload: string }
-  | { type: 'UPDATE_COMPETITOR_PRICE'; payload: { id: string; price: number } }
-  | { type: 'SET_TRENDS'; payload: MarketTrend[] }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'UPDATE_SETTINGS'; payload: Partial<MarketplaceState['settings']> }
-  | { type: 'CLEAR_SEARCH' }
-  | { type: 'RESET_MARKETPLACE' };
-
-// Marketplace Context Type
-interface MarketplaceContextType extends MarketplaceState {
-  dispatch: React.Dispatch<MarketplaceAction>;
-  // Actions
-  searchProducts: (query: string, marketplace?: string) => Promise<void>;
-  analyzePricing: (productName: string) => Promise<void>;
-  addCompetitor: (product: MarketplaceProduct) => void;
-  removeCompetitor: (id: string) => void;
-  updateCompetitorPrice: (id: string, price: number) => void;
-  refreshTrends: () => Promise<void>;
-  getSuggestedPrice: (cost: number, targetMargin: number) => number;
-  updateSettings: (settings: Partial<MarketplaceState['settings']>) => void;
-  clearSearch: () => void;
-}
+// Types moved to ./types to satisfy react-refresh hygiene
 
 // Initial State
-const initialMarketplaceState: MarketplaceState = {
-  searchQuery: "",
-  searchResults: [],
-  selectedMarketplace: "all",
-  pricingData: null,
-  competitors: [],
-  trends: [],
-  isLoading: false,
-  error: null,
-  settings: {
-    autoSync: true,
-    updateInterval: 60,
-    enableAlerts: true,
-    targetMarketplaces: ["mercadolivre", "amazon", "shopee"],
-  },
-};
+// initialMarketplaceState moved to ./types
 
 // Marketplace Reducer
-function marketplaceReducer(state: MarketplaceState, action: MarketplaceAction): MarketplaceState {
+function marketplaceReducer(state: T.MarketplaceState, action: T.MarketplaceAction): T.MarketplaceState {
   switch (action.type) {
     case 'SET_SEARCH_QUERY':
       return { ...state, searchQuery: action.payload };
@@ -139,12 +28,12 @@ function marketplaceReducer(state: MarketplaceState, action: MarketplaceAction):
     case 'REMOVE_COMPETITOR':
       return { 
         ...state, 
-        competitors: state.competitors.filter(c => c.id !== action.payload) 
+  competitors: state.competitors.filter((c: T.CompetitorProduct) => c.id !== action.payload) 
       };
     case 'UPDATE_COMPETITOR_PRICE':
       return {
         ...state,
-        competitors: state.competitors.map(competitor => 
+  competitors: state.competitors.map((competitor: T.CompetitorProduct) => 
           competitor.id === action.payload.id
             ? {
                 ...competitor,
@@ -177,36 +66,18 @@ function marketplaceReducer(state: MarketplaceState, action: MarketplaceAction):
         error: null 
       };
     case 'RESET_MARKETPLACE':
-      return initialMarketplaceState;
+  return T.initialMarketplaceState;
     default:
       return state;
   }
 }
 
-// Default Context Value
-const defaultMarketplaceValue: MarketplaceContextType = {
-  ...initialMarketplaceState,
-  dispatch: () => {},
-  searchProducts: async () => {},
-  analyzePricing: async () => {},
-  addCompetitor: () => {},
-  removeCompetitor: () => {},
-  updateCompetitorPrice: () => {},
-  refreshTrends: async () => {},
-  getSuggestedPrice: () => 0,
-  updateSettings: () => {},
-  clearSearch: () => {},
-};
-
-// Context
-const MarketplaceContext = createContext<MarketplaceContextType>(defaultMarketplaceValue);
-
 // Provider
 export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(marketplaceReducer, initialMarketplaceState);
+  const [state, dispatch] = useReducer(marketplaceReducer, T.initialMarketplaceState);
 
   // Action Handlers
-  const searchProducts = async (query: string, marketplace = "all") => {
+  const searchProducts = useCallback(async (query: string, marketplace = "all") => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_SEARCH_QUERY', payload: query });
     dispatch({ type: 'SET_SELECTED_MARKETPLACE', payload: marketplace });
@@ -225,9 +96,9 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : "Erro na busca" });
     }
-  };
+  }, [dispatch]);
 
-  const analyzePricing = async (productName: string) => {
+  const analyzePricing = useCallback(async (productName: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
@@ -239,10 +110,10 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : "Erro na análise" });
     }
-  };
+  }, [dispatch]);
 
-  const addCompetitor = (product: MarketplaceProduct) => {
-    const competitor: CompetitorProduct = {
+  const addCompetitor = useCallback((product: T.MarketplaceProduct) => {
+    const competitor: T.CompetitorProduct = {
       id: `comp_${Date.now()}`,
       product,
       priceHistory: [{ price: product.price, timestamp: new Date() }],
@@ -250,17 +121,17 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     };
     
     dispatch({ type: 'ADD_COMPETITOR', payload: competitor });
-  };
+  }, [dispatch]);
 
-  const removeCompetitor = (id: string) => {
+  const removeCompetitor = useCallback((id: string) => {
     dispatch({ type: 'REMOVE_COMPETITOR', payload: id });
-  };
+  }, [dispatch]);
 
-  const updateCompetitorPrice = (id: string, price: number) => {
+  const updateCompetitorPrice = useCallback((id: string, price: number) => {
     dispatch({ type: 'UPDATE_COMPETITOR_PRICE', payload: { id, price } });
-  };
+  }, [dispatch]);
 
-  const refreshTrends = async () => {
+  const refreshTrends = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
@@ -272,25 +143,22 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : "Erro ao atualizar tendências" });
     }
-  };
+  }, [dispatch]);
 
-  const getSuggestedPrice = (cost: number, targetMargin: number): number => {
+  const getSuggestedPrice = useCallback((cost: number, targetMargin: number): number => {
     if (!state.pricingData) {return cost * (1 + targetMargin / 100);}
-    
     const basePrice = cost * (1 + targetMargin / 100);
     const marketAverage = state.pricingData.averagePrice;
-    
-    // Adjust based on market data
     return (basePrice + marketAverage) / 2;
-  };
+  }, [state.pricingData]);
 
-  const updateSettings = (settings: Partial<MarketplaceState['settings']>) => {
+  const updateSettings = useCallback((settings: Partial<T.MarketplaceState['settings']>) => {
     dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
-  };
+  }, [dispatch]);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     dispatch({ type: 'CLEAR_SEARCH' });
-  };
+  }, [dispatch]);
 
   // Context value
   const contextValue = useMemo(() => ({
@@ -305,7 +173,7 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     getSuggestedPrice,
     updateSettings,
     clearSearch,
-  }), [state]);
+  }), [state, dispatch, searchProducts, analyzePricing, addCompetitor, removeCompetitor, updateCompetitorPrice, refreshTrends, getSuggestedPrice, updateSettings, clearSearch]);
 
   return (
     <MarketplaceContext.Provider value={contextValue}>
@@ -314,18 +182,9 @@ export const MarketplaceProvider: React.FC<{ children: ReactNode }> = ({ childre
   );
 };
 
-// Hook
-export const useMarketplaceContext = (): MarketplaceContextType => {
-  const context = useContext(MarketplaceContext);
-  if (!context) {
-    throw new Error('useMarketplaceContext deve ser usado dentro de um MarketplaceProvider');
-  }
-  return context;
-};
-
 // Helper Functions
-function generateMockProducts(query: string, marketplace: string): MarketplaceProduct[] {
-  const products: MarketplaceProduct[] = [];
+function generateMockProducts(query: string, marketplace: string): T.MarketplaceProduct[] {
+  const products: T.MarketplaceProduct[] = [];
   const marketplaces = marketplace === "all" ? ["mercadolivre", "amazon", "shopee"] : [marketplace];
   
   for (let i = 0; i < 10; i++) {
@@ -345,9 +204,9 @@ function generateMockProducts(query: string, marketplace: string): MarketplacePr
   return products;
 }
 
-function generatePricingData(products: MarketplaceProduct[]): PricingData {
+function generatePricingData(products: T.MarketplaceProduct[]): T.PricingData {
   if (products.length === 0) {
-    return {
+  return {
       averagePrice: 0,
       minPrice: 0,
       maxPrice: 0,
@@ -372,7 +231,7 @@ function generatePricingData(products: MarketplaceProduct[]): PricingData {
   };
 }
 
-function generatePricingAnalysis(productName: string): PricingData {
+function generatePricingAnalysis(_productName: string): T.PricingData {
   return {
     averagePrice: Math.random() * 300 + 100,
     minPrice: Math.random() * 100 + 50,
@@ -383,7 +242,7 @@ function generatePricingAnalysis(productName: string): PricingData {
   };
 }
 
-function generateMockTrends(): MarketTrend[] {
+function generateMockTrends(): T.MarketTrend[] {
   const categories = ["Eletrônicos", "Roupas", "Casa", "Esportes", "Livros"];
   const trends: ("up" | "down" | "stable")[] = ["up", "down", "stable"];
   
@@ -396,30 +255,4 @@ function generateMockTrends(): MarketTrend[] {
   }));
 }
 
-// Action Creators
-export const marketplaceActions = {
-  setSearchQuery: (query: string): MarketplaceAction => ({ type: 'SET_SEARCH_QUERY', payload: query }),
-  setSearchResults: (results: MarketplaceProduct[]): MarketplaceAction => ({ type: 'SET_SEARCH_RESULTS', payload: results }),
-  setSelectedMarketplace: (marketplace: string): MarketplaceAction => ({ type: 'SET_SELECTED_MARKETPLACE', payload: marketplace }),
-  setPricingData: (data: PricingData): MarketplaceAction => ({ type: 'SET_PRICING_DATA', payload: data }),
-  setCompetitors: (competitors: CompetitorProduct[]): MarketplaceAction => ({ type: 'SET_COMPETITORS', payload: competitors }),
-  addCompetitor: (competitor: CompetitorProduct): MarketplaceAction => ({ type: 'ADD_COMPETITOR', payload: competitor }),
-  removeCompetitor: (id: string): MarketplaceAction => ({ type: 'REMOVE_COMPETITOR', payload: id }),
-  updateCompetitorPrice: (id: string, price: number): MarketplaceAction => ({ type: 'UPDATE_COMPETITOR_PRICE', payload: { id, price } }),
-  setTrends: (trends: MarketTrend[]): MarketplaceAction => ({ type: 'SET_TRENDS', payload: trends }),
-  setLoading: (loading: boolean): MarketplaceAction => ({ type: 'SET_LOADING', payload: loading }),
-  setError: (error: string | null): MarketplaceAction => ({ type: 'SET_ERROR', payload: error }),
-  updateSettings: (settings: Partial<MarketplaceState['settings']>): MarketplaceAction => ({ type: 'UPDATE_SETTINGS', payload: settings }),
-  clearSearch: (): MarketplaceAction => ({ type: 'CLEAR_SEARCH' }),
-  resetMarketplace: (): MarketplaceAction => ({ type: 'RESET_MARKETPLACE' }),
-};
-
-export type { 
-  MarketplaceState, 
-  MarketplaceAction, 
-  MarketplaceContextType, 
-  MarketplaceProduct, 
-  PricingData, 
-  CompetitorProduct, 
-  MarketTrend 
-};
+// Note: types and actions are exported from separate files to satisfy react-refresh export hygiene

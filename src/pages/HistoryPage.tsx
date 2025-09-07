@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "@/components/layout/Header";
@@ -35,7 +35,7 @@ const itemVariants = {
 
 export default function HistoryPage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthContext();
+  const { user: _user, isAuthenticated } = useAuthContext();
   const { history, isLoading, error, deleteHistoryItem, clearAllHistory } = useRealTimeHistory();
 
   // Verificar se o usuário está logado
@@ -49,7 +49,7 @@ export default function HistoryPage() {
     try {
       await deleteHistoryItem(id);
       toast.success("Item removido do histórico");
-    } catch (err) {
+  } catch (_err) {
       toast.error("Erro ao remover item do histórico");
     }
   };
@@ -59,7 +59,7 @@ export default function HistoryPage() {
       try {
         await clearAllHistory();
         toast.success("Histórico limpo com sucesso");
-      } catch (err) {
+  } catch (_err) {
         toast.error("Erro ao limpar histórico");
       }
     }

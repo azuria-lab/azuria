@@ -25,7 +25,7 @@ export const useMarketplaceAPI = () => {
   const [data, setData] = useState<MarketplaceAPIResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const searchProducts = useCallback(async (query: string, marketplace: string = "all") => {
+  const searchProducts = useCallback(async (query: string, _marketplace: string = "all") => {
     setIsLoading(true);
     setError(null);
     
@@ -34,7 +34,7 @@ export const useMarketplaceAPI = () => {
       // Por questões de CORS e limitações das APIs, simulamos dados realistas
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simula delay da API
       
-      const mockData = generateMockMarketplaceData(query, marketplace);
+  const mockData = generateMockMarketplaceData(query, _marketplace);
       setData(mockData);
       
       toast.success(`Encontrados ${mockData.totalResults} produtos para "${query}"`);
@@ -69,7 +69,7 @@ export const useMarketplaceAPI = () => {
 };
 
 // Função para gerar dados mock realistas
-function generateMockMarketplaceData(query: string, marketplace: string): MarketplaceAPIResponse {
+function generateMockMarketplaceData(query: string, _marketplace: string): MarketplaceAPIResponse {
   const basePrice = Math.random() * 200 + 50; // R$ 50-250
   const variation = 0.3; // 30% de variação
   

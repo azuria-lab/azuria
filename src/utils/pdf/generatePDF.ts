@@ -8,7 +8,7 @@ import { ptBR } from "date-fns/locale";
 // Adicionar a definição de tipos para o jspdf-autotable
 declare module "jspdf" {
   interface jsPDF {
-    autoTable: (options: any) => jsPDF;
+  autoTable: (options: unknown) => jsPDF;
   }
 }
 
@@ -86,7 +86,7 @@ export const generatePDF = async (
   });
 
   // Adicionar seção de resultados
-  const resultStartY = (doc as any).lastAutoTable.finalY + 15;
+  const resultStartY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   doc.setFontSize(12);
   doc.text("Resultado do Cálculo", 20, resultStartY);
   
@@ -117,7 +117,7 @@ export const generatePDF = async (
   });
 
   // Adicionar seção de detalhamento
-  const breakdownStartY = (doc as any).lastAutoTable.finalY + 15;
+  const breakdownStartY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   doc.setFontSize(12);
   doc.text("Detalhamento da Composição do Preço", 20, breakdownStartY);
   

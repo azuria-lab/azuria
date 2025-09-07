@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+//
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowDownLeft, ArrowUpRight, Eye, Play, Plus, Settings, Trash2, Webhook } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Play, Plus, Trash2, Webhook } from "lucide-react";
 import { useBidirectionalWebhooks } from "@/hooks/useBidirectionalWebhooks";
 import { toast } from "@/components/ui/use-toast";
+import { logger } from "@/services/logger";
 
 type Direction = 'incoming' | 'outgoing' | 'bidirectional';
 
@@ -20,7 +21,6 @@ export default function BidirectionalWebhookManager() {
   const {
     endpoints,
     addEndpoint,
-    updateEndpoint,
     removeEndpoint,
     registerIncomingHandler,
     sendWebhook,
@@ -66,7 +66,7 @@ export default function BidirectionalWebhookManager() {
     }
 
     try {
-      const endpointId = addEndpoint({
+      addEndpoint({
         ...newEndpoint,
         events: newEndpoint.events.length > 0 ? newEndpoint.events : ['calculation.completed']
       });
@@ -75,7 +75,7 @@ export default function BidirectionalWebhookManager() {
       if (newEndpoint.direction === 'incoming' || newEndpoint.direction === 'bidirectional') {
         newEndpoint.events.forEach(event => {
           registerIncomingHandler(event, async (payload) => {
-            console.log(`Received ${event} webhook:`, payload);
+            logger.info(`Received ${event} webhook:`, payload);
             // Aqui você processaria o webhook recebido
             return { success: true, processed_at: new Date().toISOString() };
           });
@@ -101,7 +101,7 @@ export default function BidirectionalWebhookManager() {
           maxBackoffMs: 30000
         }
       });
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao criar endpoint');
     }
   };
@@ -114,7 +114,7 @@ export default function BidirectionalWebhookManager() {
       } else {
         toast.error('Falha no teste de conectividade');
       }
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao testar endpoint');
     }
   };
@@ -131,7 +131,7 @@ export default function BidirectionalWebhookManager() {
       }, { immediate: true });
       
       toast.success('Webhook de teste enviado');
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao enviar webhook de teste');
     }
   };
@@ -207,7 +207,7 @@ export default function BidirectionalWebhookManager() {
                   <Label htmlFor="direction">Direção</Label>
                   <Select
                     value={newEndpoint.direction}
-                    onValueChange={(value: any) => setNewEndpoint(prev => ({ ...prev, direction: value }))}
+                    onValueChange={(value: string) => setNewEndpoint(prev => ({ ...prev, direction: value as Direction }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -280,9 +280,9 @@ export default function BidirectionalWebhookManager() {
                   <Label htmlFor="authMethod">Método de Auth</Label>
                   <Select
                     value={newEndpoint.security.authMethod}
-                    onValueChange={(value: any) => setNewEndpoint(prev => ({
+                    onValueChange={(value: string) => setNewEndpoint(prev => ({
                       ...prev,
-                      security: { ...prev.security, authMethod: value }
+                      security: { ...prev.security, authMethod: value as 'hmac' | 'bearer' | 'basic' }
                     }))}
                   >
                     <SelectTrigger>

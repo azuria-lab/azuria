@@ -1,13 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import FeatureCard, { FeatureItem, itemVariants } from "./FeatureCard";
+import FeatureCard, { FeatureItem } from "./FeatureCard";
 
 interface FeaturesGridProps {
   features: FeatureItem[];
 }
 
-export const containerVariants = {
+const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,

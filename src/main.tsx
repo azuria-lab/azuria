@@ -1,6 +1,4 @@
-
 import { StrictMode } from 'react';
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import ErrorBoundary from './components/layout/ErrorBoundary.tsx';
@@ -9,6 +7,7 @@ import './index.css';
 // import { SecurityHeaders } from '@/utils/securityHeaders';
 // Note: legacy reporter and optimizer are loaded lazily to avoid pulling web-vitals into main bundle
 import { initBundleOptimization } from '@/utils/bundleOptimization';
+import { logger } from '@/services/logger';
 
 const container = document.getElementById("root");
 if (!container) {
@@ -18,12 +17,10 @@ if (!container) {
 // Global error listeners to surface issues occurring outside React boundaries
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
-    // eslint-disable-next-line no-console
-    console.error('Global error:', event.error || event.message || event);
+  logger.error('Global error:', event.error || event.message || event);
   });
   window.addEventListener('unhandledrejection', (event) => {
-    // eslint-disable-next-line no-console
-    console.error('Unhandled promise rejection:', (event as PromiseRejectionEvent).reason || event);
+  logger.error('Unhandled promise rejection:', (event as PromiseRejectionEvent).reason || event);
   });
 }
 
@@ -76,8 +73,7 @@ const initializeApp = () => {
       initBundleOptimization();
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to render app:", error);
+  logger.error("Failed to render app:", error);
     
     // Simplified fallback UI
     container.innerHTML = `
@@ -106,8 +102,7 @@ const registerServiceWorker = async () => {
   await new Promise(resolve => setTimeout(resolve, 300));
     
   const registration = await navigator.serviceWorker.register('/sw.js');
-  // eslint-disable-next-line no-console
-  console.log('✅ Service Worker registered successfully:', registration);
+  logger.info('✅ Service Worker registered successfully:', registration);
     
     // Listen for updates
     registration.addEventListener('updatefound', () => {
@@ -115,16 +110,14 @@ const registerServiceWorker = async () => {
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // eslint-disable-next-line no-console
-            console.log('🔄 New version available');
+            logger.info('🔄 New version available');
           }
         });
       }
     });
     
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('Service Worker registration failed:', error);
+  logger.warn('Service Worker registration failed:', error);
     // Don't throw - app should work without SW
   }
 };

@@ -1,29 +1,13 @@
 
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuthContext } from '@/domains/auth/context/AuthContext';
 import { MultiTenantContext, Organization, Store } from '@/types/multi-tenant';
+import { MultiTenantContextProvider } from './multiTenantContextInstance';
 import { toast } from '@/components/ui/use-toast';
+import { logger } from '@/services/logger';
+// Removed the useMultiTenant hook to satisfy react-refresh rule
 
-const MultiTenantContextProvider = createContext<MultiTenantContext | null>(null);
-
-export const useMultiTenant = () => {
-  const context = useContext(MultiTenantContextProvider);
-  if (!context) {
-    // Return safe defaults instead of throwing
-    return {
-      currentOrganization: null,
-      currentStore: null,
-      organizations: [],
-      stores: [],
-      userRole: null,
-      userPermissions: [],
-      switchOrganization: async () => {},
-      switchStore: () => {},
-      hasPermission: () => false
-    };
-  }
-  return context;
-};
+// Context moved to separate file to satisfy react-refresh rule
 
 interface MultiTenantProviderProps {
   children: ReactNode;
@@ -31,14 +15,14 @@ interface MultiTenantProviderProps {
 
 export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<object | null>(null);
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null);
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
 
   // Initialize component safely
   useEffect(() => {
@@ -54,8 +38,8 @@ export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ childr
   // Only use the value once initialized to avoid flicker
   const authUser = isInitialized ? (authContext?.user || null) : null;
 
-  // Mock data for development
-  const mockOrganizations: Organization[] = [
+  // Mock data for development (stable references)
+  const mockOrganizations: Organization[] = useMemo(() => ([
     {
       id: '1',
       name: 'Empresa Principal',
@@ -70,9 +54,9 @@ export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ childr
       createdAt: new Date(),
       updatedAt: new Date()
     }
-  ];
+  ]), []);
 
-  const mockStores: Store[] = [
+  const mockStores: Store[] = useMemo(() => ([
     {
       id: '1',
       organizationId: '1',
@@ -112,10 +96,10 @@ export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ childr
       createdAt: new Date(),
       updatedAt: new Date()
     }
-  ];
+  ]), []);
 
   // Load user organizations
-  const loadUserOrganizations = async () => {
+  const loadUserOrganizations = useCallback(async () => {
     if (!user) {return;}
 
     try {
@@ -138,12 +122,12 @@ export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ childr
         setCurrentStore(storeToSet);
       }
       
-    } catch (error: any) {
-      console.error('Erro ao carregar organizações:', error);
+    } catch (_err: unknown) {
+      logger.error('Erro ao carregar organizações');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, mockOrganizations, mockStores]);
 
   // Switch organization
   const switchOrganization = async (organizationId: string) => {
@@ -193,7 +177,7 @@ export const MultiTenantProvider: React.FC<MultiTenantProviderProps> = ({ childr
       setUserPermissions([]);
       setIsLoading(false);
     }
-  }, [isInitialized, authUser]);
+  }, [isInitialized, authUser, loadUserOrganizations]);
 
   // Provide safe default value until ready
   if (!isInitialized) {

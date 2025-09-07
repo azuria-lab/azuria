@@ -10,7 +10,7 @@ import { useAdvancedCache } from '@/hooks/useAdvancedCache';
 import { Activity, AlertTriangle, CheckCircle, TrendingUp, Zap } from 'lucide-react';
 
 export const PerformanceDashboard = () => {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [_refreshKey, setRefreshKey] = useState(0);
   const { getPerformanceReport, clearData, violations } = usePerformanceMonitor();
   const { getMetrics, getScore } = useWebVitals();
   const cache = useAdvancedCache();

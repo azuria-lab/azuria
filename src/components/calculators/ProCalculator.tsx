@@ -8,9 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calculator, Settings, Store, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/utils/calculator/formatCurrency";
-import { useCalculator } from "@/hooks/useCalculator";
-import { useCompetitors } from "@/hooks/useCompetitors";
-import { marketplaces } from "@/data/marketplaces";
 import { MARKETPLACE_TEMPLATES, type MarketplaceTemplate } from "@/types/marketplaceTemplates";
 
 // Pro Components
@@ -19,15 +16,13 @@ import ICMSCalculator from "./pro/ICMSCalculator";
 import MarketplaceComparison from "./pro/MarketplaceComparison";
 
 // Tab Components
-import BasicTabContent from "./tabs/BasicTabContent";
-import AdvancedTabContent from "./tabs/AdvancedTabContent";
-import ScenariosTabContent from "./tabs/ScenariosTabContent";
+// (These tabs are currently not used in this component and were removed to satisfy lint)
 
 interface ProCalculatorProps {
   userId?: string;
 }
 
-export default function ProCalculator({ userId }: ProCalculatorProps) {
+export default function ProCalculator({ userId: _userId }: ProCalculatorProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("templates");
   
@@ -49,7 +44,7 @@ export default function ProCalculator({ userId }: ProCalculatorProps) {
   const [isPro] = useState(true); // TODO: Get from auth context
   const [isPremium] = useState(true); // TODO: Get from subscription
   
-  const [productInfo, setProductInfo] = useState({ name: "", sku: "", category: "" });
+  // Product info state is not currently used
   
   // Template handlers
   const handleTemplateChange = (templateId: string) => {
@@ -64,7 +59,7 @@ export default function ProCalculator({ userId }: ProCalculatorProps) {
       ...template,
       id: `custom-${Date.now()}`,
       isCustom: true,
-      createdBy: userId,
+  createdBy: _userId,
       createdAt: new Date()
     };
     

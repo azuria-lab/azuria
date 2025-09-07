@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,25 +8,13 @@ import { ArrowRight, Calculator, Star, TrendingUp, Users, Zap } from "lucide-rea
 
 const HeroSection: React.FC = () => {
   const [mounted, setMounted] = useState(false);
-  const [routerReady, setRouterReady] = useState(false);
-
-  // Safely check router context
-  let location = null;
-  try {
-    location = useLocation();
-    if (!routerReady) {
-      setRouterReady(true);
-    }
-  } catch (error) {
-    console.log('Router context not ready yet');
-  }
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Render basic version without any Link components until router is ready
-  if (!mounted || !routerReady) {
+  if (!mounted) {
     return (
       <div className="text-center mb-16">
         <div className="flex justify-center mb-4">

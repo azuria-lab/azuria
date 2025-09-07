@@ -80,7 +80,7 @@ export const useLazyImage = (src: string, options?: UseLazyLoadOptions) => {
 };
 
 // Hook para lazy loading de componentes
-export const useLazyComponent = <T = any>(
+export const useLazyComponent = <T = unknown>(
   importFn: () => Promise<{ default: React.ComponentType<T> }>,
   options?: UseLazyLoadOptions
 ) => {

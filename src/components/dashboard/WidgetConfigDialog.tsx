@@ -29,7 +29,7 @@ export default function WidgetConfigDialog({ widget, onSave, onCancel }: WidgetC
         <Label>Período</Label>
         <Select 
           value={config.period || 'today'} 
-          onValueChange={(value) => setConfig({ ...config, period: value as any })}
+          onValueChange={(value: 'today' | 'week' | 'month' | 'year') => setConfig({ ...config, period: value })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -48,7 +48,7 @@ export default function WidgetConfigDialog({ widget, onSave, onCancel }: WidgetC
           <Label>Tipo de Gráfico</Label>
           <Select 
             value={config.chartType || 'line'} 
-            onValueChange={(value) => setConfig({ ...config, chartType: value as any })}
+            onValueChange={(value: 'line' | 'bar' | 'pie' | 'donut') => setConfig({ ...config, chartType: value })}
           >
             <SelectTrigger>
               <SelectValue />

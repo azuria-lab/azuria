@@ -80,7 +80,7 @@ export const useWebhookAutomation = () => {
         }
       };
 
-      const response = await fetch(webhook.url, {
+  const _response = await fetch(webhook.url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,9 +93,9 @@ export const useWebhookAutomation = () => {
       updateWebhook(id, { lastTriggered: new Date().toLocaleString('pt-BR') });
       
       toast.success(`Webhook "${webhook.name}" testado com sucesso`);
-    } catch (error) {
-      console.error("Erro ao testar webhook:", error);
-      toast.error(`Erro ao testar webhook: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Erro ao testar webhook: ${message}`);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +104,7 @@ export const useWebhookAutomation = () => {
   const triggerWebhook = useCallback(async (
     webhookId: string, 
     event: string, 
-    data: any
+  data: unknown
   ) => {
     const webhook = webhooks.find(w => w.id === webhookId);
     if (!webhook || !webhook.active) {return;}
@@ -129,14 +129,13 @@ export const useWebhookAutomation = () => {
       // Atualizar último disparo
       updateWebhook(webhookId, { lastTriggered: new Date().toLocaleString('pt-BR') });
       
-      console.log(`Webhook ${webhook.name} disparado para evento: ${event}`);
-    } catch (error) {
-      console.error(`Erro ao disparar webhook ${webhook.name}:`, error);
+  } catch (_error) {
+      // Implementar retry logic
       
       // Implementar retry logic
       if (webhook.retries < 3) {
         setTimeout(() => {
-          triggerWebhook(webhookId, event, data);
+          void triggerWebhook(webhookId, event, data);
           updateWebhook(webhookId, { retries: webhook.retries + 1 });
         }, 5000 * (webhook.retries + 1)); // Backoff exponencial
       }
@@ -169,9 +168,12 @@ export const useWebhookAutomation = () => {
     toast.success("Regra de automação removida");
   }, []);
 
+  const isExecutionData = (d: unknown): d is { margin?: number; category?: string } =>
+    typeof d === 'object' && d !== null;
+
   const executeAutomation = useCallback(async (
     trigger: AutomationRule['trigger'],
-    data: any
+    data: unknown
   ) => {
     const applicableRules = automationRules.filter(rule => 
       rule.active && rule.trigger === trigger
@@ -181,16 +183,16 @@ export const useWebhookAutomation = () => {
       // Verificar condições
       let shouldExecute = true;
 
-      if (rule.conditions.minMargin && data.margin < rule.conditions.minMargin) {
+    if (rule.conditions.minMargin && isExecutionData(data) && typeof data.margin === 'number' && data.margin < rule.conditions.minMargin) {
         shouldExecute = false;
       }
       
-      if (rule.conditions.maxMargin && data.margin > rule.conditions.maxMargin) {
+    if (rule.conditions.maxMargin && isExecutionData(data) && typeof data.margin === 'number' && data.margin > rule.conditions.maxMargin) {
         shouldExecute = false;
       }
       
-      if (rule.conditions.categories && data.category && 
-          !rule.conditions.categories.includes(data.category)) {
+    if (rule.conditions.categories && isExecutionData(data) && typeof data.category === 'string' && 
+      !rule.conditions.categories.includes(data.category)) {
         shouldExecute = false;
       }
 
@@ -204,11 +206,11 @@ export const useWebhookAutomation = () => {
   }, [automationRules, triggerWebhook]);
 
   // Função para simular eventos automáticos (seria chamada pelos outros componentes)
-  const simulateCalculationEvent = useCallback((calculationData: any) => {
+  const simulateCalculationEvent = useCallback((calculationData: unknown) => {
     executeAutomation('calculation_completed', calculationData);
   }, [executeAutomation]);
 
-  const simulatePriceChangeEvent = useCallback((priceData: any) => {
+  const simulatePriceChangeEvent = useCallback((priceData: unknown) => {
     executeAutomation('price_changed', priceData);
   }, [executeAutomation]);
 

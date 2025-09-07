@@ -7,7 +7,7 @@ import ProUpgradeBanner from "@/components/calculators/ProUpgradeBanner";
 import { useAuth } from "@/hooks/auth";
 
 export default function MarketplaceComparatorPage() {
-  const { user, isPro } = useAuth();
+  const { user: _user, isPro } = useAuth();
   
   return (
     <Layout>

@@ -2,5 +2,9 @@
   // Point the SQLFluff extension to the installed executable
   "sqlfluff.executablePath": "C:/Python313/Scripts/sqlfluff.exe",
   // Optional: silence virtualenv prompt for Python terminal
-  "python.terminal.activateEnvironment": false
+  "python.terminal.activateEnvironment": false,
+  // Linting: markdown
+  "markdownlint.config": {
+    "MD041": false
+  }
 }

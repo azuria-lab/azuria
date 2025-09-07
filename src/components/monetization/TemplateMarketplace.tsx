@@ -4,19 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Award,
-  DollarSign,
-  Download,
-  Eye,
-  Filter,
-  Search,
-  ShoppingBag,
-  Star,
-  TrendingUp,
-  Users
-} from "lucide-react";
+import { Award, Download, Eye, Search, ShoppingBag, Star, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
 
@@ -24,7 +12,21 @@ export default function TemplateMarketplace() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
 
-  const templates = [
+  type Template = {
+    id: number;
+    title: string;
+    description: string;
+    price: string;
+    rating: number;
+    downloads: number;
+    author: string;
+    category: string;
+    image: string;
+    tags: string[];
+    featured: boolean;
+  };
+
+  const templates: Template[] = [
     {
       id: 1,
       title: "Precificação para E-commerce",
@@ -150,11 +152,11 @@ export default function TemplateMarketplace() {
     return matchesSearch && matchesCategory;
   });
 
-  const handlePurchase = (template: any) => {
+  const handlePurchase = (template: Template) => {
     toast.success(`Comprando template: ${template.title}`);
   };
 
-  const handlePreview = (template: any) => {
+  const handlePreview = (template: Template) => {
     toast.info(`Visualizando template: ${template.title}`);
   };
 

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
+import { logger } from "@/services/logger";
 import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
@@ -53,8 +54,8 @@ export default function PricingPage() {
         body: { plan }
       });
 
-      if (error) {
-        console.error("Erro ao criar checkout:", error);
+          if (error) {
+            logger.error("Erro ao criar checkout:", error);
         toast.error("Erro ao processar pagamento. Tente novamente.");
         return;
       }
@@ -66,7 +67,7 @@ export default function PricingPage() {
         toast.error("Erro ao gerar link de pagamento");
       }
     } catch (error) {
-      console.error("Erro no checkout:", error);
+          logger.error("Erro no checkout:", error);
       toast.error("Erro inesperado. Tente novamente.");
     } finally {
       setIsLoading(false);

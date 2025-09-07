@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import type { CalculationHistory, CalculationResult } from "@/types/simpleCalculator";
 import { supabase } from "@/integrations/supabase/client";
-import { CalculationHistory } from "@/types/simpleCalculator";
 import { useAuthContext } from "@/domains/auth";
 
 export const useRealTimeHistory = () => {
@@ -11,7 +11,7 @@ export const useRealTimeHistory = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Carregar histórico inicial
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     if (!user?.id) {return;}
 
     try {
@@ -27,27 +27,31 @@ export const useRealTimeHistory = () => {
 
       if (error) {throw error;}
 
-      const formattedHistory = (data || []).map(item => ({
-        id: item.id,
-        date: new Date(item.date),
-        cost: item.cost,
-        margin: item.margin,
-        tax: item.tax || "",
-        cardFee: item.card_fee || "",
-        shipping: item.shipping || "",
-        otherCosts: item.other_costs || "",
-        includeShipping: item.include_shipping || false,
-        result: item.result as any
-      }));
+      const formattedHistory = (data || []).map(item => {
+        const jsonResult = item.result as unknown;
+        const result = jsonResult as CalculationResult; // trusted shape from DB
+        return {
+          id: item.id,
+          date: new Date(item.date),
+          cost: item.cost,
+          margin: item.margin,
+          tax: item.tax || "",
+          cardFee: item.card_fee || "",
+          shipping: item.shipping || "",
+          otherCosts: item.other_costs || "",
+          includeShipping: item.include_shipping || false,
+          result,
+        };
+      });
 
       setHistory(formattedHistory);
-    } catch (err: any) {
-      console.error("Erro ao carregar histórico:", err);
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao carregar histórico';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Configurar realtime para atualizações automáticas
   useEffect(() => {
@@ -75,9 +79,9 @@ export const useRealTimeHistory = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, loadHistory]);
 
-  const deleteHistoryItem = async (id: string) => {
+  const deleteHistoryItem = useCallback(async (id: string) => {
     try {
       setError(null);
       const { error } = await supabase
@@ -88,13 +92,13 @@ export const useRealTimeHistory = () => {
       if (error) {throw error;}
       
       // O realtime vai atualizar automaticamente
-    } catch (err: any) {
-      console.error("Erro ao deletar item:", err);
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao deletar item';
+      setError(message);
     }
-  };
+  }, []);
 
-  const clearAllHistory = async () => {
+  const clearAllHistory = useCallback(async () => {
     if (!user?.id) {return;}
 
     try {
@@ -107,11 +111,11 @@ export const useRealTimeHistory = () => {
       if (error) {throw error;}
       
       // O realtime vai atualizar automaticamente
-    } catch (err: any) {
-      console.error("Erro ao limpar histórico:", err);
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao limpar histórico';
+      setError(message);
     }
-  };
+  }, [user?.id]);
 
   return {
     history,

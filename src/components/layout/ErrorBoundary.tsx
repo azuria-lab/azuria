@@ -30,11 +30,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-    
-    // Log error to monitoring service
-    if (typeof window !== 'undefined' && (window as any).__AZURIA_ERROR_HANDLER__) {
-      (window as any).__AZURIA_ERROR_HANDLER__(error, errorInfo);
+    // Log error to monitoring service if available
+    const win = window as unknown as { __AZURIA_ERROR_HANDLER__?: (e: Error, info: ErrorInfo) => void };
+    if (typeof window !== 'undefined' && typeof win.__AZURIA_ERROR_HANDLER__ === 'function') {
+      win.__AZURIA_ERROR_HANDLER__(error, errorInfo);
     }
 
     this.setState({

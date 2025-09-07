@@ -10,7 +10,7 @@ interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   progress: number;
   maxProgress: number;
   completed: boolean;
@@ -24,7 +24,7 @@ interface GamificationSystemProps {
 
 export default function GamificationSystem({ compact = false }: GamificationSystemProps) {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
+  const [newAchievement] = useState<Achievement | null>(null);
   const [totalPoints, setTotalPoints] = useState(0);
   const [level, setLevel] = useState(1);
 

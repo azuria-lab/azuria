@@ -10,6 +10,7 @@ import MLFactorsAnalysis from "./ml-pricing/MLFactorsAnalysis";
 import MLConfidenceIndicator from "./ml-pricing/MLConfidenceIndicator";
 import MLAnalysisExplanation from "./ml-pricing/MLAnalysisExplanation";
 import MLActionButtons from "./ml-pricing/MLActionButtons";
+import { logger } from "@/services/logger";
 
 interface MLPricingInsightsProps {
   currentPrice: number;
@@ -47,7 +48,7 @@ export default function MLPricingInsights({
       await predictOptimalPrice(marketData);
       setHasAnalyzed(true);
     } catch (error) {
-      console.error('ML Analysis failed:', error);
+  logger.error('ML Analysis failed:', { error });
     }
   };
 
@@ -57,7 +58,7 @@ export default function MLPricingInsights({
 
   const handleApplyPrice = () => {
     if (prediction) {
-      console.log('Aplicar preço sugerido:', prediction.suggestedPrice);
+  logger.info('Aplicar preço sugerido:', { price: prediction.suggestedPrice });
     }
   };
 

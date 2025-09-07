@@ -1,4 +1,6 @@
 // Advanced calculator types (placeholder)
-export interface AdvancedCalculationResult {
-  // TODO: Define advanced calculation result interface
-}
+export type AdvancedCalculationResult = {
+  // Minimal fields; extend later
+  sellingPrice: number;
+  confidence?: number;
+};

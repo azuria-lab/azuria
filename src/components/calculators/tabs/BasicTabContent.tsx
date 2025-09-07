@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { Marketplace } from "@/data/marketplaces";
 import { useCalculatorExport } from "@/domains/calculator/hooks/useCalculatorExport";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -29,10 +28,10 @@ interface BasicTabContentProps {
   discountPercent: number;
   discountedPrice: number | null;
   discountedProfit: number | null;
-  breakdown: any;
+  breakdown: { profit?: number; [key: string]: unknown };
   handleInputChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTargetProfitChange: (values: number[]) => void;
-  setState: React.Dispatch<React.SetStateAction<any>>;
+  setState: React.Dispatch<React.SetStateAction<unknown>>;
   calculatePrice: () => void;
   isProfitHealthy: (profit: number) => boolean;
 }
@@ -128,7 +127,17 @@ export default function BasicTabContent({
           {/* Results section */}
           <ResultsSection 
             sellingPrice={sellingPrice}
-            breakdown={breakdown}
+            breakdown={(() => {
+              if (!breakdown) { return null as unknown as { cost: number; tax: number; marketplaceFee: number; shipping: number; profit: number } | null; }
+              const bd = breakdown as Record<string, unknown>;
+              return {
+                cost: Number(bd.cost ?? 0),
+                tax: Number(bd.tax ?? 0),
+                marketplaceFee: Number(bd.marketplaceFee ?? 0),
+                shipping: Number(bd.shipping ?? 0),
+                profit: Number(bd.profit ?? 0),
+              };
+            })()}
             taxPercent={Number(taxPercent)}
             marketplaceName={selectedMarketplace?.name ?? ""}
             marketplaceFee={marketplaceFee}

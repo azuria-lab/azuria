@@ -17,7 +17,7 @@ export interface ChatSession {
   messages: ChatMessage[];
   startedAt: Date;
   status: 'active' | 'closed';
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 export interface MLPredictionResult {

@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from 'react';
-import { useMultiTenant } from '@/contexts/MultiTenantContext';
-import { ConsolidatedMetrics, StoreMetrics } from '@/types/multi-tenant';
+import { useCallback, useEffect, useState } from 'react';
+import { useMultiTenant } from '@/contexts/useMultiTenant';
+import { ConsolidatedMetrics, Store, StoreMetrics } from '@/types/multi-tenant';
 
 export const useConsolidatedMetrics = (dateRange?: { start: Date; end: Date }) => {
   const { currentOrganization, stores } = useMultiTenant();
@@ -9,7 +9,7 @@ export const useConsolidatedMetrics = (dateRange?: { start: Date; end: Date }) =
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadConsolidatedMetrics = async () => {
+  const loadConsolidatedMetrics = useCallback(async () => {
     if (!currentOrganization) {return;}
 
     setIsLoading(true);
@@ -20,7 +20,7 @@ export const useConsolidatedMetrics = (dateRange?: { start: Date; end: Date }) =
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Gerar métricas mockadas baseadas nas lojas
-      const mockStoreMetrics: StoreMetrics[] = stores.map(store => ({
+  const mockStoreMetrics: StoreMetrics[] = stores.map((store: Store) => ({
         store,
         revenue: Math.random() * 50000 + 10000, // Entre R$10k e R$60k
         calculations: Math.floor(Math.random() * 500) + 100, // Entre 100 e 600 cálculos
@@ -52,19 +52,19 @@ export const useConsolidatedMetrics = (dateRange?: { start: Date; end: Date }) =
       };
 
       setMetrics(consolidatedMetrics);
-    } catch (err: any) {
-      console.error('Erro ao carregar métricas consolidadas:', err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao carregar métricas consolidadas';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentOrganization, stores]);
 
   useEffect(() => {
     if (currentOrganization && stores.length > 0) {
-      loadConsolidatedMetrics();
+      void loadConsolidatedMetrics();
     }
-  }, [currentOrganization, stores, dateRange]);
+  }, [currentOrganization, stores, dateRange, loadConsolidatedMetrics]);
 
   return {
     metrics,

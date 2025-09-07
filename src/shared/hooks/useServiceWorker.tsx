@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { logger } from '@/services/logger';
 
 export const useServiceWorker = () => {
   const [isSupported, setIsSupported] = useState(false);
@@ -31,9 +32,9 @@ export const useServiceWorker = () => {
         }
       });
 
-      console.log('✅ Service Worker registrado');
+  logger.info('✅ Service Worker registrado');
     } catch (error) {
-      console.error('❌ Erro ao registrar Service Worker:', error);
+  logger.error('❌ Erro ao registrar Service Worker:', error);
     }
   };
 

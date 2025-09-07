@@ -12,19 +12,20 @@ type ToastOpts = Omit<ToastProps, "open"> & {
 
 type ToastInput = ToastOpts | string;
 
-const registry = new Map<string, { id: string; update: (props: any) => void; dismiss: () => void }>();
+type ToastCreated = { id: string; update: (props: Partial<ToastOpts>) => void; dismiss: () => void };
+const registry = new Map<string, ToastCreated>();
 
 function createOrUpdate(message: string, opts: Partial<ToastOpts> = {}) {
 	const { id: customId, ...rest } = opts;
-	const payload = { description: message, ...(rest as any) };
+	const payload: ToastOpts = { description: message, ...(rest as ToastOpts) };
 
 	if (customId && registry.has(customId)) {
-		const entry = registry.get(customId)!;
-		entry.update(payload as any);
+		const entry = registry.get(customId);
+		if (entry) { entry.update(payload); }
 		return entry;
 	}
 
-	const created = baseToast(payload as any);
+	const created = baseToast(payload as ToastOpts) as ToastCreated;
 	if (customId) {registry.set(customId, created);}
 	return created;
 }
@@ -34,22 +35,22 @@ function toastImpl(arg1: ToastInput, opts?: Partial<ToastOpts>) {
 		// Support legacy sonner-style: toast("message", { id, ... })
 		return createOrUpdate(arg1, opts);
 	}
-	const created = baseToast(arg1 as any);
-	if ((arg1 as ToastOpts).id) {registry.set((arg1 as ToastOpts).id!, created);}
+	const created = baseToast(arg1 as ToastOpts) as ToastCreated;
+	if ((arg1 as ToastOpts).id) {registry.set((arg1 as ToastOpts).id as string, created);}
 	return created;
 }
 
 const toast = Object.assign(toastImpl, {
 	success: (message: string, opts: Partial<ToastOpts> = {}) =>
 		createOrUpdate(message, opts),
-	error: (message: string, opts: Partial<ToastOpts> = {}) =>
-		createOrUpdate(message, { variant: "destructive", ...(opts as any) }),
+		error: (message: string, opts: Partial<ToastOpts> = {}) =>
+		createOrUpdate(message, { variant: "destructive", ...(opts as Partial<ToastOpts>) }),
 	info: (message: string, opts: Partial<ToastOpts> = {}) =>
 		createOrUpdate(message, opts),
 	warning: (message: string, opts: Partial<ToastOpts> = {}) =>
 		createOrUpdate(message, opts),
-	loading: (message: string, opts: Partial<ToastOpts> = {}) =>
-		createOrUpdate(message, { ...(opts as any) }),
+		loading: (message: string, opts: Partial<ToastOpts> = {}) =>
+		createOrUpdate(message, { ...(opts as Partial<ToastOpts>) }),
 	dismiss: (id?: string) => {
 		if (!id) {return;} // no-op for global dismiss
 		const entry = registry.get(id);

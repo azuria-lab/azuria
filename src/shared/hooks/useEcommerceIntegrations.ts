@@ -23,51 +23,6 @@ export const useEcommerceIntegrations = () => {
     },
   });
 
-  const connectPlatform = useCallback(async (
-    platform: 'shopify' | 'woocommerce' | 'mercadolivre',
-    credentials: any,
-    storeName: string
-  ) => {
-    setIsLoading(true);
-    try {
-      // Simular conexão com a plataforma
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const newConnection: EcommerceConnection = {
-        id: Date.now().toString(),
-        platform,
-        name: storeName,
-        status: 'connected',
-        credentials,
-        webhookUrl: `${window.location.origin}/api/webhooks/${platform}/${Date.now()}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      setConnections(prev => [...prev, newConnection]);
-      
-      toast.success(`${platform.charAt(0).toUpperCase() + platform.slice(1)} conectado com sucesso!`);
-      
-      // Buscar produtos automaticamente após conexão
-      await fetchProducts(newConnection.id);
-      
-      return newConnection;
-    } catch (error) {
-      console.error(`Erro ao conectar ${platform}:`, error);
-      toast.error(`Erro ao conectar com ${platform}`);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const disconnectPlatform = useCallback((connectionId: string) => {
-    setConnections(prev => prev.filter(conn => conn.id !== connectionId));
-    setProducts(prev => prev.filter(prod => prod.platform !== connectionId));
-    
-    toast.success("Plataforma desconectada com sucesso");
-  }, []);
-
   const fetchProducts = useCallback(async (connectionId: string) => {
     setIsLoading(true);
     try {
@@ -98,13 +53,58 @@ export const useEcommerceIntegrations = () => {
       ]);
 
       toast.success(`${mockProducts.length} produtos importados com sucesso`);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
+    } catch (_err) {
       toast.error("Erro ao buscar produtos");
     } finally {
       setIsLoading(false);
     }
   }, [connections]);
+
+  const connectPlatform = useCallback(async (
+    platform: 'shopify' | 'woocommerce' | 'mercadolivre',
+  credentials: EcommerceConnection['credentials'],
+    storeName: string
+  ) => {
+    setIsLoading(true);
+    try {
+      // Simular conexão com a plataforma
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const newConnection: EcommerceConnection = {
+        id: Date.now().toString(),
+        platform,
+        name: storeName,
+        status: 'connected',
+        credentials,
+        webhookUrl: `${window.location.origin}/api/webhooks/${platform}/${Date.now()}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      setConnections(prev => [...prev, newConnection]);
+      
+      toast.success(`${platform.charAt(0).toUpperCase() + platform.slice(1)} conectado com sucesso!`);
+      
+  // Buscar produtos automaticamente após conexão
+  await fetchProducts(newConnection.id);
+      
+      return newConnection;
+  } catch (_err) {
+      toast.error(`Erro ao conectar com ${platform}`);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchProducts]);
+
+  const disconnectPlatform = useCallback((connectionId: string) => {
+    setConnections(prev => prev.filter(conn => conn.id !== connectionId));
+    setProducts(prev => prev.filter(prod => prod.platform !== connectionId));
+    
+    toast.success("Plataforma desconectada com sucesso");
+  }, []);
+
+  
 
   const syncPrices = useCallback(async (productIds: string[]) => {
     setIsLoading(true);
@@ -170,8 +170,7 @@ export const useEcommerceIntegrations = () => {
         toast.warning(`${successCount} preços sincronizados, ${errorCount} com erro`);
       }
 
-    } catch (error) {
-      console.error("Erro na sincronização:", error);
+  } catch (_err) {
       toast.error("Erro na sincronização de preços");
     } finally {
       setIsLoading(false);
@@ -199,11 +198,10 @@ export const useEcommerceIntegrations = () => {
       };
 
       // Simular webhook
-      console.log('Webhook enviado:', testPayload);
+      void testPayload;
       
       toast.success(`Webhook testado com sucesso para ${connection.name}`);
-    } catch (error) {
-      console.error("Erro no teste de webhook:", error);
+    } catch (_err) {
       toast.error("Erro no teste de webhook");
     }
   }, [connections]);

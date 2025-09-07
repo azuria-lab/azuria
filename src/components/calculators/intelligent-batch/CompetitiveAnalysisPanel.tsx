@@ -6,16 +6,46 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, Target, TrendingUp, Zap } from "lucide-react";
+import type { BatchItem } from "./types";
+
+interface CompetitorInfo {
+  name: string;
+  avgPrice: number;
+  marketShare: number; // percent
+  strength: number; // 0-100
+}
+
+interface PriceEvolutionPoint {
+  month: string;
+  nossa: number;
+  mercado: number;
+  oportunidade: number;
+}
+
+type RiskLevel = 'high' | 'medium' | 'low';
+
+interface ThreatOrOpportunity {
+  level: Exclude<RiskLevel, 'low'> | 'low';
+  description: string;
+  impact: string;
+}
+
+interface CompetitiveData {
+  competitors: CompetitorInfo[];
+  priceEvolution: PriceEvolutionPoint[];
+  threats: ThreatOrOpportunity[];
+  opportunities: ThreatOrOpportunity[];
+}
 
 interface CompetitiveAnalysisPanelProps {
-  batches: any[];
+  batches: BatchItem[];
   category: string;
   isPro: boolean;
 }
 
-export default function CompetitiveAnalysisPanel({ batches, category, isPro }: CompetitiveAnalysisPanelProps) {
+export default function CompetitiveAnalysisPanel({ batches: _batches, category, isPro }: CompetitiveAnalysisPanelProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [competitiveData, setCompetitiveData] = useState<any>(null);
+  const [competitiveData, setCompetitiveData] = useState<CompetitiveData | null>(null);
 
   const runCompetitiveAnalysis = async () => {
     setIsAnalyzing(true);
@@ -23,7 +53,7 @@ export default function CompetitiveAnalysisPanel({ batches, category, isPro }: C
     // Simular análise competitiva
     await new Promise(resolve => setTimeout(resolve, 2500));
     
-    const mockData = {
+  const mockData: CompetitiveData = {
       competitors: [
         { name: "Líder do Mercado", avgPrice: 142.90, marketShare: 35, strength: 95 },
         { name: "Concorrente A", avgPrice: 138.50, marketShare: 22, strength: 78 },
@@ -128,7 +158,7 @@ export default function CompetitiveAnalysisPanel({ batches, category, isPro }: C
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {competitiveData.competitors.map((competitor: any, index: number) => (
+                {competitiveData.competitors.map((competitor, index: number) => (
                   <div key={index} className="p-3 border rounded-lg">
                     <h4 className="font-medium text-sm mb-2">{competitor.name}</h4>
                     <div className="space-y-2">
@@ -183,7 +213,7 @@ export default function CompetitiveAnalysisPanel({ batches, category, isPro }: C
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {competitiveData.threats.map((threat: any, index: number) => (
+                {competitiveData.threats.map((threat, index: number) => (
                   <div key={index} className="p-3 bg-white rounded-lg border border-red-200">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge className={
@@ -207,7 +237,7 @@ export default function CompetitiveAnalysisPanel({ batches, category, isPro }: C
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {competitiveData.opportunities.map((opp: any, index: number) => (
+                {competitiveData.opportunities.map((opp, index: number) => (
                   <div key={index} className="p-3 bg-white rounded-lg border border-green-200">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge className={

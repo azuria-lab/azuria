@@ -1,5 +1,5 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 
 interface MarketplaceProduct {
@@ -21,7 +21,7 @@ export const useRealMarketplaceData = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Dados simulados de produtos populares
-  const mockProducts: MarketplaceProduct[] = [
+  const mockProducts: MarketplaceProduct[] = useMemo(() => [
     {
       id: "1",
       name: "Smartphone Galaxy A54 128GB",
@@ -82,7 +82,7 @@ export const useRealMarketplaceData = () => {
       trend: 'stable',
       lastUpdated: new Date()
     }
-  ];
+  ], []);
 
   const searchProducts = useCallback(async (searchTerm: string) => {
     setIsLoading(true);
@@ -129,12 +129,12 @@ export const useRealMarketplaceData = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [mockProducts]);
 
   const refreshData = useCallback(() => {
     setProducts(mockProducts);
     toast.success("Dados de marketplace atualizados!");
-  }, []);
+  }, [mockProducts]);
 
   return {
     products,

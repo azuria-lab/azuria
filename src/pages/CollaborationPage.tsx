@@ -11,7 +11,6 @@ import { useSharedCalculations } from '@/hooks/useCollaboration';
 import { 
   Bell, 
   Calculator, 
-  Clock, 
   Edit3, 
   Eye,
   MessageSquare,

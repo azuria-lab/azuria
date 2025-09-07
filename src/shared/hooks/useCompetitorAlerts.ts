@@ -1,8 +1,7 @@
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { AlertSettings, CompetitorAlert } from "@/types/competitorAlerts";
-import { ToastAction } from "@/components/ui/toast";
 
 export const useCompetitorAlerts = () => {
   const [alerts, setAlerts] = useState<CompetitorAlert[]>([]);
@@ -66,15 +65,8 @@ export const useCompetitorAlerts = () => {
     setAlerts(prev => [alert, ...prev.slice(0, 9)]);
     
     if (settings.enableNotifications) {
-      const action = React.createElement(
-        ToastAction as any,
-        { altText: 'Ver detalhes', onClick: () => console.log('Ver alerta:', alert) },
-        'Ver detalhes'
-      ) as any;
-
       toast(`🔔 ${alert.competitor}`, {
-        description: alert.description,
-        action
+        description: alert.description
       });
     }
   }, [settings.enableNotifications]);

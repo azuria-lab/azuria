@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EcommerceConnection } from "@/types/ecommerce";
@@ -12,7 +12,11 @@ import { ExternalLink, Plus, RefreshCw, Store, TestTube, Trash2 } from "lucide-r
 interface PlatformConnectionsProps {
   connections: EcommerceConnection[];
   isLoading: boolean;
-  onConnect: (platform: 'shopify' | 'woocommerce' | 'mercadolivre', credentials: any, storeName: string) => Promise<EcommerceConnection | null>;
+  onConnect: (
+    platform: 'shopify' | 'woocommerce' | 'mercadolivre',
+    credentials: Record<string, string>,
+    storeName: string
+  ) => Promise<EcommerceConnection | null>;
   onDisconnect: (connectionId: string) => void;
   onTest: (connectionId: string) => void;
   onRefreshProducts: (connectionId: string) => void;
@@ -63,7 +67,7 @@ export default function PlatformConnections({
 
   // Ensure we NEVER set selectedPlatform to ''
   const handlePlatformChange = (value: string) => {
-    if (value === '' || value == null) {
+  if (value === '' || value === null) {
       setSelectedPlatform(undefined);
       return;
     }
@@ -72,7 +76,6 @@ export default function PlatformConnections({
         ? (value as 'shopify' | 'woocommerce' | 'mercadolivre')
         : undefined;
     setSelectedPlatform(valid);
-    console.log("Select Platform changed to:", valid);
   };
 
   const handleConnect = async () => {

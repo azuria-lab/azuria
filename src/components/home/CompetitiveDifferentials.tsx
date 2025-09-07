@@ -12,9 +12,7 @@ import {
   Calculator, 
   CheckCircle, 
   Crown, 
-  Shield, 
   TrendingUp,
-  Users,
   Zap
 } from "lucide-react";
 

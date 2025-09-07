@@ -2,7 +2,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDebounce } from "@/hooks/useDebounce";
 
 interface OptimizedInputProps {
   label: string;

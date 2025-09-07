@@ -30,11 +30,13 @@ export class InternalAnalyticsService {
     
     localStorage.setItem('internal_analytics', JSON.stringify(events));
     
-    // Enhanced security monitoring
+  // Enhanced security monitoring
     this.checkSecurityPatterns(events);
     this.checkSuspiciousActivity(analyticsEvent);
     
-    console.log('📈 Internal Event tracked:', analyticsEvent);
+  // Route debug output via logger to respect env level
+  const { logger } = await import('@/services/logger');
+  logger.debug?.('📈 Internal Event tracked:', analyticsEvent);
   }
 
   private static checkSecurityPatterns(events: AnalyticsEvent[]) {

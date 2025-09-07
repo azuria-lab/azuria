@@ -6,7 +6,7 @@ export interface DashboardWidget {
   position: { x: number; y: number };
   size: { w: number; h: number };
   config: WidgetConfig;
-  data?: any;
+  data?: unknown;
 }
 
 export type WidgetType = 

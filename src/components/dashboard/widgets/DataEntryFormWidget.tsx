@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/domains/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Database, Save, Upload } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface DataEntryFormWidgetProps {
   userPlan: string;
@@ -109,7 +110,7 @@ export default function DataEntryFormWidget({ userPlan }: DataEntryFormWidgetPro
       refetch();
 
     } catch (error) {
-      console.error('Error saving sales data:', error);
+      logger.error('Error saving sales data:', error);
       toast({
         title: "Erro",
         description: "Erro ao salvar dados. Tente novamente.",

@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { hmacSha256Hex, randomUUID, timingSafeEqualHex } from '@/utils/crypto';
 import { logger } from '@/services/logger';

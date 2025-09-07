@@ -1,5 +1,6 @@
 
 import { useCallback } from "react";
+import { logger } from "@/services/logger";
 import { toast } from "@/components/ui/use-toast";
 import { ExportData, ScheduleOptions } from "@/types/export";
 import { generatePDFReport } from "@/utils/export/pdfExportUtils";
@@ -18,7 +19,7 @@ export const useAdvancedExportReports = () => {
       await generatePDFReport(data, fileName);
       toast.success("Relatório PDF avançado exportado com sucesso!");
     } catch (error) {
-      console.error("Erro ao exportar PDF avançado:", error);
+  logger.error("Erro ao exportar PDF avançado:", { error });
       toast.error("Erro ao exportar relatório PDF avançado");
     }
   }, []);
@@ -28,7 +29,7 @@ export const useAdvancedExportReports = () => {
       await generateExcelReport(data, fileName);
       toast.success("Relatório Excel com múltiplas abas exportado com sucesso!");
     } catch (error) {
-      console.error("Erro ao exportar Excel:", error);
+  logger.error("Erro ao exportar Excel:", { error });
       toast.error("Erro ao exportar relatório Excel");
     }
   }, []);
@@ -46,7 +47,7 @@ export const useAdvancedExportReports = () => {
       
       return scheduleData;
     } catch (error) {
-      console.error("Erro ao agendar relatório:", error);
+  logger.error("Erro ao agendar relatório:", { error });
       toast.error("Erro ao agendar relatório");
       return null;
     }
@@ -61,7 +62,7 @@ export const useAdvancedExportReports = () => {
       removeStoredSchedule(id);
       toast.success("Agendamento removido com sucesso!");
     } catch (error) {
-      console.error("Erro ao remover agendamento:", error);
+  logger.error("Erro ao remover agendamento:", { error });
       toast.error("Erro ao remover agendamento");
     }
   }, []);

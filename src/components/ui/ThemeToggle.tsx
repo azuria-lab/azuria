@@ -3,57 +3,10 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/components/ui/theme-provider";
-import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-  const [isReady, setIsReady] = useState(false);
-  
-  // Safe theme access with proper initialization
-  const getThemeData = () => {
-    if (!isReady) {
-      return {
-        theme: "system" as const,
-        setTheme: () => {}
-      };
-    }
-    
-    try {
-      return useTheme();
-    } catch (error) {
-      console.log('Theme context not ready yet');
-      return {
-        theme: "system" as const,
-        setTheme: () => {}
-      };
-    }
-  };
-
-  const { theme, setTheme } = getThemeData();
-
-  // Initialize safely
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 200);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Show loading state until ready
-  if (!isReady) {
-    return (
-      <Button
-        variant="outline"
-        size="icon"
-        className="rounded-full w-9 h-9 border-gray-200 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-gray-800"
-        aria-label="Carregando tema"
-        disabled
-      >
-        <Sun className="h-4 w-4 text-gray-400 animate-pulse" />
-        <span className="sr-only">Carregando tema</span>
-      </Button>
-    );
-  }
+  // Always call hooks at the top level
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>

@@ -2,10 +2,31 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-interface StructuredDataProps {
-  type: 'organization' | 'breadcrumb' | 'faq' | 'product' | 'review';
-  data: any;
-}
+type OrganizationData = Partial<{
+  name: string;
+  url: string;
+  logo: string;
+  description: string;
+  contactPoint: unknown;
+  sameAs: string[];
+}>;
+
+type BreadcrumbItem = { name: string; url: string };
+type FAQItem = { question: string; answer: string };
+type ProductData = {
+  name: string;
+  description: string;
+  price?: string | number;
+  rating?: { value: number | string; count: number | string };
+};
+type ReviewData = { author: string; rating: number | string; body: string; date: string };
+
+type StructuredDataProps =
+  | { type: 'organization'; data: OrganizationData }
+  | { type: 'breadcrumb'; data: BreadcrumbItem[] }
+  | { type: 'faq'; data: FAQItem[] }
+  | { type: 'product'; data: ProductData }
+  | { type: 'review'; data: ReviewData };
 
 export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) => {
   const generateSchema = () => {
@@ -31,11 +52,11 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           ...data
         };
 
-      case 'breadcrumb':
+    case 'breadcrumb':
         return {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
-          "itemListElement": data.map((item: any, index: number) => ({
+      "itemListElement": data.map((item, index) => ({
             "@type": "ListItem",
             "position": index + 1,
             "name": item.name,
@@ -43,11 +64,11 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           }))
         };
 
-      case 'faq':
+    case 'faq':
         return {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          "mainEntity": data.map((faq: any) => ({
+      "mainEntity": data.map((faq) => ({
             "@type": "Question",
             "name": faq.question,
             "acceptedAnswer": {
@@ -57,7 +78,7 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           }))
         };
 
-      case 'product':
+  case 'product':
         return {
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
@@ -73,12 +94,12 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           },
           "aggregateRating": data.rating && {
             "@type": "AggregateRating",
-            "ratingValue": data.rating.value,
-            "reviewCount": data.rating.count
+    "ratingValue": data.rating.value,
+    "reviewCount": data.rating.count
           }
         };
 
-      case 'review':
+  case 'review':
         return {
           "@context": "https://schema.org",
           "@type": "Review",
@@ -100,7 +121,7 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
         };
 
       default:
-        return data;
+        return data as unknown as Record<string, unknown>;
     }
   };
 

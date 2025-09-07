@@ -7,14 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
   Award,
-  Calendar,
   CheckCircle,
   Clock,
   FileText,
   MessageSquare,
   Target,
   TrendingUp,
-  Users,
   Video,
   Zap
 } from "lucide-react";
@@ -22,7 +20,7 @@ import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
 
 export default function ConsultingServices() {
-  const [selectedPlan, setSelectedPlan] = useState("premium");
+  const [_selectedPlan, _setSelectedPlan] = useState("premium");
 
   const consultingPlans = [
     {

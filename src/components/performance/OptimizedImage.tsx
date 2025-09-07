@@ -18,7 +18,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   className = '',
   width,
   height,
-  quality = 85,
+  quality: _quality = 85,
   lazy = true
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);

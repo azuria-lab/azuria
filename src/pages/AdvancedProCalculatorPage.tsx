@@ -6,6 +6,8 @@ import Footer from "@/components/layout/Footer";
 import AdvancedProCalculator from "@/components/calculators/AdvancedProCalculator";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/services/logger";
+import type { User } from "@supabase/supabase-js";
 import LoadingState from "@/components/calculators/LoadingState";
 import ProUpgradeBanner from "@/components/calculators/ProUpgradeBanner";
 
@@ -33,7 +35,7 @@ export default function AdvancedProCalculatorPage() {
   const navigate = useNavigate();
   const [isPro, setIsPro] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -53,7 +55,7 @@ export default function AdvancedProCalculatorPage() {
         
         setIsLoading(false);
       } catch (error) {
-        console.error("Erro ao verificar sessão:", error);
+        logger.error("Erro ao verificar sessão:", error);
         setIsLoading(false);
         navigate("/login");
       }

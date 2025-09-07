@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Share, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SwipeableHistoryItemProps {
   calculation: {
@@ -17,7 +17,7 @@ interface SwipeableHistoryItemProps {
     date: string;
   };
   onDelete: (id: string) => void;
-  onShare?: (calculation: any) => void;
+  onShare?: (calculation: SwipeableHistoryItemProps["calculation"]) => void;
 }
 
 export default function SwipeableHistoryItem({
@@ -25,6 +25,7 @@ export default function SwipeableHistoryItem({
   onDelete,
   onShare
 }: SwipeableHistoryItemProps) {
+  const { toast } = useToast();
   const [isSwipedLeft, setIsSwipedLeft] = useState(false);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
@@ -53,7 +54,7 @@ export default function SwipeableHistoryItem({
   const handleCopy = () => {
     const text = `${calculation.productName}: Custo R$ ${calculation.cost.toFixed(2)}, Venda R$ ${calculation.sellingPrice.toFixed(2)}, Lucro ${calculation.margin.toFixed(1)}%`;
     navigator.clipboard.writeText(text);
-    toast.success("Cálculo copiado!");
+  toast({ title: "Cálculo copiado!" });
   };
 
   const handleShare = () => {
@@ -68,8 +69,8 @@ export default function SwipeableHistoryItem({
     if (navigator.vibrate) {
       navigator.vibrate(100);
     }
-    onDelete(calculation.id);
-    toast.success("Cálculo removido!");
+  onDelete(calculation.id);
+  toast({ title: "Cálculo removido!" });
   };
 
   return (

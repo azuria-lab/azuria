@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calculator, FileText, Settings, TrendingUp, Users } from "lucide-react";
 import { useAdvancedCalculator } from "@/domains/calculator/hooks/useAdvancedCalculator";
-import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import AdvancedCalculatorResult from "./AdvancedCalculatorResult";
 import CompetitorAnalysisDisplay from "./CompetitorAnalysisDisplay";
 import TaxAnalysisTab from "./TaxAnalysisTab";
@@ -20,7 +19,7 @@ interface AdvancedProCalculatorProps {
   userId?: string;
 }
 
-export default function AdvancedProCalculator({ userId }: AdvancedProCalculatorProps) {
+export default function AdvancedProCalculator({ userId: _userId }: AdvancedProCalculatorProps) {
   const {
     result,
     isLoading,

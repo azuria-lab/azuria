@@ -49,7 +49,7 @@ export const useAdvancedReports = () => {
       toast.success(`Relatório ${format.toUpperCase()} gerado e baixado com sucesso!`);
       
       return newReport;
-    } catch (error) {
+  } catch (_error) {
       toast.error("Erro ao gerar relatório");
       return null;
     } finally {
@@ -70,7 +70,7 @@ export const useAdvancedReports = () => {
       ));
       
       toast.success(`Relatório agendado para envio ${schedule === 'daily' ? 'diário' : schedule === 'weekly' ? 'semanal' : 'mensal'}`);
-    } catch (error) {
+  } catch (_error) {
       toast.error("Erro ao agendar relatório");
     }
   }, []);

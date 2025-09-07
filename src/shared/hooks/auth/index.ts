@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useAuthState } from "./useAuthState";
 import { useAuthMethods } from "./useAuthMethods";
 import { useUserProfile } from "./useUserProfile";
-import { UserProfileWithDisplayData } from "@/types/auth";
 
 /**
  * Main authentication hook that combines all auth-related functionality

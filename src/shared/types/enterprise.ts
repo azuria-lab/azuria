@@ -88,7 +88,7 @@ export interface ReportFilters {
   calculators?: string[];
   stores?: string[];
   status?: string[];
-  customFilters?: Record<string, any>;
+  customFilters?: Record<string, unknown>;
 }
 
 // Re-export types from multi-tenant

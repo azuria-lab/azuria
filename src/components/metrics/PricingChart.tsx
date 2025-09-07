@@ -49,7 +49,7 @@ export default function PricingChart() {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip 
-                formatter={(value: any) => {
+                formatter={(value: number | string) => {
                   if (typeof value === 'number') {
                     return `R$ ${value.toFixed(2)}`;
                   }

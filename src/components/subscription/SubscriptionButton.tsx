@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useAuthContext } from "@/domains/auth";
 import { Settings } from "lucide-react";
+import { logger } from "@/services/logger";
 
 interface SubscriptionButtonProps {
   variant?: "manage" | "refresh";
@@ -25,7 +26,7 @@ export default function SubscriptionButton({ variant = "manage", className }: Su
       const { data, error } = await supabase.functions.invoke('customer-portal');
       
       if (error) {
-        console.error("Erro ao abrir portal:", error);
+  logger.error("Erro ao abrir portal:", error);
         toast.error("Erro ao abrir portal de assinatura. Tente novamente.");
         return;
       }
@@ -37,7 +38,7 @@ export default function SubscriptionButton({ variant = "manage", className }: Su
         toast.error("Erro ao gerar link do portal");
       }
     } catch (error) {
-      console.error("Erro no portal:", error);
+  logger.error("Erro no portal:", error);
       toast.error("Erro inesperado. Tente novamente.");
     } finally {
       setIsLoading(false);
@@ -52,10 +53,10 @@ export default function SubscriptionButton({ variant = "manage", className }: Su
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
+  const { error } = await supabase.functions.invoke('check-subscription');
       
       if (error) {
-        console.error("Erro ao verificar assinatura:", error);
+  logger.error("Erro ao verificar assinatura:", error);
         toast.error("Erro ao verificar assinatura. Tente novamente.");
         return;
       }
@@ -63,7 +64,7 @@ export default function SubscriptionButton({ variant = "manage", className }: Su
       toast.success("Status da assinatura atualizado!");
       window.location.reload(); // Atualiza a página para refletir mudanças
     } catch (error) {
-      console.error("Erro na verificação:", error);
+  logger.error("Erro na verificação:", error);
       toast.error("Erro inesperado. Tente novamente.");
     } finally {
       setIsLoading(false);

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { DashboardWidget } from '@/types/dashboard';
 import WidgetRenderer from './WidgetRenderer';
 import WidgetConfigDialog from './WidgetConfigDialog';
-import { GripVertical, Maximize2, Settings, X } from 'lucide-react';
+import { GripVertical, Settings, X } from 'lucide-react';
 
 interface DraggableWidgetProps {
   widget: DashboardWidget;

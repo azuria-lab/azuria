@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/domains/auth";
+import { logger } from '@/services/logger';
 
 interface SubscriptionStatus {
   subscribed: boolean;
@@ -27,7 +28,7 @@ export const useSubscription = () => {
       const { data, error } = await supabase.functions.invoke('check-subscription');
       
       if (error) {
-        console.error("Erro ao verificar assinatura:", error);
+        logger.error("Erro ao verificar assinatura:", error);
         setSubscriptionStatus({ subscribed: false });
         return;
       }
@@ -41,7 +42,7 @@ export const useSubscription = () => {
       // Atualizar localStorage para compatibilidade
       localStorage.setItem("isPro", (data?.subscribed || false).toString());
     } catch (error) {
-      console.error("Erro na verificação de assinatura:", error);
+      logger.error("Erro na verificação de assinatura:", error);
       setSubscriptionStatus({ subscribed: false });
     } finally {
       setIsLoading(false);

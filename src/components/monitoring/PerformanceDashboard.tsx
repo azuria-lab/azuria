@@ -1,20 +1,27 @@
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { usePerformanceMonitoring, useWebVitals } from '@/hooks/useWebVitals';
-import { Activity, AlertTriangle, CheckCircle, Clock, Users, Zap } from 'lucide-react';
+import { Activity, Clock, Users, Zap } from 'lucide-react';
+import { logger } from '@/services/logger';
+
+type WebVitalMetric = {
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+};
 
 export const PerformanceDashboard: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [metrics, setMetrics] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<WebVitalMetric[]>([]);
   const performanceMonitor = usePerformanceMonitoring();
 
   const { getMetrics, getScore } = useWebVitals({
     onMetric: (metric) => {
-      console.log('Web Vital recorded:', metric.name, metric.value);
+      logger.debug?.('Web Vital recorded:', { name: metric.name, value: metric.value });
     },
     reportAllChanges: true
   });
@@ -180,7 +187,7 @@ export const PerformanceDashboard: React.FC = () => {
             <Button 
               size="sm" 
               variant="outline" 
-              onClick={() => console.log('Performance Report:', performanceReport)}
+              onClick={() => logger.info?.('Performance Report:', performanceReport)}
               className="flex-1 text-xs"
             >
               Log Report

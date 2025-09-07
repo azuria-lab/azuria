@@ -6,17 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, Brain, CheckCircle, Target, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import type { AIInsightsData, AIRecommendation, BatchItem } from "./types";
 
 interface AIInsightsPanelProps {
-  insights: any;
-  batches: any[];
-  setBatches: (batches: any[]) => void;
+  insights: AIInsightsData;
+  batches: BatchItem[];
+  setBatches: React.Dispatch<React.SetStateAction<BatchItem[]>>;
 }
 
 export default function AIInsightsPanel({ insights, batches, setBatches }: AIInsightsPanelProps) {
   
-  const applyAIRecommendation = (recommendation: any) => {
-    const updatedBatches = batches.map(batch => {
+  const applyAIRecommendation = (recommendation: AIRecommendation) => {
+    const updatedBatches = batches.map((batch) => {
       if (batch.quantity === recommendation.quantity) {
         return {
           ...batch,
@@ -92,7 +93,7 @@ export default function AIInsightsPanel({ insights, batches, setBatches }: AIIns
           <CardTitle>Recomendações Inteligentes por Quantidade</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {insights.aiRecommendations.map((rec: any, index: number) => (
+          {insights.aiRecommendations.map((rec: AIRecommendation, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}

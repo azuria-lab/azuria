@@ -1,6 +1,5 @@
 
 import { useCallback, useState } from "react";
-import { toast } from "@/components/ui/use-toast";
 import { MLPredictionResult, PredictiveAnalysis } from "@/types/ai";
 
 interface ProductData {
@@ -86,9 +85,9 @@ export const useAIPredictions = () => {
       setMlResult(mlResult);
       return mlResult;
       
-    } catch (error) {
-      console.error('ML Prediction Error:', error);
-      throw error;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao gerar predição de ML';
+      throw new Error(message);
     } finally {
       setIsAnalyzing(false);
     }
@@ -136,9 +135,9 @@ export const useAIPredictions = () => {
       setPredictiveAnalysis(analysis);
       return analysis;
       
-    } catch (error) {
-      console.error('Predictive Analysis Error:', error);
-      throw error;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro na análise preditiva';
+      throw new Error(message);
     } finally {
       setIsAnalyzing(false);
     }

@@ -1,5 +1,4 @@
 
-import { Json } from "@/integrations/supabase/types";
 
 export interface CalculationSharesTable {
   Row: {

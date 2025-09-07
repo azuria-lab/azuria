@@ -1,5 +1,7 @@
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { logger } from "@/services/logger";
 
 interface OnboardingStep {
   id: string;
@@ -89,7 +91,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setIsCompleted(true);
         }
       } catch (error) {
-        console.error('Error initializing onboarding:', error);
+        logger.error('Error initializing onboarding:', { error });
         setIsReady(true);
         setIsCompleted(true);
       }
@@ -109,7 +111,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setCurrentStep(0);
       setShowWelcomeOnboarding(false);
     } catch (error) {
-      console.error('Error starting onboarding:', error);
+      logger.error('Error starting onboarding:', { error });
     }
   };
 
@@ -121,7 +123,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         completeOnboarding();
       }
     } catch (error) {
-      console.error('Error in nextStep:', error);
+      logger.error('Error in nextStep:', { error });
     }
   };
 
@@ -131,7 +133,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setCurrentStep(currentStep - 1);
       }
     } catch (error) {
-      console.error('Error in prevStep:', error);
+      logger.error('Error in prevStep:', { error });
     }
   };
 
@@ -144,7 +146,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
       setIsCompleted(true);
     } catch (error) {
-      console.error('Error skipping onboarding:', error);
+      logger.error('Error skipping onboarding:', { error });
     }
   };
 
@@ -157,7 +159,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
       setIsCompleted(true);
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      logger.error('Error completing onboarding:', { error });
     }
   };
 

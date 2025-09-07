@@ -6,8 +6,8 @@ export const useCalculatorUI = (isPro: boolean): CalculatorUIState & CalculatorA
   // UI-specific state
   const [isLoading, setIsLoading] = useState(false);
   const [showProBanner, setShowProBanner] = useState(!isPro);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [showResultPanel, setShowResultPanel] = useState(false);
+  const [showAdvancedOptions, _setShowAdvancedOptions] = useState(false);
+  const [showResultPanel, _setShowResultPanel] = useState(false);
   
   // Actions
   const startLoading = () => setIsLoading(true);
@@ -28,7 +28,7 @@ export const useCalculatorUI = (isPro: boolean): CalculatorUIState & CalculatorA
     // Actions
     startLoading,
     stopLoading,
-    setShowProBanner,
+  setShowProBanner,
     getDisplayResult
   };
 };

@@ -6,7 +6,7 @@ interface SeasonalityHeaderProps {
   productCategory: string;
 }
 
-export default function SeasonalityHeader({ productCategory }: SeasonalityHeaderProps) {
+export default function SeasonalityHeader({ productCategory: _productCategory }: SeasonalityHeaderProps) {
   return (
     <div className="mb-4">
       <Calendar className="h-16 w-16 text-green-600 mx-auto mb-4" />

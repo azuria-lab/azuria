@@ -2,6 +2,7 @@
 import { useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatMessage, ChatSession } from "@/types/ai";
+import { logger } from '@/services/logger';
 
 export const useAIChatbot = (userId?: string) => {
   const [session, setSession] = useState<ChatSession | null>(null);
@@ -95,7 +96,7 @@ export const useAIChatbot = (userId?: string) => {
       } : null);
 
     } catch (err) {
-      console.error('Error sending message:', err);
+  logger.error('Error sending message:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       
       // Add error message

@@ -3,6 +3,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Bug, Home, RefreshCw } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface Props {
   children: ReactNode;
@@ -41,8 +42,8 @@ export class UnifiedErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const { variant = 'component', onError } = this.props;
     
-    // Log error with context
-    console.error(`[ErrorBoundary:${variant}]`, {
+  // Log error with context
+  logger.error(`[ErrorBoundary:${variant}]`, {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,

@@ -22,13 +22,15 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
+import { logger } from "@/services/logger";
 
 export default function AdminPanel() {
-  const { user, userProfile } = useAuthContext();
+  const { user: _user, userProfile: _userProfile } = useAuthContext();
   const { data: isAdmin, isLoading } = useIsAdminOrOwner();
   const { toast } = useToast();
   const [searchEmail, setSearchEmail] = useState("");
-  const [users, setUsers] = useState<any[]>([]);
+  type AdminUser = { id: string; email: string | null; name?: string | null; is_pro: boolean; created_at: string };
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   // Verificar se é admin
@@ -68,7 +70,14 @@ export default function AdminPanel() {
         .limit(10);
 
       if (error) {throw error;}
-      setUsers(data || []);
+      const mapped: AdminUser[] = (data || []).map((u) => ({
+        id: u.id as string,
+        email: (u as { email: string | null }).email ?? "",
+        name: (u as { name?: string | null }).name ?? null,
+        is_pro: Boolean((u as { is_pro: boolean | null }).is_pro),
+        created_at: (u as { created_at: string }).created_at,
+      }));
+      setUsers(mapped);
       
       if (data?.length === 0) {
         toast({
@@ -77,7 +86,7 @@ export default function AdminPanel() {
         });
       }
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
+      logger.error("Erro ao buscar usuários:", error);
       toast({
         title: "Erro na busca",
         description: "Erro ao buscar usuários",
@@ -108,7 +117,7 @@ export default function AdminPanel() {
         description: `Usuário ${!currentStatus ? 'promovido para PRO' : 'rebaixado para FREE'}`,
       });
     } catch (error) {
-      console.error("Erro ao atualizar status:", error);
+      logger.error("Erro ao atualizar status:", error);
       toast({
         title: "Erro",
         description: "Erro ao atualizar status do usuário",

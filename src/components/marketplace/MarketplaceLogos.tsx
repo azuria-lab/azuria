@@ -83,7 +83,7 @@ export default function MarketplaceLogos({
         initial="hidden"
         animate="visible"
       >
-        {marketplaces.map((marketplace, index) => {
+  {marketplaces.map((marketplace) => {
           const LogoComponent = marketplace.component;
           return (
             <motion.div
@@ -121,7 +121,7 @@ export default function MarketplaceLogos({
       initial="hidden"
       animate="visible"
     >
-      {marketplaces.map((marketplace, index) => {
+  {marketplaces.map((marketplace) => {
         const LogoComponent = marketplace.component;
         return (
           <motion.div

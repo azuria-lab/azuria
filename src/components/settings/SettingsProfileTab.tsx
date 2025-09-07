@@ -4,15 +4,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
+import { logger } from "@/services/logger";
+
+interface ProfileData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+}
 
 interface Props {
-  onSave: (data: any) => Promise<boolean> | void;
-  initialData?: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    company?: string;
-  };
+  onSave: (data: ProfileData) => Promise<boolean> | void;
+  initialData?: ProfileData;
 }
 
 const SettingsProfileTab: React.FC<Props> = ({ 
@@ -25,7 +28,7 @@ const SettingsProfileTab: React.FC<Props> = ({
   } 
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<ProfileData>(initialData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,7 +45,7 @@ const SettingsProfileTab: React.FC<Props> = ({
     try {
       await onSave(formData);
     } catch (error) {
-      console.error("Erro ao salvar perfil:", error);
+      logger.error("Erro ao salvar perfil:", error);
     } finally {
       setIsSubmitting(false);
     }

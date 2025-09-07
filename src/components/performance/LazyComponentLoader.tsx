@@ -4,7 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { UnifiedErrorBoundary as ErrorBoundary } from "@/shared/components/ErrorBoundary";
 
-interface LazyComponentLoaderProps {
+type AnyProps = Record<string, unknown>;
+
+interface LazyComponentLoaderProps extends AnyProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importFunc: () => Promise<{ default: React.ComponentType<any> }>;
   fallback?: React.ReactNode;
   errorFallback?: React.ReactNode;
@@ -45,12 +48,14 @@ export const LazyComponentLoader: React.FC<LazyComponentLoaderProps> = ({
   children,
   ...props
 }) => {
-  const LazyComponent = lazy(importFunc);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const LazyComponent = lazy(importFunc) as unknown as React.ComponentType<any>;
 
   return (
     <ErrorBoundary fallback={errorFallback}>
       <Suspense fallback={fallback}>
-        <LazyComponent {...props}>
+  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+  <LazyComponent {...(props as any)}>
           {children}
         </LazyComponent>
       </Suspense>

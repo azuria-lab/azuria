@@ -1,6 +1,7 @@
 import { loadWebVitals, subscribeToVitals } from './collect';
 import { getRatingEmoji, isCritical, score } from './analyze';
 import { createReport, sendReport, sendReportsBatch } from './report';
+import { logger } from '@/services/logger';
 import type { PerformanceReport, WebVitalMetric } from './types';
 
 class Reporter {
@@ -28,8 +29,7 @@ class Reporter {
   const meta = import.meta as unknown as { env: { DEV: boolean } };
   if (meta.env.DEV) {
       const emoji = getRatingEmoji(metric.rating);
-      // eslint-disable-next-line no-console
-      console.log(`📊 ${emoji} [${metric.name}]:`, `${metric.value.toFixed(2)}ms`, `(${metric.rating})`);
+      logger.debug(`📊 ${emoji} [${metric.name}]:`, `${metric.value.toFixed(2)}ms`, `(${metric.rating})`);
     }
     if (isCritical(metric)) { this.reportNow(metric); }
   };

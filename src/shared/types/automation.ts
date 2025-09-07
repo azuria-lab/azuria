@@ -23,14 +23,14 @@ export interface RuleCondition {
   type: 'product' | 'market' | 'time' | 'user' | 'calculation';
   field: string;
   operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'between' | 'in' | 'not_in';
-  value: any;
+  value: unknown;
   logic?: 'and' | 'or';
 }
 
 export interface RuleAction {
   id: string;
   type: 'price_adjustment' | 'alert' | 'notification' | 'api_call' | 'webhook' | 'email';
-  config: any;
+  config: Record<string, unknown>;
   delay?: number;
 }
 
@@ -47,13 +47,13 @@ export interface AutomationExecution {
   rule_id: string;
   user_id: string;
   status: 'success' | 'failed' | 'pending' | 'cancelled';
-  input_data?: any;
-  output_data?: any;
+  input_data?: unknown;
+  output_data?: unknown;
   error_message?: string;
   execution_time_ms?: number;
   started_at: string;
   completed_at?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AutomationAlert {
@@ -64,7 +64,7 @@ export interface AutomationAlert {
   title: string;
   message: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  data?: any;
+  data?: Record<string, unknown>;
   is_read: boolean;
   is_resolved: boolean;
   notification_channels: string[];
@@ -80,7 +80,7 @@ export interface AutomationWorkflow {
   description?: string;
   is_active: boolean;
   trigger_type: 'schedule' | 'event' | 'manual' | 'condition';
-  trigger_config: any;
+  trigger_config: Record<string, unknown>;
   steps: WorkflowStep[];
   approval_required: boolean;
   approval_users?: string[];
@@ -96,7 +96,7 @@ export interface WorkflowStep {
   id: string;
   name: string;
   type: 'action' | 'condition' | 'approval' | 'delay';
-  config: any;
+  config: Record<string, unknown>;
   on_success?: string;
   on_failure?: string;
 }
@@ -108,7 +108,7 @@ export interface WorkflowApproval {
   requested_by: string;
   approver_id?: string;
   status: 'pending' | 'approved' | 'rejected' | 'expired';
-  request_data?: any;
+  request_data?: Record<string, unknown>;
   comment?: string;
   requested_at: string;
   responded_at?: string;
@@ -120,7 +120,7 @@ export interface AutomationTemplate {
   name: string;
   description?: string;
   category: string;
-  template_data: any;
+  template_data: Record<string, unknown>;
   is_public: boolean;
   created_by?: string;
   usage_count: number;

@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Copy, Download, FileText, Package } from "lucide-react";
+import { Code2, Copy, Download, Package } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { logger } from "@/services/logger";
 
 type SdkLanguage = 'javascript' | 'python' | 'php';
 
@@ -105,8 +106,8 @@ $client = new PrecificaClient([
     const sdk = sdkOptions[selectedLanguage];
     toast.success(`SDK ${sdk.name} gerado com sucesso!`);
     
-    // Aqui você implementaria a geração real do SDK
-    console.log(`Generating ${sdk.name} for project: ${projectName}`);
+  // Aqui você implementaria a geração real do SDK
+  logger.info(`Generating ${sdk.name} for project: ${projectName}`);
   };
 
   const copyToClipboard = (text: string) => {

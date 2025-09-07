@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { throttle1 } from '@/utils/performance';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 interface VirtualizedListProps<T> {
   items: T[];
@@ -38,24 +37,20 @@ export function VirtualizedList<T>({
   }, [scrollTop, itemHeight, containerHeight, items.length, overscan]);
 
   // Throttled scroll handler
-  const handleScroll = useCallback(
-    throttle1<React.UIEvent<HTMLDivElement>>((e) => {
-      const newScrollTop = e.currentTarget.scrollTop;
-      setScrollTop(newScrollTop);
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const newScrollTop = e.currentTarget.scrollTop;
+    setScrollTop(newScrollTop);
 
-      // Verificar se chegou próximo ao fim
-      if (onEndReached) {
-        const scrollHeight = e.currentTarget.scrollHeight;
-        const clientHeight = e.currentTarget.clientHeight;
-        const scrollPercent = (newScrollTop + clientHeight) / scrollHeight;
+    if (onEndReached) {
+      const scrollHeight = e.currentTarget.scrollHeight;
+      const clientHeight = e.currentTarget.clientHeight;
+      const scrollPercent = (newScrollTop + clientHeight) / scrollHeight;
 
-        if (scrollPercent >= endReachedThreshold) {
-          onEndReached();
-        }
+      if (scrollPercent >= endReachedThreshold) {
+        onEndReached();
       }
-  }, 16), // ~60fps
-    [onEndReached, endReachedThreshold]
-  );
+    }
+  }, [onEndReached, endReachedThreshold]);
 
   // Itens visíveis
   const visibleItems = useMemo(() => {
@@ -109,87 +104,6 @@ export function VirtualizedList<T>({
 }
 
 // Hook para usar com infinite scroll
-export const useInfiniteScroll = <T,>(
-  initialItems: T[],
-  loadMore: () => Promise<T[]>,
-  hasMore: boolean = true
-) => {
-  const [items, setItems] = useState<T[]>(initialItems);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const handleEndReached = useCallback(async () => {
-    if (loading || !hasMore) {return;}
-
-    try {
-      setLoading(true);
-      setError(null);
-      const newItems = await loadMore();
-      setItems(prev => [...prev, ...newItems]);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load more'));
-    } finally {
-      setLoading(false);
-    }
-  }, [loading, hasMore, loadMore]);
-
-  return {
-    items,
-    loading,
-    error,
-    handleEndReached,
-    setItems
-  };
-};
-
-// Lista virtualizada com infinite scroll
-export const InfiniteVirtualizedList = <T,>({
-  initialItems,
-  loadMore,
-  hasMore = true,
-  itemHeight,
-  containerHeight,
-  renderItem,
-  loadingComponent,
-  errorComponent,
-  ...props
-}: {
-  initialItems: T[];
-  loadMore: () => Promise<T[]>;
-  hasMore?: boolean;
-  loadingComponent?: React.ReactNode;
-  errorComponent?: (error: Error, retry: () => void) => React.ReactNode;
-} & Omit<VirtualizedListProps<T>, 'items' | 'onEndReached'>) => {
-  
-  const { items, loading, error, handleEndReached } = useInfiniteScroll(
-    initialItems,
-    loadMore,
-    hasMore
-  );
-
-  if (error && errorComponent) {
-    return <>{errorComponent(error, handleEndReached)}</>;
-  }
-
-  return (
-    <div>
-      <VirtualizedList
-        items={items}
-        itemHeight={itemHeight}
-        containerHeight={containerHeight}
-        renderItem={renderItem}
-        onEndReached={handleEndReached}
-        {...props}
-      />
-      {loading && (
-        <div className="p-4 text-center">
-          {loadingComponent || <div>Carregando mais itens...</div>}
-        </div>
-      )}
-    </div>
-  );
-};
-
 // Lista virtualizada simples para pequenas listas
 export const SimpleVirtualizedList = <T,>({
   items,

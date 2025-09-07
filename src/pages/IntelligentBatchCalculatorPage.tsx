@@ -7,8 +7,9 @@ import IntelligentBatchCalculator from "@/components/calculators/IntelligentBatc
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingState from "@/components/calculators/LoadingState";
-import ProUpgradeBanner from "@/components/calculators/ProUpgradeBanner";
 import { Brain, Package2, Zap } from "lucide-react";
+import { logger } from "@/services/logger";
+import type { User } from "@supabase/supabase-js";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,7 +35,7 @@ export default function IntelligentBatchCalculatorPage() {
   const navigate = useNavigate();
   const [isPro, setIsPro] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -54,7 +55,7 @@ export default function IntelligentBatchCalculatorPage() {
         
         setIsLoading(false);
       } catch (error) {
-        console.error("Erro ao verificar sessão:", error);
+        logger.error("Erro ao verificar sessão:", error);
         setIsLoading(false);
         navigate("/login");
       }

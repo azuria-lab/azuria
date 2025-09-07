@@ -23,7 +23,7 @@ interface AdvancedExportOptionsProps {
 }
 
 export default function AdvancedExportOptions({ 
-  data, 
+  data: _data, 
   onExportPdf, 
   onExportCsv, 
   onShare,

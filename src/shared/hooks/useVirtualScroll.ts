@@ -1,5 +1,5 @@
 // Virtual scrolling hook for large lists performance
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 interface VirtualScrollOptions {
   itemHeight: number;

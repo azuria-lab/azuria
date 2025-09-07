@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cell, Funnel, FunnelChart, LabelList, ResponsiveContainer } from "recharts";
-import { ArrowDown, Calculator, CreditCard, Eye, Users } from "lucide-react";
+import { Calculator, CreditCard, Eye, Users } from "lucide-react";
 
 // Dados mockados do funil de conversão
 const funnelData = [

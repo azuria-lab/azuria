@@ -312,7 +312,7 @@ export function RuleBuilder({ rule, onClose }: RuleBuilderProps) {
                       <Label>Valor</Label>
                       <div className="flex gap-2">
                         <Input
-                          value={condition.value}
+                          value={String(condition.value ?? "")}
                           onChange={(e) => updateCondition(index, { value: e.target.value })}
                           placeholder="Valor"
                         />

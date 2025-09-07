@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +17,7 @@ import { toast } from "@/components/ui/use-toast";
 import { usePWA } from "@/hooks/usePWA";
 import { useMobileFeatures } from "@/hooks/useMobileFeatures";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { logger } from "@/services/logger";
 
 export default function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
@@ -26,7 +26,7 @@ export default function PWAInstallPrompt() {
 
   const { isInstallable, isInstalled, isOnline, installApp } = usePWA();
   const { shareData, vibrate, isStandalone } = useMobileFeatures();
-  const { requestPermission, permission, isSupported: notificationsSupported } = usePushNotifications();
+  const { requestPermission, permission: _permission, isSupported: notificationsSupported } = usePushNotifications();
 
   useEffect(() => {
     // Check if user has previously dismissed the prompt
@@ -59,7 +59,7 @@ export default function PWAInstallPrompt() {
         toast.error("Não foi possível instalar o app. Tente novamente.");
       }
     } catch (error) {
-      console.error('Error installing app:', error);
+  logger.error('Error installing app:', error);
       toast.error("Erro ao instalar o app.");
     }
   };
@@ -82,7 +82,7 @@ export default function PWAInstallPrompt() {
         }, 2000);
       }
     } catch (error) {
-      console.error('Error enabling notifications:', error);
+  logger.error('Error enabling notifications:', error);
       toast.error("Erro ao ativar notificações.");
     }
   };
@@ -100,7 +100,7 @@ export default function PWAInstallPrompt() {
         toast.success("Compartilhado com sucesso!");
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+  logger.error('Error sharing:', error);
     }
   };
 

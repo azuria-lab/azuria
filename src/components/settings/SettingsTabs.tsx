@@ -9,6 +9,7 @@ import SettingsSecurityTab from "@/components/settings/SettingsSecurityTab";
 import SettingsSubscriptionTab from "@/components/settings/SettingsSubscriptionTab";
 import SettingsBusinessTab from "@/components/settings/SettingsBusinessTab";
 import { UserProfileWithDisplayData } from "@/hooks/auth";
+import { logger } from "@/services/logger";
 
 interface SettingsTabsProps {
   activeTab?: string;
@@ -39,22 +40,21 @@ export default function SettingsTabs({
     }
   };
 
-  // Handle form submission
-  const handleProfileSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data: Partial<UserProfileWithDisplayData> = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-    };
-    
-    onUpdateProfile(data);
+  // Handle profile save from child tab
+  const handleProfileSave = async (data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+  }) => {
+    const result = await onUpdateProfile(data);
+    return Boolean(result);
   };
   
   // Handle notifications save
   const handleNotificationsSave = () => {
     // Implement notifications save logic
-    console.log("Saving notifications settings:", { emailNotifications });
+    logger.info("Saving notifications settings:", { emailNotifications });
   };
 
   // Simulate subscription end date (30 days from now)

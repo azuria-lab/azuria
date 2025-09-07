@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { generateBatchPDF } from "@/utils/pdf/pdfGenerator";
 import { CalculationHistory } from "@/types/simpleCalculator";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/services/logger";
 
 interface BatchPdfExportButtonProps {
   history: CalculationHistory[];
@@ -50,7 +51,7 @@ export const BatchPdfExportButton = ({ history, disabled }: BatchPdfExportButton
       });
       
     } catch (error) {
-      console.error("Erro ao gerar PDF em lote:", error);
+      logger.error("Erro ao gerar PDF em lote:", error);
       toast({
         title: "Erro ao gerar PDF",
         description: "Ocorreu um erro ao gerar o relatório. Tente novamente.",

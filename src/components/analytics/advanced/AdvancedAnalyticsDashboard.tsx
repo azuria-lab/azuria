@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRealTimeAnalytics } from "@/hooks/useRealTimeAnalytics";
+import type { AnalyticsFilters } from "@/shared/hooks/useRealTimeAnalytics";
 import { useBusinessMetrics } from "@/hooks/useBusinessMetrics";
 import RealTimeMetrics from "./RealTimeMetrics";
 import BusinessMetrics from "./BusinessMetrics";
@@ -25,8 +26,8 @@ import {
 } from "lucide-react";
 
 export default function AdvancedAnalyticsDashboard() {
-  const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'quarter' | 'year'>('today');
-  const [segment, setSegment] = useState<'all' | 'free' | 'pro'>('all');
+  const [period, setPeriod] = useState<AnalyticsFilters['period']>('today');
+  const [segment, setSegment] = useState<NonNullable<AnalyticsFilters['segment']>>('all');
   const [showExport, setShowExport] = useState(false);
 
   const { 
@@ -121,7 +122,7 @@ export default function AdvancedAnalyticsDashboard() {
 
         {/* Filters */}
         <div className="flex items-center gap-4 mb-6">
-          <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+          <Select value={period} onValueChange={(value: AnalyticsFilters['period']) => setPeriod(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -134,7 +135,7 @@ export default function AdvancedAnalyticsDashboard() {
             </SelectContent>
           </Select>
 
-          <Select value={segment} onValueChange={(value: any) => setSegment(value)}>
+          <Select value={segment} onValueChange={(value: NonNullable<AnalyticsFilters['segment']>) => setSegment(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -214,7 +215,7 @@ export default function AdvancedAnalyticsDashboard() {
 
           <TabsContent value="business" className="space-y-6">
             <BusinessMetrics 
-              businessMetrics={businessMetrics}
+              businessMetrics={businessMetrics ?? null}
               cohortData={cohortData}
               isLoading={isLoading}
             />

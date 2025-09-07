@@ -19,7 +19,13 @@ export default function PerformanceMetrics({ performanceScore }: PerformanceMetr
     ttfb: 0
   });
 
-  const [performanceHistory, setPerformanceHistory] = useState<any[]>([]);
+  const [performanceHistory, setPerformanceHistory] = useState<Array<{
+    hour: string;
+    performance: number;
+    loadTime: number;
+    errorRate: number;
+    uptime: number;
+  }>>([]);
 
   useEffect(() => {
     // Simulate Web Vitals data

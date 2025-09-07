@@ -40,7 +40,7 @@ export const useMobileFeatures = () => {
     try {
       await navigator.clipboard.writeText(text);
       return true;
-    } catch (error) {
+  } catch (_error) {
       // Fallback para browsers mais antigos
       const textarea = document.createElement('textarea');
       textarea.value = text;

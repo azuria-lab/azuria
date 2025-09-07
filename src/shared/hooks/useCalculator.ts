@@ -76,7 +76,7 @@ export const useCalculator = (marketplaceFeePercent: number = 0) => {
         discountedProfit: null
       }));
     }
-  }, [state.sellingPrice, state.discountPercent, state.cost, state.shipping, state.includeShipping, state.taxPercent, marketplaceFeePercent]);
+  }, [state.sellingPrice, state.discountPercent, state.cost, state.shipping, state.includeShipping, state.taxPercent, marketplaceFeePercent, state.discountedPrice]);
 
   // Calculate selling price based on inputs
   const calculatePrice = () => {

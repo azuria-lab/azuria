@@ -59,7 +59,7 @@ export const useApiManagement = () => {
       ];
 
       setApiKeys(mockKeys);
-    } catch (error) {
+    } catch (_err: unknown) {
       toast.error("Erro ao carregar chaves de API");
     } finally {
       setIsLoading(false);
@@ -92,7 +92,7 @@ export const useApiManagement = () => {
       toast.success("Chave de API criada com sucesso");
       
       return newKey;
-    } catch (error) {
+    } catch (_err: unknown) {
       toast.error("Erro ao criar chave de API");
       return null;
     } finally {
@@ -110,7 +110,7 @@ export const useApiManagement = () => {
       
       const key = apiKeys.find(k => k.id === keyId);
       toast.success(`Chave ${key?.isActive ? 'desativada' : 'ativada'} com sucesso`);
-    } catch (error) {
+    } catch (_err: unknown) {
       toast.error("Erro ao alterar status da chave");
     }
   }, [apiKeys]);
@@ -124,7 +124,7 @@ export const useApiManagement = () => {
       
       setApiKeys(prev => prev.filter(key => key.id !== keyId));
       toast.success("Chave de API removida");
-    } catch (error) {
+    } catch (_err: unknown) {
       toast.error("Erro ao remover chave de API");
     } finally {
       setIsLoading(false);
@@ -149,7 +149,7 @@ export const useApiManagement = () => {
       ));
       
       toast.success("Chave regenerada com sucesso");
-    } catch (error) {
+    } catch (_err: unknown) {
       toast.error("Erro ao regenerar chave");
     } finally {
       setIsLoading(false);

@@ -1,6 +1,7 @@
 
 import { useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/services/logger";
 import { MLPredictionResult, PredictiveAnalysis } from "@/types/ai";
 
 interface MarketData {
@@ -74,7 +75,7 @@ export const useMLPricing = () => {
       setAnalysis(predictiveAnalysis);
 
     } catch (err) {
-      console.error('Error in ML pricing prediction:', err);
+      logger.error('Error in ML pricing prediction:', err);
       setError(err instanceof Error ? err.message : 'Erro na análise');
       
       // Fallback prediction
@@ -108,7 +109,15 @@ export const useMLPricing = () => {
 };
 
 // Helper functions
-function calculateMarketFactors(marketData: MarketData, aiResult: any) {
+type AiAnalysisResult = {
+  suggestedPrice: number;
+  confidence: number;
+  analysis?: string;
+  riskLevel?: 'low' | 'medium' | 'high' | string;
+  recommendations?: string[];
+};
+
+function calculateMarketFactors(marketData: MarketData, aiResult: AiAnalysisResult) {
   const seasonalityFactor = marketData.seasonality === 'high' ? 15 : 
                            marketData.seasonality === 'medium' ? 5 : 0;
   
@@ -126,7 +135,7 @@ function calculateMarketFactors(marketData: MarketData, aiResult: any) {
   };
 }
 
-function generateAlternatives(basePrice: number, marketData: MarketData) {
+function generateAlternatives(basePrice: number, _marketData: MarketData) {
   return [
     {
       price: basePrice * 0.9,
@@ -152,10 +161,10 @@ function generateDemandForecast(marketData: MarketData) {
                 marketData.demandTrend === 'declining' ? 0.9 : 1.0;
 
   return {
-    next7Days: Array.from({ length: 7 }, (_, i) => 
+  next7Days: Array.from({ length: 7 }, (_, _i) => 
       Math.round(baseVolume * trend * (1 + Math.random() * 0.2 - 0.1))
     ),
-    next30Days: Array.from({ length: 30 }, (_, i) => 
+  next30Days: Array.from({ length: 30 }, (_, _i) => 
       Math.round(baseVolume * trend * (1 + Math.random() * 0.3 - 0.15))
     ),
     confidence: 75

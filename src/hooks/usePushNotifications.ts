@@ -7,8 +7,8 @@ export const usePushNotifications = () => {
     subscribe: () => {},
     unsubscribe: () => {},
     requestPermission: async () => false,
-    sendPriceAlert: (productName: string, oldPrice: number, newPrice: number) => false,
-    sendMarketUpdate: (message: string) => false,
+  sendPriceAlert: (_productName: string, _oldPrice: number, _newPrice: number) => false,
+  sendMarketUpdate: (_message: string) => false,
     sendCalculationReminder: () => false
   };
 };

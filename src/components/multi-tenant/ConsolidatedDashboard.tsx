@@ -1,12 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  Building2, 
   Calculator, 
   DollarSign, 
   Download, 
@@ -15,14 +14,14 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react';
-import { useConsolidatedMetrics } from '@/hooks/useConsolidatedMetrics';
-import { useMultiTenant } from '@/contexts/MultiTenantContext';
+import { useConsolidatedMetrics } from '@/shared/hooks/useConsolidatedMetrics';
+import { useMultiTenant } from '@/contexts/useMultiTenant';
 import { formatCurrency } from '@/utils/calculator/formatCurrency';
 
 export default function ConsolidatedDashboard() {
   const { currentOrganization, stores } = useMultiTenant();
   const { metrics, isLoading, refreshMetrics } = useConsolidatedMetrics();
-  const [selectedPeriod, setSelectedPeriod] = useState('30d');
+  // reserved for future filtering UI
 
   if (isLoading) {
     return (
@@ -100,7 +99,7 @@ export default function ConsolidatedDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics.totalStores}</div>
             <p className="text-xs text-muted-foreground">
-              {stores.filter(s => s.isActive).length} ativas
+              {stores.filter((s: { isActive: boolean }) => s.isActive).length} ativas
             </p>
           </CardContent>
         </Card>

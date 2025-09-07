@@ -1,7 +1,5 @@
 
-import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CalculationTemplate, TemplateFilters } from '@/types/templates';
 
@@ -68,7 +66,7 @@ export const useTemplates = (filters?: TemplateFilters) => {
   const createTemplateMutation = useMutation({
     mutationFn: async (template: Partial<CalculationTemplate>) => {
       // Implementação mock por enquanto
-      console.log('Criando template:', template);
+  // noop in mock
       return { id: 'new-template-id', ...template };
     },
     onSuccess: () => {
@@ -76,9 +74,10 @@ export const useTemplates = (filters?: TemplateFilters) => {
       toast({ title: "Template criado com sucesso!" });
     },
     onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
       toast({
         title: "Erro ao criar template",
-        description: error.message,
+        description: message,
         variant: "destructive"
       });
     }
@@ -108,7 +107,7 @@ export const useTemplatePurchases = () => {
   const purchaseTemplateMutation = useMutation({
     mutationFn: async ({ templateId, price }: { templateId: string; price: number }) => {
       // Mock por enquanto
-      console.log('Comprando template:', templateId, price);
+  // noop in mock
       return { id: 'purchase-id', templateId, price };
     },
     onSuccess: () => {
@@ -149,7 +148,7 @@ export const useTemplateReviews = (templateId?: string) => {
   const createReviewMutation = useMutation({
     mutationFn: async (review: { template_id: string; rating: number; comment?: string }) => {
       // Mock por enquanto
-      console.log('Criando review:', review);
+  // noop in mock
       return { id: 'review-id', ...review };
     },
     onSuccess: () => {

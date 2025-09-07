@@ -16,7 +16,7 @@ interface AdvancedTabContentProps {
   competitors: Competitor[];
   updateCompetitor: (index: number, price: number) => void;
   targetProfit: number;
-  breakdown: any;
+  breakdown: { profit?: number } | null;
   setActiveTab: (tab: string) => void;
   formatCurrency: (value: number) => string;
 }
@@ -97,7 +97,7 @@ export default function AdvancedTabContent({
             <SalesGoalsProjection
               sellingPrice={sellingPrice}
               profitMargin={targetProfit as number}
-              profitAmount={breakdown?.profit || 0}
+              profitAmount={breakdown?.profit ?? 0}
               formatCurrency={formatCurrency}
             />
           </div>

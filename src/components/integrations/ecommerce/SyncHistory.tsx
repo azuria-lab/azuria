@@ -23,7 +23,6 @@ export default function SyncHistory({ syncHistory, products, connections }: Sync
   const filteredHistory = useMemo(() => {
     return syncHistory.filter(sync => {
       const product = products.find(p => p.id === sync.productId);
-      const connection = connections.find(c => c.id === sync.platform);
       
       const matchesSearch = product ? 
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,7 +34,7 @@ export default function SyncHistory({ syncHistory, products, connections }: Sync
       
       return matchesSearch && matchesStatus && matchesPlatform;
     });
-  }, [syncHistory, products, connections, searchTerm, filterStatus, filterPlatform]);
+  }, [syncHistory, products, searchTerm, filterStatus, filterPlatform]);
 
   const getProductName = (productId: string) => {
     const product = products.find(p => p.id === productId);

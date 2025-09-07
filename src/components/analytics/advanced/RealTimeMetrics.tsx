@@ -4,14 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Activity, TrendingDown, TrendingUp, Users } from "lucide-react";
+import type { RealTimeAnalytics } from "@/shared/hooks/useRealTimeAnalytics";
+import type { TrendItem } from "@/shared/hooks/useBusinessMetrics";
 
 interface RealTimeMetricsProps {
-  analytics: any;
-  trends: any[];
+  analytics: RealTimeAnalytics;
+  trends: TrendItem[];
   isLoading: boolean;
 }
 
-export default function RealTimeMetrics({ analytics, trends, isLoading }: RealTimeMetricsProps) {
+export default function RealTimeMetrics({ analytics, trends: _trends, isLoading }: RealTimeMetricsProps) {
   // Generate mock real-time data for charts
   const realtimeData = Array.from({ length: 24 }, (_, i) => ({
     hour: `${i.toString().padStart(2, '0')}:00`,

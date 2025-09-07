@@ -62,7 +62,7 @@ export const useAdvancedRateLimit = (config: AdvancedRateLimitConfig) => {
         requestsInWindow: requestsInWindow + (allowed ? 1 : 0)
       }
     };
-  }, [config.windowMs, metrics.adaptiveLimit]);
+  }, [config.windowMs, metrics]);
 
   // Algoritmo de Token Bucket
   const checkTokenBucket = useCallback((): RateLimitResponse => {
@@ -125,7 +125,7 @@ export const useAdvancedRateLimit = (config: AdvancedRateLimitConfig) => {
   }, [config]);
 
   // Função principal de verificação
-  const checkRateLimit = useCallback((requestId?: string): RateLimitResponse => {
+  const checkRateLimit = useCallback((_requestId?: string): RateLimitResponse => {
     let result: RateLimitResponse;
 
     switch (config.algorithm) {

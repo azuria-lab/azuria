@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { AlertTriangle, Calculator, CheckCircle, DollarSign, PieChart, RefreshCw, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import type { AdvancedCalculationResult } from "@/domains/calculator/types/advanced";

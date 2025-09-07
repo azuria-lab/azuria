@@ -1,9 +1,11 @@
 // UI Components - Base
-export { Button, buttonVariants } from './button';
+export { Button } from './button';
+export { buttonVariants } from './button-variants';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 export { Input } from './input';
 export { Label } from './label';
 export { Badge } from './badge';
+export { badgeVariants } from './badge-variants';
 export { Avatar, AvatarImage, AvatarFallback } from './avatar';
 
 // UI Components - Form
@@ -15,7 +17,8 @@ export { Slider } from './slider';
 export { Textarea } from './textarea';
 
 // UI Components - Navigation
-export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink, NavigationMenuIndicator, NavigationMenuViewport, navigationMenuTriggerStyle } from './navigation-menu';
+export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink, NavigationMenuIndicator, NavigationMenuViewport } from './navigation-menu';
+export { navigationMenuTriggerStyle } from './navigation-menu-variants';
 export { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem, MenubarSeparator, MenubarLabel, MenubarCheckboxItem, MenubarRadioGroup, MenubarRadioItem, MenubarPortal, MenubarSubContent, MenubarSubTrigger, MenubarGroup, MenubarSub, MenubarShortcut } from './menubar';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 

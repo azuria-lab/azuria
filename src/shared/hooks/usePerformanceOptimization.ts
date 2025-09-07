@@ -21,41 +21,38 @@ export const usePerformanceOptimization = () => {
     try {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
-      console.log(`[Performance] ${componentName} rendered in ${renderTime.toFixed(2)}ms`);
-      
+
       setMetrics(prev => ({
         ...prev,
         renderTime,
         lastUpdate: Date.now()
       }));
-    } catch (error) {
-      console.error('Error measuring render time:', error);
+  } catch (_error) {
+      // swallow errors silently; alternatively emit to a centralized logger
     }
   }, []);
 
   const trackMemoryUsage = useCallback(() => {
     try {
-      if ('memory' in performance) {
-        const memory = (performance as any).memory;
-        const memoryUsage = memory.usedJSHeapSize / 1024 / 1024; // MB
-        
+      const perf = performance as Performance & { memory?: { usedJSHeapSize: number } };
+      if (perf.memory && typeof perf.memory.usedJSHeapSize === 'number') {
+        const memoryUsage = perf.memory.usedJSHeapSize / 1024 / 1024; // MB
+
         setMetrics(prev => ({
           ...prev,
           memoryUsage,
           lastUpdate: Date.now()
         }));
       }
-    } catch (error) {
-      console.error('Error tracking memory usage:', error);
+  } catch (_error) {
+      // noop
     }
   }, []);
 
-  const startPerformanceMeasure = useCallback((label: string) => {
+  const startPerformanceMeasure = useCallback((_label: string) => {
     try {
       return performance.now();
-    } catch (error) {
-      console.error('Error starting performance measure:', error);
+  } catch (_error) {
       return Date.now();
     }
   }, []);
@@ -64,8 +61,8 @@ export const usePerformanceOptimization = () => {
     try {
       const interval = setInterval(trackMemoryUsage, 30000); // Track every 30s
       return () => clearInterval(interval);
-    } catch (error) {
-      console.error('Error setting up memory tracking interval:', error);
+  } catch (_error) {
+  // noop
     }
   }, [trackMemoryUsage]);
 

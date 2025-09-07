@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,17 +9,7 @@ import { AutomationRulesManager } from './AutomationRulesManager';
 import { AutomationAlertsCenter } from './AutomationAlertsCenter';
 import { AutomationWorkflowBuilder } from './AutomationWorkflowBuilder';
 import { AutomationAnalytics } from './AutomationAnalytics';
-import { 
-  Activity, 
-  AlertTriangle, 
-  Bot, 
-  CheckCircle, 
-  Clock,
-  Plus,
-  Workflow,
-  XCircle,
-  Zap
-} from 'lucide-react';
+import { Activity, AlertTriangle, Bot, CheckCircle, Clock, Plus, Workflow, XCircle } from 'lucide-react';
 
 export default function AutomationDashboard() {
   const [activeTab, setActiveTab] = useState('overview');

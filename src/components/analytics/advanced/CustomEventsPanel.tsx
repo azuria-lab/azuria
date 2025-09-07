@@ -6,12 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import { Activity, DollarSign, Plus, Settings, Target, Trash2, Users } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 export default function CustomEventsPanel() {
-  const { data: analytics } = useAnalytics();
   const [newEvent, setNewEvent] = useState({
     name: '',
     category: '',
@@ -76,7 +74,7 @@ export default function CustomEventsPanel() {
     });
   };
 
-  const handleTestEvent = (eventName: string, category: string) => {
+  const handleTestEvent = (eventName: string, _category: string) => {
     toast.success(`Evento "${eventName}" disparado para teste!`);
   };
 
@@ -128,7 +126,7 @@ export default function CustomEventsPanel() {
               <Label htmlFor="event-category">Categoria</Label>
               <Select 
                 value={newEvent.category} 
-                onValueChange={(value) => setNewEvent(prev => ({ ...prev, category: value }))}
+                onValueChange={(value: 'business' | 'conversion' | 'feature' | 'engagement') => setNewEvent(prev => ({ ...prev, category: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />

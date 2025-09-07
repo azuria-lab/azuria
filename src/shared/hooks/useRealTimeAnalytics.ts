@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-interface RealTimeAnalytics {
+export interface RealTimeAnalytics {
   dailyActiveUsers: number;
   calculationsToday: number;
   avgMarginToday: number;
@@ -12,7 +12,7 @@ interface RealTimeAnalytics {
   performanceScore: number;
 }
 
-interface AnalyticsFilters {
+export interface AnalyticsFilters {
   period: 'today' | 'week' | 'month' | 'quarter' | 'year';
   segment?: 'all' | 'free' | 'pro';
   category?: string;

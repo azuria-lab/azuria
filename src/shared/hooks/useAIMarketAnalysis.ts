@@ -81,7 +81,7 @@ export const useAIMarketAnalysis = () => {
 // Algoritmos de IA simulados
 function generateMarketInsights(data: MarketAnalysisData): AIMarketInsight[] {
   const insights: AIMarketInsight[] = [];
-  const { cost, currentPrice, targetMargin, category, seasonality } = data;
+  const { cost, currentPrice, category, seasonality } = data;
   
   // Análise de margem
   const actualMargin = ((currentPrice - cost) / currentPrice) * 100;
@@ -130,7 +130,7 @@ function generateMarketInsights(data: MarketAnalysisData): AIMarketInsight[] {
   return insights.slice(0, 4); // Limitar a 4 insights principais
 }
 
-function getCategorySpecificInsights(category: string, data: MarketAnalysisData): AIMarketInsight[] {
+function getCategorySpecificInsights(category: string, _data: MarketAnalysisData): AIMarketInsight[] {
   const insights: AIMarketInsight[] = [];
   
   // Insights específicos por categoria

@@ -64,7 +64,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
     ['Incluir Frete no Cálculo', data.calculation.includeShipping ? 'Sim' : 'Não']
   ];
 
-  (doc as any).autoTable({
+  (doc as unknown as { autoTable: (options: unknown) => void }).autoTable({
     startY: yPosition,
     head: [['Item', 'Valor']],
     body: inputData,
@@ -78,7 +78,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
   });
 
   // Results section
-  yPosition = (doc as any).lastAutoTable.finalY + 20;
+  yPosition = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
   
   doc.setFontSize(14);
   doc.setTextColor(41, 84, 209);
@@ -109,7 +109,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
     ['Margem Líquida', `${data.result.breakdown.realMarginPercent.toFixed(2)}%`]
   ];
 
-  (doc as any).autoTable({
+  (doc as unknown as { autoTable: (options: unknown) => void }).autoTable({
     startY: yPosition,
     head: [['Descrição', 'Valor']],
     body: resultsData,
@@ -171,7 +171,7 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
     `R$ ${calc.result.profit.toFixed(2).replace('.', ',')}`
   ]);
 
-  (doc as any).autoTable({
+  (doc as unknown as { autoTable: (options: unknown) => void }).autoTable({
     startY: yPosition,
     head: [['Produto', 'Custo', 'Margem', 'Preço Final', 'Lucro']],
     body: summaryData,
@@ -192,7 +192,7 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
   const totalRevenue = calculations.reduce((sum, calc) => sum + calc.result.sellingPrice, 0);
   const totalProfit = calculations.reduce((sum, calc) => sum + calc.result.profit, 0);
 
-  yPosition = (doc as any).lastAutoTable.finalY + 20;
+  yPosition = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
 
   // Totals section
   doc.setFillColor(240, 248, 255);

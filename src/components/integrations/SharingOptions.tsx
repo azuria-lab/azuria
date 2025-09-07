@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Facebook, Instagram, MessageSquare, QrCode, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import QRCodeModal from "./QRCodeModal";
 
 export default function SharingOptions() {

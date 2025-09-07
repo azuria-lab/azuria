@@ -4,8 +4,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useWebVitals } from '@/hooks/useWebVitals';
-import { getWebVitalsReporter } from '@/utils/webVitalsReporter';
 import { Activity, Monitor, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 interface PerformanceMonitorProps {
   showDetails?: boolean;
@@ -20,7 +20,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     reportAllChanges: true,
     onMetric: (metric) => {
       if (metric.rating === 'poor') {
-        console.warn(`Performance issue detected: ${metric.name} = ${metric.value}`);
+  logger.warn(`Performance issue detected: ${metric.name} = ${metric.value}`);
       }
     }
   });

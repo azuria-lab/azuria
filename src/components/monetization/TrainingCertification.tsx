@@ -9,9 +9,7 @@ import {
   Award,
   BookOpen,
   CheckCircle,
-  Clock,
   FileText,
-  GraduationCap,
   Star,
   Target,
   TrendingUp,
@@ -23,7 +21,7 @@ import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
 
 export default function TrainingCertification() {
-  const [selectedCourse, setSelectedCourse] = useState("foundation");
+  const [_selectedCourse, _setSelectedCourse] = useState("foundation");
 
   const courses = [
     {

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,18 @@ interface ScheduleForm {
 
 export default function ScheduledReportsManager() {
   const { scheduleReport, getScheduledReports, removeScheduledReport } = useAdvancedExportReports();
-  const [schedules, setSchedules] = useState<any[]>([]);
+  type Schedule = {
+    id: string;
+    reportName: string;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    time: string;
+    emails: string[];
+    format: 'pdf' | 'excel' | 'csv';
+    enabled: boolean;
+    nextExecution: string;
+    createdAt: string;
+  };
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   
@@ -39,14 +50,27 @@ export default function ScheduledReportsManager() {
     enabled: true
   });
 
+  const loadScheduledReports = useCallback(() => {
+    const reports = getScheduledReports();
+    const normalized: Schedule[] = reports.map((r) => ({
+      id: r.id,
+      reportName: r.reportName,
+      frequency: r.frequency,
+      time: r.time,
+      emails: r.emails,
+      format: r.format,
+      enabled: r.enabled,
+      nextExecution: typeof r.nextExecution === 'string' ? r.nextExecution : r.nextExecution.toISOString(),
+      createdAt: typeof r.createdAt === 'string' ? r.createdAt : r.createdAt.toISOString(),
+    }));
+    setSchedules(normalized);
+  }, [getScheduledReports]);
+
   useEffect(() => {
     loadScheduledReports();
-  }, []);
+  }, [loadScheduledReports]);
 
-  const loadScheduledReports = () => {
-    const reports = getScheduledReports();
-    setSchedules(reports);
-  };
+  // loadScheduledReports is defined above
 
   const handleAddEmail = () => {
     if (emailInput.trim() && !form.emails.includes(emailInput.trim())) {
@@ -173,7 +197,7 @@ export default function ScheduledReportsManager() {
                     <Label>Frequência</Label>
                     <Select 
                       value={form.frequency} 
-                      onValueChange={(value: any) => setForm(prev => ({ ...prev, frequency: value }))}
+                      onValueChange={(value: 'daily' | 'weekly' | 'monthly') => setForm(prev => ({ ...prev, frequency: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -201,7 +225,7 @@ export default function ScheduledReportsManager() {
                   <Label>Formato</Label>
                   <Select 
                     value={form.format} 
-                    onValueChange={(value: any) => setForm(prev => ({ ...prev, format: value }))}
+                    onValueChange={(value: 'pdf' | 'excel' | 'csv') => setForm(prev => ({ ...prev, format: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue />

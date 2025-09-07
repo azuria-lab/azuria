@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -35,14 +35,11 @@ export default function ApprovalsSection({ calculationId }: ApprovalsSectionProp
     });
   };
 
-  const handleProcessApproval = async (approvalId: string, status: 'approved' | 'rejected') => {
-    processApprovalMutation.mutate({
-      approvalId,
-      status
-    });
+  const _handleProcessApproval = async (approvalId: string, status: 'approved' | 'rejected') => {
+    processApprovalMutation.mutate({ approvalId, status });
   };
 
-  const getStatusBadge = (status: string) => {
+  const _getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="outline" className="text-orange-600"><Clock className="h-3 w-3 mr-1" />Pendente</Badge>;

@@ -83,12 +83,6 @@ export const navLinks = [
   }
 ];
 
-export const useFilteredNavLinks = (isAuthenticated: boolean, isPro: boolean) => {
-  return useMemo(() => {
-    return navLinks.filter(link => {
-      // Todos os links são visíveis por enquanto
-      // Futuramente pode-se adicionar lógica de filtro baseada em autenticação
-      return true;
-    });
-  }, [isAuthenticated, isPro]);
+export const useFilteredNavLinks = (_isAuthenticated: boolean, _isPro: boolean) => {
+  return useMemo(() => navLinks, []);
 };

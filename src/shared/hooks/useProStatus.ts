@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/services/logger';
 import { useAuthContext } from '@/domains/auth';
 
 interface ProStatus {
@@ -65,7 +66,7 @@ export const useProStatus = (): ProStatus => {
         }));
 
       } catch (error) {
-        console.error('Erro ao verificar status PRO:', error);
+  logger.error('Erro ao verificar status PRO:', error);
         setProStatus({
           isPro: false,
           isLoading: false,

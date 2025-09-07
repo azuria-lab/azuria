@@ -6,7 +6,6 @@ interface ProResultHeaderProps {
   currentPrice: number;
   minimumPrice: number;
   priceBelowMinimum: boolean;
-  priceNearMinimum: boolean;
   showAlert: boolean;
 }
 
@@ -14,7 +13,6 @@ export function ProResultHeader({
   currentPrice,
   minimumPrice,
   priceBelowMinimum,
-  priceNearMinimum,
   showAlert,
 }: ProResultHeaderProps) {
   // Determine alert type based on price difference

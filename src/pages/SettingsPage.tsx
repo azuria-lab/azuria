@@ -4,10 +4,11 @@ import SettingsTabs from "@/components/settings/SettingsTabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileWithDisplayData } from "@/hooks/auth";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { logger } from "@/services/logger";
 
 const SettingsPage: React.FC = () => {
   const { toast } = useToast();
-  const [userProfile, setUserProfile] = useState<UserProfileWithDisplayData | null>({
+  const [userProfile, _setUserProfile] = useState<UserProfileWithDisplayData | null>({
     id: "demo-user",
     name: "Usuário Exemplo",
     email: "usuario@exemplo.com",
@@ -18,7 +19,7 @@ const SettingsPage: React.FC = () => {
 
   // Mock functions for demo purposes
   const handleUpdateProfile = async (data: Partial<UserProfileWithDisplayData>) => {
-    console.log("Updating profile with:", data);
+    logger.info("Updating profile with:", data);
     toast({
       title: "Perfil atualizado",
       description: "Suas informações foram atualizadas com sucesso."
@@ -27,7 +28,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleCancelSubscription = () => {
-    console.log("Cancelando assinatura");
+    logger.info("Cancelando assinatura");
     toast({
       title: "Assinatura cancelada",
       description: "Sua assinatura foi cancelada com sucesso."
@@ -35,7 +36,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleUpgradeSubscription = () => {
-    console.log("Atualizando para plano PRO");
+    logger.info("Atualizando para plano PRO");
     toast({
       title: "Assinatura atualizada",
       description: "Sua conta foi atualizada para o plano PRO."

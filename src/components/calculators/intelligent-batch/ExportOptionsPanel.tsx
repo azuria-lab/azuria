@@ -7,14 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Download, FileSpreadsheet, FileText, Mail, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { AIInsightsData, BatchItem } from "./types";
 
 interface ExportOptionsPanelProps {
-  batches: any[];
-  aiInsights: any;
+  batches: BatchItem[];
+  aiInsights: AIInsightsData | null;
   isPro: boolean;
 }
 
-export default function ExportOptionsPanel({ batches, aiInsights, isPro }: ExportOptionsPanelProps) {
+export default function ExportOptionsPanel({ batches: _batches, aiInsights: _aiInsights, isPro }: ExportOptionsPanelProps) {
   const { toast } = useToast();
   const [selectedSections, setSelectedSections] = useState({
     batchResults: true,

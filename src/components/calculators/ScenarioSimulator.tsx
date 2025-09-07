@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -39,7 +39,7 @@ export default function ScenarioSimulator({
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [scenarioName, setScenarioName] = useState<string>("");
   
-  const calculateScenarioPrice = (scenario: Scenario) => {
+  const calculateScenarioPrice = useCallback((scenario: Scenario) => {
     // Ajustar custo e taxa com as variações
     const adjustedCost = baseCost * (1 + scenario.costVariation / 100);
     const adjustedMargin = baseMargin + scenario.marginVariation;
@@ -48,21 +48,21 @@ export default function ScenarioSimulator({
     // Cálculo similar ao usado na calculadora principal
     const divisor = 1 - (adjustedMargin / 100) - (adjustedTax / 100);
     return adjustedCost / (divisor > 0 ? divisor : 0.01);
-  };
+  }, [baseCost, baseMargin, baseTax]);
   
-  const updateScenarioResults = () => {
+  const updateScenarioResults = useCallback(() => {
     const updatedScenarios = scenarios.map(scenario => ({
       ...scenario,
       result: calculateScenarioPrice(scenario)
     }));
     setScenarios(updatedScenarios);
-  };
+  }, [scenarios, calculateScenarioPrice]);
   
   React.useEffect(() => {
     if (basePrice > 0) {
       updateScenarioResults();
     }
-  }, [basePrice, baseCost, baseMargin, baseTax]);
+  }, [basePrice, updateScenarioResults]);
   
   const addNewScenario = () => {
     if (!scenarioName.trim()) {return;}

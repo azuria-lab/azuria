@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+// Utilities to optimize bundle behavior and diagnostics
+import { logger } from '@/services/logger';
 
 /**
  * Bundle optimization utilities for analyzing and improving performance
@@ -8,10 +9,9 @@ import React, { useCallback, useState } from 'react';
 export const analyzeBundleSize = () => {
   if (process.env.NODE_ENV !== 'development') {return;}
   
-  console.group('📦 Bundle Analysis');
-  console.log('Para analisar o bundle, execute: npm run build:analyze');
-  console.log('Isso irá gerar um relatório visual dos chunks do bundle');
-  console.groupEnd();
+  logger.info?.('📦 Bundle Analysis');
+  logger.info?.('Para analisar o bundle, execute: npm run build:analyze');
+  logger.info?.('Isso irá gerar um relatório visual dos chunks do bundle');
 };
 
 // Resource preloading utility
@@ -61,7 +61,7 @@ export const safeDynamicImport = async <T>(
   try {
     return await importFn();
   } catch (error) {
-    console.warn('Failed to load dynamic import:', error);
+  logger.warn?.('Failed to load dynamic import:', { error });
     if (fallback) {return fallback;}
     throw error;
   }
@@ -75,7 +75,7 @@ export const monitorChunkLoading = () => {
     const entries = list.getEntries();
     entries.forEach((entry) => {
       if (entry.name.includes('.js') && entry.duration > 100) {
-        console.warn(`🐌 Slow chunk loading: ${entry.name} took ${entry.duration.toFixed(2)}ms`);
+  logger.warn?.(`🐌 Slow chunk loading: ${entry.name} took ${entry.duration.toFixed(2)}ms`);
       }
     });
   });

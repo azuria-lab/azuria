@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Calendar, Download, FileText, Mail, Table, X } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import type { DateRange } from "react-day-picker";
 
 interface ExportPanelProps {
   onClose: () => void;
@@ -16,7 +17,7 @@ interface ExportPanelProps {
 export default function ExportPanel({ onClose }: ExportPanelProps) {
   const [exportType, setExportType] = useState<'csv' | 'pdf' | 'excel'>('csv');
   const [reportType, setReportType] = useState<'summary' | 'detailed' | 'custom'>('summary');
-  const [dateRange, setDateRange] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['users', 'calculations', 'revenue']);
   const [scheduleEmail, setScheduleEmail] = useState(false);
 
@@ -54,14 +55,7 @@ export default function ExportPanel({ onClose }: ExportPanelProps) {
     }, 2000);
   };
 
-  const getExportIcon = (type: string) => {
-    switch (type) {
-      case 'csv': return Table;
-      case 'pdf': return FileText;
-      case 'excel': return Table;
-      default: return Download;
-    }
-  };
+  // Helper intentionally removed (unused)
 
   return (
     <Card className="border-2 border-blue-200 bg-blue-50/50">
@@ -84,7 +78,7 @@ export default function ExportPanel({ onClose }: ExportPanelProps) {
           {/* Export Format */}
           <div>
             <Label>Formato de Exportação</Label>
-            <Select value={exportType} onValueChange={(value: any) => setExportType(value)}>
+            <Select value={exportType} onValueChange={(value: 'csv' | 'pdf' | 'excel') => setExportType(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -114,7 +108,7 @@ export default function ExportPanel({ onClose }: ExportPanelProps) {
           {/* Report Type */}
           <div>
             <Label>Tipo de Relatório</Label>
-            <Select value={reportType} onValueChange={(value: any) => setReportType(value)}>
+            <Select value={reportType} onValueChange={(value: 'summary' | 'detailed' | 'custom') => setReportType(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

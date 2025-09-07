@@ -1,28 +1,20 @@
-import {
-  TooltipContent,
-  Tooltip as TooltipRoot,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
+import { TooltipContent, TooltipProvider, Tooltip as TooltipRoot, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface TooltipProps {
   title?: string;
   content: string;
   children: React.ReactNode;
-  iconClassName?: string;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
   contentClassName?: string;
 }
 
 // Tooltip ainda mais sutil, anima delay, sombra e transição leve.
-export const Tooltip = ({
+export const TutorialTooltip = ({
   title,
   content,
   children,
-  iconClassName,
   side = "right",
   align = "center",
   contentClassName,
@@ -50,3 +42,6 @@ export const Tooltip = ({
     </TooltipRoot>
   </TooltipProvider>
 );
+
+// Alias export to support existing imports like `import { Tooltip } from "@/components/ui/TutorialTooltip";`
+export { TutorialTooltip as Tooltip };

@@ -8,8 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Edit, MapPin, Plus, Settings, Store } from 'lucide-react';
-import { useMultiTenant } from '@/contexts/MultiTenantContext';
+import { Edit, MapPin, Plus, Settings, Store as StoreIcon } from 'lucide-react';
+import { useMultiTenant } from '@/contexts/useMultiTenant';
+import type { Store as StoreType } from '@/types/multi-tenant';
+import { logger } from '@/services/logger';
 import { toast } from '@/components/ui/use-toast';
 
 interface StoreFormData {
@@ -34,7 +36,7 @@ interface StoreFormData {
 export default function StoreManager() {
   const { currentOrganization, stores, hasPermission } = useMultiTenant();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingStore, setEditingStore] = useState<any>(null);
+  const [editingStore, setEditingStore] = useState<StoreType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<StoreFormData>({
     name: '',
@@ -68,8 +70,8 @@ export default function StoreManager() {
       toast.success('Loja criada com sucesso!');
       setIsCreateOpen(false);
       resetForm();
-    } catch (error: any) {
-      console.error('Erro ao criar loja:', error);
+  } catch (_error: unknown) {
+      logger.error('Erro ao criar loja');
       toast.error('Erro ao criar loja');
     } finally {
       setIsLoading(false);
@@ -87,8 +89,8 @@ export default function StoreManager() {
       toast.success('Loja atualizada com sucesso!');
       setEditingStore(null);
       resetForm();
-    } catch (error: any) {
-      console.error('Erro ao atualizar loja:', error);
+  } catch (_error: unknown) {
+      logger.error('Erro ao atualizar loja');
       toast.error('Erro ao atualizar loja');
     } finally {
       setIsLoading(false);
@@ -103,8 +105,8 @@ export default function StoreManager() {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       toast.success(`Loja ${!isActive ? 'ativada' : 'desativada'} com sucesso!`);
-    } catch (error: any) {
-      console.error('Erro ao atualizar status da loja:', error);
+  } catch (_error: unknown) {
+      logger.error('Erro ao atualizar status da loja');
       toast.error('Erro ao atualizar status da loja');
     }
   };
@@ -130,7 +132,7 @@ export default function StoreManager() {
     });
   };
 
-  const openEditDialog = (store: any) => {
+  const openEditDialog = (store: StoreType) => {
     setEditingStore(store);
     setFormData({
       name: store.name,
@@ -157,7 +159,7 @@ export default function StoreManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Store className="h-6 w-6" />
+            <StoreIcon className="h-6 w-6" />
             Gerenciamento de Lojas
           </h2>
           <p className="text-muted-foreground">
@@ -296,7 +298,7 @@ export default function StoreManager() {
         <CardContent>
           {stores.length === 0 ? (
             <div className="text-center py-8">
-              <Store className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <StoreIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">Nenhuma loja cadastrada</p>
               <p className="text-sm text-muted-foreground">
                 Crie sua primeira loja para começar
@@ -314,7 +316,7 @@ export default function StoreManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {stores.map((store) => (
+                {stores.map((store: StoreType) => (
                   <TableRow key={store.id}>
                     <TableCell>
                       <div>

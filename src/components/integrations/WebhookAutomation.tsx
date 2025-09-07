@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AutomationRule, useWebhookAutomation, WebhookConfig } from "@/hooks/useWebhookAutomation";
+import { AutomationRule, useWebhookAutomation } from "@/hooks/useWebhookAutomation";
 import { Play, Settings, TestTube, Trash2, Webhook, Zap } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 

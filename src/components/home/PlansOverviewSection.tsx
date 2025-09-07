@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Check, Crown, Rocket, Star, Zap } from "lucide-react";
-import PlanCard from "./plans/PlanCard";
-import BillingToggle from "./plans/BillingToggle";
+import { ArrowRight, Check, Crown, Star, Zap } from "lucide-react";
+// Removed unused PlanCard and BillingToggle imports
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -153,7 +152,7 @@ const PlansOverviewSection: React.FC = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {plans.map((plan, index) => {
+          {plans.map((plan, _index) => {
             const IconComponent = plan.icon;
             return (
               <motion.div

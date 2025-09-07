@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { logger } from "@/services/logger";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ export default function WebhookIntegration() {
     
     try {
       // Enviar dados para o webhook
-      const response = await fetch(webhookUrl, {
+  const _response = await fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export default function WebhookIntegration() {
         description: "O webhook foi acionado com sucesso.",
       });
     } catch (error) {
-      console.error("Erro ao acionar webhook:", error);
+          logger.error("Erro ao acionar webhook:", error);
       toast({
         title: "Erro",
         description: "Não foi possível acionar o webhook. Verifique a URL e tente novamente.",

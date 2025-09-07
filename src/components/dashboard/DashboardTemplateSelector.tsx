@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, Brain, Cog, Eye, FileEdit, ShoppingCart, Target } from 'lucide-react';
-import { DashboardTemplate, DashboardWidget } from '@/types/dashboard';
+import { DashboardTemplate } from '@/types/dashboard';
 
 interface DashboardTemplateSelectorProps {
   onSelectTemplate: (template: DashboardTemplate) => void;

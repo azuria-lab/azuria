@@ -2,9 +2,9 @@ export const useMobileFeatures = () => {
   return {
     isMobile: false,
     isTablet: false,
-    shareData: async (data: any) => false,
+  shareData: async (_data: { title?: string; text?: string; url?: string }) => false,
     canShare: false,
-    vibrate: (pattern: number | number[]) => {},
+  vibrate: (_pattern: number | number[]) => {},
     isOnline: true,
     networkType: 'wifi',
     isStandalone: false

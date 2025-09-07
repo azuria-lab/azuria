@@ -1,5 +1,5 @@
 // Performance optimized hooks with debounce and memoization
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { parseInputValue } from "../utils/parseInputValue";
 import { calculateSellingPrice } from "../utils/calculateSellingPrice";
 import { useDebounce } from "@/hooks/useDebounce";

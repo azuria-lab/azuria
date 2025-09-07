@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useABTesting } from '@/hooks/useABTesting';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { Calculator, Crown, Zap } from 'lucide-react';
+import { logger } from '@/services/logger';
 
 export const ABTestExample: React.FC = () => {
   const { getVariant, trackConversion } = useABTesting();
@@ -23,7 +24,7 @@ export const ABTestExample: React.FC = () => {
     });
     
     // Simulate calculation logic here
-    console.log('Calculation performed with variant:', layoutVariant);
+  logger.info('Calculation performed with variant:', layoutVariant);
   };
 
   const handleUpgrade = () => {
@@ -31,7 +32,7 @@ export const ABTestExample: React.FC = () => {
     trackConversion('pricing_cta', 'upgrade_click');
     
     analytics.trackConversion('pro_upgrade', 99);
-    console.log('Upgrade clicked with CTA variant:', ctaVariant);
+  logger.info('Upgrade clicked with CTA variant:', ctaVariant);
   };
 
   const getCTAText = () => {

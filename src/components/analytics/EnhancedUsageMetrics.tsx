@@ -6,17 +6,14 @@ import { Progress } from "@/components/ui/progress";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis
 } from "recharts";
-import { 
+import {
   Activity, 
   Calculator, 
   Clock, 
@@ -29,7 +26,7 @@ import {
 import { useRealTimeMetrics } from "@/hooks/useRealTimeMetrics";
 
 export default function EnhancedUsageMetrics() {
-  const { realTimeMetrics, priceData } = useRealTimeMetrics();
+  const { realTimeMetrics } = useRealTimeMetrics();
 
   // Dados de engajamento do usuário
   const engagementData = [

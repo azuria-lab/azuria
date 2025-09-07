@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,13 +34,7 @@ export default function MarketplaceComparison({
   const [comparisonResults, setComparisonResults] = useState<ComparisonResult[]>([]);
   const [sortBy, setSortBy] = useState<'profit' | 'margin' | 'fees'>('profit');
 
-  useEffect(() => {
-    if (productCost > 0) {
-      calculateComparisons();
-    }
-  }, [productCost, targetProfit, taxRate, selectedTemplates]);
-
-  const calculateComparisons = () => {
+  const calculateComparisons = useCallback(() => {
     const results: ComparisonResult[] = [];
 
     selectedTemplates.forEach(templateId => {
@@ -101,7 +95,13 @@ export default function MarketplaceComparison({
     });
 
     setComparisonResults(sortedResults);
-  };
+  }, [productCost, targetProfit, taxRate, selectedTemplates, sortBy]);
+
+  useEffect(() => {
+    if (productCost > 0) {
+      calculateComparisons();
+    }
+  }, [calculateComparisons, productCost]);
 
   const toggleTemplate = (templateId: string) => {
     setSelectedTemplates(prev => 
@@ -171,7 +171,7 @@ export default function MarketplaceComparison({
           {/* Ordenação */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Ordenar por:</label>
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <Select value={sortBy} onValueChange={(value: 'profit' | 'margin' | 'fees') => setSortBy(value)}>
               <SelectTrigger className="w-48">
                 <SelectValue />
               </SelectTrigger>

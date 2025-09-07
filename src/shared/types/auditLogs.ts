@@ -8,7 +8,7 @@ export interface AuditLog {
   userName: string;
   ipAddress: string;
   userAgent: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   riskLevel: 'low' | 'medium' | 'high';
 }
 

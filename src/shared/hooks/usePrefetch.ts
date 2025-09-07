@@ -3,7 +3,8 @@ import { useCallback, useState } from 'react';
 /**
  * Hook for prefetching routes and components on hover
  */
-export const usePrefetch = (importFn: () => Promise<any>) => {
+type Importer<T = unknown> = () => Promise<T>;
+export const usePrefetch = (importFn: Importer) => {
   const [prefetched, setPrefetched] = useState(false);
   
   const prefetch = useCallback(async () => {
@@ -12,9 +13,8 @@ export const usePrefetch = (importFn: () => Promise<any>) => {
     try {
       await importFn();
       setPrefetched(true);
-    } catch (error) {
-      // Silently handle prefetch errors
-      console.debug('Prefetch failed:', error);
+    } catch (_err) {
+      // Silently ignore prefetch errors in production
     }
   }, [importFn, prefetched]);
   
@@ -37,7 +37,7 @@ export const usePrefetch = (importFn: () => Promise<any>) => {
 /**
  * Hook for prefetching multiple routes
  */
-export const useBatchPrefetch = (importFns: Array<() => Promise<any>>) => {
+export const useBatchPrefetch = (importFns: Array<Importer>) => {
   const [prefetchedRoutes, setPrefetchedRoutes] = useState<Set<number>>(new Set());
   
   const prefetchRoute = useCallback(async (index: number) => {
@@ -46,8 +46,8 @@ export const useBatchPrefetch = (importFns: Array<() => Promise<any>>) => {
     try {
       await importFns[index]();
       setPrefetchedRoutes(prev => new Set([...prev, index]));
-    } catch (error) {
-      console.debug(`Prefetch failed for route ${index}:`, error);
+    } catch (_err) {
+      // ignore individual prefetch failures
     }
   }, [importFns, prefetchedRoutes]);
   

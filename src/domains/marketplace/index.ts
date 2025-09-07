@@ -1,6 +1,5 @@
 // Marketplace Domain - Complete Export  
-export { MarketplaceProvider, useMarketplaceContext, marketplaceActions } from './context/MarketplaceContext';
-export type { MarketplaceState, MarketplaceAction, MarketplaceContextType, MarketplaceProduct, PricingData } from './context/MarketplaceContext';
+export * from './context';
 
 // Future exports when components are moved to this domain
 // export * from './components';

@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Shield,
   TrendingUp,
-  Users,
   Zap
 } from 'lucide-react';
 import { 
@@ -47,7 +46,7 @@ const SecurityDashboard: React.FC = () => {
     try {
       await resolveAlert.mutateAsync(alertId);
       toast.success('Alerta resolvido com sucesso');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro ao resolver alerta');
     }
   };
@@ -56,7 +55,7 @@ const SecurityDashboard: React.FC = () => {
     try {
       await cleanupRoles.mutateAsync();
       toast.success('Limpeza de roles expirados executada com sucesso');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro na limpeza de roles expirados');
     }
   };
@@ -65,7 +64,7 @@ const SecurityDashboard: React.FC = () => {
     try {
       await optimizeTables.mutateAsync();
       toast.success('Otimização de tabelas executada com sucesso');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro na otimização de tabelas');
     }
   };
@@ -74,7 +73,7 @@ const SecurityDashboard: React.FC = () => {
     try {
       await cleanupAnalytics.mutateAsync();
       toast.success('Limpeza de analytics executada com sucesso');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro na limpeza de analytics');
     }
   };
@@ -83,7 +82,7 @@ const SecurityDashboard: React.FC = () => {
     try {
       await maintenanceCleanup.mutateAsync();
       toast.success('Limpeza completa de manutenção executada com sucesso');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Erro na limpeza de manutenção');
     }
   };
@@ -349,22 +348,27 @@ const SecurityDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {rlsMetrics && rlsMetrics.length > 0 ? (
+        {Array.isArray(rlsMetrics) && rlsMetrics.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
-                    {rlsMetrics.map((metric: any, index: number) => (
-                      <div key={index} className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">{metric.policy_name}</span>
-                          <Badge variant="outline">
-                            {metric.avg_execution_time}ms
-                          </Badge>
+          {rlsMetrics.map((metric: { policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number }, index: number) => {
+                      // Support both per-policy and summary shapes
+                      const policy = metric.policy_name ?? 'Resumo';
+                      const avg = metric.avg_execution_time ?? metric.avg_policy_execution_time ?? 0;
+                      const table = metric.table_name ?? '—';
+                      const calls = metric.total_calls ?? metric.total_policies ?? 0;
+                      return (
+                        <div key={index} className="p-4 border rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium">{policy}</span>
+                            <Badge variant="outline">{avg}ms</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-sm text-gray-600">
+                            <span>{table}</span>
+                            <span>{calls} {metric.total_calls ? 'calls' : 'policies'}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between text-sm text-gray-600">
-                          <span>{metric.table_name}</span>
-                          <span>{metric.total_calls} calls</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8">

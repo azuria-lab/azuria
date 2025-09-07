@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Calculator context with useReducer for complex state management
 import React, { createContext, ReactNode, useCallback, useContext, useReducer } from 'react';
 import type { CalculationResult } from '../types/calculator';

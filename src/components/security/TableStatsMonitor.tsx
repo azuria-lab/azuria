@@ -4,22 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useMaintenanceCleanup, useTableStats } from '@/hooks/useTableStats';
+import { useTableStats } from '@/hooks/useTableStats';
 import { useMaintenanceCleanupMutation } from '@/hooks/useSecurityMonitoring';
 import { Activity, Database, HardDrive, RefreshCw } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const TableStatsMonitor: React.FC = () => {
   const { data: tableStats, isLoading, refetch } = useTableStats();
   const maintenanceCleanup = useMaintenanceCleanupMutation();
+  const { toast } = useToast();
 
   const handleMaintenanceCleanup = async () => {
     try {
       await maintenanceCleanup.mutateAsync();
-      toast.success('Limpeza de manutenção executada com sucesso');
+  toast({ title: 'Sucesso', description: 'Limpeza de manutenção executada com sucesso' });
       refetch();
-    } catch (error) {
-      toast.error('Erro na limpeza de manutenção');
+    } catch (_error) {
+      toast({ title: 'Erro', description: 'Erro na limpeza de manutenção', variant: 'destructive' });
     }
   };
 

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useShareCalculation } from '@/hooks/useCollaboration';
-import { Clock, Edit, Eye, Mail, MessageSquare, Share2, X } from 'lucide-react';
+import { Clock, Edit, Eye, Mail, MessageSquare, Share2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface ShareCalculationDialogProps {
@@ -50,7 +50,7 @@ export default function ShareCalculationDialog({
       setOpen(false);
       setEmail('');
       setMessage('');
-    } catch (error) {
+  } catch (_error) {
       toast.error('Erro ao compartilhar cálculo');
     }
   };
@@ -108,7 +108,7 @@ export default function ShareCalculationDialog({
           {/* Nível de permissão */}
           <div className="space-y-2">
             <Label>Nível de permissão</Label>
-            <Select value={permissionLevel} onValueChange={(value: any) => setPermissionLevel(value)}>
+            <Select value={permissionLevel} onValueChange={(value: 'view' | 'comment' | 'edit') => setPermissionLevel(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -77,7 +77,7 @@ const SettingsSecurityTab: React.FC<Props> = ({ userId }) => {
         setNewPassword("");
         setConfirmPassword("");
       }
-    } catch (error) {
+  } catch (_error) {
       toast({
         title: "Erro ao atualizar senha",
         description: "Ocorreu um erro ao atualizar sua senha. Tente novamente.",

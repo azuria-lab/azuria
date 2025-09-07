@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { parseInputValue } from "../utils/parseInputValue";
 import { validateNumericInput } from "../utils/validateInput";
 import { useManualPrice } from "./useManualPrice";
 import type { CalculationResult } from "../types/calculator";

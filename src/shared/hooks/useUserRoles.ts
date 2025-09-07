@@ -19,7 +19,7 @@ interface UserRole {
 }
 
 export function useUserRoles() {
-  const { user, userProfile } = useAuthContext();
+  const { user } = useAuthContext();
 
   return useQuery({
     queryKey: ['user-roles', user?.id],
@@ -122,9 +122,9 @@ export function useGrantRole() {
     mutationFn: async ({
       userId,
       role,
-      organizationId,
-      teamId,
-      expiresAt
+      organizationId: _organizationId,
+      teamId: _teamId,
+      expiresAt: _expiresAt
     }: {
       userId: string;
       role: AppRole;
@@ -133,7 +133,7 @@ export function useGrantRole() {
       expiresAt?: Date;
     }) => {
       // Por enquanto, simular a concessão de role
-      console.log('Granting role:', { userId, role, organizationId, teamId, expiresAt });
+  // simulated grant
       
       // Quando a tabela user_roles existir, usar o código comentado abaixo
       return { id: `role-${Date.now()}`, user_id: userId, role };
@@ -150,9 +150,8 @@ export function useRevokeRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (roleId: string) => {
+    mutationFn: async (_roleId: string) => {
       // Por enquanto, simular a revogação de role
-      console.log('Revoking role:', roleId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-roles'] });

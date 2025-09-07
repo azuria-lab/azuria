@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/domains/auth';
 import { 
@@ -148,7 +148,7 @@ export const useAdvancedBusinessMetrics = (period: 'week' | 'month' | 'quarter' 
       acc[channel].cost += (sale.cost_value || 0) + sale.advertising_cost + sale.shipping_cost;
       
       return acc;
-    }, {} as Record<string, any>);
+  }, {} as Record<string, { sales: number; revenue: number; commission: number; cost: number }>);
 
     return Object.entries(channelGroups).map(([channel, data]) => ({
       channel: getChannelDisplayName(channel),

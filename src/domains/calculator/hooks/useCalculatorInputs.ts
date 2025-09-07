@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { parseInputValue } from "@/utils/calculator/parseInputValue";
 import { useBusinessSettings } from "@/hooks/useBusinessSettings";
 
 export const useCalculatorInputs = (userId?: string) => {

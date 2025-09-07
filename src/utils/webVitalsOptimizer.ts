@@ -1,5 +1,18 @@
 // Advanced Web Vitals Optimization
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import { logger } from '@/services/logger';
+
+// Internal logging helpers (no-op in production)
+const debugLog = (...args: unknown[]) => {
+  if (!import.meta.env.PROD) {
+    logger.debug(...args);
+  }
+};
+const warnLog = (...args: unknown[]) => {
+  if (!import.meta.env.PROD) {
+    logger.warn(...args);
+  }
+};
 
 interface VitalsData {
   name: string;
@@ -76,18 +89,16 @@ class WebVitalsOptimizer {
       rating,
       timestamp: Date.now(),
       url: window.location.href,
-      connection: (navigator as any).connection?.effectiveType,
-      deviceMemory: (navigator as any).deviceMemory,
+  connection: (navigator as unknown as { connection?: { effectiveType?: string } }).connection?.effectiveType,
+  deviceMemory: (navigator as unknown as { deviceMemory?: number }).deviceMemory,
       hardwareConcurrency: navigator.hardwareConcurrency
     };
 
     this.metrics.push(metric);
     this.sendMetrics([metric]);
 
-    // Log para desenvolvimento
-    if (!import.meta.env.PROD) {
-      console.log(`📊 ${name}: ${value}ms (${rating})`);
-    }
+  // Dev log
+  debugLog(`📊 ${name}: ${value}ms (${rating})`);
   }
 
   private optimizeLCP(value: number) {
@@ -159,14 +170,15 @@ class WebVitalsOptimizer {
     });
   }
 
-  private breakUpLongTasks() {
-    // Use scheduler.postTask if available
-    if ('scheduler' in window && 'postTask' in (window as any).scheduler) {
-      return (window as any).scheduler.postTask;
+  private breakUpLongTasks(): void {
+    // Use scheduler.postTask if available to yield
+    const sched = (window as unknown as { scheduler?: { postTask?: (cb: () => void) => Promise<unknown> } }).scheduler;
+    if (sched?.postTask) {
+      void sched.postTask(() => { /* yield to scheduler */ });
+      return;
     }
-    
-    // Fallback to setTimeout
-    return (callback: Function) => setTimeout(callback, 0);
+    // Fallback to setTimeout to yield
+    setTimeout(() => { /* yield to event loop */ }, 0);
   }
 
   private offloadToWebWorkers() {
@@ -195,7 +207,7 @@ class WebVitalsOptimizer {
       const worker = new Worker(URL.createObjectURL(blob));
       
       worker.onmessage = (e) => {
-        console.log('Worker result:', e.data);
+        debugLog('Worker result:', e.data);
       };
       
       return worker;
@@ -228,7 +240,7 @@ class WebVitalsOptimizer {
       const longTaskObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
           if (entry.duration > 100) { // Only warn for tasks > 100ms
-            console.warn(`Long task detected: ${entry.duration}ms`);
+    warnLog(`Long task detected: ${entry.duration}ms`);
             this.recordMetric('LongTask', entry.duration, 'poor');
           }
         });
@@ -236,20 +248,20 @@ class WebVitalsOptimizer {
 
       try {
         longTaskObserver.observe({ entryTypes: ['longtask'] });
-      } catch (e) {
+  } catch (_e) {
         // Not supported in all browsers
       }
 
       // Monitor largest contentful paint candidates
       const lcpObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
-          console.log('LCP candidate:', entry);
+          debugLog('LCP candidate:', entry);
         });
       });
 
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-      } catch (e) {
+      } catch (_e) {
         // Not supported in all browsers
       }
     }
@@ -257,19 +269,20 @@ class WebVitalsOptimizer {
 
   private monitorMemoryUsage() {
     // Only monitor in development and less frequently
-    if (!import.meta.env.PROD && 'memory' in performance) {
-      const memory = (performance as any).memory;
+    if (!import.meta.env.PROD && 'memory' in (performance as unknown as Record<string, unknown>)) {
       setInterval(() => {
+        const mem = (performance as unknown as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+        if (!mem) { return; }
         const usage = {
-          used: memory.usedJSHeapSize,
-          total: memory.totalJSHeapSize,
-          limit: memory.jsHeapSizeLimit
+          used: mem.usedJSHeapSize,
+          total: mem.totalJSHeapSize,
+          limit: mem.jsHeapSizeLimit
         };
 
-        const usagePercent = (usage.used / usage.total) * 100;
+        const usagePercent = usage.total > 0 ? (usage.used / usage.total) * 100 : 0;
         
         if (usagePercent > 90) { // Only warn at 90%+ to reduce noise
-          console.warn('High memory usage detected:', usage);
+          warnLog('High memory usage detected:', usage);
           this.recordMetric('MemoryUsage', usagePercent, 'poor');
         }
       }, 30000); // Check every 30 seconds instead of 10
@@ -291,9 +304,7 @@ class WebVitalsOptimizer {
       });
     } catch (error) {
       // Silently fail to avoid console spam
-      if (!import.meta.env.PROD) {
-        console.warn('Failed to send vitals data:', error);
-      }
+      warnLog('Failed to send vitals data:', error);
     }
   }
 

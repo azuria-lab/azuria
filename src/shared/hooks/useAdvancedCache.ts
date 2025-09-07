@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 interface CacheEntry<T> {
   data: T;
@@ -20,8 +20,8 @@ const DEFAULT_STRATEGY: CacheStrategy = {
   strategy: 'LRU'
 };
 
-export const useAdvancedCache = <T = any>(strategy: Partial<CacheStrategy> = {}) => {
-  const config = { ...DEFAULT_STRATEGY, ...strategy };
+export const useAdvancedCache = <T = unknown>(strategy: Partial<CacheStrategy> = {}) => {
+  const config = useMemo(() => ({ ...DEFAULT_STRATEGY, ...strategy }), [strategy]);
   const cacheRef = useRef(new Map<string, CacheEntry<T>>());
   const accessOrderRef = useRef<string[]>([]);
 

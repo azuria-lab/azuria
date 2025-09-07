@@ -12,6 +12,7 @@ import { useAuthContext } from "@/domains/auth";
 import Layout from "@/components/layout/Layout";
 import DevControls from "@/components/dev/DevControls";
 import { ArrowRight, Loader2, Lock, Mail, User } from "lucide-react";
+import { logger } from "@/services/logger";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,11 +47,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      console.log("🔐 Tentando fazer login...", email);
+      logger.info("🔐 Tentando fazer login...", { email });
       const session = await login(email, password);
       
       if (session) {
-        console.log("✅ Login realizado com sucesso");
+        logger.info("✅ Login realizado com sucesso");
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta ao Azuria",
@@ -64,16 +65,17 @@ export default function Login() {
       } else {
         throw new Error("Falha no login - sessão não criada");
       }
-    } catch (error: any) {
-      console.error("❌ Erro no login:", error);
+    } catch (error) {
+      logger.error("❌ Erro no login:", { error });
       
       // Mensagens de erro mais amigáveis
       let errorMessage = "Verifique suas credenciais e tente novamente.";
-      if (error.message?.includes("Invalid login credentials")) {
+      const msg = (error as Error)?.message ?? "";
+      if (msg.includes("Invalid login credentials")) {
         errorMessage = "Email ou senha incorretos. Verifique suas credenciais.";
-      } else if (error.message?.includes("Email not confirmed")) {
+      } else if (msg.includes("Email not confirmed")) {
         errorMessage = "Por favor, confirme seu email antes de fazer login.";
-      } else if (error.message?.includes("Too many requests")) {
+      } else if (msg.includes("Too many requests")) {
         errorMessage = "Muitas tentativas de login. Tente novamente em alguns minutos.";
       }
       
@@ -111,11 +113,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      console.log("🔐 Tentando criar conta...", email);
+      logger.info("🔐 Tentando criar conta...", { email });
       const result = await register(email, password, name);
       
       if (result) {
-        console.log("✅ Conta criada com sucesso");
+        logger.info("✅ Conta criada com sucesso");
         toast({
           title: "Conta criada com sucesso!",
           description: "Você já pode usar o Azuria. Bem-vindo!",
@@ -129,18 +131,19 @@ export default function Login() {
       } else {
         throw new Error("Falha no cadastro");
       }
-    } catch (error: any) {
-      console.error("❌ Erro no cadastro:", error);
+  } catch (error) {
+    logger.error("❌ Erro no cadastro:", { error });
       
       // Mensagens de erro mais amigáveis
-  let errorMessage = error?.message || "Erro ao criar conta. Tente novamente.";
-      if (error.message?.includes("User already registered")) {
+  let errorMessage = (error as Error)?.message || "Erro ao criar conta. Tente novamente.";
+    const msg = (error as Error)?.message ?? "";
+    if (msg.includes("User already registered")) {
         errorMessage = "Este email já está cadastrado. Tente fazer login.";
-      } else if (error.message?.includes("Password should be at least 6 characters")) {
+    } else if (msg.includes("Password should be at least 6 characters")) {
         errorMessage = "A senha deve ter pelo menos 6 caracteres.";
-      } else if (error.message?.includes("Invalid email")) {
+    } else if (msg.includes("Invalid email")) {
         errorMessage = "Por favor, insira um email válido.";
-      } else if (error.message?.toLowerCase().includes("redirect") || error.message?.toLowerCase().includes("verified url")) {
+    } else if (msg.toLowerCase().includes("redirect") || msg.toLowerCase().includes("verified url")) {
         errorMessage = "URL de redirecionamento não autorizada no Supabase. Adicione http://localhost:8081 em Authentication → URL Configuration (Site URL e Redirect URLs).";
       }
       

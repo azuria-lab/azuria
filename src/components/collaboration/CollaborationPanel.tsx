@@ -63,7 +63,7 @@ export default function CollaborationPanel({ calculation }: CollaborationPanelPr
                 <DialogTitle>Compartilhar Cálculo</DialogTitle>
               </DialogHeader>
               <ShareCalculationDialog 
-                calculationId={calculation.id!}
+                calculationId={calculation.id}
               />
             </DialogContent>
           </Dialog>
@@ -95,7 +95,7 @@ export default function CollaborationPanel({ calculation }: CollaborationPanelPr
         <TabsContent value="comments">
           <Card>
             <CardContent className="pt-6">
-              <CommentsSection calculationId={calculation.id!} />
+              <CommentsSection calculationId={calculation.id} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -134,7 +134,7 @@ export default function CollaborationPanel({ calculation }: CollaborationPanelPr
         <TabsContent value="approvals">
           <Card>
             <CardContent className="pt-6">
-              <ApprovalsSection calculationId={calculation.id!} />
+              <ApprovalsSection calculationId={calculation.id} />
             </CardContent>
           </Card>
         </TabsContent>

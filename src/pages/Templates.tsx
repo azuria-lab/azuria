@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,18 +9,42 @@ import { Download, Filter, Search, Star } from "lucide-react";
 import { useSimpleCalculator } from "@/hooks/useSimpleCalculator";
 import Header from "@/components/layout/Header";
 import MobileNavigationBar from "@/components/mobile/MobileNavigationBar";
+import { logger } from "@/services/logger";
+
+interface TemplateDefaults {
+  cost?: string | number;
+  margin?: number;
+  tax?: string | number;
+  cardFee?: string | number;
+  otherCosts?: string | number;
+  shipping?: string | number;
+  includeShipping?: boolean;
+}
+
+interface TemplateSectorConfig {
+  [key: string]: unknown;
+}
 
 interface Template {
   id: string;
   name: string;
   description: string | null;
   category: string;
-  default_values: any;
-  sector_specific_config: any;
+  default_values: TemplateDefaults | null;
+  sector_specific_config: TemplateSectorConfig | null;
   rating: number | null;
   downloads_count: number | null;
   is_premium: boolean | null;
   image_url?: string | null;
+}
+
+type DBTemplate = Omit<Template, 'default_values' | 'sector_specific_config'> & {
+  default_values: unknown;
+  sector_specific_config: unknown;
+};
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }
 
 const Templates = () => {
@@ -44,11 +68,7 @@ const Templates = () => {
     { value: "outros", label: "Outros" }
   ];
 
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('calculation_templates')
@@ -58,9 +78,15 @@ const Templates = () => {
         .order('downloads_count', { ascending: false });
 
       if (error) {throw error;}
-      setTemplates(data || []);
+      const safe = (data as unknown as DBTemplate[] | null) ?? [];
+      const mapped: Template[] = safe.map((row) => ({
+        ...row,
+        default_values: isObject(row.default_values) ? (row.default_values as TemplateDefaults) : null,
+        sector_specific_config: isObject(row.sector_specific_config) ? (row.sector_specific_config as TemplateSectorConfig) : null,
+      }));
+      setTemplates(mapped);
     } catch (error) {
-      console.error('Erro ao carregar templates:', error);
+  logger.error('Erro ao carregar templates:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os templates.",
@@ -69,19 +95,23 @@ const Templates = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const applyTemplate = async (template: Template) => {
     try {
       // Aplicar valores do template na calculadora
       setState({
-        cost: template.default_values.cost || "",
-        margin: template.default_values.margin || 30,
-        tax: template.default_values.tax || "",
-        cardFee: template.default_values.cardFee || "",
-        otherCosts: template.default_values.otherCosts || "",
-        shipping: template.default_values.shipping || "",
-        includeShipping: template.default_values.includeShipping || false,
+  cost: template.default_values?.cost ?? "",
+  margin: template.default_values?.margin ?? 30,
+  tax: template.default_values?.tax ?? "",
+  cardFee: template.default_values?.cardFee ?? "",
+  otherCosts: template.default_values?.otherCosts ?? "",
+  shipping: template.default_values?.shipping ?? "",
+  includeShipping: template.default_values?.includeShipping ?? false,
       });
 
       // Incrementar contador de downloads
@@ -98,7 +128,7 @@ const Templates = () => {
       // Redirecionar para a calculadora
       window.location.href = "/";
     } catch (error) {
-      console.error('Erro ao aplicar template:', error);
+  logger.error('Erro ao aplicar template:', error);
       toast({
         title: "Erro",
         description: "Não foi possível aplicar o template.",

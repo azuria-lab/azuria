@@ -20,7 +20,7 @@ export default function TaxFeeSection({
   onTaxChange,
   cardFee,
   onCardFeeChange,
-  isPro
+  isPro: _isPro
 }: TaxFeeSectionProps) {
   return (
     <div className="space-y-5 mb-8">

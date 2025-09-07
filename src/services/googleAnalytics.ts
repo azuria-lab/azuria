@@ -23,7 +23,8 @@ export class GoogleAnalyticsService {
         ...event.custom_parameters
       });
       
-      console.log('📊 GA Event tracked:', event);
+  // Route debug output via logger to respect env level
+  import('@/services/logger').then(m => m.logger.debug?.('📊 GA Event tracked:', event));
     }
   }
 }

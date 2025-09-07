@@ -36,7 +36,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
-  }, [userId]);
+  }, []);
   
   const qrCodeData = `otpauth://totp/Precifica%2B:${userId}?secret=${totpSecret}&issuer=Precifica%2B`;
 

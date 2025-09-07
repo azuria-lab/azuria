@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -73,7 +73,7 @@ export default function ProUpgradeModal({
   trigger = 'general',
   feature 
 }: ProUpgradeModalProps) {
-  const [isClosing, setIsClosing] = useState(false);
+  const [_isClosing, setIsClosing] = useState(false);
   const content = modalContent[trigger];
 
   const handleClose = () => {

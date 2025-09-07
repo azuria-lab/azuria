@@ -5,19 +5,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DollarSign, PlayCircle, Target, TrendingUp } from "lucide-react";
+import type { BatchItem } from "./types";
+
+interface RevenuePoint { month: string; atual: number; projetado: number }
+interface MarketSharePoint { segment: string; atual: number; projetado: number }
+type ImpactLevel = 'high' | 'medium' | 'low';
+interface RiskItem { factor: string; probability: number; impact: ImpactLevel }
+
+interface SimulationResults {
+  scenario: string;
+  projections: {
+    revenue: RevenuePoint[];
+    marketShare: MarketSharePoint[];
+    risks: RiskItem[];
+  };
+  recommendations: Array<{ action: string; impact: string; priority: 'high' | 'medium' | 'low' }>;
+}
 
 interface ScenarioSimulationPanelProps {
-  batches: any[];
-  setBatches: (batches: any[]) => void;
+  batches: BatchItem[];
+  setBatches: React.Dispatch<React.SetStateAction<BatchItem[]>>;
   isPro: boolean;
 }
 
-export default function ScenarioSimulationPanel({ batches, setBatches, isPro }: ScenarioSimulationPanelProps) {
+export default function ScenarioSimulationPanel({ batches: _batches, setBatches: _setBatches, isPro }: ScenarioSimulationPanelProps) {
   const [selectedScenario, setSelectedScenario] = useState("market_penetration");
   const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationResults, setSimulationResults] = useState<any>(null);
+  const [simulationResults, setSimulationResults] = useState<SimulationResults | null>(null);
 
   const scenarios = [
     { 
@@ -48,7 +64,7 @@ export default function ScenarioSimulationPanel({ batches, setBatches, isPro }: 
     // Simular análise de cenários
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    const mockResults = {
+  const mockResults: SimulationResults = {
       scenario: selectedScenario,
       projections: {
         revenue: [
@@ -205,7 +221,7 @@ export default function ScenarioSimulationPanel({ batches, setBatches, isPro }: 
               <CardTitle>Análise de Riscos do Cenário</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {simulationResults.projections.risks.map((risk: any, index: number) => (
+              {simulationResults.projections.risks.map((risk, index: number) => (
                 <div key={index} className="p-3 bg-white rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium">{risk.factor}</h4>
@@ -238,7 +254,7 @@ export default function ScenarioSimulationPanel({ batches, setBatches, isPro }: 
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {simulationResults.recommendations.map((rec: any, index: number) => (
+              {simulationResults.recommendations.map((rec, index: number) => (
                 <div key={index} className="p-3 bg-white rounded-lg border border-green-200">
                   <div className="flex items-center justify-between mb-2">
                     <Badge className={

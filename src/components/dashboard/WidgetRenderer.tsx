@@ -78,7 +78,7 @@ export default function WidgetRenderer({ widget }: WidgetRendererProps) {
         </div>
       );
 
-    case 'calculations-chart':
+    case 'calculations-chart': {
       const calculationsData: ChartDataItem[] = [
         { hour: '00:00', avgPrice: 45, volume: 12, margin: 25 },
         { hour: '04:00', avgPrice: 52, volume: 15, margin: 28 },
@@ -88,14 +88,15 @@ export default function WidgetRenderer({ widget }: WidgetRendererProps) {
         { hour: '20:00', avgPrice: 33, volume: 9, margin: 20 },
         { hour: '23:00', avgPrice: 28, volume: 8, margin: 18 }
       ];
-      
+
       return (
         <div className="h-48">
           <TrendsChart data={calculationsData} />
         </div>
       );
+    }
 
-    case 'recent-calculations':
+    case 'recent-calculations': {
       const recentCalculations = history.slice(0, 5);
       return (
         <div className="space-y-2">
@@ -118,8 +119,9 @@ export default function WidgetRenderer({ widget }: WidgetRendererProps) {
           )}
         </div>
       );
+    }
 
-    case 'revenue-chart':
+    case 'revenue-chart': {
       const revenueData: RevenueDataItem[] = [
         { hour: '00:00', avgPrice: 45000, volume: 120, margin: 25 },
         { hour: '04:00', avgPrice: 52000, volume: 150, margin: 28 },
@@ -128,12 +130,13 @@ export default function WidgetRenderer({ widget }: WidgetRendererProps) {
         { hour: '16:00', avgPrice: 55000, volume: 140, margin: 26 },
         { hour: '20:00', avgPrice: 67000, volume: 190, margin: 32 }
       ];
-      
+
       return (
         <div className="h-48">
           <TrendsChart data={revenueData} />
         </div>
       );
+    }
 
     case 'user-activity':
       return (

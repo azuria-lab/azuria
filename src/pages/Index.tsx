@@ -1,5 +1,4 @@
-
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAuthContext } from "@/domains/auth";
 import Layout from "@/components/layout/Layout";
@@ -9,7 +8,6 @@ import BenefitsShowcaseSection from "@/components/home/BenefitsShowcaseSection";
 import IntelligentBatchBanner from "@/components/home/IntelligentBatchBanner";
 import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner";
 import { DashboardSkeleton, FeatureGridSkeleton } from "@/components/ui/skeleton-loader";
-import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
 
@@ -36,19 +34,8 @@ const containerVariants = {
 export default function Index() {
   const [mounted, setMounted] = useState(false);
   const reduceMotion = useReducedMotion();
-  
-  // Safely get auth context with fallback
-  let isAuthenticated = false;
-  let isLoading = true;
-  
-  try {
-    const authContext = useAuthContext();
-    isAuthenticated = authContext?.isAuthenticated || false;
-    isLoading = authContext?.isLoading || false;
-  } catch (error) {
-    console.log('Auth context not available yet');
-    isLoading = false; // Don't block if auth fails
-  }
+  const authContext = useAuthContext();
+  const isAuthenticated = Boolean(authContext?.isAuthenticated);
 
   
   useEffect(() => {

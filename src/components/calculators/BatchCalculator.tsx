@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { Tooltip } from "@/components/ui/TutorialTooltip";
-import { ArrowRight, Calculator, Info, Plus, Trash2 } from "lucide-react";
+import { Calculator, Info, Plus, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency } from "@/utils/calculator/formatCurrency";
 import { useToast } from "@/hooks/use-toast";
@@ -36,7 +36,7 @@ interface BatchResult {
   margin: number;
 }
 
-export default function BatchCalculator({ isPro }: BatchCalculatorProps) {
+export default function BatchCalculator({ isPro: _isPro }: BatchCalculatorProps) {
   const { toast } = useToast();
   const [batches, setBatches] = useState<BatchConfig[]>([
     {

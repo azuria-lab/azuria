@@ -6,11 +6,35 @@ import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+type CalculationResult = {
+  sellingPrice?: number;
+  breakdown?: { profit?: number };
+};
+
+export interface CalculationRow {
+  date: string | number | Date;
+  cost: string | number;
+  margin: number | string;
+  tax?: string | number | null;
+  cardFee?: string | number | null;
+  shipping?: string | number | null;
+  otherCosts?: string | number | null;
+  includeShipping?: boolean;
+  result?: CalculationResult;
+}
+
+interface MarketplaceSummary {
+  avgPrice: number;
+  minPrice: number;
+  maxPrice: number;
+  totalResults: number;
+}
+
 interface ExportData {
-  calculations: any[];
-  marketplaceData?: any;
+  calculations: CalculationRow[];
+  marketplaceData?: MarketplaceSummary;
   period?: string;
-  filters?: any;
+  filters?: Record<string, unknown>;
   summary?: {
     totalCalculations: number;
     avgMargin: number;
@@ -20,7 +44,20 @@ interface ExportData {
   };
 }
 
+const toNumber = (v: string | number | null | undefined): number => {
+  if (typeof v === 'number') { return v; }
+  if (typeof v === 'string') { return parseFloat(v.replace(',', '.')) || 0; }
+  return 0;
+};
+
+const normalizeNumericInput = (v: string | number | null | undefined): string => {
+  if (typeof v === 'number') { return v.toString(); }
+  if (typeof v === 'string') { return v.replace(',', '.'); }
+  return "0";
+};
+
 export const useExportReports = () => {
+
   const exportToPDF = useCallback(async (data: ExportData, fileName: string = "relatorio-precifica") => {
     try {
       const doc = new jsPDF();
@@ -50,16 +87,19 @@ export const useExportReports = () => {
       
       // Calculations table
       if (data.calculations.length > 0) {
-        const tableData = data.calculations.slice(0, 50).map((calc, index) => [
+        const tableData = data.calculations.slice(0, 50).map((calc, index) => {
+          const shippingVal = toNumber(calc.shipping);
+          return [
           index + 1,
           format(new Date(calc.date), "dd/MM/yyyy", { locale: ptBR }),
           `R$ ${calc.cost}`,
           `${calc.margin}%`,
           calc.tax ? `${calc.tax}%` : "-",
           calc.cardFee ? `${calc.cardFee}%` : "-",
-          calc.shipping && parseFloat(calc.shipping) > 0 ? `R$ ${parseFloat(calc.shipping).toFixed(2)}` : "-",
+          shippingVal > 0 ? `R$ ${shippingVal.toFixed(2)}` : "-",
           calc.result?.sellingPrice ? `R$ ${calc.result.sellingPrice.toFixed(2)}` : "-"
-        ]);
+        ];
+        });
         
         autoTable(doc, {
           head: [['#', 'Data', 'Custo', 'Margem', 'Impostos', 'Taxa Cartão', 'Frete', 'Preço Final']],
@@ -80,7 +120,9 @@ export const useExportReports = () => {
         });
         
         if (data.calculations.length > 50) {
-          const yPos = (doc as any).lastAutoTable?.finalY + 10 || 200;
+          const yPos = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?
+            ((doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10) :
+            200;
           doc.setFontSize(8);
           doc.setTextColor(100);
           doc.text(`Nota: Mostrando os primeiros 50 registros de ${data.calculations.length} total.`, 20, yPos);
@@ -89,7 +131,9 @@ export const useExportReports = () => {
       
       // Marketplace data
       if (data.marketplaceData) {
-        const yPos = (doc as any).lastAutoTable?.finalY + 20 || 180;
+        const yPos = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?
+          ((doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20) :
+          180;
         
         doc.setFontSize(14);
         doc.setTextColor(40);
@@ -114,8 +158,7 @@ export const useExportReports = () => {
       doc.save(`${fileName}.pdf`);
       toast.success("Relatório PDF exportado com sucesso!");
       
-    } catch (error) {
-      console.error("Erro ao exportar PDF:", error);
+    } catch (_error) {
       toast.error("Erro ao exportar relatório em PDF");
     }
   }, []);
@@ -138,8 +181,7 @@ export const useExportReports = () => {
       
       toast.success("Relatório CSV exportado com sucesso!");
       
-    } catch (error) {
-      console.error("Erro ao exportar CSV:", error);
+    } catch (_error) {
       toast.error("Erro ao exportar relatório em CSV");
     }
   }, []);
@@ -163,8 +205,7 @@ export const useExportReports = () => {
       
       toast.success("Relatório Excel exportado com sucesso!");
       
-    } catch (error) {
-      console.error("Erro ao exportar Excel:", error);
+    } catch (_error) {
       toast.error("Erro ao exportar relatório em Excel");
     }
   }, []);
@@ -199,12 +240,12 @@ function generateCSVContent(data: ExportData, forExcel: boolean = false): string
   // Data rows
   const rows = data.calculations.map(calc => [
     format(new Date(calc.date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
-    calc.cost?.replace(",", ".") || "0",
-    calc.margin?.toString().replace(",", ".") || "0",
-    calc.tax?.replace(",", ".") || "0",
-    calc.cardFee?.replace(",", ".") || "0",
-    calc.shipping?.replace(",", ".") || "0",
-    calc.otherCosts?.replace(",", ".") || "0",
+    normalizeNumericInput(calc.cost),
+    normalizeNumericInput(calc.margin),
+    normalizeNumericInput(calc.tax),
+    normalizeNumericInput(calc.cardFee),
+    normalizeNumericInput(calc.shipping),
+    normalizeNumericInput(calc.otherCosts),
     calc.result?.sellingPrice?.toFixed(2).replace(".", ",") || "0",
     calc.result?.breakdown?.profit?.toFixed(2).replace(".", ",") || "0",
     calc.includeShipping ? "Sim" : "Não"

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-interface BusinessMetrics {
+export interface BusinessMetrics {
   mrr: number; // Monthly Recurring Revenue
   cac: number; // Customer Acquisition Cost
   ltv: number; // Customer Lifetime Value
@@ -17,7 +17,7 @@ interface BusinessMetrics {
   };
 }
 
-interface CohortData {
+export interface CohortData {
   month: string;
   newUsers: number;
   retainedUsers: number;
@@ -25,8 +25,13 @@ interface CohortData {
   revenue: number;
 }
 
+export interface TrendItem extends CohortData {
+  index: number;
+  cumulativeRevenue: number;
+}
+
 export const useBusinessMetrics = () => {
-  const [trends, setTrends] = useState<any[]>([]);
+  const [trends, setTrends] = useState<TrendItem[]>([]);
 
   const { data: businessMetrics, isLoading } = useQuery({
     queryKey: ['business-metrics'],
@@ -71,7 +76,7 @@ export const useBusinessMetrics = () => {
   // Calculate trends
   useEffect(() => {
     if (businessMetrics && cohortData) {
-      const trendData = cohortData.map((item, index) => ({
+  const trendData: TrendItem[] = cohortData.map((item, index) => ({
         ...item,
         index,
         cumulativeRevenue: cohortData.slice(0, index + 1).reduce((sum, curr) => sum + curr.revenue, 0)

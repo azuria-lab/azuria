@@ -7,7 +7,7 @@ interface AuditLogEntry {
   userId: string;
   action: string;
   category: 'auth' | 'calculation' | 'settings' | 'data' | 'security' | 'system';
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   riskLevel: 'low' | 'medium' | 'high';
@@ -20,7 +20,7 @@ export const useAuditLog = () => {
   const logAction = useCallback(async (
     action: string,
     category: AuditLogEntry['category'],
-    details: Record<string, any> = {},
+    details: Record<string, unknown> = {},
     riskLevel: AuditLogEntry['riskLevel'] = 'low',
     success: boolean = true
   ) => {
@@ -38,17 +38,15 @@ export const useAuditLog = () => {
     };
 
     // Store in localStorage for now (in production, send to server)
-    const existingLogs = JSON.parse(localStorage.getItem('audit_logs') || '[]');
-    existingLogs.push(logEntry);
+  const existingLogs = JSON.parse(localStorage.getItem('audit_logs') || '[]') as AuditLogEntry[];
+  existingLogs.push(logEntry);
     
     // Keep only last 1000 entries
     if (existingLogs.length > 1000) {
       existingLogs.splice(0, existingLogs.length - 1000);
     }
     
-    localStorage.setItem('audit_logs', JSON.stringify(existingLogs));
-    
-    console.log('🔍 Audit Log:', logEntry);
+  localStorage.setItem('audit_logs', JSON.stringify(existingLogs));
     
     return logEntry;
   }, [user]);
@@ -62,11 +60,11 @@ export const useAuditLog = () => {
       endDate?: Date;
     }
   ): AuditLogEntry[] => {
-    const logs = JSON.parse(localStorage.getItem('audit_logs') || '[]');
+    const logs = JSON.parse(localStorage.getItem('audit_logs') || '[]') as AuditLogEntry[];
     
     if (!filters) {return logs;}
     
-    return logs.filter((log: AuditLogEntry) => {
+  return logs.filter((log: AuditLogEntry) => {
       if (filters.category && log.category !== filters.category) {return false;}
       if (filters.userId && log.userId !== filters.userId) {return false;}
       if (filters.riskLevel && log.riskLevel !== filters.riskLevel) {return false;}

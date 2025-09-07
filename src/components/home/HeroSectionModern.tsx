@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, BarChart3, Calculator, Star, Target, TrendingUp, Trophy, Users, Zap } from "lucide-react";
+import { ArrowRight, BarChart3, Star, Target, TrendingUp, Trophy, Users, Zap } from "lucide-react";
 
 const HeroSectionModern: React.FC = () => {
   return (

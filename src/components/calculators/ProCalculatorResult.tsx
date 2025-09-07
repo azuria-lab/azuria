@@ -94,7 +94,6 @@ const ProCalculatorResult = ({
         currentPrice={sellingPrice}
         minimumPrice={minimumPrice}
         priceBelowMinimum={priceBelowMinimum}
-        priceNearMinimum={priceNearMinimum}
         showAlert={showAlert}
       />
       

@@ -55,7 +55,7 @@ export class SecurityMiddleware {
    */
   detectSQLInjection(input: string): boolean {
     const sqlPatterns = [
-      /('|(\\')|(;)|(\\;)|(\-\-)|(\|\|)|(\*)|(%27)|(%3B)|(\+)|(%2B)|(%20)|(\s+)|(\s*))/gi,
+  /('|;|--|\|\||\*|%27|%3B|\+|%2B|%20|\s+|\s*)/gi,
       /(union|select|insert|update|delete|drop|create|alter|exec|execute)/gi,
       /(script|javascript|vbscript|onload|onerror|onclick)/gi
     ];
@@ -101,7 +101,7 @@ export class SecurityMiddleware {
   /**
    * Validate session security
    */
-  validateSession(sessionData: any): boolean {
+  validateSession(sessionData: { created_at: string; last_activity?: string } | null | undefined): boolean {
     if (!sessionData) {return false;}
 
     const now = Date.now();
@@ -186,7 +186,7 @@ export class SecurityMiddleware {
   /**
    * Dispatch security event
    */
-  private dispatchSecurityEvent(type: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical'): void {
+  private dispatchSecurityEvent(type: string, details: Record<string, unknown>, severity: 'low' | 'medium' | 'high' | 'critical'): void {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('security-event', {
         detail: { type, details, severity }

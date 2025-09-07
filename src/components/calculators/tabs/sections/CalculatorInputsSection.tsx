@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Tooltip } from "@/components/ui/TutorialTooltip";
+import { TutorialTooltip as Tooltip } from "@/components/ui/TutorialTooltip";
 import ProCalculatorInputs from "../../ProCalculatorInputs";
 import ProfitSlider from "../../ProfitSlider";
 
@@ -12,7 +12,7 @@ interface CalculatorInputsSectionProps {
   targetProfit: number;
   handleInputChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleTargetProfitChange: (values: number[]) => void;
-  setState: React.Dispatch<React.SetStateAction<any>>;
+  setState: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 }
 
 export default function CalculatorInputsSection({
@@ -40,7 +40,7 @@ export default function CalculatorInputsSection({
           onShippingChange={handleInputChange('shipping')}
           includeShipping={includeShipping as boolean}
           onIncludeShippingChange={(value) => 
-            setState((prev: any) => ({ ...prev, includeShipping: value }))}
+            setState((prev) => ({ ...prev, includeShipping: value }))}
         />
       </Tooltip>
 

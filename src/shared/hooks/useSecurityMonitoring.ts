@@ -1,13 +1,14 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/types/supabase';
 import { useAuthContext } from '@/domains/auth';
 
 interface SecurityMetric {
   id: string;
   metric_type: 'rls_performance' | 'query_time' | 'failed_auth' | 'suspicious_activity';
   metric_value: number;
-  metadata: Record<string, any>;
+  metadata: Json;
   date: string;
   hour: number;
   created_at: string;
@@ -19,7 +20,7 @@ interface PerformanceAlert {
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Json;
   is_resolved: boolean;
   created_at: string;
   resolved_at?: string;
@@ -93,7 +94,7 @@ export function useLogSecurityMetric() {
     }: {
       metricType: 'rls_performance' | 'query_time' | 'failed_auth' | 'suspicious_activity';
       value: number;
-      metadata?: Record<string, any>;
+  metadata?: Json;
     }) => {
       const { data, error } = await supabase
         .from('analytics_metrics')

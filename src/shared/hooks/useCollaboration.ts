@@ -1,37 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-interface ShareCalculation {
-  id: string;
-  calculation_id: string;
-  shared_by: string;
-  shared_with: string;
-  permission_level: 'view' | 'comment' | 'edit';
-  expires_at?: string;
-  created_at: string;
-}
-
-interface CalculationComment {
-  id: string;
-  calculation_id: string;
-  user_id: string;
-  content: string;
-  parent_id?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface CalculationApproval {
-  id: string;
-  calculation_id: string;
-  requested_by: string;
-  approver_id: string;
-  status: 'pending' | 'approved' | 'rejected';
-  comment?: string;
-  approved_at?: string;
-  created_at: string;
-}
-
 export function useSharedCalculations() {
   return useQuery({
     queryKey: ['shared-calculations'],
