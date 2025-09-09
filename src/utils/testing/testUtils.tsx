@@ -5,8 +5,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { fireEvent, screen, waitFor } from '@testing-library/dom';
 import { Toaster } from '@/components/ui/toaster';
-export * from './testHelpers';
-export { measurePerformance } from './testHelpers';
+export * from './testHelpers.ts';
+export { measurePerformance } from './testHelpers.ts';
 
 // Re-export testing utilities
 export { render, screen, fireEvent, waitFor };
