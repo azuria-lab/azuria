@@ -5,6 +5,7 @@ import { cleanup } from '@testing-library/react'
 // Mock do Supabase
 const mockSupabase = {
   auth: {
+  getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
     getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     signInWithPassword: vi.fn().mockResolvedValue({ data: { user: { id: '1' } }, error: null }),
     signOut: vi.fn().mockResolvedValue({ error: null }),
