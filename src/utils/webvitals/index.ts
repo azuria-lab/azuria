@@ -1,8 +1,8 @@
-import { loadWebVitals, subscribeToVitals } from './collect';
-import { getRatingEmoji, isCritical, score } from './analyze';
-import { createReport, sendReport, sendReportsBatch } from './report';
+import { loadWebVitals, subscribeToVitals } from './collect.ts';
+import { getRatingEmoji, isCritical, score } from './analyze.ts';
+import { createReport, sendReport, sendReportsBatch } from './report.ts';
 import { logger } from '@/services/logger';
-import type { PerformanceReport, WebVitalMetric } from './types';
+import type { PerformanceReport, WebVitalMetric } from './types.ts';
 
 class Reporter {
   private metrics = new Map<string, WebVitalMetric>();

@@ -1,4 +1,4 @@
-import type { KeyValueStore, StoreOptions } from './types';
+import type { KeyValueStore, StoreOptions } from './types.ts';
 
 const DEFAULT_DB = 'azuria-offline-db';
 const DEFAULT_VERSION = 1;

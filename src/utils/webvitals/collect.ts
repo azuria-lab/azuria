@@ -1,4 +1,4 @@
-import type { WebVitalMetric } from './types';
+import type { WebVitalMetric } from './types.ts';
 
 type WebVitalsModule = {
   onCLS: (cb: (m: WebVitalMetric) => void, opts?: { reportAllChanges?: boolean }) => void;

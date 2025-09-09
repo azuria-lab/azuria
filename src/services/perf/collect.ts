@@ -1,4 +1,4 @@
-import type { WebVitalMetric } from './types';
+import type { WebVitalMetric } from './types.ts';
 import { logger } from '@/services/logger';
 
 export type MetricHandler = (metric: WebVitalMetric) => void;

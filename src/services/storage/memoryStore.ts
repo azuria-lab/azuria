@@ -1,4 +1,4 @@
-import type { KeyValueStore } from './types';
+import type { KeyValueStore } from './types.ts';
 
 export class MemoryStore<T extends { id: string }> implements KeyValueStore<T> {
   private map = new Map<string, T>();

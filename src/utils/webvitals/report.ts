@@ -1,4 +1,4 @@
-import type { PerformanceReport, WebVitalMetric } from './types';
+import type { PerformanceReport, WebVitalMetric } from './types.ts';
 
 export function createReport(metrics: WebVitalMetric[], sessionId: string): PerformanceReport {
   return {

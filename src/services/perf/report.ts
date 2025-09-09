@@ -1,4 +1,4 @@
-import type { PerformanceReport } from './types';
+import type { PerformanceReport } from './types.ts';
 import { logger } from '@/services/logger';
 
 export function sendViaBeaconOrFetch(endpoint: string, payload: unknown, keepalive = true): Promise<void> | void {

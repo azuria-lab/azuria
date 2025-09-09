@@ -1,4 +1,4 @@
-import type { WebVitalMetric } from './types';
+import type { WebVitalMetric } from './types.ts';
 
 export function metricIsCritical(metric: WebVitalMetric): boolean {
   const criticalThresholds: Partial<Record<WebVitalMetric['name'], number>> = {
