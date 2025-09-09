@@ -398,9 +398,17 @@ O projeto monitora automaticamente as Core Web Vitals:
 5. **Push** para a branch (`git push origin feature/AmazingFeature`)
 6. **Abra** um Pull Request
 
+## 📜 Licença
+
+Este projeto é distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+
+## 🔐 Segurança
+
+Achou uma vulnerabilidade? Siga a nossa política em `SECURITY.md` para reporte responsável.
+
 ### Padrões de Commit
 
-```
+```text
 feat: adiciona nova funcionalidade
 fix: corrige bug
 docs: atualiza documentação
@@ -410,16 +418,12 @@ test: adiciona ou modifica testes
 chore: tarefas de manutenção
 ```
 
-## 📝 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
-
 ## 🆘 Suporte
 
 - **Documentação**: [docs/](./docs/)
 - **Issues**: [GitHub Issues](./issues)
-- **Discord**: [Comunidade Azuria](#)
-- **Email**: suporte@azuria.app
+- **Discord**: [Comunidade Azuria](https://discord.com/invite/azuria)
+- **Email**: [suporte@azuria.app](mailto:suporte@azuria.app)
 
 ## 🗺️ Roadmap
 
@@ -443,8 +447,5 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para de
 
 ---
 
-<div align="center">
-  <strong>Desenvolvido com ❤️ para empreendedores brasileiros</strong>
-  <br>
-  <em>Azuria - Maximizando sua lucratividade com inteligência</em>
-</div>
+**Desenvolvido com ❤️ para empreendedores brasileiros**  
+*Azuria - Maximizando sua lucratividade com inteligência*
