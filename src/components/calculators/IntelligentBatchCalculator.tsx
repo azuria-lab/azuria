@@ -13,7 +13,7 @@ import ScenarioSimulationPanel from "./intelligent-batch/ScenarioSimulationPanel
 import BatchResultsTable from "./intelligent-batch/BatchResultsTable";
 import ExportOptionsPanel from "./intelligent-batch/ExportOptionsPanel";
 import { useToast } from "@/hooks/use-toast";
-import type { AIInsightsData, BatchItem as SharedBatchItem } from "./intelligent-batch/types";
+import type { AIInsightsData, AIRecommendation, BatchItem as SharedBatchItem } from "./intelligent-batch/types";
 
 interface IntelligentBatchCalculatorProps {
   isPro: boolean;
@@ -96,7 +96,7 @@ export default function IntelligentBatchCalculator({ isPro, userId }: Intelligen
       setAIInsights(insights);
       
       // Atualizar batches com sugestões de IA
-      const updatedBatches = insights.aiRecommendations.map((rec, index) => ({
+  const updatedBatches = insights.aiRecommendations.map((rec: AIRecommendation, index: number) => ({
         id: (index + 1).toString(),
         quantity: rec.quantity,
         unitCost: 100,

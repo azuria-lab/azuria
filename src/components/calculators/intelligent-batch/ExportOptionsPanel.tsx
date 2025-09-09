@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Download, FileSpreadsheet, FileText, Mail, Share2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import type { AIInsightsData, BatchItem } from "./types";
+import { useToast } from "@/components/ui/use-toast";
+import type { AIInsightsData, BatchItem } from "./types.ts";
 
 interface ExportOptionsPanelProps {
   batches: BatchItem[];

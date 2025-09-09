@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DollarSign, PlayCircle, Target, TrendingUp } from "lucide-react";
-import type { BatchItem } from "./types";
+import type { BatchItem } from "./types.ts";
 
 interface RevenuePoint { month: string; atual: number; projetado: number }
 interface MarketSharePoint { segment: string; atual: number; projetado: number }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, Brain, CheckCircle, Target, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import type { AIInsightsData, AIRecommendation, BatchItem } from "./types";
+import type { AIInsightsData, AIRecommendation, BatchItem } from "./types.ts";
 
 interface AIInsightsPanelProps {
   insights: AIInsightsData;

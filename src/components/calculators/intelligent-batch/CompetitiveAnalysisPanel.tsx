@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, Target, TrendingUp, Zap } from "lucide-react";
-import type { BatchItem } from "./types";
+import type { BatchItem } from "./types.ts";
 
 interface CompetitorInfo {
   name: string;
