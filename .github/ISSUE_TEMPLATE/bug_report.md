@@ -1,34 +1,43 @@
 ---
 name: Bug report
-about: Report a problem to help us improve
-title: "fix: <short description>"
+about: Report a problem (uso interno - software proprietário)
+title: "fix: <descrição curta>"
 labels: [bug]
 assignees: []
 ---
 
+> Uso interno: este software é proprietário. Issues públicas não autorizadas podem ser encerradas sem análise.
+
 ## Summary
-A clear and concise description of the problem.
+
+Descrição clara e concisa do problema.
 
 ## Steps to Reproduce
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ## Expected Behavior
-What you expected to happen.
+
+O que era esperado.
 
 ## Actual Behavior
-What actually happened (include screenshots or console logs if helpful).
+
+O que ocorreu (inclua logs ou screenshots se útil).
 
 ## Environment
+
 - Browser (name/version):
 - OS:
 - Branch / Commit:
 
 ## Additional Context
-Add any other context, links, or notes about the problem here.
+
+Contexto adicional, links, referências.
 
 ## Checklist
-- [ ] I have searched existing issues
-- [ ] I have included reproduction steps
-- [ ] I am willing to submit a PR to fix (optional)
+
+- [ ] Busquei issues existentes
+- [ ] Incluí passos de reprodução
+- [ ] Posso enviar PR (opcional)

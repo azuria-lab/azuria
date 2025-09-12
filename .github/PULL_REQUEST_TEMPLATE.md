@@ -1,3 +1,5 @@
+> Aviso: Este repositório pertence a um software proprietário. Apenas colaboradores autorizados devem abrir PRs.
+
 ## Summary
 
 Describe the change, motivation, and context.

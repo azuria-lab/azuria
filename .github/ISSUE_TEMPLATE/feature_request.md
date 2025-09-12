@@ -1,26 +1,28 @@
 ---
 name: Feature request
-about: Suggest an idea or enhancement
-title: "feat: <short description>"
+about: Suggest an idea (uso interno - software proprietário)
+title: "feat: <descrição curta>"
 labels: [enhancement]
 assignees: []
 ---
 
+> Uso interno: ideias externas podem ser rejeitadas sem justificativa.
+
 ## Problem / Opportunity
 
-Describe the underlying user problem or opportunity.
+Descreva o problema ou oportunidade.
 
 ## Proposed Solution
 
-High-level description of the feature / change.
+Descrição de alto nível da mudança.
 
 ## Alternatives Considered
 
-List any alternative solutions or features you've considered.
+Outras abordagens consideradas.
 
 ## Additional Context
 
-Design notes, mockups, links, or related discussions.
+Notas de design, mockups, links.
 
 ## Acceptance Criteria
 
@@ -29,10 +31,10 @@ Design notes, mockups, links, or related discussions.
 
 ## Risks / Concerns
 
-Potential downsides, trade-offs, performance or security considerations.
+Riscos, trade-offs, performance ou segurança.
 
 ## Checklist
 
-- [ ] I have checked for existing feature requests
-- [ ] This is not a duplicate
-- [ ] I have described acceptance criteria
+- [ ] Verifiquei issues existentes
+- [ ] Não é duplicado
+- [ ] Critérios de aceitação descritos

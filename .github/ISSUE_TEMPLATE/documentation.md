@@ -1,28 +1,30 @@
 ---
 name: Documentation improvement
-about: Request docs updates or report gaps/inaccuracies
-title: "docs: <short description>"
+about: Internal docs update (software proprietário)
+title: "docs: <descrição curta>"
 labels: [documentation]
 assignees: []
 ---
 
+> Uso interno: alterações de documentação externas podem não ser aceitas.
+
 ## Area of Documentation
 
-Which page / section / file needs improvement?
+Qual página/seção precisa de melhoria?
 
 ## Current Description
 
-What is unclear, outdated, or missing?
+O que está incorreto, desatualizado ou ausente?
 
 ## Suggested Improvement
 
-Proposed wording, structure, or examples.
+Texto, estrutura ou exemplos propostos.
 
 ## Additional Context
 
-Links, references, screenshots.
+Links, referências, screenshots.
 
 ## Checklist
 
-- [ ] I have searched existing issues
-- [ ] I can help contribute the change (optional)
+- [ ] Busquei issues existentes
+- [ ] Posso ajudar na alteração (opcional)

@@ -3,3 +3,6 @@ contact_links:
   - name: Security Vulnerability Disclosure
     url: https://github.com/azuria-lab/azuria/security/policy
     about: Please report security issues privately via the Security Policy.
+  - name: Solicitações Comerciais / Parcerias
+    url: https://www.azuria.app
+    about: Contato para licenciamento ou integrações empresariais.
