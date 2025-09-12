@@ -1,5 +1,7 @@
 # Security Policy
 
+Este software é proprietário. Relatos de vulnerabilidades devem ser feitos de forma privada. Não são aceitas divulgações públicas sem coordenação prévia.
+
 ## Supported Versions
 We actively maintain the main branch. Security fixes are prioritized.
 

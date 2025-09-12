@@ -1,6 +1,8 @@
 # Contribuindo para o Azuria
 
-Obrigado por querer contribuir! Este guia ajuda você a começar.
+O Azuria é um software proprietário. Contribuições externas podem ser limitadas ou rejeitadas conforme critérios internos. Caso deseje propor melhorias estratégicas ou integrações empresariais, entre em contato previamente via [parcerias@azuria.app](mailto:parcerias@azuria.app).
+
+Este guia aplica-se apenas a colaboradores previamente autorizados.
 
 ## Pré-requisitos
 

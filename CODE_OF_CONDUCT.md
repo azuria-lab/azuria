@@ -1,6 +1,8 @@
-# Código de Conduta do Contribuidor
+# Código de Conduta Interno
 
-Este projeto adota uma adaptação do Contributor Covenant. Esperamos que todos os participantes:
+Este repositório pertence a um software proprietário. A participação é restrita a membros autorizados da equipe e colaboradores convidados. O projeto adota uma adaptação do Contributor Covenant para orientar interações internas.
+
+Esperamos que todos os participantes:
 
 - Demonstrem empatia e respeito por diferentes pontos de vista.
 - Evitem linguagem e comportamento assediadores ou discriminatórios.
