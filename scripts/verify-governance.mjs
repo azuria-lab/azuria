@@ -29,8 +29,8 @@ const ALLOW_PATHS = new Set([
   'THIRD_PARTY_LICENSES.md',
 ]);
 
-// Directories we never scan (external ou artefatos gerados onde licenças de terceiro são esperadas)
-// Pode ser estendido via variável de ambiente GOV_SCAN_SKIP_DIRS="dir1,dir2".
+// Directories we never scan (external or generated artifacts where third-party licenses are expected)
+// Can be extended via environment variable GOV_SCAN_SKIP_DIRS="dir1,dir2".
 const DEFAULT_SKIP_DIRS = [
   'node_modules',
   'dist',
