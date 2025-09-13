@@ -38,6 +38,7 @@ function loadPackageMeta(name) {
       repository: getRepositoryUrl(pkgJson)
     };
   } catch (e) {
+    console.error(`Erro ao carregar metadados do pacote "${name}":`, e);
     return { name, version: 'UNKNOWN', license: 'UNKNOWN', homepage: '', repository: '' };
   }
 }
