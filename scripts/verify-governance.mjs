@@ -18,6 +18,10 @@ const PROHIBITED = [
   /\bGPL\b/i,
 ];
 
+// Marker-based allow blocks (e.g. README third-party license explanatory section)
+const ALLOW_BLOCK_START = /<!-- GOVERNANCE-ALLOW-LICENSING-START -->/;
+const ALLOW_BLOCK_END = /<!-- GOVERNANCE-ALLOW-LICENSING-END -->/;
+
 // Allow list: file paths that may legitimately mention old licenses historically (e.g. changelog) – none yet
 // NOTE: We now skip entire dependency & build artifact directories (node_modules, dist, coverage, playwright, etc.)
 const ALLOW_PATH_REGEX = [
@@ -64,17 +68,21 @@ const results = [];
 const files = collect(ROOT);
 for (const file of files) {
   if (ALLOW_PATH_REGEX.some(r => r.test(file))) continue;
-  const content = readFileSync(file, 'utf8');
+  let content = readFileSync(file, 'utf8');
+
+  // Remove any explicitly allowed licensing explanation blocks
+  if (ALLOW_BLOCK_START.test(content) && ALLOW_BLOCK_END.test(content)) {
+    content = content.replace(new RegExp(`${ALLOW_BLOCK_START.source}[\s\S]*?${ALLOW_BLOCK_END.source}`, 'g'), '');
+  }
+
   for (const pattern of PROHIBITED) {
-    if (pattern.test(content)) {
-      // collect line numbers
-      const lines = content.split(/\r?\n/);
-      lines.forEach((line, idx) => {
-        if (pattern.test(line)) {
-          results.push({ file, line: idx + 1, match: line.trim().slice(0, 160) });
-        }
-      });
-    }
+    if (!pattern.test(content)) continue;
+    const lines = content.split(/\r?\n/);
+    lines.forEach((line, idx) => {
+      if (pattern.test(line)) {
+        results.push({ file, line: idx + 1, match: line.trim().slice(0, 160) });
+      }
+    });
   }
 }
 
