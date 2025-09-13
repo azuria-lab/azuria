@@ -59,7 +59,7 @@ out += `Gerado em: ${now} (script: scripts/generate-licenses.mjs)\n\n`;
 out += 'Este arquivo lista as dependências diretas e suas licenças declaradas. Dependências transitivas podem possuir outras licenças; para um SBOM completo utilize ferramentas especializadas (ex: syft, license-checker, osv-scanner).\n\n';
 
 out += '## Resumo por Licença\n\n';
-Object.entries(byLicense).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([lic, count]) => {
+Object.entries(byLicense).sort((a, b) => a[0].localeCompare(b[0])).forEach(([lic, count]) => {
   out += `- ${lic}: ${count}\n`;
 });
 
