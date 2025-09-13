@@ -28,7 +28,7 @@ if (!existsSync('package-lock.json')) {
 
 // Optional: warn if node_modules missing when running in local dev context
 try {
-  const hasNodeModules = readdirSync(cwd()).includes('node_modules');
+  const hasNodeModules = existsSync('node_modules');
   if (!hasNodeModules) {
     console.log('ℹ️  Dica: execute "npm ci" para instalar dependências limpas.');
   }
