@@ -15,7 +15,7 @@ const found = forbidden.filter(f => existsSync(f));
 if (found.length) {
   console.error('\n❌ Package manager policy violation');
   for (const f of found) console.error(` - Found forbidden lockfile: ${f}`);
-  console.error('\nThis repository is npm-only. Remova os arquivos acima e use:');
+  console.error('\nThis repository is npm-only. Remove the files listed above and use:');
   console.error('  npm ci');
   process.exit(1);
 }
