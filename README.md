@@ -4,6 +4,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
 [![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
 [![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)
+[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](#cobertura-de-testes)
 
 | Stack | Versão |
 |-------|--------|
@@ -344,6 +345,33 @@ npm run test calculator
 # Coverage
 npm run test:coverage
 ```
+
+### Cobertura de Testes
+
+Status atual: badge acima marcado como "pending" enquanto a automação completa de publicação de badge não é habilitada.
+
+Limiares definidos (Vitest / `vitest.config.ts`):
+
+- Statements: 70%
+- Lines: 70%
+- Functions: 70%
+- Branches: 60%
+
+Como gerar localmente o relatório:
+
+```bash
+npm run test:coverage
+```
+
+Saída principal: `./coverage/` (inclui `lcov-report/index.html`).
+
+Próximos passos planejados para o badge dinâmico:
+
+1. Publicar cobertura em um serviço externo (Codecov / Coveralls) ou gerar badge estático via GitHub Pages.
+2. Adicionar etapa no workflow de CI para atualizar badge após cada execução em `main`.
+3. Tornar o badge colorido de acordo com a % (ex.: >=80% verde, 60–79% amarelo, <60% vermelho) após incremento progressivo das metas.
+
+Até a automação: use o relatório local ou artifact de coverage no workflow `CI` para auditoria.
 
 ### Estratégia de Testes
 
