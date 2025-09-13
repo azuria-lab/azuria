@@ -412,6 +412,8 @@ Este repositório utiliza dependências open source (por exemplo: React, Vite, T
 
 Ao redistribuir binários internos ou fazer deploy da aplicação, você é responsável por manter eventuais avisos de copyright e termos exigidos por essas licenças de terceiros. Caso precise de um inventário formal de licenças para auditoria/compliance, gere um SBOM ou utilize ferramentas como `license-checker`.
 
+Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).
+
 ## 🔐 Segurança
 
 Achou uma vulnerabilidade? Siga a nossa política em `SECURITY.md` para reporte responsável.

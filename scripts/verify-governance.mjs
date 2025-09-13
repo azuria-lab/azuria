@@ -20,7 +20,12 @@ const PROHIBITED = [
 
 // Allow list: file paths that may legitimately mention old licenses historically (e.g. changelog) – none yet
 // NOTE: We now skip entire dependency & build artifact directories (node_modules, dist, coverage, playwright, etc.)
-const ALLOW_PATH_REGEX = [/CHANGELOG\.md$/i, /package-lock\.json$/i, /scripts[\\/]+verify-governance\.mjs$/i];
+const ALLOW_PATH_REGEX = [
+  /CHANGELOG\.md$/i,
+  /package-lock\.json$/i,
+  /scripts[\\/]+verify-governance\.mjs$/i,
+  /THIRD_PARTY_LICENSES\.md$/i,
+];
 
 // Directories we never scan (external or generated content where third‑party licenses are expected)
 const SKIP_DIR_NAMES = new Set([
