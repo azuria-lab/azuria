@@ -13,7 +13,6 @@
     "verify:governance": "node scripts/verify-governance.mjs",
     "generate:licenses": "node scripts/generate-licenses.mjs",
     "verify:package-manager": "node scripts/verify-package-manager.mjs",
-    "preinstall": "node scripts/verify-package-manager.mjs",
     "type-check": "tsc -p tsconfig.app.json --noEmit",
     "test": "vitest run",
     "test:smoke": "vitest run src/__tests__/smoke",
