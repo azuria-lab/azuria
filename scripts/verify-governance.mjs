@@ -65,17 +65,15 @@ const files = collect(ROOT);
 for (const file of files) {
   if (ALLOW_PATH_REGEX.some(r => r.test(file))) continue;
   const content = readFileSync(file, 'utf8');
-  for (const pattern of PROHIBITED) {
-    if (pattern.test(content)) {
-      // collect line numbers
-      const lines = content.split(/\r?\n/);
-      lines.forEach((line, idx) => {
-        if (pattern.test(line)) {
-          results.push({ file, line: idx + 1, match: line.trim().slice(0, 160) });
-        }
-      });
+  const lines = content.split(/\r?\n/);
+  lines.forEach((line, idx) => {
+    for (const pattern of PROHIBITED) {
+      if (pattern.test(line)) {
+        results.push({ file, line: idx + 1, match: line.trim().slice(0, 160) });
+        break; // Only record first matching pattern per line
+      }
     }
-  }
+  });
 }
 
 if (results.length) {
