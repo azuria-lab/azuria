@@ -17,11 +17,26 @@ const deps = {
   ...(PKG.devDependencies || {}),
 };
 
+function getRepositoryUrl(pkgJson) {
+  if (typeof pkgJson.repository === 'string') {
+    return pkgJson.repository;
+  } else if (pkgJson.repository && typeof pkgJson.repository.url === 'string') {
+    return pkgJson.repository.url;
+  }
+  return '';
+}
+
 function loadPackageMeta(name) {
   try {
     const pkgPath = require.resolve(`${name}/package.json`, { paths: [process.cwd()] });
     const pkgJson = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    return { name, version: pkgJson.version, license: pkgJson.license || 'UNKNOWN', homepage: pkgJson.homepage || '', repository: typeof pkgJson.repository === 'string' ? pkgJson.repository : (pkgJson.repository?.url || '') };
+    return {
+      name,
+      version: pkgJson.version,
+      license: pkgJson.license || 'UNKNOWN',
+      homepage: pkgJson.homepage || '',
+      repository: getRepositoryUrl(pkgJson)
+    };
   } catch (e) {
     return { name, version: 'UNKNOWN', license: 'UNKNOWN', homepage: '', repository: '' };
   }
