@@ -437,25 +437,37 @@ chore: tarefas de manutenção
 - **Discord**: [Comunidade Azuria](https://discord.com/invite/azuria)
 - **Email**: [suporte@azuria.app](mailto:suporte@azuria.app)
 
-## 🗺️ Roadmap
+## 🧰 Política de Gerenciador de Pacotes (NPM-Only)
 
-### 🚀 Próximas Features
+Este repositório é padronizado para uso exclusivo de **npm**. Isso garante:
 
-- [ ] **API Pública**: REST API para integrações
-- [ ] **Mobile App**: Aplicativo nativo React Native
-- [ ] **Marketplace**: Loja de templates e plugins
-- [ ] **Enterprise**: Funcionalidades para grandes empresas
-- [ ] **Multi-idioma**: Suporte internacional
-- [ ] **White Label**: Solução customizável para parceiros
+- Reprodutibilidade consistente em CI/CD
+- Um único lockfile fonte de verdade (`package-lock.json`)
+- Evita divergências e problemas de auditoria/licenciamento
 
-### 📊 Métricas do Projeto
+### Regras
 
-- **+50 Componentes** reutilizáveis
-- **+30 Custom Hooks** especializados
-- **+20 Páginas** funcionais
-- **+15 Integrações** externas
-- **PWA Score 100%** no Lighthouse
-- **Type Safety 100%** com TypeScript
+1. Não commit(e) `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `npm-shrinkwrap.json` ou `shrinkwrap.yaml`.
+1. Instale dependências sempre com:
+
+```bash
+npm ci   # em pipelines ou ambientes limpos
+npm install  # para adicionar/atualizar pacotes
+```
+
+1. Antes de abrir PR: execute o guard opcional
+
+```bash
+npm run verify:package-manager
+```
+
+### Automação
+
+- Script de verificação: `scripts/verify-package-manager.mjs`
+- Workflow: `.github/workflows/package-manager-guard.yml` (impede lockfiles alternativos)
+- Hook (implícito via `preinstall`): alerta se algo estiver fora do padrão
+
+Se um lockfile alternativo aparecer, o workflow falhará e o script indicará quais arquivos remover.
 
 ---
 
