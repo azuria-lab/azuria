@@ -72,7 +72,7 @@ for (const abs of files) {
   const rel = normalize(relative(ROOT, abs)).replace(/\\/g, '/');
   if (ALLOW_PATHS.has(rel)) continue;
   const content = readFileSync(abs, 'utf8');
-  // Remove explicit allow blocks between markers so termos dentro não disparem alerta
+  // Remove explicit allow blocks between markers so that terms inside do not trigger alerts
   const stripped = content.replace(/<!--\s*GOVERNANCE_ALLOW_START\s*-->[\s\S]*?<!--\s*GOVERNANCE_ALLOW_END\s*-->/gi, '');
   const lines = stripped.split(/\r?\n/);
   lines.forEach((line, idx) => {
