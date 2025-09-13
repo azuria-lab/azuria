@@ -1,13 +1,12 @@
-
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
-<div align="center">
-  <img src="https://img.shields.io/badge/React-18.3.1-blue.svg" alt="React">
-  <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Vite-5.0-purple.svg" alt="Vite">
-  <img src="https://img.shields.io/badge/Supabase-2.49-green.svg" alt="Supabase">
-  <img src="https://img.shields.io/badge/PWA-Ready-orange.svg" alt="PWA">
-</div>
+| Stack | Versão |
+|-------|--------|
+| React | 18.3.1 |
+| TypeScript | 5.0 |
+| Vite | 5.0 |
+| Supabase | 2.49 |
+| PWA | Ready |
 
 ## 🚀 Visão Geral
 
@@ -64,7 +63,7 @@ Development Tools:
 
 ### Estrutura de Diretórios
 
-```
+```text
 src/
 ├── components/           # Componentes reutilizáveis
 │   ├── ui/              # Componentes base (Shadcn/UI)
@@ -94,7 +93,7 @@ src/
 
 ### Pré-requisitos
 
-- Node.js 18+ 
+- Node.js 18+
 - npm ou yarn
 - Conta Supabase (para backend)
 - Git
@@ -122,15 +121,17 @@ npm run dev
 ### Configuração do Ambiente
 
 1. **Supabase Setup**:
-   ```bash
+
+  ```bash
    # Crie um projeto no Supabase Dashboard
    # Copie as credenciais para .env.local
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
 
-2. **Variáveis de Ambiente**:
-   ```env
+1. **Variáveis de Ambiente**:
+
+  ```env
    # Supabase
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -376,8 +377,9 @@ CREATE POLICY "Users can view own calculations" ON calculation_history
 ### Web Vitals
 
 O projeto monitora automaticamente as Core Web Vitals:
+
 - LCP (Largest Contentful Paint)
-- FID (First Input Delay)  
+- FID (First Input Delay)
 - CLS (Cumulative Layout Shift)
 
 ## 📈 Monitoramento
@@ -403,6 +405,12 @@ O projeto monitora automaticamente as Core Web Vitals:
 O Azuria é um software proprietário e de uso restrito. Nenhuma parte deste código, documentação ou ativos associados pode ser copiada, modificada, distribuída, publicada, sublicenciada ou utilizada para fins comerciais sem autorização expressa e por escrito da Azuria.
 
 O acesso ao código-fonte é concedido exclusivamente para fins internos autorizados. Todo uso não autorizado está sujeito a sanções civis e criminais. Para solicitações de parceria, auditoria ou integração empresarial, entre em contato: [legal@azuria.app](mailto:legal@azuria.app).
+
+### Licenças de Terceiros
+
+Este repositório utiliza dependências open source (por exemplo: React, Vite, TypeScript, Tailwind, entre outras). Cada dependência permanece licenciada sob seus próprios termos (MIT, Apache-2.0, ISC, BSD, etc.) conforme indicado nos respectivos pacotes em `node_modules` ou em seus repositórios oficiais. Nada nesta licença proprietária pretende ou pode invalidar, restringir ou substituir os direitos concedidos pelas licenças originais dessas dependências.
+
+Ao redistribuir binários internos ou fazer deploy da aplicação, você é responsável por manter eventuais avisos de copyright e termos exigidos por essas licenças de terceiros. Caso precise de um inventário formal de licenças para auditoria/compliance, gere um SBOM ou utilize ferramentas como `license-checker`.
 
 ## 🔐 Segurança
 
