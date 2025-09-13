@@ -129,7 +129,7 @@ npm run dev
    VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
 
-1. **Variáveis de Ambiente**:
+2. **Variáveis de Ambiente**:
 
   ```env
    # Supabase
