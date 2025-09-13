@@ -65,7 +65,7 @@ function collect(dir) {
   return files;
 }
 
-const MAX_MATCH_DISPLAY_LENGTH = 160; // comprimento máximo exibido ao reportar linha encontrada
+const MAX_MATCH_DISPLAY_LENGTH = 160; // maximum length displayed when reporting found line
 const results = [];
 const files = collect(ROOT);
 for (const abs of files) {
