@@ -40,7 +40,6 @@ const DEFAULT_SKIP_DIRS = [
   '.vite',
   '.turbo',
   'playwright-report',
-  '.next',
 ];
 const EXTRA_SKIP = process.env.GOV_SCAN_SKIP_DIRS?.split(',')?.map(s => s.trim())?.filter(Boolean) || [];
 const SKIP_DIR_NAMES = new Set([...DEFAULT_SKIP_DIRS, ...EXTRA_SKIP]);
