@@ -1,5 +1,10 @@
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
+[![CI](https://img.shields.io/github/actions/workflow/status/azuria-lab/azuria/ci.yml?branch=main&label=CI)](https://github.com/azuria-lab/azuria/actions/workflows/ci.yml)
+[![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
+[![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
+[![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)
+
 | Stack | Versão |
 |-------|--------|
 | React | 18.3.1 |
@@ -416,8 +421,8 @@ Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSE
 
 Referências adicionais:
 
-- Histórico de mudanças: consulte `CHANGELOG.md` (em construção)
-- Rumo estratégico: consulte `ROADMAP.md` (visão de médio prazo)
+- Histórico de mudanças: consulte `CHANGELOG.md`
+- Rumo estratégico: consulte `ROADMAP.md`
 - Política de segurança: `SECURITY.md`
 - Código de Conduta: `CODE_OF_CONDUCT.md`
 - Guia de Contribuição: `CONTRIBUTING.md`
@@ -436,7 +441,55 @@ style: mudanças de formatação
 refactor: refatoração de código
 test: adiciona ou modifica testes
 chore: tarefas de manutenção
+perf: melhoria de performance
+build: mudanças de build ou dependências
+ci: alterações em pipelines/CI
 ```
+
+## 🧾 Versionamento Automático
+
+Utilizamos **semantic-release** (planejado / em implantação) para:
+
+- Gerar versão automaticamente a partir de Conventional Commits
+- Atualizar `CHANGELOG.md`
+- Criar tag e release no GitHub
+- (Futuro) Publicar artefatos/bundle assinados
+
+Regras de mapeamento:
+
+- `feat:` → `minor`
+- `fix:` / `perf:` → `patch`
+- `BREAKING CHANGE:` no corpo ou `!` no tipo → `major`
+
+Enquanto semantic-release não estiver ativo em `main`, as versões permanecem `0.x`.
+
+### Convenção de Branches
+
+```text
+feature/...   -> novas funcionalidades
+fix/...       -> correções
+chore/...     -> manutenção/governança
+perf/...      -> otimizações
+refactor/...  -> refatorações estruturais
+```
+
+## 🧬 SBOM & Compliance
+
+Será gerado um SBOM (CycloneDX) no pipeline para auditoria de dependências.
+
+Passos planejados:
+
+1. Adicionar script `sbom` usando `@cyclonedx/cyclonedx-npm`.
+2. Job opcional em CI gerando `sbom.json` (armazenado como artifact).
+3. (Futuro) Assinatura e upload para repositório interno.
+
+Execução local (após implantação):
+
+```bash
+npm run sbom
+```
+
+Arquivo resultado: `./sbom.json`.
 
 ## 🆘 Suporte
 
