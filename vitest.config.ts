@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/__tests__/setup.ts'],
+    setupFiles: './src/__tests__/setup.ts',
     css: true,
     exclude: [
       '**/node_modules/**',
@@ -51,7 +51,11 @@ export default defineConfig({
           functions: 75,
           lines: 80,
           statements: 75
-        }
+        },
+        lines: 70,
+        functions: 70,
+        statements: 70,
+        branches: 60
       }
   }
   },
