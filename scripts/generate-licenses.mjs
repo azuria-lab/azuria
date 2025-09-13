@@ -71,4 +71,4 @@ records.forEach(r => {
 });
 
 writeFileSync('THIRD_PARTY_LICENSES.md', out, 'utf8');
-console.log('THIRD_PARTY_LICENSES.md gerado com', records.length, 'dependências.');
+console.log('THIRD_PARTY_LICENSES.md generated with', records.length, 'dependencies.');
