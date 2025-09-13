@@ -30,7 +30,7 @@ if (!existsSync('package-lock.json')) {
 try {
   const hasNodeModules = existsSync('node_modules');
   if (!hasNodeModules) {
-    console.log('ℹ️  Dica: execute "npm ci" para instalar dependências limpas.');
+    console.log('ℹ️  Tip: run "npm ci" to install clean dependencies.');
   }
 } catch {}
 
