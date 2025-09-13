@@ -68,14 +68,16 @@ function collect(dir) {
 }
 
 const MAX_MATCH_DISPLAY_LENGTH = 160; // maximum length displayed when reporting found line
+// Regex to remove explicitly allowed governance blocks (ignored from scanning)
+const ALLOW_BLOCK_REGEX = /<!--\s*GOVERNANCE_ALLOW_START\s*-->[\s\S]*?<!--\s*GOVERNANCE_ALLOW_END\s*-->/gi;
+function stripGovernanceAllowBlocks(text) { return text.replace(ALLOW_BLOCK_REGEX, ''); }
 const results = [];
 const files = collect(ROOT);
 for (const abs of files) {
   const rel = normalize(relative(ROOT, abs)).replace(/\\/g, '/');
   if (ALLOW_PATHS.has(rel)) continue;
   const content = readFileSync(abs, 'utf8');
-  // Remove explicit allow blocks between markers so that terms inside do not trigger alerts
-  const stripped = content.replace(/<!--\s*GOVERNANCE_ALLOW_START\s*-->[\s\S]*?<!--\s*GOVERNANCE_ALLOW_END\s*-->/gi, '');
+  const stripped = stripGovernanceAllowBlocks(content);
   const lines = stripped.split(/\r?\n/);
   lines.forEach((line, idx) => {
     for (const pattern of PROHIBITED) {
