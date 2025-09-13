@@ -72,7 +72,7 @@ for (const file of files) {
 
   // Remove any explicitly allowed licensing explanation blocks
   if (ALLOW_BLOCK_START.test(content) && ALLOW_BLOCK_END.test(content)) {
-    content = content.replace(new RegExp(`${ALLOW_BLOCK_START.source}[\s\S]*?${ALLOW_BLOCK_END.source}`, 'g'), '');
+    content = content.replace(new RegExp(`${ALLOW_BLOCK_START.source}[\\s\\S]*?${ALLOW_BLOCK_END.source}`, 'g'), '');
   }
 
   for (const pattern of PROHIBITED) {
