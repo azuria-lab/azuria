@@ -11,7 +11,7 @@ const ROOT = process.cwd();
 
 // Terms that should no longer appear (case-insensitive)
 // GPL family regex simplified for clarity; we enumerate explicit tokens and optional version suffix
-// Examples matched: GPL, GPL-3, LGPL-2.1+, AGPL-3.0
+// Examples that match: GPL, GPL-3, LGPL-2.1+, AGPL-3.0
 const PROHIBITED = [
   /MIT License/i,
   /\bMIT\b/i,
