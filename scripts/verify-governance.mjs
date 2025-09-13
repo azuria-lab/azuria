@@ -15,7 +15,7 @@ const PROHIBITED = [
   /\bMIT\b/i,
   /open[- ]source/i,
   /Apache License/i,
-  /\bGPL\b/i,
+  /\b(?:GPL|LGPL|AGPL)(?:-\d+\.?\d*)?(?:\+)?\b/i,
 ];
 
 // Allow list: file paths that may legitimately mention old licenses historically (e.g. changelog) – none yet
