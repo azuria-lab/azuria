@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "verify:governance": "node scripts/verify-governance.mjs",
-  "generate:licenses": "node scripts/generate-licenses.mjs",
+    "generate:licenses": "node scripts/generate-licenses.mjs",
     "verify:package-manager": "node scripts/verify-package-manager.mjs",
     "preinstall": "node scripts/verify-package-manager.mjs",
     "type-check": "tsc -p tsconfig.app.json --noEmit",
