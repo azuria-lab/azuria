@@ -11,7 +11,7 @@ import { join } from 'node:path';
 const require = createRequire(import.meta.url);
 const PKG = JSON.parse(readFileSync('package.json', 'utf8'));
 
-// Dependências diretas (prod + dev) — opcionalmente poderíamos expandir recursivamente
+// Direct dependencies (prod + dev) — optionally, we could expand recursively
 const deps = {
   ...(PKG.dependencies || {}),
   ...(PKG.devDependencies || {}),
