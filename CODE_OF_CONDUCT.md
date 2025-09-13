@@ -8,6 +8,8 @@ Esperamos que todos os participantes:
 - Evitem linguagem e comportamento assediadores ou discriminatórios.
 - Aceitem feedback construtivo com profissionalismo.
 
-Relatos de comportamento inaceitável podem ser enviados para [suporte@azuria.app](mailto:suporte@azuria.app). Manteremos a confidencialidade quando possível.
+Relatos de comportamento inaceitável podem ser enviados para [suporte@azuria.com](mailto:suporte@azuria.com). Para casos de segurança ou impacto crítico, contate diretamente: [security@azuria.com](mailto:security@azuria.com).
+
+Manteremos a confidencialidade quando possível e poderemos adotar medidas apropriadas, incluindo revogação de acesso.
 
 Versão de referência: [Contributor Covenant v2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/)

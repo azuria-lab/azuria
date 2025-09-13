@@ -1,6 +1,6 @@
 # Contribuindo para o Azuria
 
-O Azuria é um software proprietário. Contribuições externas podem ser limitadas ou rejeitadas conforme critérios internos. Caso deseje propor melhorias estratégicas ou integrações empresariais, entre em contato previamente via [parcerias@azuria.app](mailto:parcerias@azuria.app).
+O Azuria é um software proprietário. Contribuições externas podem ser limitadas ou rejeitadas conforme critérios internos. Caso deseje propor melhorias estratégicas ou integrações empresariais, entre em contato previamente via [parcerias@azuria.com](mailto:parcerias@azuria.com).
 
 Este guia aplica-se apenas a colaboradores previamente autorizados.
 
@@ -43,6 +43,14 @@ chore: ajustes de tooling
 ```powershell
 npm run -s lint; npm run -s type-check; npm run -s test:smoke; npm run -s build
 ```
+
+## Checklist Rápido Antes do PR
+
+- [ ] `npm ci` sem erros
+- [ ] Lint & type-check limpos
+- [ ] Testes smoke passando
+- [ ] Sem dados sensíveis ou chaves expostas
+- [ ] Atualizou docs se necessário
 
 ## Pull Requests
 

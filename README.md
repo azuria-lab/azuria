@@ -94,7 +94,7 @@ src/
 ### Pré-requisitos
 
 - Node.js 18+
-- npm ou yarn
+- npm (repositório padronizado para npm-only)
 - Conta Supabase (para backend)
 - Git
 
@@ -404,7 +404,7 @@ O projeto monitora automaticamente as Core Web Vitals:
 
 O Azuria é um software proprietário e de uso restrito. Nenhuma parte deste código, documentação ou ativos associados pode ser copiada, modificada, distribuída, publicada, sublicenciada ou utilizada para fins comerciais sem autorização expressa e por escrito da Azuria.
 
-O acesso ao código-fonte é concedido exclusivamente para fins internos autorizados. Todo uso não autorizado está sujeito a sanções civis e criminais. Para solicitações de parceria, auditoria ou integração empresarial, entre em contato: [legal@azuria.app](mailto:legal@azuria.app).
+O acesso ao código-fonte é concedido exclusivamente para fins internos autorizados. Todo uso não autorizado está sujeito a sanções civis e criminais. Para solicitações de parceria, auditoria ou integração empresarial, entre em contato: [legal@azuria.com](mailto:legal@azuria.com).
 
 ### Licenças de Terceiros
 
@@ -413,6 +413,14 @@ Este repositório utiliza dependências open source (por exemplo: React, Vite, T
 Ao redistribuir binários internos ou fazer deploy da aplicação, você é responsável por manter eventuais avisos de copyright e termos exigidos por essas licenças de terceiros. Caso precise de um inventário formal de licenças para auditoria/compliance, gere um SBOM ou utilize ferramentas como `license-checker`.
 
 Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).
+
+Referências adicionais:
+
+- Histórico de mudanças: consulte `CHANGELOG.md` (em construção)
+- Rumo estratégico: consulte `ROADMAP.md` (visão de médio prazo)
+- Política de segurança: `SECURITY.md`
+- Código de Conduta: `CODE_OF_CONDUCT.md`
+- Guia de Contribuição: `CONTRIBUTING.md`
 
 ## 🔐 Segurança
 
