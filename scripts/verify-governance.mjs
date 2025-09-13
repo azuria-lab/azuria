@@ -5,30 +5,33 @@
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, normalize, relative } from 'node:path';
 
 const ROOT = process.cwd();
 
 // Terms that should no longer appear (case-insensitive)
+// GPL family regex simplified for clarity; we enumerate explicit tokens and optional version suffix
+// Examples matched: GPL, GPL-3, LGPL-2.1+, AGPL-3.0
 const PROHIBITED = [
   /MIT License/i,
   /\bMIT\b/i,
   /open[- ]source/i,
   /Apache License/i,
-  /\b(?:GPL|LGPL|AGPL)(?:-\d+\.?\d*)?(?:\+)?\b/i,
+  /\b(?:GPL|LGPL|AGPL)(?:-[0-9](?:\.[0-9])?(?:\+)?)*\b/i,
 ];
 
-// Allow list: file paths that may legitimately mention old licenses historically (e.g. changelog) – none yet
-// NOTE: We now skip entire dependency & build artifact directories (node_modules, dist, coverage, playwright, etc.)
-const ALLOW_PATH_REGEX = [
-  /CHANGELOG\.md$/i,
-  /package-lock\.json$/i,
-  /scripts[\\/]+verify-governance\.mjs$/i,
-  /THIRD_PARTY_LICENSES\.md$/i,
-];
+// Allow list (normalized relative paths from repo root) that may legitimately mention old licenses historically.
+// Evita regex complexos para caminhos – comparação direta após normalização.
+const ALLOW_PATHS = new Set([
+  'CHANGELOG.md',
+  'package-lock.json',
+  'scripts/verify-governance.mjs',
+  'THIRD_PARTY_LICENSES.md',
+]);
 
-// Directories we never scan (external or generated content where third‑party licenses are expected)
-const SKIP_DIR_NAMES = new Set([
+// Directories we never scan (external ou artefatos gerados onde licenças de terceiro são esperadas)
+// Pode ser estendido via variável de ambiente GOV_SCAN_SKIP_DIRS="dir1,dir2".
+const DEFAULT_SKIP_DIRS = [
   'node_modules',
   'dist',
   'coverage',
@@ -36,7 +39,9 @@ const SKIP_DIR_NAMES = new Set([
   '.turbo',
   'playwright-report',
   '.next',
-]);
+];
+const EXTRA_SKIP = process.env.GOV_SCAN_SKIP_DIRS?.split(',').map(s => s.trim()).filter(Boolean) || [];
+const SKIP_DIR_NAMES = new Set([...DEFAULT_SKIP_DIRS, ...EXTRA_SKIP]);
 
 // File extensions to scan
 const EXTENSIONS = ['.md', '.ts', '.tsx', '.js', '.cjs', '.mjs', '.json'];
@@ -60,16 +65,18 @@ function collect(dir) {
   return files;
 }
 
+const MAX_MATCH_DISPLAY_LENGTH = 160; // comprimento máximo exibido ao reportar linha encontrada
 const results = [];
 const files = collect(ROOT);
-for (const file of files) {
-  if (ALLOW_PATH_REGEX.some(r => r.test(file))) continue;
-  const content = readFileSync(file, 'utf8');
+for (const abs of files) {
+  const rel = normalize(relative(ROOT, abs)).replace(/\\/g, '/');
+  if (ALLOW_PATHS.has(rel)) continue;
+  const content = readFileSync(abs, 'utf8');
   const lines = content.split(/\r?\n/);
   lines.forEach((line, idx) => {
     for (const pattern of PROHIBITED) {
       if (pattern.test(line)) {
-        results.push({ file, line: idx + 1, match: line.trim().slice(0, 160) });
+        results.push({ file: rel, line: idx + 1, match: line.trim().slice(0, MAX_MATCH_DISPLAY_LENGTH) });
         break; // Only record first matching pattern per line
       }
     }
@@ -78,9 +85,7 @@ for (const file of files) {
 
 if (results.length) {
   console.error('\n❌ Governance scan failed: prohibited licensing/open-source terms found.');
-  for (const r of results) {
-    console.error(` - ${r.file}:${r.line} -> ${r.match}`);
-  }
+  for (const r of results) console.error(` - ${r.file}:${r.line} -> ${r.match}`);
   console.error('\nEdit or remove the above references, or add an allow rule if justified.');
   process.exit(1);
 }

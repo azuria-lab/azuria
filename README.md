@@ -408,11 +408,13 @@ O acesso ao código-fonte é concedido exclusivamente para fins internos autoriz
 
 ### Licenças de Terceiros
 
+<!-- GOVERNANCE_ALLOW_START -->
 Este repositório utiliza dependências open source (por exemplo: React, Vite, TypeScript, Tailwind, entre outras). Cada dependência permanece licenciada sob seus próprios termos (MIT, Apache-2.0, ISC, BSD, etc.) conforme indicado nos respectivos pacotes em `node_modules` ou em seus repositórios oficiais. Nada nesta licença proprietária pretende ou pode invalidar, restringir ou substituir os direitos concedidos pelas licenças originais dessas dependências.
 
 Ao redistribuir binários internos ou fazer deploy da aplicação, você é responsável por manter eventuais avisos de copyright e termos exigidos por essas licenças de terceiros. Caso precise de um inventário formal de licenças para auditoria/compliance, gere um SBOM ou utilize ferramentas como `license-checker`.
 
 Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).
+<!-- GOVERNANCE_ALLOW_END -->
 
 ## 🔐 Segurança
 
