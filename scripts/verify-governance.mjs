@@ -21,7 +21,7 @@ const PROHIBITED = [
 ];
 
 // Allow list (normalized relative paths from repo root) that may legitimately mention old licenses historically.
-// Evita regex complexos para caminhos – comparação direta após normalização.
+// Avoids complex regex for paths – direct comparison after normalization.
 const ALLOW_PATHS = new Set([
   'CHANGELOG.md',
   'package-lock.json',
