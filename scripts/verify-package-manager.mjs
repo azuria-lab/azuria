@@ -22,7 +22,7 @@ if (found.length) {
 
 // Simple heuristic: ensure package-lock.json exists
 if (!existsSync('package-lock.json')) {
-  console.error('\n❌ package-lock.json ausente. Execute: npm install --package-lock-only');
+  console.error('\n❌ package-lock.json missing. Run: npm install --package-lock-only');
   process.exit(1);
 }
 
