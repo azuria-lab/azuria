@@ -17,7 +17,9 @@ const PROHIBITED = [
   /\bMIT\b/i,
   /open[- ]source/i,
   /Apache License/i,
-  /\b(?:GPL|LGPL|AGPL)(?:-[0-9](?:\.[0-9])?(?:\+)?)*\b/i,
+  /\bGPL(?:-[0-9](?:\.[0-9])?(?:\+)?(?:\.0)?)?\b/i,
+  /\bLGPL(?:-[0-9](?:\.[0-9])?(?:\+)?(?:\.0)?)?\b/i,
+  /\bAGPL(?:-[0-9](?:\.[0-9])?(?:\+)?(?:\.0)?)?\b/i,
 ];
 
 // Allow list (normalized relative paths from repo root) that may legitimately mention old licenses historically.
