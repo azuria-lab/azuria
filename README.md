@@ -1,13 +1,12 @@
-
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
-<div align="center">
-  <img src="https://img.shields.io/badge/React-18.3.1-blue.svg" alt="React">
-  <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Vite-5.0-purple.svg" alt="Vite">
-  <img src="https://img.shields.io/badge/Supabase-2.49-green.svg" alt="Supabase">
-  <img src="https://img.shields.io/badge/PWA-Ready-orange.svg" alt="PWA">
-</div>
+| Stack | Versão |
+|-------|--------|
+| React | 18.3.1 |
+| TypeScript | 5.0 |
+| Vite | 5.0 |
+| Supabase | 2.49 |
+| PWA | Ready |
 
 ## 🚀 Visão Geral
 
@@ -64,7 +63,7 @@ Development Tools:
 
 ### Estrutura de Diretórios
 
-```
+```text
 src/
 ├── components/           # Componentes reutilizáveis
 │   ├── ui/              # Componentes base (Shadcn/UI)
@@ -94,7 +93,7 @@ src/
 
 ### Pré-requisitos
 
-- Node.js 18+ 
+- Node.js 18+
 - npm ou yarn
 - Conta Supabase (para backend)
 - Git
@@ -122,7 +121,8 @@ npm run dev
 ### Configuração do Ambiente
 
 1. **Supabase Setup**:
-   ```bash
+
+  ```bash
    # Crie um projeto no Supabase Dashboard
    # Copie as credenciais para .env.local
    VITE_SUPABASE_URL=your_supabase_url
@@ -130,7 +130,8 @@ npm run dev
    ```
 
 2. **Variáveis de Ambiente**:
-   ```env
+
+  ```env
    # Supabase
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -376,8 +377,9 @@ CREATE POLICY "Users can view own calculations" ON calculation_history
 ### Web Vitals
 
 O projeto monitora automaticamente as Core Web Vitals:
+
 - LCP (Largest Contentful Paint)
-- FID (First Input Delay)  
+- FID (First Input Delay)
 - CLS (Cumulative Layout Shift)
 
 ## 📈 Monitoramento
@@ -400,7 +402,19 @@ O projeto monitora automaticamente as Core Web Vitals:
 
 ## 📜 Licença
 
-Este projeto é distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+O Azuria é um software proprietário e de uso restrito. Nenhuma parte deste código, documentação ou ativos associados pode ser copiada, modificada, distribuída, publicada, sublicenciada ou utilizada para fins comerciais sem autorização expressa e por escrito da Azuria.
+
+O acesso ao código-fonte é concedido exclusivamente para fins internos autorizados. Todo uso não autorizado está sujeito a sanções civis e criminais. Para solicitações de parceria, auditoria ou integração empresarial, entre em contato: [legal@azuria.app](mailto:legal@azuria.app).
+
+### Licenças de Terceiros
+
+<!-- GOVERNANCE_ALLOW_START -->
+Este repositório utiliza dependências open source (por exemplo: React, Vite, TypeScript, Tailwind, entre outras). Cada dependência permanece licenciada sob seus próprios termos (MIT, Apache-2.0, ISC, BSD, etc.) conforme indicado nos respectivos pacotes em `node_modules` ou em seus repositórios oficiais. Nada nesta licença proprietária pretende ou pode invalidar, restringir ou substituir os direitos concedidos pelas licenças originais dessas dependências.
+
+Ao redistribuir binários internos ou fazer deploy da aplicação, você é responsável por manter eventuais avisos de copyright e termos exigidos por essas licenças de terceiros. Caso precise de um inventário formal de licenças para auditoria/compliance, gere um SBOM ou utilize ferramentas como `license-checker`.
+
+Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).
+<!-- GOVERNANCE_ALLOW_END -->
 
 ## 🔐 Segurança
 
@@ -425,25 +439,37 @@ chore: tarefas de manutenção
 - **Discord**: [Comunidade Azuria](https://discord.com/invite/azuria)
 - **Email**: [suporte@azuria.app](mailto:suporte@azuria.app)
 
-## 🗺️ Roadmap
+## 🧰 Política de Gerenciador de Pacotes (NPM-Only)
 
-### 🚀 Próximas Features
+Este repositório é padronizado para uso exclusivo de **npm**. Isso garante:
 
-- [ ] **API Pública**: REST API para integrações
-- [ ] **Mobile App**: Aplicativo nativo React Native
-- [ ] **Marketplace**: Loja de templates e plugins
-- [ ] **Enterprise**: Funcionalidades para grandes empresas
-- [ ] **Multi-idioma**: Suporte internacional
-- [ ] **White Label**: Solução customizável para parceiros
+- Reprodutibilidade consistente em CI/CD
+- Um único lockfile fonte de verdade (`package-lock.json`)
+- Evita divergências e problemas de auditoria/licenciamento
 
-### 📊 Métricas do Projeto
+### Regras
 
-- **+50 Componentes** reutilizáveis
-- **+30 Custom Hooks** especializados
-- **+20 Páginas** funcionais
-- **+15 Integrações** externas
-- **PWA Score 100%** no Lighthouse
-- **Type Safety 100%** com TypeScript
+1. Não commit(e) `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `npm-shrinkwrap.json` ou `shrinkwrap.yaml`.
+1. Instale dependências sempre com:
+
+```bash
+npm ci   # em pipelines ou ambientes limpos
+npm install  # para adicionar/atualizar pacotes
+```
+
+1. Antes de abrir PR: execute o guard opcional
+
+```bash
+npm run verify:package-manager
+```
+
+### Automação
+
+- Script de verificação: `scripts/verify-package-manager.mjs`
+- Workflow: `.github/workflows/package-manager-guard.yml` (impede lockfiles alternativos)
+- Hook (implícito via `preinstall`): alerta se algo estiver fora do padrão
+
+Se um lockfile alternativo aparecer, o workflow falhará e o script indicará quais arquivos remover.
 
 ---
 

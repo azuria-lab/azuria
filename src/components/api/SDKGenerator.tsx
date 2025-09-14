@@ -207,7 +207,7 @@ $client = new PrecificaClient([
                 </div>
                 <div>
                   <p className="text-sm font-medium">Licença</p>
-                  <Badge variant="outline">MIT</Badge>
+                  <Badge variant="outline">Proprietária</Badge>
                 </div>
               </div>
 

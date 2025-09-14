@@ -1,0 +1,27 @@
+## CODEOWNERS
+# Lines are evaluated top-to-bottom. The last matching pattern wins.
+# Adjust team/user handles to your actual GitHub org/team names as needed.
+
+# Default owners for everything in the repo
+* @azuria-lab
+
+# Application source
+/src/ @azuria-lab
+
+# Documentation
+/docs/ @azuria-lab
+
+# CI workflows
+/.github/workflows/ @azuria-lab
+
+# Security & governance related files
+/SECURITY.md @azuria-lab
+/CODE_OF_CONDUCT.md @azuria-lab
+/CONTRIBUTING.md @azuria-lab
+/LICENSE @azuria-lab
+
+# Infrastructure / configuration (adjust if infra added later)
+/.github/dependabot.yml @azuria-lab
+
+# NOTE: If you later create specialized teams (e.g. @azuria-lab/security or @azuria-lab/release),
+# refine the patterns above to route reviews to the right owners.
