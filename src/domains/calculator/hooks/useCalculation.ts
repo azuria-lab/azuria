@@ -9,7 +9,8 @@ interface UseCalculationProps {
 }
 
 type VitestAwareImportMeta = ImportMeta & { vitest?: unknown };
-const DELAY_MS = (('vitest' in (import.meta as VitestAwareImportMeta)) ? 0 : 400);
+const IS_TEST = ('vitest' in (import.meta as VitestAwareImportMeta));
+const DELAY_MS = (IS_TEST ? 0 : 400);
 
 export const useCalculation = ({ setIsLoading, toast }: UseCalculationProps) => {
   const calculatePrice = (
@@ -24,7 +25,7 @@ export const useCalculation = ({ setIsLoading, toast }: UseCalculationProps) => 
   ) => {
   setIsLoading(true);
 
-  setTimeout(() => {
+  const run = () => {
       const costValue = parseInputValue(cost);
       if (costValue <= 0) {
         toast({
@@ -63,7 +64,13 @@ export const useCalculation = ({ setIsLoading, toast }: UseCalculationProps) => 
       setIsLoading(false);
       
       return calculationResult;
-    }, DELAY_MS);
+    };
+
+    if (IS_TEST) {
+      run();
+    } else {
+      setTimeout(run, DELAY_MS);
+    }
   };
 
   return { calculatePrice };

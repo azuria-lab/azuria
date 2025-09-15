@@ -61,3 +61,19 @@ npm run -s lint; npm run -s type-check; npm run -s test:smoke; npm run -s build
 ## Código de Conduta
 
 Ao contribuir, você concorda com o nosso [Código de Conduta](./CODE_OF_CONDUCT.md).
+
+## Proteção de Branch (main)
+
+A branch `main` exige que os checks `Lint`, `Type check`, `Tests (smoke)` e `Build` estejam verdes. Se os nomes dos jobs mudarem, atualize o arquivo `branch-protection.config.json` e re‑aplique a política:
+
+```powershell
+pwsh ./scripts/apply-branch-protection.ps1
+```
+
+Ou faça um dry-run para inspecionar o JSON antes:
+
+```powershell
+pwsh ./scripts/apply-branch-protection.ps1 -DryRun
+```
+
+Isso evita o problema de “expected status checks” com contexts desatualizados.

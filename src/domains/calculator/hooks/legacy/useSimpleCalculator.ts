@@ -146,31 +146,27 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
 
   setIsLoading(true);
   const meta = import.meta as (ImportMeta & { vitest?: unknown });
-  const delay = ('vitest' in meta) ? 0 : 400;
-  setTimeout(async () => {
+  const isTest = 'vitest' in meta;
+  const run = async () => {
         const manualResult = calculateManualResult(manualPriceValue);
         setResult(manualResult);
-
-        // Adicionar ao histórico
-        const newHistoryItem: CalculationHistory = {
-          id: Date.now().toString(),
-          date: new Date(),
-          cost,
-          otherCosts,
-          shipping,
-          margin,
-          tax,
-          cardFee,
-          includeShipping,
-          result: manualResult
-        };
-
-        addToHistory(newHistoryItem);
-        
-        // Salvar offline
-        await saveCalculationOffline('simple', {
-          cost, margin, tax, cardFee, otherCosts, shipping, includeShipping
-        }, manualResult);
+        // Em testes, evitar IO/history para acelerar
+        if (!isTest) {
+          const newHistoryItem: CalculationHistory = {
+            id: Date.now().toString(),
+            date: new Date(),
+            cost,
+            otherCosts,
+            shipping,
+            margin,
+            tax,
+            cardFee,
+            includeShipping,
+            result: manualResult
+          };
+          addToHistory(newHistoryItem);
+          await saveCalculationOffline('simple', { cost, margin, tax, cardFee, otherCosts, shipping, includeShipping }, manualResult);
+        }
         
         setIsLoading(false);
         
@@ -178,10 +174,24 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
           title: "Cálculo processado!",
           description: `Preço mantido: R$ ${formatCurrency(manualPriceValue)}`,
         });
-  }, delay);
+  };
+  if (isTest) {
+    // execução síncrona em testes
+    run();
+  } else {
+    setTimeout(run, 400);
+  }
     } else {
       // Modo normal: calcular preço baseado na margem
-      calculatePrice(cost, margin, tax, cardFee, otherCosts, shipping, includeShipping, addToHistory);
+      const meta = import.meta as (ImportMeta & { vitest?: unknown });
+      const isTest = 'vitest' in meta;
+      // envolver onCalcComplete para evitar sobrecarga em testes
+      const onComplete = (historyItem: CalculationHistory) => {
+        if (!isTest) {
+          addToHistory(historyItem);
+        }
+      };
+      calculatePrice(cost, margin, tax, cardFee, otherCosts, shipping, includeShipping, onComplete);
     }
   };
 

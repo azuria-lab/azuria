@@ -1,0 +1,72 @@
+name: Branch Protection Drift
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  drift-check:
+    name: Branch Protection Drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read desired contexts from config
+        id: desired
+        run: |
+          if [ ! -f branch-protection.config.json ]; then
+            echo "Config file branch-protection.config.json not found" >&2
+            exit 1
+          fi
+          contexts=$(jq -r '.required_status_checks.contexts[]' branch-protection.config.json | sort)
+          printf '%s\n' "$contexts" > desired.txt
+          echo "Desired contexts:" && cat desired.txt
+          # Export as multiline output
+          { echo 'contexts<<EOF'; cat desired.txt; echo 'EOF'; } >> "$GITHUB_OUTPUT"
+
+      - name: Fetch current branch protection via API
+        id: current
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # GitHub API for branch protection
+          resp=$(curl -sSf -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/branches/main/protection")
+          echo "$resp" > protection.json
+          jq '.required_status_checks.contexts' protection.json
+          jq -r '.required_status_checks.contexts[]' protection.json 2>/dev/null | sort > current.txt || true
+          echo 'Current contexts:' && cat current.txt
+          { echo 'contexts<<EOF'; cat current.txt; echo 'EOF'; } >> "$GITHUB_OUTPUT"
+
+      - name: Compare contexts
+        run: |
+          echo '--- Diff (desired vs current) ---'
+          # Use comm to compare sorted lists
+          echo 'Only in desired:'
+          comm -23 desired.txt current.txt || true
+          echo 'Only in current:'
+          comm -13 desired.txt current.txt || true
+          # Determine drift
+          if ! diff -u desired.txt current.txt > diff.patch 2>/dev/null; then
+            echo 'Drift detected between desired and current branch protection contexts.' >&2
+            echo 'See diff below:'
+            cat diff.patch >&2
+            echo '::error::Branch protection status checks contexts drift detected.'
+            exit 1
+          else
+            echo 'No drift detected.'
+          fi
+
+      - name: Guidance if drift detected
+        if: failure()
+        run: |
+          echo 'To fix drift run (locally or in a maintainer workflow):'
+          echo '  pwsh ./scripts/apply-branch-protection.ps1'

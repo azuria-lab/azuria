@@ -1,6 +1,7 @@
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
 [![CI](https://img.shields.io/github/actions/workflow/status/azuria-lab/azuria/ci.yml?branch=main&label=CI)](https://github.com/azuria-lab/azuria/actions/workflows/ci.yml)
+[![Branch Protection Drift](https://img.shields.io/github/actions/workflow/status/azuria-lab/azuria/branch-protection-drift.yml?branch=main&label=Branch%20Protection%20Drift)](https://github.com/azuria-lab/azuria/actions/workflows/branch-protection-drift.yml)
 [![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
 [![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
 [![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)

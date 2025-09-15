@@ -5,6 +5,74 @@ Este guia ajuda a resolver os problemas mais comuns encontrados no Precifica+.
 
 ## 🚨 Problemas Críticos
 
+### (Dev/Test) Falhas de OOM em Testes de Integração
+
+Se a suíte de testes travar por dezenas de minutos e encerrar com:
+
+```text
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+```
+
+#### Contexto Atual
+
+- O arquivo `src/__tests__/integration/calculator-flow.test.tsx` foi temporariamente desabilitado (`describe.skip`) para desbloquear o pipeline e evitar consumo excessivo de memória (>3.5GB) durante execuções completas do Vitest.
+- Causa provável: combinação de árvore de componentes grande + caches (react-query, histórico, mocks parciais) + múltiplas interações `userEvent` acumulando referências.
+
+#### Mitigação Aplicada
+
+1. Suite marcada como `skip` com comentário detalhando plano de reintrodução.
+2. Testes de unidade + smoke permanecem ativos e cobrindo paths críticos do cálculo.
+
+#### Próximos Passos Planejados
+
+- Extrair um harness leve da calculadora (sem analytics, sem theming pesado, sem react-query real).
+- Mockar completamente providers (auth, query client, analytics) e limitar histórico a memória volátil.
+- Reintroduzir como `calculator-flow.light.test.tsx` objetivando execução <5s e sem crescimento de heap.
+- Migrar cenários mais realistas para camada E2E (Playwright) se necessário.
+
+#### Estado Atual (Teste Leve Introduzido)
+
+Uma variante reduzida já foi adicionada em `src/__tests__/smoke/calculator-flow.light.test.tsx` cobrindo:
+
+- Caso feliz mínimo: inserir custo + impostos + taxa e gerar preço de venda.
+- Mocks completos para: `framer-motion`, `HistoryService` (desativado), contexto de auth (usuário anônimo).
+- Sem histórico persistente, sem analytics, sem animações, sem carregamento de árvore pesada.
+
+Critérios de sucesso do teste leve:
+
+| Critério | Objetivo |
+|----------|----------|
+| Tempo de execução | < 5s local / < 10s CI |
+| RSS aproximado | Estável (sem crescimento progressivo) |
+| Largura de escopo | Apenas fluxo de cálculo básico |
+| Independência | Não requer serviços externos |
+
+Checklist de diagnóstico se o teste leve falhar:
+
+1. Labels de acessibilidade (aria-label / textContent) mudaram?
+2. Houve introdução de providers pesados no componente renderizado?
+3. Entraram novas dependências não mockadas criando caches grandes?
+
+Expansão segura: duplicar o teste leve e adicionar um segundo cenário, monitorando tempo total (< 15s agregado). Evitar loops ou múltiplas execuções repetitivas de interações de usuário.
+
+#### Ação Caso Necessite Reativar Agora
+
+1. Remova `describe.skip` em `calculator-flow.test.tsx`.
+2. Rode localmente:
+
+   ```bash
+   npx vitest run src/__tests__/integration/calculator-flow.test.tsx --maxWorkers=1 --no-threads
+   ```
+
+3. Se ainda crescer memória, experimentar flag Node:
+
+   ```bash
+   set NODE_OPTIONS=--max-old-space-size=4096 & npx vitest run src/__tests__/integration/calculator-flow.test.tsx
+   ```
+
+> Issue recomendada: "Refatorar integração Calculator Flow para versão leve".
+
+
 ### App não carrega/Tela branca
 
 #### Possíveis Causas
