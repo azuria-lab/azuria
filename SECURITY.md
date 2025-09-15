@@ -1,15 +1,24 @@
 # Security Policy
 
-## Supported Versions
-We actively maintain the main branch. Security fixes are prioritized.
+Este software é proprietário. Relatos de vulnerabilidades devem ser feitos de forma privada. Não são aceitas divulgações públicas sem coordenação prévia.
 
-## Reporting a Vulnerability
- 
-- Please report vulnerabilities privately via [GitHub Security Advisories](https://docs.github.com/code-security/security-advisories) or email: [security@azuria.dev](mailto:security@azuria.dev)
-- Include steps to reproduce and potential impact.
-- We will acknowledge receipt within 72 hours and keep you informed of progress.
+## Versões Suportadas
 
-## Secrets and Keys
- 
-- Do not include private keys or credentials in issues or PRs.
-- If a secret was exposed, rotate it immediately and inform maintainers.
+Mantemos ativamente a branch `main`. Correções de segurança têm prioridade.
+
+## Reporte de Vulnerabilidade
+
+- Envie o relato de forma privada via [GitHub Security Advisories](https://docs.github.com/code-security/security-advisories) ou e-mail: [security@azuria.com](mailto:security@azuria.com)
+- Inclua passos de reprodução, impacto potencial e qualquer mitigação conhecida.
+- Responderemos em até 72 horas úteis com confirmação de recebimento.
+- Forneceremos atualizações de status até a correção ou decisão final.
+
+## Exposição de Segredos
+
+- Não inclua chaves privadas, tokens ou credenciais em issues ou PRs.
+- Caso um segredo seja exposto, revogue/rote imediatamente e notifique a equipe de segurança.
+
+## Divulgação Coordenada
+
+- Não publique detalhes técnicos antes de correção ou autorização.
+- Após o patch, podemos coordenar nota pública resumida (sem PoC explorável).

@@ -6,5 +6,15 @@
   // Linting: markdown
   "markdownlint.config": {
     "MD041": false
+  },
+  // Enforce npm as the sole package manager
+  "npm.packageManager": "npm",
+  // Consistent line endings
+  "files.eol": "\n",
+  // Use ESLint as default formatter for supported languages
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  // Auto-fix eslint issues on save (explicit saves only)
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
   }
 }

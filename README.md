@@ -1,13 +1,18 @@
-
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
-<div align="center">
-  <img src="https://img.shields.io/badge/React-18.3.1-blue.svg" alt="React">
-  <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Vite-5.0-purple.svg" alt="Vite">
-  <img src="https://img.shields.io/badge/Supabase-2.49-green.svg" alt="Supabase">
-  <img src="https://img.shields.io/badge/PWA-Ready-orange.svg" alt="PWA">
-</div>
+[![CI](https://img.shields.io/github/actions/workflow/status/azuria-lab/azuria/ci.yml?branch=main&label=CI)](https://github.com/azuria-lab/azuria/actions/workflows/ci.yml)
+[![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
+[![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
+[![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)
+[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](#cobertura-de-testes)
+
+| Stack | Versão |
+|-------|--------|
+| React | 18.3.1 |
+| TypeScript | 5.0 |
+| Vite | 5.0 |
+| Supabase | 2.49 |
+| PWA | Ready |
 
 ## 🚀 Visão Geral
 
@@ -64,7 +69,7 @@ Development Tools:
 
 ### Estrutura de Diretórios
 
-```
+```text
 src/
 ├── components/           # Componentes reutilizáveis
 │   ├── ui/              # Componentes base (Shadcn/UI)
@@ -94,8 +99,8 @@ src/
 
 ### Pré-requisitos
 
-- Node.js 18+ 
-- npm ou yarn
+- Node.js 18+
+- npm (repositório padronizado para npm-only)
 - Conta Supabase (para backend)
 - Git
 
@@ -122,15 +127,17 @@ npm run dev
 ### Configuração do Ambiente
 
 1. **Supabase Setup**:
-   ```bash
+
+  ```bash
    # Crie um projeto no Supabase Dashboard
    # Copie as credenciais para .env.local
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
 
-2. **Variáveis de Ambiente**:
-   ```env
+1. **Variáveis de Ambiente**:
+
+  ```env
    # Supabase
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -339,6 +346,33 @@ npm run test calculator
 npm run test:coverage
 ```
 
+### Cobertura de Testes
+
+Status atual: badge acima marcado como "pending" enquanto a automação completa de publicação de badge não é habilitada.
+
+Limiares definidos (Vitest / `vitest.config.ts`):
+
+- Statements: 70%
+- Lines: 70%
+- Functions: 70%
+- Branches: 60%
+
+Como gerar localmente o relatório:
+
+```bash
+npm run test:coverage
+```
+
+Saída principal: `./coverage/` (inclui `lcov-report/index.html`).
+
+Próximos passos planejados para o badge dinâmico:
+
+1. Publicar cobertura em um serviço externo (Codecov / Coveralls) ou gerar badge estático via GitHub Pages.
+2. Adicionar etapa no workflow de CI para atualizar badge após cada execução em `main`.
+3. Tornar o badge colorido de acordo com a % (ex.: >=80% verde, 60–79% amarelo, <60% vermelho) após incremento progressivo das metas.
+
+Até a automação: use o relatório local ou artifact de coverage no workflow `CI` para auditoria.
+
 ### Estratégia de Testes
 
 1. **Unit Tests**: Componentes isolados e hooks
@@ -376,8 +410,9 @@ CREATE POLICY "Users can view own calculations" ON calculation_history
 ### Web Vitals
 
 O projeto monitora automaticamente as Core Web Vitals:
+
 - LCP (Largest Contentful Paint)
-- FID (First Input Delay)  
+- FID (First Input Delay)
 - CLS (Cumulative Layout Shift)
 
 ## 📈 Monitoramento
@@ -400,7 +435,27 @@ O projeto monitora automaticamente as Core Web Vitals:
 
 ## 📜 Licença
 
-Este projeto é distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+O Azuria é um software proprietário e de uso restrito. Nenhuma parte deste código, documentação ou ativos associados pode ser copiada, modificada, distribuída, publicada, sublicenciada ou utilizada para fins comerciais sem autorização expressa e por escrito da Azuria.
+
+O acesso ao código-fonte é concedido exclusivamente para fins internos autorizados. Todo uso não autorizado está sujeito a sanções civis e criminais. Para solicitações de parceria, auditoria ou integração empresarial, entre em contato: [legal@azuria.com](mailto:legal@azuria.com).
+
+### Licenças de Terceiros
+
+<!-- GOVERNANCE-ALLOW-LICENSING-START -->
+Este repositório utiliza dependências de terceiros amplamente reconhecidas no ecossistema (por exemplo: React, Vite, TypeScript, Tailwind, entre outras). Cada dependência permanece regida pelos seus próprios termos (ex.: MIT, Apache-2.0, ISC, BSD, etc.) conforme indicado nos respectivos pacotes ou repositórios oficiais. Esta licença proprietária não altera nem restringe os direitos concedidos por essas licenças originais.
+
+Ao redistribuir artefatos internos ou implantar a aplicação, cabe ao operador preservar eventuais avisos e termos exigidos por licenças de terceiros. Para auditoria ou compliance formal, gere um SBOM ou utilize ferramentas de inventário de licenças.
+
+Um inventário gerado das licenças diretas encontra-se em [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).
+<!-- GOVERNANCE-ALLOW-LICENSING-END -->
+
+Referências adicionais:
+
+- Histórico de mudanças: consulte `CHANGELOG.md`
+- Rumo estratégico: consulte `ROADMAP.md`
+- Política de segurança: `SECURITY.md`
+- Código de Conduta: `CODE_OF_CONDUCT.md`
+- Guia de Contribuição: `CONTRIBUTING.md`
 
 ## 🔐 Segurança
 
@@ -416,7 +471,55 @@ style: mudanças de formatação
 refactor: refatoração de código
 test: adiciona ou modifica testes
 chore: tarefas de manutenção
+perf: melhoria de performance
+build: mudanças de build ou dependências
+ci: alterações em pipelines/CI
 ```
+
+## 🧾 Versionamento Automático
+
+Utilizamos **semantic-release** (planejado / em implantação) para:
+
+- Gerar versão automaticamente a partir de Conventional Commits
+- Atualizar `CHANGELOG.md`
+- Criar tag e release no GitHub
+- (Futuro) Publicar artefatos/bundle assinados
+
+Regras de mapeamento:
+
+- `feat:` → `minor`
+- `fix:` / `perf:` → `patch`
+- `BREAKING CHANGE:` no corpo ou `!` no tipo → `major`
+
+Enquanto semantic-release não estiver ativo em `main`, as versões permanecem `0.x`.
+
+### Convenção de Branches
+
+```text
+feature/...   -> novas funcionalidades
+fix/...       -> correções
+chore/...     -> manutenção/governança
+perf/...      -> otimizações
+refactor/...  -> refatorações estruturais
+```
+
+## 🧬 SBOM & Compliance
+
+Será gerado um SBOM (CycloneDX) no pipeline para auditoria de dependências.
+
+Passos planejados:
+
+1. Adicionar script `sbom` usando `@cyclonedx/cyclonedx-npm`.
+2. Job opcional em CI gerando `sbom.json` (armazenado como artifact).
+3. (Futuro) Assinatura e upload para repositório interno.
+
+Execução local (após implantação):
+
+```bash
+npm run sbom
+```
+
+Arquivo resultado: `./sbom.json`.
 
 ## 🆘 Suporte
 
@@ -425,25 +528,37 @@ chore: tarefas de manutenção
 - **Discord**: [Comunidade Azuria](https://discord.com/invite/azuria)
 - **Email**: [suporte@azuria.app](mailto:suporte@azuria.app)
 
-## 🗺️ Roadmap
+## 🧰 Política de Gerenciador de Pacotes (NPM-Only)
 
-### 🚀 Próximas Features
+Este repositório é padronizado para uso exclusivo de **npm**. Isso garante:
 
-- [ ] **API Pública**: REST API para integrações
-- [ ] **Mobile App**: Aplicativo nativo React Native
-- [ ] **Marketplace**: Loja de templates e plugins
-- [ ] **Enterprise**: Funcionalidades para grandes empresas
-- [ ] **Multi-idioma**: Suporte internacional
-- [ ] **White Label**: Solução customizável para parceiros
+- Reprodutibilidade consistente em CI/CD
+- Um único lockfile fonte de verdade (`package-lock.json`)
+- Evita divergências e problemas de auditoria/licenciamento
 
-### 📊 Métricas do Projeto
+### Regras
 
-- **+50 Componentes** reutilizáveis
-- **+30 Custom Hooks** especializados
-- **+20 Páginas** funcionais
-- **+15 Integrações** externas
-- **PWA Score 100%** no Lighthouse
-- **Type Safety 100%** com TypeScript
+1. Não commit(e) `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `npm-shrinkwrap.json` ou `shrinkwrap.yaml`.
+1. Instale dependências sempre com:
+
+```bash
+npm ci   # em pipelines ou ambientes limpos
+npm install  # para adicionar/atualizar pacotes
+```
+
+1. Antes de abrir PR: execute o guard opcional
+
+```bash
+npm run verify:package-manager
+```
+
+### Automação
+
+- Script de verificação: `scripts/verify-package-manager.mjs`
+- Workflow: `.github/workflows/package-manager-guard.yml` (impede lockfiles alternativos)
+- Hook (implícito via `preinstall`): alerta se algo estiver fora do padrão
+
+Se um lockfile alternativo aparecer, o workflow falhará e o script indicará quais arquivos remover.
 
 ---
 

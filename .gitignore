@@ -1,31 +1,22 @@
-### Node and package managers
+# Node dependencies
 node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Logs
+logs/
+*.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
+pnpm-debug.log*
 
-### Build output / bundlers
-dist/
-dist-ssr/
-.vite/
-build/Release
-*.tsbuildinfo
-*.local
-
-### Environment files
-.env
-.env.*
-!.env.example
-
-### Testing / coverage / reports
-coverage/
-.nyc_output/
-playwright-report/
-test-results/
-
-### Editors and OS
+# OS / Editor
 .DS_Store
 Thumbs.db
 .idea/
@@ -34,44 +25,20 @@ Thumbs.db
 !.vscode/settings.json
 .vscode-test
 
-### Caches
-.eslintcache
-.parcel-cache
-.turbo/
-.cache
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-.bun/
+# Env / Secrets
+.env
+.env.*.local
+!.env.example
 
-### Framework-specific
-.next
-.nuxt
-.svelte-kit/
-**/.vitepress/dist
-**/.vitepress/cache
-.docusaurus
-web_modules/
-jspm_packages/
+# TypeScript
+*.tsbuildinfo
 
-### Misc
-.npm
-.stylelintcache
-.node_repl_history
-*.tgz
-.pnp.*
-.tern-port
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Misc
+*.swp
 
-### Azure / CI
-.azure/**/env
-.azure/**/secrets
-**/.azd/**/env
-**/.azd/**/secrets
+# PWA / Generated assets
+public/sw.js.map
+
+# Lockfiles (policy: npm only)
+yarn.lock
+pnpm-lock.yaml
