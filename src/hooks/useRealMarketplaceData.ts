@@ -1,0 +1,1 @@
+export { useRealMarketplaceData } from '@/shared/hooks/useRealMarketplaceData';

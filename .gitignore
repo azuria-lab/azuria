@@ -1,0 +1,44 @@
+# Node dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.vscode-test
+
+# Env / Secrets
+.env
+.env.*.local
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.swp
+
+# PWA / Generated assets
+public/sw.js.map
+
+# Lockfiles (policy: npm only)
+yarn.lock
+pnpm-lock.yaml

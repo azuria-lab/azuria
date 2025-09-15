@@ -1,0 +1,1 @@
+export { useWebVitals, usePerformanceMonitoring } from '@/shared/hooks/useWebVitals';

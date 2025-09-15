@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"  # Interval required but we rely on security-only
+    allow:
+      - dependency-type: "all"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "sec"
+    labels:
+      - "security"
+    # Security-only mode: Dependabot will still create PRs for advisories even if normal interval is infrequent.
+    # We intentionally avoided github-actions updates for agora.
+
+# Somente atualizações de segurança (npm). Expandir posteriormente se necessário.

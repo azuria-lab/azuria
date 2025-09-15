@@ -1,0 +1,12 @@
+{
+  // Recommended extensions for this workspace
+  "recommendations": [
+    "zernonia.supabase-vscode",
+    "ckolkman.vscode-postgres",
+    "uniquevision.vscode-plpgsql-lsp",
+    "dorzey.vscode-sqlfluff",
+    "usernamehw.errorlens",
+    "esbenp.prettier-vscode",
+    "mkloubert.vscode-http-client"
+  ]
+}

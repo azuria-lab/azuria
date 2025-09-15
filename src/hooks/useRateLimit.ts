@@ -1,0 +1,1 @@
+export { useRateLimit } from "@/shared/hooks/useRateLimit";

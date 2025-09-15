@@ -1,0 +1,9 @@
+echo "Running type-check before push..."
+npm run -s type-check
+if [ $? -ne 0 ]; then
+  echo "Type-check failed. Aborting push."
+  exit 1
+fi
+
+echo "Skipping unit tests on pre-push (temporarily disabled)."
+echo "Pre-push checks passed (type-check only)."

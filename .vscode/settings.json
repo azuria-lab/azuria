@@ -1,0 +1,20 @@
+{
+  // Point the SQLFluff extension to the installed executable
+  "sqlfluff.executablePath": "C:/Python313/Scripts/sqlfluff.exe",
+  // Optional: silence virtualenv prompt for Python terminal
+  "python.terminal.activateEnvironment": false,
+  // Linting: markdown
+  "markdownlint.config": {
+    "MD041": false
+  },
+  // Enforce npm as the sole package manager
+  "npm.packageManager": "npm",
+  // Consistent line endings
+  "files.eol": "\n",
+  // Use ESLint as default formatter for supported languages
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  // Auto-fix eslint issues on save (explicit saves only)
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}

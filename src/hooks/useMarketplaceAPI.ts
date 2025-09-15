@@ -1,0 +1,1 @@
+export { useMarketplaceAPI } from "@/shared/hooks/useMarketplaceAPI";
