@@ -27,6 +27,17 @@ export class SecurityMonitoringService {
    * Initialize security monitoring
    */
   static initialize(): void {
+  // Avoid side-effectful intervals & event listeners during test runs (prevents Vitest from hanging)
+  try {
+    interface MaybeNodeProcess { env?: Record<string, string | undefined> }
+    const maybeProcess: unknown = typeof process !== 'undefined' ? process : undefined;
+    if (maybeProcess && (maybeProcess as MaybeNodeProcess).env?.VITEST) {
+      logger.info('🧪 Skipping SecurityMonitoringService.initialize in test environment');
+      return;
+    }
+  } catch {
+    // fail open – if detection fails, proceed normally
+  }
   // Listen for custom security events
   window.addEventListener('security-event', ((e: Event) => this.handleSecurityEvent(e as CustomEvent<SecurityEventDetail>)).bind(this) as EventListener);
     

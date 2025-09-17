@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { BRANDING, getApiBase } from '@/config/branding';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +16,10 @@ type SdkLanguage = 'javascript' | 'python' | 'php';
 
 export default function SDKGenerator() {
   const [selectedLanguage, setSelectedLanguage] = useState<SdkLanguage>('javascript');
-  const [projectName, setProjectName] = useState("my-precifica-app");
+  const [projectName, setProjectName] = useState(`my-${BRANDING.shortName.toLowerCase()}-app`);
   const [apiKey, setApiKey] = useState("");
 
+  const baseV2 = getApiBase(2);
   const sdkOptions: Record<SdkLanguage, {
     name: string;
     version: string;
@@ -33,12 +35,12 @@ export default function SDKGenerator() {
       size: "45KB",
       features: ["TypeScript support", "Rate limiting", "Webhooks", "Retry logic"],
       packageManager: "npm",
-      installCommand: `npm install @precifica/sdk-js`,
+      installCommand: `npm install @precifica/sdk-js`, // package rename pending
       configExample: `import PrecificaSDK from '@precifica/sdk-js';
 
 const client = new PrecificaSDK({
   apiKey: '${apiKey || 'your_api_key'}',
-  baseURL: 'https://api.precifica.app/v2',
+  baseURL: '${baseV2}',
   timeout: 30000,
   rateLimit: {
     maxRequests: 1000,
@@ -57,12 +59,12 @@ const client = new PrecificaSDK({
       size: "120KB",
       features: ["Async/await support", "Type hints", "Pydantic models", "Auto-retry"],
       packageManager: "pip",
-      installCommand: `pip install precifica-sdk`,
-      configExample: `from precifica_sdk import PrecificaClient
+    installCommand: `pip install precifica-sdk`, // package rename pending
+    configExample: `from precifica_sdk import PrecificaClient
 
 client = PrecificaClient(
     api_key="${apiKey || 'your_api_key'}",
-    base_url="https://api.precifica.app/v2",
+  base_url="${baseV2}",
     timeout=30,
     rate_limit_config={
         "max_requests": 1000,
@@ -81,13 +83,13 @@ client = PrecificaClient(
       size: "85KB", 
       features: ["PSR-4 compliance", "Guzzle HTTP", "Laravel support", "Doctrine annotations"],
       packageManager: "composer",
-      installCommand: `composer require precifica/sdk-php`,
+      installCommand: `composer require precifica/sdk-php`, // package rename pending
       configExample: `<?php
 use Precifica\\SDK\\PrecificaClient;
 
 $client = new PrecificaClient([
     'apiKey' => '${apiKey || 'your_api_key'}',
-    'baseUrl' => 'https://api.precifica.app/v2',
+    'baseUrl' => '${baseV2}',
     'timeout' => 30,
     'rateLimit' => [
         'maxRequests' => 1000,

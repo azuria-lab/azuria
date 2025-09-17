@@ -9,8 +9,24 @@
     <meta name="author" content="Azuria" />
     <meta name="keywords" content="precificação, preços, calculadora, inteligência artificial, lucro, margem, vendas, marketplace, azuria" />
 
-  <!-- Basic CSP as a fallback (dev/static). Prefer server headers in production) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://yiornerygxhwfchnqslq.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://yiornerygxhwfchnqslq.supabase.co wss://yiornerygxhwfchnqslq.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'">
+    <!--
+      CSP (Fase 1 - Report-Only via header preferencial em produção)
+      Objetivos desta fase:
+        - Bloquear origens não esperadas por default
+        - Permitir supabase (REST/WebSocket)
+        - Minimizar 'unsafe-inline' / 'unsafe-eval' (mantidos provisoriamente para bundles existentes)
+        - Preparar remoção gradual de inline/eval ao introduzir nonce ou hashing em fase 2
+      Próximas fases:
+        - Fase 2: Remover 'unsafe-eval', introduzir nonce para scripts inline críticos
+        - Fase 3: Remover 'unsafe-inline' (estilização), adicionar 'upgrade-insecure-requests', 'strict-dynamic'
+      NOTA: meta tag atua como fallback local; preferir cabeçalho HTTP 'Content-Security-Policy-Report-Only' no ambiente.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://yiornerygxhwfchnqslq.supabase.co;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://yiornerygxhwfchnqslq.supabase.co wss://yiornerygxhwfchnqslq.supabase.co;
+      frame-src 'none';
+    ">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />

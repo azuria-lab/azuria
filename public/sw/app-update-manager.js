@@ -1,5 +1,8 @@
 
 // App Update Manager for PWA
+const BRAND_PRODUCT = 'Azuria';
+const BRAND_DB_PREFIX = 'azuria';
+
 class AppUpdateManager {
   static UPDATE_TYPES = {
     CRITICAL: 'critical',
@@ -222,7 +225,7 @@ class AppUpdateManager {
   static async showUpdateReminder() {
     if (this.isUpdateAvailable && this.pendingUpdate) {
       await self.registration.showNotification('🔔 Lembrete de Atualização', {
-        body: 'Sua atualização do Precifica+ ainda está pendente',
+  body: `Sua atualização do ${BRAND_PRODUCT} ainda está pendente`,
         icon: '/icon-192.png',
         tag: 'update-reminder',
         data: {
@@ -288,7 +291,7 @@ class AppUpdateManager {
 
   static async storeUpdateEvent(event) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaUpdatesDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}UpdatesDB`, 1);
       
       request.onerror = () => reject(request.error);
       

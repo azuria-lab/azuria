@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ExportCalculationItem, ExportData } from "@/types/export";
 import type { CalculationHistory } from "@/domains/calculator/types/calculator";
+import { BRANDING, buildPdfFileName } from '@/config/branding';
 
 export const generatePDFReport = async (data: ExportData, fileName: string): Promise<void> => {
   const doc = new jsPDF();
@@ -13,7 +14,7 @@ export const generatePDFReport = async (data: ExportData, fileName: string): Pro
   // Header with brand colors
   doc.setFontSize(24);
   doc.setTextColor(59, 130, 246); // Brand blue
-  doc.text("Precifica+ - Relatório Avançado", 20, yPosition);
+  doc.text(`${BRANDING.productName} - Relatório Avançado`, 20, yPosition);
   yPosition += 15;
   
   doc.setFontSize(10);
@@ -39,7 +40,8 @@ export const generatePDFReport = async (data: ExportData, fileName: string): Pro
   // Add footer with page numbers
   addFooter(doc);
   
-  doc.save(`${fileName}.pdf`);
+  const finalFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  doc.save(buildPdfFileName(finalFileName));
 };
 
 const addExecutiveSummary = (
@@ -191,6 +193,6 @@ const addFooter = (doc: jsPDF): void => {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 10);
-    doc.text("© Precifica+ - Relatório Gerado Automaticamente", 20, doc.internal.pageSize.getHeight() - 10);
+    doc.text(BRANDING.attributionFooter, 20, doc.internal.pageSize.getHeight() - 10);
   }
 };

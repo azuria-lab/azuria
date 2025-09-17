@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { logger } from '@/services/logger';
+import { BRANDING } from '@/config/branding';
 
 interface NotificationPermission {
   granted: boolean;
@@ -66,7 +67,7 @@ export const usePushNotifications = () => {
 
   // Utility functions for specific notification types
   const sendPriceAlert = (productName: string, oldPrice: number, newPrice: number) => {
-    return showNotification('🔔 Alerta de Preço - Precifica+', {
+  return showNotification(`🔔 Alerta de Preço - ${BRANDING.productName}`, {
       body: `${productName}: R$ ${newPrice.toFixed(2)} (antes R$ ${oldPrice.toFixed(2)})`,
       tag: 'price-alert',
       requireInteraction: true
@@ -81,7 +82,7 @@ export const usePushNotifications = () => {
   };
 
   const sendCalculationReminder = () => {
-    return showNotification('💡 Lembrete Precifica+', {
+  return showNotification(`💡 Lembrete ${BRANDING.productName}`, {
       body: 'Que tal fazer uma nova análise de preços?',
       tag: 'calculation-reminder'
     });

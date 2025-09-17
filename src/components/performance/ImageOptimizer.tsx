@@ -53,19 +53,28 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
   }, [src, priority]);
 
   // Otimizar URL se for do Unsplash
-  const optimizeImageUrl = (url: string) => {
-    if (url.includes('unsplash.com')) {
-      const params = new URLSearchParams();
-      if (width) {params.set('w', width.toString());}
-      if (height) {params.set('h', height.toString());}
+  const optimizeImageUrl = (rawUrl: string) => {
+    let parsed: URL | null = null;
+    try {
+      parsed = new URL(rawUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+    } catch {
+      return rawUrl;
+    }
+    const allowedHosts = ['unsplash.com', 'images.unsplash.com'];
+    const hostnameOk = allowedHosts.some(h => parsed && (parsed.hostname === h || parsed.hostname.endsWith(`.${h}`)));
+    const schemeOk = parsed.protocol === 'https:' || parsed.protocol === 'http:';
+    if (hostnameOk && schemeOk) {
+      const params = new URLSearchParams(parsed.search);
+      if (width) { params.set('w', width.toString()); }
+      if (height) { params.set('h', height.toString()); }
       params.set('fit', 'crop');
       params.set('crop', 'center');
       params.set('auto', 'format,compress');
       params.set('q', '85');
-      
-      return `${url.split('?')[0]}?${params.toString()}`;
+      parsed.search = `?${params.toString()}`;
+      return parsed.toString();
     }
-    return url;
+    return rawUrl;
   };
 
   const optimizedSrc = currentSrc ? optimizeImageUrl(currentSrc) : '';

@@ -5,7 +5,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
 [![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
 [![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)
-[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](#cobertura-de-testes)
+[![Coverage](./coverage/coverage-badge.svg)](#cobertura-de-testes)
 
 | Stack | Versão |
 |-------|--------|
@@ -163,6 +163,7 @@ npm run test         # Executar testes
 npm run test:ui      # Interface visual dos testes
 npm run lint         # Verificar código
 npm run type-check   # Verificar tipos TypeScript
+npm run validate:env # Validar variáveis de ambiente obrigatórias
 ```
 
 ### Padrões de Desenvolvimento
@@ -247,15 +248,11 @@ npm run analyze
 npm run preview
 ```
 
-### Deploy Automático (Lovable)
+### Deploy
 
-O projeto está configurado para deploy automático via Lovable:
+> Nota: A antiga seção de deploy automático via Lovable foi removida (decisão de rebranding). Abaixo permanecem instruções genéricas válidas para qualquer provedor (Vercel, Netlify, GitHub Pages, Cloudflare Pages, etc.). Caso um pipeline CI/CD dedicado seja adotado, documente-o aqui.
 
-1. **Push para main**: Deploy automático em staging
-2. **Publish**: Deploy em produção via dashboard Lovable
-3. **Custom Domain**: Configurável nas configurações do projeto
-
-### Deploy Manual
+#### Deploy Manual / Genérico
 
 ```bash
 # Build para produção
@@ -349,30 +346,98 @@ npm run test:coverage
 
 ### Cobertura de Testes
 
-Status atual: badge acima marcado como "pending" enquanto a automação completa de publicação de badge não é habilitada.
+Automação: workflow `coverage.yml` gera relatório + badge estático em cada push/PR (commit do badge apenas em `main`). O badge acima reflete a última execução na branch principal.
 
-Limiares definidos (Vitest / `vitest.config.ts`):
+Limiares (Vitest / `vitest.config.ts` – baseline inicial):
 
-- Statements: 70%
-- Lines: 70%
-- Functions: 70%
-- Branches: 60%
+- Statements: 72%
+- Lines: 72%
+- Functions: 72%
+- Branches: 65%
 
-Como gerar localmente o relatório:
+Gate de Cobertura (ativo):
+
+- Script: `scripts/check-coverage-gate.mjs`
+- Regras:
+  - Falha se qualquer métrica < mínimos (Statements/Lines/Functions 70%, Branches 60%)
+  - Falha se regressão > 2pp vs baseline em `coverage-baseline.json`
+  - Reporta deltas e marcadores: `ok`, `minor-drop`, `regression`, `improved`
+
+Executar localmente:
 
 ```bash
 npm run test:coverage
+npm run coverage:gate
 ```
+
+Baseline: `coverage-baseline.json` (atualizada manualmente quando elevarmos objetivos).
 
 Saída principal: `./coverage/` (inclui `lcov-report/index.html`).
 
-Próximos passos planejados para o badge dinâmico:
+Próximos passos planejados:
 
-1. Publicar cobertura em um serviço externo (Codecov / Coveralls) ou gerar badge estático via GitHub Pages.
-2. Adicionar etapa no workflow de CI para atualizar badge após cada execução em `main`.
-3. Tornar o badge colorido de acordo com a % (ex.: >=80% verde, 60–79% amarelo, <60% vermelho) após incremento progressivo das metas.
+1. Publicar métricas em serviço externo (Codecov / Coveralls) para histórico.
+2. Elevar limiares progressivamente (+5pp / ciclo de melhorias).
+3. Automatizar atualização de baseline somente quando delta for claramente positivo e estável.
 
-Até a automação: use o relatório local ou artifact de coverage no workflow `CI` para auditoria.
+Auditoria: utilize o artifact `coverage-report` anexado ao workflow ou gere localmente conforme acima.
+
+### Feature Flags
+
+Gerenciadas em `src/config/featureFlags.ts`.
+
+Override via ambiente (build):
+
+```env
+VITE_FF_NEW_DASHBOARD_LAYOUT=true
+```
+
+Helper de verificação:
+
+```ts
+import { isFeatureEnabled } from '@/config/featureFlags';
+if (isFeatureEnabled('NEW_DASHBOARD_LAYOUT')) {
+  // render novo layout
+}
+```
+
+### Validação de Ambiente
+
+Script de checagem (CI / local):
+
+```bash
+npm run validate:env
+```
+ 
+Bootstrap de avisos em runtime: `src/config/envValidation.ts`.
+
+### Cabeçalhos de Segurança
+
+Política e plano de endurecimento: `docs/SECURITY_HEADERS.md`.
+
+### SBOM & Compliance
+
+Geração automática via workflow `sbom.yml` usando CycloneDX (`npm run sbom`).
+
+Diff de SBOM (modo audit):
+
+```bash
+npm run sbom        # gera sbom.json
+npm run sbom:diff   # compara com main (git show origin/main:sbom.json)
+```
+
+Heurística de risco inicial (palavras-chave em nome/descrição): `eval`, `crypto`, `shell`, `exec`, `native`, `binary`.
+
+Saída classifica novos componentes em: low | medium | high.
+
+Modo enforcement futuro: definir `SBOM_ENFORCE=1` (não habilitado por padrão agora) para falhar se houver entradas high.
+
+Objetivos futuros:
+ 
+1. Integrar licença obrigatória (falha se `UNKNOWN`).
+2. Lista de allow explícita para pacotes com sinais mas aprovados.
+3. Geração de diff anexada ao summary do workflow.
+
 
 ### Estratégia de Testes
 

@@ -1,7 +1,7 @@
 
-# 🔧 Guia de Solução de Problemas - Precifica+
+# 🔧 Guia de Solução de Problemas - Azuria
 
-Este guia ajuda a resolver os problemas mais comuns encontrados no Precifica+.
+Este guia ajuda a resolver os problemas mais comuns encontrados no Azuria.
 
 ## 🚨 Problemas Críticos
 
@@ -122,7 +122,7 @@ Expansão segura: duplicar o teste leve e adicionar um segundo cenário, monitor
 2. **Limpar Storage Local**
    ```
    No navegador:
-   F12 > Application > Local Storage > precifica.app
+   F12 > Application > Local Storage > azuria.app
    Clique em "Clear All"
    ```
 
@@ -314,7 +314,7 @@ Se apenas algumas métricas:
    ```
    Chrome > Configurações > Site Settings
    > Notifications > Permitir
-   > Pop-ups > Permitir para precifica.app
+   > Pop-ups > Permitir para azuria.app
    ```
 
 #### No iOS
@@ -351,7 +351,7 @@ Se apenas algumas métricas:
 
 3. **Limpar Cache do App**
    ```
-   Configurações > Storage > precifica.app
+   Configurações > Storage > azuria.app
    Limpar cache (mas não dados)
    ```
 
@@ -393,6 +393,55 @@ Se apenas algumas métricas:
 ## 🌐 Problemas de Conexão
 
 ### Site lento/instável
+## 🧪 Testes - Warnings de React act()
+
+### Sintoma
+
+Logs durante `vitest run` exibiam:
+
+```
+Warning: An update to AuthProvider inside a test was not wrapped in act(...).
+```
+
+### Causa Raiz
+
+O `AuthProvider` disparava múltiplos `dispatch` (vários `useEffect`) e a inicialização assíncrona de autenticação (`supabase.auth.getSession()` + listener) realizava updates fora do ciclo de renderização síncrona dos testes.
+
+### Mitigação Aplicada
+
+1. Consolidado em um único `useEffect` com ação `SET_ALL` (batch) no `AuthProvider`.
+2. Batching adicional via `unstable_batchedUpdates` em `updateSession` (apenas para ambiente de teste quando disponível).
+3. Short‑circuit em `NODE_ENV === 'test'` para pular fluxo assíncrono de inicialização e evitar updates tardios que exigiriam `act` manual.
+
+### Impacto
+
+- Testes de smoke não exibem mais warnings de `act`.
+- Fluxo de produção permanece inalterado (inicialização completa continua ativa fora de ambiente de teste).
+
+### Caso Reapareça
+
+1. Verifique se novos `useEffect` independentes foram adicionados ao `AuthProvider` criando updates fragmentados.
+2. Garanta que qualquer async `setState` disparado em testes seja mockado ou aguardado via `await waitFor(...)`.
+3. Confirme `process.env.NODE_ENV === 'test'` no ambiente do Vitest (ver `vitest.config.ts`).
+
+### Alternativa (se precisar testar fluxo real de init)
+
+Remover short‑circuit de teste e atualizar testes para:
+
+```ts
+await waitFor(() => expect(screen.getByText(/.../)).toBeInTheDocument());
+```
+
+Ou encapsular o render em:
+
+```ts
+await act(async () => {
+   render(<App/>);
+});
+```
+
+Manter a mitigação atual otimiza velocidade e elimina ruído nos logs.
+
 
 #### Diagnóstico de Rede
 
@@ -494,7 +543,7 @@ Ambiente:
 ### Canais de Suporte
 
 1. **Chat Online**: Resposta imediata
-2. **Email**: suporte@precifica.app
+2. **Email**: suporte@azuria.app
 3. **WhatsApp**: +55 11 99999-9999
 4. **Discord**: Comunidade técnica
 

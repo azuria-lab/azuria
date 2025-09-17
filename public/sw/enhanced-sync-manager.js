@@ -1,5 +1,7 @@
 
 // Enhanced Background Sync Manager
+const BRAND_DB_PREFIX = 'azuria';
+
 class EnhancedSyncManager {
   static SYNC_TAGS = {
     CALCULATIONS: 'sync-calculations',
@@ -106,7 +108,7 @@ class EnhancedSyncManager {
   // Database operations using IndexedDB
   static async getPendingData(type) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaSyncDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}SyncDB`, 1);
       
       request.onerror = () => reject(request.error);
       
@@ -131,7 +133,7 @@ class EnhancedSyncManager {
 
   static async removeFromPending(type, id) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaSyncDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}SyncDB`, 1);
       
       request.onsuccess = () => {
         const db = request.result;
@@ -147,7 +149,7 @@ class EnhancedSyncManager {
 
   static async markAsFailed(type, id, errorMessage) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaSyncDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}SyncDB`, 1);
       
       request.onsuccess = () => {
         const db = request.result;
@@ -175,7 +177,7 @@ class EnhancedSyncManager {
 
   static async clearPendingData(type) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaSyncDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}SyncDB`, 1);
       
       request.onsuccess = () => {
         const db = request.result;

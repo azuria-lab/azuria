@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { CalculationResult } from '@/types/simpleCalculator';
+import { BRANDING, buildPdfFileName } from '@/config/branding';
 
 interface PdfData {
   calculation: {
@@ -27,7 +28,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
   // Header
   doc.setFontSize(20);
   doc.setTextColor(41, 84, 209); // Brand blue
-  doc.text('PRECIFICA+', margin, yPosition);
+  doc.text(BRANDING.productName.toUpperCase(), margin, yPosition);
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
@@ -126,7 +127,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
   const footerY = doc.internal.pageSize.height - 30;
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
-  doc.text('Gerado por Precifica+ - Sua ferramenta de precificação inteligente', margin, footerY);
+  doc.text(`${BRANDING.productName} - Relatório gerado automaticamente`, margin, footerY);
   doc.text(`${new Date().toLocaleString('pt-BR')}`, margin, footerY + 10);
 
   // Add page border
@@ -135,8 +136,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
 
   // Generate filename and save
   const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-  const filename = `Precificacao_${data.productName || 'Produto'}_${timestamp}.pdf`;
-  
+  const filename = buildPdfFileName(`Calculo_${data.productName || 'Produto'}_${timestamp}.pdf`);
   doc.save(filename);
 };
 
@@ -149,7 +149,7 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
   // Header
   doc.setFontSize(20);
   doc.setTextColor(41, 84, 209);
-  doc.text('PRECIFICA+', margin, yPosition);
+  doc.text(BRANDING.productName.toUpperCase(), margin, yPosition);
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
@@ -209,12 +209,11 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
   const footerY = doc.internal.pageSize.height - 30;
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
-  doc.text('Gerado por Precifica+ - Sua ferramenta de precificação inteligente', margin, footerY);
+  doc.text(`${BRANDING.productName} - Relatório gerado automaticamente`, margin, footerY);
   doc.text(`${new Date().toLocaleString('pt-BR')}`, margin, footerY + 10);
 
   // Generate filename and save
   const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-  const filename = `Precificacao_Lote_${timestamp}.pdf`;
-  
+  const filename = buildPdfFileName(`Lote_${timestamp}.pdf`);
   doc.save(filename);
 };

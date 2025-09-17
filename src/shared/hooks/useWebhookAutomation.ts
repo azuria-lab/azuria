@@ -1,6 +1,7 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { BRANDING } from '@/config/branding';
 
 export interface WebhookConfig {
   id: string;
@@ -73,9 +74,9 @@ export const useWebhookAutomation = () => {
       const testPayload = {
         event: "test",
         timestamp: new Date().toISOString(),
-        source: "Precifica+",
+  source: BRANDING.productName,
         data: {
-          message: "Este é um teste de webhook do Precifica+",
+          message: `Este é um teste de webhook do ${BRANDING.productName}`,
           webhook_name: webhook.name
         }
       };
@@ -113,7 +114,7 @@ export const useWebhookAutomation = () => {
       const payload = {
         event,
         timestamp: new Date().toISOString(),
-        source: "Precifica+",
+  source: BRANDING.productName,
         data
       };
 

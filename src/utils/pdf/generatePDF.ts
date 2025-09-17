@@ -4,6 +4,7 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BRANDING, buildPdfFileName } from '@/config/branding';
 
 // Adicionar a definição de tipos para o jspdf-autotable
 declare module "jspdf" {
@@ -24,7 +25,7 @@ export const generatePDF = async (
 
   // Adicionar título
   doc.setFontSize(20);
-  doc.text("Precifica+", 105, 15, { align: "center" });
+  doc.text(BRANDING.productName, 105, 15, { align: "center" });
   
   doc.setFontSize(14);
   doc.text("Relatório de Cálculo de Preço", 105, 25, { align: "center" });
@@ -171,7 +172,7 @@ export const generatePDF = async (
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      "© Precifica+ - Documento gerado automaticamente",
+      BRANDING.attributionFooter,
       105,
       doc.internal.pageSize.height - 10,
       { align: "center" }
@@ -185,6 +186,6 @@ export const generatePDF = async (
   }
 
   // Salvar o arquivo com nome personalizado
-  const fileName = `Precifica_Calculo_${format(new Date(), "yyyyMMdd_HHmmss")}.pdf`;
+  const fileName = buildPdfFileName(`Calculo_${format(new Date(), "yyyyMMdd_HHmmss")}.pdf`);
   doc.save(fileName);
 };

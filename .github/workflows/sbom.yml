@@ -1,0 +1,55 @@
+name: SBOM
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/sbom.yml'
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 4 * * 1' # semanal segunda 04:00 UTC
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+            node-version: 18
+
+      - name: Install dependencies (ci)
+        run: npm ci
+
+      - name: Generate SBOM (CycloneDX)
+        run: npm run sbom
+
+      - name: SBOM Diff (audit)
+        run: npm run sbom:diff
+
+      - name: Hash SBOM
+        run: |
+          shasum -a 256 sbom.json > sbom.sha256
+          echo "SBOM_SHA256=$(cut -d' ' -f1 sbom.sha256)" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            sbom.json
+            sbom.sha256
+          if-no-files-found: error
+
+      - name: Summary
+        run: |
+          echo "## SBOM" >> $GITHUB_STEP_SUMMARY
+          echo "SHA256: $SBOM_SHA256" >> $GITHUB_STEP_SUMMARY
+          echo "Gerado em $(date -u)" >> $GITHUB_STEP_SUMMARY
