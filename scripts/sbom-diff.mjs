@@ -33,7 +33,9 @@ function ensureBase() {
     console.warn('WARN: falha ao fetch main, continuando com comparação limitada.');
   }
   try {
-    execSync(`git show ${BASE_BRANCH}:sbom.json > ${path.join(BASE_TMP_DIR, 'sbom.json')}`);
+    // Get sbom.json contents from base branch, then write to file safely.
+    const baseSbom = execSync('git show ' + `${BASE_BRANCH}:sbom.json`);
+    fs.writeFileSync(path.join(BASE_TMP_DIR, 'sbom.json'), baseSbom);
   } catch (e) {
     console.warn('WARN: sbom.json não encontrado na base, considerando todos componentes como NEW baseline.');
   }
