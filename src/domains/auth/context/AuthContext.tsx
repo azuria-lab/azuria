@@ -24,6 +24,7 @@ type AuthAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_AUTHENTICATED'; payload: boolean }
   | { type: 'SET_PRO'; payload: boolean }
+  | { type: 'SET_ALL'; payload: Partial<AuthState> }
   | { type: 'RESET_AUTH' };
 
 // Auth Context Type
@@ -74,6 +75,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return { ...state, isAuthenticated: action.payload };
     case 'SET_PRO':
       return { ...state, isPro: action.payload };
+    case 'SET_ALL':
+      return { ...state, ...action.payload };
     case 'RESET_AUTH':
       return initialAuthState;
     default:
@@ -101,35 +104,29 @@ const AuthContext = createContext<AuthContextType>(defaultAuthValue);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
   const auth = useAuth();
-
-  // Sync external auth state with reducer
+  // Single sync effect to batch updates => mitigates multiple act() warnings in tests
   useEffect(() => {
-    dispatch({ type: 'SET_LOADING', payload: auth.isLoading ?? false });
-  }, [auth.isLoading]);
+    // Build next state snapshot derived from auth hook
+    const next: Partial<AuthState> = {
+      session: auth.session ?? null,
+      user: auth.user ?? null,
+      userProfile: auth.userProfile ?? null,
+      isLoading: auth.isLoading ?? false,
+      error: auth.error ?? null,
+      isAuthenticated: auth.isAuthenticated ?? false,
+      isPro: auth.isPro ?? (auth.userProfile?.isPro ?? false),
+    };
 
-  useEffect(() => {
-    dispatch({ type: 'SET_SESSION', payload: auth.session });
-  }, [auth.session]);
-
-  useEffect(() => {
-    dispatch({ type: 'SET_USER', payload: auth.user });
-  }, [auth.user]);
-
-  useEffect(() => {
-    dispatch({ type: 'SET_PROFILE', payload: auth.userProfile });
-  }, [auth.userProfile]);
-
-  useEffect(() => {
-    dispatch({ type: 'SET_ERROR', payload: auth.error });
-  }, [auth.error]);
-
-  useEffect(() => {
-    dispatch({ type: 'SET_AUTHENTICATED', payload: auth.isAuthenticated ?? false });
-  }, [auth.isAuthenticated]);
-
-  useEffect(() => {
-    dispatch({ type: 'SET_PRO', payload: auth.isPro ?? false });
-  }, [auth.isPro]);
+    // Shallow compare to current state to avoid unnecessary dispatch
+    let changed = false;
+    for (const k of Object.keys(next) as (keyof AuthState)[]) {
+      if (state[k] !== next[k]) { changed = true; break; }
+    }
+    if (changed) {
+      dispatch({ type: 'SET_ALL', payload: next });
+    }
+  // Only re-run when primitive auth snapshot values change
+  }, [auth.session, auth.user, auth.userProfile, auth.isLoading, auth.error, auth.isAuthenticated, auth.isPro, state]);
 
   // Context value with actions
   const contextValue = useMemo(() => ({
@@ -182,6 +179,7 @@ export const authActions = {
   setError: (error: string | null): AuthAction => ({ type: 'SET_ERROR', payload: error }),
   setAuthenticated: (authenticated: boolean): AuthAction => ({ type: 'SET_AUTHENTICATED', payload: authenticated }),
   setPro: (isPro: boolean): AuthAction => ({ type: 'SET_PRO', payload: isPro }),
+  setAll: (payload: Partial<AuthState>): AuthAction => ({ type: 'SET_ALL', payload }),
   resetAuth: (): AuthAction => ({ type: 'RESET_AUTH' }),
 };
 

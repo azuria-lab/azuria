@@ -45,6 +45,42 @@ vi.mock('@/hooks/useOfflineCalculator', () => ({
 // Mock de APIs externas
 global.fetch = vi.fn()
 
+// ---- Instrumentação de timers para evitar leaks ----
+const activeTimeouts = new Set<number | NodeJS.Timeout>()
+const activeIntervals = new Set<number | NodeJS.Timeout>()
+const _setTimeout = global.setTimeout
+const _setInterval = global.setInterval
+const _clearTimeout = global.clearTimeout
+const _clearInterval = global.clearInterval
+
+global.setTimeout = ((handler: TimerHandler, timeout?: number, ...args: any[]) => {
+  const id = _setTimeout(handler, timeout, ...args)
+  activeTimeouts.add(id)
+  return id
+}) as typeof setTimeout
+
+global.setInterval = ((handler: TimerHandler, timeout?: number, ...args: any[]) => {
+  const id = _setInterval(handler, timeout, ...args)
+  activeIntervals.add(id)
+  return id
+}) as typeof setInterval
+
+function cleanupTimers() {
+  activeTimeouts.forEach(id => _clearTimeout(id as any))
+  activeTimeouts.clear()
+  activeIntervals.forEach(id => _clearInterval(id as any))
+  activeIntervals.clear()
+}
+
+// Neutraliza componente de prefetch pesado para evitar import dinâmico em massa durante smoke
+vi.mock('@/components/system/PrefetchOnIdle', () => ({ default: () => null }))
+
+// Mock leve de requestIdleCallback para não agendar tarefas longas
+if (!(window as any).requestIdleCallback) {
+  ;(window as any).requestIdleCallback = (cb: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void) =>
+    setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), 10)
+}
+
 // Mock do window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -78,7 +114,10 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  cleanupTimers()
 })
+
+// (Timers reais mantidos; se necessário, podemos testar timers específicos com vi.useFakeTimers dentro de cada spec.)
 
 // Silenciar avisos ruidosos do Recharts sobre width/height 0 em ambiente de teste (JSDOM)
 const suppressedMessages = [
@@ -102,4 +141,32 @@ console.error = (...args: unknown[]) => {
     return
   }
   originalError(...args)
+}
+
+// ---- Mock QueryClient (react-query) para reduzir timers internos ----
+try {
+  vi.mock('@tanstack/react-query', async (importOriginal) => {
+    const actual: any = await importOriginal()
+    const { QueryClient } = actual
+    const PatchedQueryClient = function (this: any, opts: any) {
+      return new (QueryClient as any)({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            gcTime: 1000,
+            staleTime: 1000,
+            refetchOnWindowFocus: false
+          }
+        },
+        ...(opts || {})
+      })
+    }
+    PatchedQueryClient.prototype = QueryClient.prototype
+    return {
+      ...actual,
+      QueryClient: PatchedQueryClient
+    }
+  })
+} catch {
+  // se pacote não estiver disponível em algum contexto, ignora
 }

@@ -1,5 +1,6 @@
 // Web Vitals Reporter - Monitoramento de Performance (refatorado)
 import { AnalyticsEvent } from '@/types/analytics';
+import { randomSessionId } from '@/utils/secureRandom';
 import { logger } from '@/services/logger';
 import type { ConnectionInfo, DeviceInfo, PerformanceReport, WebVitalMetric } from '@/services/perf/types';
 import { startCollecting } from '@/services/perf/collect';
@@ -18,9 +19,7 @@ class WebVitalsReporter {
     this.initializeReporting();
   }
 
-  private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+  private generateSessionId(): string { return randomSessionId(); }
 
   async initializeReporting() {
     this.isReporting = true;

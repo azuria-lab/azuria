@@ -1,5 +1,9 @@
 
 // Complete Push Notifications Manager
+// NOTE: Injected branding; adjust if build-time replacement is preferred.
+const BRAND_PRODUCT = 'Azuria';
+const BRAND_DB_PREFIX = 'azuria';
+
 class CompleteNotificationManager {
   static NOTIFICATION_TYPES = {
     PRICE_ALERT: 'price-alert',
@@ -16,7 +20,7 @@ class CompleteNotificationManager {
       data = event.data ? event.data.json() : {};
     } catch (error) {
       console.error('Failed to parse push data:', error);
-      data = { type: 'default', title: 'Precifica+', body: 'Nova notificação disponível' };
+  data = { type: 'default', title: BRAND_PRODUCT, body: 'Nova notificação disponível' };
     }
 
     const notificationConfig = this.buildNotificationConfig(data);
@@ -50,7 +54,7 @@ class CompleteNotificationManager {
     switch (data.type) {
       case this.NOTIFICATION_TYPES.PRICE_ALERT:
         return {
-          title: '🔔 Alerta de Preço - Precifica+',
+          title: `🔔 Alerta de Preço - ${BRAND_PRODUCT}`,
           options: {
             ...baseConfig,
             body: data.body || 'Mudança significativa detectada nos preços',
@@ -105,7 +109,7 @@ class CompleteNotificationManager {
 
       case this.NOTIFICATION_TYPES.CALCULATION_REMINDER:
         return {
-          title: '💡 Lembrete Precifica+',
+          title: `💡 Lembrete ${BRAND_PRODUCT}`,
           options: {
             ...baseConfig,
             body: data.body || 'Que tal fazer uma nova análise de preços?',
@@ -129,7 +133,7 @@ class CompleteNotificationManager {
 
       case this.NOTIFICATION_TYPES.SYSTEM_UPDATE:
         return {
-          title: '🚀 Precifica+ Atualizado',
+          title: `🚀 ${BRAND_PRODUCT} Atualizado`,
           options: {
             ...baseConfig,
             body: data.body || 'Nova versão disponível com melhorias',
@@ -156,7 +160,7 @@ class CompleteNotificationManager {
 
       case this.NOTIFICATION_TYPES.SOCIAL:
         return {
-          title: '👥 Precifica+ Social',
+          title: `👥 ${BRAND_PRODUCT} Social`,
           options: {
             ...baseConfig,
             body: data.body || 'Nova atividade social disponível',
@@ -181,7 +185,7 @@ class CompleteNotificationManager {
 
       default:
         return {
-          title: data.title || 'Precifica+',
+          title: data.title || BRAND_PRODUCT,
           options: {
             ...baseConfig,
             body: data.body || 'Nova notificação disponível',
@@ -303,7 +307,7 @@ class CompleteNotificationManager {
 
   static async storeInIndexedDB(storeName, data) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('PrecificaNotificationsDB', 1);
+  const request = indexedDB.open(`${BRAND_DB_PREFIX}NotificationsDB`, 1);
       
       request.onerror = () => reject(request.error);
       
@@ -335,7 +339,7 @@ class CompleteNotificationManager {
   static async scheduleReminder(delayMs) {
     // Schedule a reminder notification
     setTimeout(async () => {
-      await self.registration.showNotification('💡 Lembrete Precifica+', {
+  await self.registration.showNotification(`💡 Lembrete ${BRAND_PRODUCT}`, {
         body: 'Que tal fazer uma nova análise de preços agora?',
         icon: '/icon-192.png',
         tag: 'scheduled-reminder',

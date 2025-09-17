@@ -39,13 +39,25 @@ export function timingSafeEqualHex(aHex: string, bHex: string): boolean {
 }
 
 export function randomUUID(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
   }
-  // Fallback UUID v4 (not cryptographically strong)
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  const bytes = new Uint8Array(16);
+  // Use globalThis to avoid TS narrowing issues when DOM lib not present
+  interface CryptoLike { getRandomValues?: (arr: Uint8Array) => void; randomUUID?: () => string; }
+  const g = (typeof globalThis !== 'undefined') ? (globalThis as { crypto?: CryptoLike }) : {};
+  if (g.crypto && typeof g.crypto.getRandomValues === 'function') {
+    g.crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+  const hex: string[] = [];
+  for (let i = 0; i < bytes.length; i++) {
+    hex.push(bytes[i].toString(16).padStart(2, '0'));
+  }
+  return `${hex.slice(0,4).join('')}-${hex.slice(4,6).join('')}-${hex.slice(6,8).join('')}-${hex.slice(8,10).join('')}-${hex.slice(10,16).join('')}`;
 }

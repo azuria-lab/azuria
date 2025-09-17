@@ -1,5 +1,6 @@
 
 import React from "react";
+import { BRANDING, getApiBase } from '@/config/branding';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -13,8 +14,9 @@ export default function ApiDocumentation() {
     toast.success("Código copiado para a área de transferência!");
   };
 
+  const apiV1 = getApiBase(1);
   const apiExamples = {
-    calculate: `curl -X POST https://api.precifica.app/v1/calculate \\
+    calculate: `curl -X POST ${apiV1}/calculate \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -24,7 +26,7 @@ export default function ApiDocumentation() {
     "tax_regime": "simples"
   }'`,
     
-    competitors: `curl -X GET "https://api.precifica.app/v1/competitors?product=smartphone&marketplace=mercado_livre" \\
+    competitors: `curl -X GET "${apiV1}/competitors?product=smartphone&marketplace=mercado_livre" \\
   -H "Authorization: Bearer YOUR_API_KEY"`,
   
     webhook: `{
@@ -41,9 +43,9 @@ export default function ApiDocumentation() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2">API do Azuria+</h1>
+  <h1 className="text-3xl font-bold mb-2">API do {BRANDING.productName}+</h1>
         <p className="text-muted-foreground">
-          Integre o poder do Azuria+ em suas aplicações
+          Integre o poder do {BRANDING.productName}+ em suas aplicações
         </p>
       </div>
 

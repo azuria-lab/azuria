@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { getApiBase } from '@/config/branding';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ export default function AdvancedApiDocumentation() {
     toast.success("Código copiado para a área de transferência!");
   };
 
+  const baseV2 = getApiBase(2);
   const sdkExamples: Record<SdkLanguage, { installation: string; quickStart: string; rateLimit: string }> = {
     javascript: {
       installation: `npm install @precifica/sdk-js`,
@@ -28,7 +30,7 @@ export default function AdvancedApiDocumentation() {
 
 const client = new PrecificaSDK({
   apiKey: '${apiKey}',
-  baseURL: 'https://api.precifica.app/v2',
+  baseURL: '${baseV2}',
   rateLimit: {
     maxRequests: 1000,
     windowMs: 60000,
@@ -92,7 +94,7 @@ import asyncio
 
 client = PrecificaClient(
     api_key="${apiKey}",
-    base_url="https://api.precifica.app/v2",
+    base_url="${baseV2}",
     rate_limit_config={
         "max_requests": 1000,
         "window_ms": 60000,

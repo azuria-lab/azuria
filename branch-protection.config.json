@@ -1,0 +1,11 @@
+{
+  "required_status_checks": {
+    "contexts": [
+      "Lint",
+      "Type check",
+      "Tests (smoke)",
+      "Build"
+    ]
+  },
+  "notes": "Arquivo de referência para o script apply-branch-protection.ps1. Ajuste contexts aqui quando renomear jobs."
+}

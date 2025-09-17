@@ -1,9 +1,9 @@
 
-# 📚 API Reference - Precifica+
+# 📚 API Reference - Azuria
 
 ## 🎯 Visão Geral
 
-Este documento detalha todos os hooks customizados, services e componentes principais do Precifica+, fornecendo exemplos práticos de uso e especificações técnicas completas.
+Este documento detalha todos os hooks customizados, services e componentes principais do Azuria, fornecendo exemplos práticos de uso e especificações técnicas completas.
 
 ## 🧮 Calculator Hooks
 

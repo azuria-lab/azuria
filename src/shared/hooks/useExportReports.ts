@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BRANDING, buildPdfFileName } from '@/config/branding';
 
 type CalculationResult = {
   sellingPrice?: number;
@@ -58,14 +59,14 @@ const normalizeNumericInput = (v: string | number | null | undefined): string =>
 
 export const useExportReports = () => {
 
-  const exportToPDF = useCallback(async (data: ExportData, fileName: string = "relatorio-precifica") => {
+  const exportToPDF = useCallback(async (data: ExportData, fileName: string = "relatorio") => {
     try {
       const doc = new jsPDF();
       
       // Header
       doc.setFontSize(20);
       doc.setTextColor(40, 116, 240); // Brand color
-      doc.text("Precifica+ - Relatório de Cálculos", 20, 25);
+  doc.text(`${BRANDING.productName} - Relatório de Cálculos`, 20, 25);
       
       doc.setFontSize(10);
       doc.setTextColor(100);
@@ -152,10 +153,10 @@ export const useExportReports = () => {
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 10);
-        doc.text("Gerado pelo Precifica+ - Calculadora de Preços", 20, doc.internal.pageSize.getHeight() - 10);
+        doc.text(BRANDING.attributionFooter, 20, doc.internal.pageSize.getHeight() - 10);
       }
-      
-      doc.save(`${fileName}.pdf`);
+      const finalName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+      doc.save(buildPdfFileName(finalName));
       toast.success("Relatório PDF exportado com sucesso!");
       
     } catch (_error) {
@@ -163,7 +164,7 @@ export const useExportReports = () => {
     }
   }, []);
 
-  const exportToCSV = useCallback((data: ExportData, fileName: string = "relatorio-precifica") => {
+  const exportToCSV = useCallback((data: ExportData, fileName: string = "relatorio") => {
     try {
       const csvContent = generateCSVContent(data);
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -186,7 +187,7 @@ export const useExportReports = () => {
     }
   }, []);
 
-  const exportToExcel = useCallback(async (data: ExportData, fileName: string = "relatorio-precifica") => {
+  const exportToExcel = useCallback(async (data: ExportData, fileName: string = "relatorio") => {
     try {
       // Para Excel, usamos CSV com separadores compatíveis
       const csvContent = generateCSVContent(data, true);
