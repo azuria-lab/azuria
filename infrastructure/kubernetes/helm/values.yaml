@@ -1,0 +1,228 @@
+# Default values for azuria helm chart
+# This is a YAML-formatted file with default configuration values
+
+# Replica count
+replicaCount: 3
+
+# Image configuration
+image:
+  repository: azuria/app
+  pullPolicy: Always
+  tag: "v1.0.0"
+
+# Service account
+serviceAccount:
+  create: true
+  annotations: 
+    eks.amazonaws.com/role-arn: ""
+  name: "azuria-app"
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+
+# Security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+    - ALL
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+  metricsPort: 9090
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: azuria.com
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: www.azuria.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: azuria-tls-cert
+      hosts:
+        - azuria.com
+        - www.azuria.com
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+    ephemeral-storage: 1Gi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+    ephemeral-storage: 500Mi
+
+# Liveness and readiness probes
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Auto scaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Node selection
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity rules
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - azuria
+        topologyKey: kubernetes.io/hostname
+
+# Environment variables
+env:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  METRICS_ENABLED: "true"
+  HEALTH_CHECK_PATH: "/health"
+  READINESS_CHECK_PATH: "/ready"
+
+# Secret environment variables
+secretEnv:
+  DATABASE_URL: ""
+  JWT_SECRET: ""
+  API_KEYS: ""
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    path: /metrics
+    port: metrics
+
+# Network policies
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      - namespaceSelector:
+          matchLabels:
+            name: monitoring
+      ports:
+      - protocol: TCP
+        port: 3000
+      - protocol: TCP
+        port: 9090
+  egress:
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 53
+      - protocol: UDP
+        port: 53
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 443
+      - protocol: TCP
+        port: 80
+
+# Volume mounts
+volumes:
+  - name: tmp
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
+
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+  - name: cache
+    mountPath: /app/.next/cache
+
+# Additional labels
+labels: {}
+
+# Additional annotations  
+annotations: {}
+
+# Namespace
+namespace:
+  create: true
+  name: azuria-prod
+  labels:
+    name: azuria-prod
+    environment: production
+    app: azuria

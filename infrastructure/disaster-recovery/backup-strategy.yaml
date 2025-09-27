@@ -1,0 +1,745 @@
+# Backup and Disaster Recovery Strategy
+# Comprehensive business continuity and data protection
+
+# Azure Backup Configuration (Bicep)
+param backupVaultName string = 'azuria-backup-vault'
+param recoveryServicesVaultName string = 'azuria-recovery-vault'
+
+// Recovery Services Vault for VM backups
+resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2023-08-01' = {
+  name: recoveryServicesVaultName
+  location: primaryLocation
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+  }
+  properties: {
+    publicNetworkAccess: 'Enabled'
+    redundancySettings: {
+      standardTierStorageRedundancy: 'GeoRedundant'
+      crossRegionRestore: 'Enabled'
+    }
+    securitySettings: {
+      immutabilitySettings: {
+        state: 'Enabled'
+      }
+    }
+  }
+}
+
+// Backup Vault for modern workloads
+resource backupVault 'Microsoft.DataProtection/backupVaults@2023-11-01' = {
+  name: backupVaultName
+  location: primaryLocation
+  properties: {
+    storageSettings: [
+      {
+        datastoreType: 'VaultStore'
+        type: 'GeoRedundant'
+      }
+    ]
+    securitySettings: {
+      softDeleteSettings: {
+        state: 'Enabled'
+        retentionDurationInDays: 30
+      }
+      immutabilitySettings: {
+        state: 'Enabled'
+      }
+    }
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
+
+// Backup Policy for AKS
+resource aksBackupPolicy 'Microsoft.DataProtection/backupVaults/backupPolicies@2023-11-01' = {
+  parent: backupVault
+  name: 'aks-backup-policy'
+  properties: {
+    policyRules: [
+      {
+        backupParameters: {
+          backupType: 'Incremental'
+          objectType: 'AzureBackupParams'
+        }
+        trigger: {
+          schedule: {
+            repeatingTimeIntervals: [
+              'R/2024-01-01T02:00:00+00:00/P1D' // Daily at 2 AM UTC
+            ]
+          }
+          taggingCriteria: [
+            {
+              tagInfo: {
+                tagName: 'Daily'
+                eTag: 'Daily'
+              }
+              criteria: [
+                {
+                  objectType: 'ScheduleBasedBackupCriteria'
+                  scheduleTimes: [
+                    '2024-01-01T02:00:00Z'
+                  ]
+                  daysOfTheWeek: []
+                  monthsOfYear: []
+                  weeksOfTheMonth: []
+                }
+              ]
+              isDefault: true
+            }
+            {
+              tagInfo: {
+                tagName: 'Weekly'
+                eTag: 'Weekly'
+              }
+              criteria: [
+                {
+                  objectType: 'ScheduleBasedBackupCriteria'
+                  scheduleTimes: [
+                    '2024-01-01T02:00:00Z'
+                  ]
+                  daysOfTheWeek: [
+                    'Sunday'
+                  ]
+                  monthsOfYear: []
+                  weeksOfTheMonth: []
+                }
+              ]
+              isDefault: false
+            }
+          ]
+          objectType: 'ScheduleBasedTriggerContext'
+        }
+        dataStore: {
+          dataStoreType: 'VaultStore'
+          objectType: 'DataStoreInfoBase'
+        }
+        name: 'BackupRule'
+        objectType: 'AzureBackupRule'
+      }
+      {
+        lifecycles: [
+          {
+            deleteAfter: {
+              duration: 'P7D'
+              objectType: 'AbsoluteDeleteOption'
+            }
+            sourceDataStore: {
+              dataStoreType: 'VaultStore'
+              objectType: 'DataStoreInfoBase'
+            }
+            targetDataStoreCopySettings: []
+          }
+        ]
+        isDefault: true
+        name: 'Daily'
+        objectType: 'AzureRetentionRule'
+      }
+      {
+        lifecycles: [
+          {
+            deleteAfter: {
+              duration: 'P4W'
+              objectType: 'AbsoluteDeleteOption'
+            }
+            sourceDataStore: {
+              dataStoreType: 'VaultStore'
+              objectType: 'DataStoreInfoBase'
+            }
+            targetDataStoreCopySettings: []
+          }
+        ]
+        isDefault: false
+        name: 'Weekly'
+        objectType: 'AzureRetentionRule'
+      }
+    ]
+  }
+}
+
+// Storage Account Backup Policy
+resource storageBackupPolicy 'Microsoft.DataProtection/backupVaults/backupPolicies@2023-11-01' = {
+  parent: backupVault
+  name: 'storage-backup-policy'
+  properties: {
+    policyRules: [
+      {
+        backupParameters: {
+          backupType: 'Discrete'
+          objectType: 'AzureBackupParams'
+        }
+        trigger: {
+          schedule: {
+            repeatingTimeIntervals: [
+              'R/2024-01-01T06:00:00+00:00/PT4H' // Every 4 hours
+            ]
+          }
+          taggingCriteria: [
+            {
+              tagInfo: {
+                tagName: 'Hourly'
+                eTag: 'Hourly'
+              }
+              criteria: [
+                {
+                  objectType: 'ScheduleBasedBackupCriteria'
+                  scheduleTimes: [
+                    '2024-01-01T06:00:00Z'
+                  ]
+                  daysOfTheWeek: []
+                  monthsOfYear: []
+                  weeksOfTheMonth: []
+                }
+              ]
+              isDefault: true
+            }
+          ]
+          objectType: 'ScheduleBasedTriggerContext'
+        }
+        dataStore: {
+          dataStoreType: 'VaultStore'
+          objectType: 'DataStoreInfoBase'
+        }
+        name: 'BackupRule'
+        objectType: 'AzureBackupRule'
+      }
+      {
+        lifecycles: [
+          {
+            deleteAfter: {
+              duration: 'P3D'
+              objectType: 'AbsoluteDeleteOption'
+            }
+            sourceDataStore: {
+              dataStoreType: 'VaultStore'
+              objectType: 'DataStoreInfoBase'
+            }
+            targetDataStoreCopySettings: []
+          }
+        ]
+        isDefault: true
+        name: 'Hourly'
+        objectType: 'AzureRetentionRule'
+      }
+    ]
+  }
+}
+
+---
+# AWS Backup Configuration (Terraform)
+
+# Backup Vault
+resource "aws_backup_vault" "main" {
+  name        = "${local.name_prefix}-backup-vault"
+  kms_key_arn = aws_kms_key.backup.arn
+
+  tags = local.common_tags
+}
+
+resource "aws_backup_vault" "secondary" {
+  provider    = aws.secondary
+  name        = "${local.name_prefix}-backup-vault-secondary"
+  kms_key_arn = aws_kms_key.backup_secondary.arn
+
+  tags = local.common_tags
+}
+
+# KMS Keys for Backup Encryption
+resource "aws_kms_key" "backup" {
+  description             = "KMS key for backup encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = local.common_tags
+}
+
+resource "aws_kms_alias" "backup" {
+  name          = "alias/${local.name_prefix}-backup"
+  target_key_id = aws_kms_key.backup.key_id
+}
+
+resource "aws_kms_key" "backup_secondary" {
+  provider                = aws.secondary
+  description             = "KMS key for backup encryption - secondary region"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = local.common_tags
+}
+
+resource "aws_kms_alias" "backup_secondary" {
+  provider      = aws.secondary
+  name          = "alias/${local.name_prefix}-backup-secondary"
+  target_key_id = aws_kms_key.backup_secondary.key_id
+}
+
+# Backup Plan
+resource "aws_backup_plan" "main" {
+  name = "${local.name_prefix}-backup-plan"
+
+  # Daily backups
+  rule {
+    rule_name         = "daily_backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 2 ? * * *)" # Daily at 2 AM
+
+    lifecycle {
+      cold_storage_after = 30
+      delete_after       = 365
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.secondary.arn
+      
+      lifecycle {
+        cold_storage_after = 30
+        delete_after       = 365
+      }
+    }
+
+    recovery_point_tags = merge(local.common_tags, {
+      BackupType = "Daily"
+    })
+  }
+
+  # Weekly backups
+  rule {
+    rule_name         = "weekly_backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 3 ? * SUN *)" # Weekly on Sunday at 3 AM
+
+    lifecycle {
+      cold_storage_after = 7
+      delete_after       = 2555 # 7 years
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.secondary.arn
+      
+      lifecycle {
+        cold_storage_after = 7
+        delete_after       = 2555
+      }
+    }
+
+    recovery_point_tags = merge(local.common_tags, {
+      BackupType = "Weekly"
+    })
+  }
+
+  # Monthly backups
+  rule {
+    rule_name         = "monthly_backup"
+    target_vault_name = aws_backup_vault.main.name
+    schedule          = "cron(0 4 1 * ? *)" # Monthly on 1st day at 4 AM
+
+    lifecycle {
+      delete_after = 3650 # 10 years
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.secondary.arn
+      
+      lifecycle {
+        delete_after = 3650
+      }
+    }
+
+    recovery_point_tags = merge(local.common_tags, {
+      BackupType = "Monthly"
+    })
+  }
+
+  tags = local.common_tags
+}
+
+# Backup Selection
+resource "aws_backup_selection" "main" {
+  iam_role_arn = aws_iam_role.backup.arn
+  name         = "${local.name_prefix}-backup-selection"
+  plan_id      = aws_backup_plan.main.id
+
+  resources = [
+    "arn:aws:ec2:*:*:volume/*",
+    "arn:aws:rds:*:*:db:*",
+    "arn:aws:rds:*:*:cluster:*",
+    "arn:aws:dynamodb:*:*:table/*",
+    "arn:aws:efs:*:*:file-system/*"
+  ]
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "BackupEnabled"
+    value = "true"
+  }
+}
+
+# IAM Role for AWS Backup
+resource "aws_iam_role" "backup" {
+  name = "${local.name_prefix}-backup-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "backup.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = local.common_tags
+}
+
+resource "aws_iam_role_policy_attachment" "backup" {
+  role       = aws_iam_role.backup.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+}
+
+resource "aws_iam_role_policy_attachment" "backup_restores" {
+  role       = aws_iam_role.backup.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
+}
+
+---
+# Kubernetes Backup with Velero
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+  labels:
+    name: velero
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: velero
+  namespace: velero
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT-ID:role/velero-role
+---
+# Velero Backup Storage Location
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: aws-s3-backup
+  namespace: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: azuria-prod-velero-backups
+    prefix: velero
+  config:
+    region: us-east-1
+    s3ForcePathStyle: "false"
+---
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: aws-ebs
+  namespace: velero
+spec:
+  provider: aws
+  config:
+    region: us-east-1
+---
+# Backup Schedule - Daily
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM
+  template:
+    ttl: "720h0m0s" # 30 days
+    includedNamespaces:
+    - azuria-prod
+    - kube-system
+    - monitoring
+    includedResources:
+    - "*"
+    excludedResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+    - backups.velero.io
+    - restores.velero.io
+    - resticrepositories.velero.io
+    labelSelector:
+      matchLabels:
+        backup: "enabled"
+    snapshotVolumes: true
+    storageLocation: aws-s3-backup
+    volumeSnapshotLocations:
+    - aws-ebs
+---
+# Backup Schedule - Weekly
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: weekly-backup
+  namespace: velero
+spec:
+  schedule: "0 3 * * 0" # Weekly on Sunday at 3 AM
+  template:
+    ttl: "8760h0m0s" # 1 year
+    includedNamespaces:
+    - azuria-prod
+    - kube-system
+    - monitoring
+    includedResources:
+    - "*"
+    snapshotVolumes: true
+    storageLocation: aws-s3-backup
+    volumeSnapshotLocations:
+    - aws-ebs
+
+---
+# Database Backup Strategy
+
+# PostgreSQL Backup Script
+#!/bin/bash
+# database-backup.sh
+
+set -e
+
+# Configuration
+DB_HOST=${DB_HOST:-localhost}
+DB_PORT=${DB_PORT:-5432}
+DB_NAME=${DB_NAME:-azuria}
+DB_USER=${DB_USER:-postgres}
+BACKUP_DIR=${BACKUP_DIR:-/backups}
+S3_BUCKET=${S3_BUCKET:-azuria-db-backups}
+RETENTION_DAYS=${RETENTION_DAYS:-30}
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# Generate backup filename
+BACKUP_FILE="$BACKUP_DIR/azuria_$(date +%Y%m%d_%H%M%S).sql"
+
+# Create database backup
+echo "Creating database backup..."
+pg_dump -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
+  --verbose --clean --no-owner --no-privileges \
+  --format=custom > $BACKUP_FILE
+
+# Compress backup
+gzip $BACKUP_FILE
+BACKUP_FILE="$BACKUP_FILE.gz"
+
+# Upload to S3
+echo "Uploading backup to S3..."
+aws s3 cp $BACKUP_FILE s3://$S3_BUCKET/$(basename $BACKUP_FILE)
+
+# Verify backup integrity
+echo "Verifying backup integrity..."
+if gunzip -t $BACKUP_FILE; then
+  echo "Backup integrity verified successfully"
+else
+  echo "ERROR: Backup integrity check failed"
+  exit 1
+fi
+
+# Clean up local files older than retention period
+echo "Cleaning up old local backups..."
+find $BACKUP_DIR -name "*.sql.gz" -mtime +$RETENTION_DAYS -delete
+
+# Clean up old S3 files
+echo "Cleaning up old S3 backups..."
+aws s3 ls s3://$S3_BUCKET/ --recursive | \
+  awk '$1 <= "'$(date -d "-$RETENTION_DAYS days" "+%Y-%m-%d")'" {print $4}' | \
+  xargs -I {} aws s3 rm s3://$S3_BUCKET/{}
+
+echo "Backup completed successfully: $BACKUP_FILE"
+
+# Send notification
+curl -X POST "$WEBHOOK_URL" \
+  -H "Content-Type: application/json" \
+  -d "{\"message\": \"Database backup completed: $(basename $BACKUP_FILE)\"}"
+
+---
+# Disaster Recovery Runbook
+
+## Emergency Response Procedures
+
+### 1. Incident Detection and Classification
+
+**Severity Levels:**
+- **Critical (P0)**: Complete service outage, data loss
+- **High (P1)**: Major functionality impaired, performance degraded
+- **Medium (P2)**: Minor functionality affected, workarounds available
+- **Low (P3)**: Cosmetic issues, future improvements
+
+### 2. Immediate Response Actions
+
+**For P0/P1 Incidents:**
+1. Activate incident response team
+2. Create incident bridge/channel
+3. Assess impact and scope
+4. Implement immediate mitigation
+5. Communicate with stakeholders
+
+### 3. Recovery Procedures
+
+#### Application Recovery (Kubernetes)
+```bash
+# Check cluster status
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -n azuria-prod
+
+# Restore from Velero backup (latest)
+velero restore create --from-backup daily-backup-latest
+
+# Restore specific namespace
+velero restore create restore-azuria --from-backup daily-backup-20241201 \
+  --namespace-mappings azuria-prod:azuria-prod-restored
+
+# Monitor restore progress
+velero restore get
+velero restore describe restore-azuria
+```
+
+#### Database Recovery
+```bash
+# Restore PostgreSQL from backup
+pg_restore -h $NEW_DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
+  --verbose --clean --if-exists $BACKUP_FILE
+
+# Verify data integrity
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME \
+  -c "SELECT COUNT(*) FROM users; SELECT COUNT(*) FROM calculations;"
+```
+
+#### Infrastructure Recovery (AWS)
+```bash
+# Deploy infrastructure from Terraform
+cd infrastructure/aws
+terraform init
+terraform plan -var="environment=dr"
+terraform apply -auto-approve
+
+# Update DNS to point to DR environment
+aws route53 change-resource-record-sets \
+  --hosted-zone-id $ZONE_ID \
+  --change-batch file://dns-failover.json
+```
+
+### 4. Testing and Validation
+
+**Monthly DR Test Checklist:**
+- [ ] Backup integrity verification
+- [ ] Application restore test
+- [ ] Database restore test
+- [ ] Network connectivity test
+- [ ] SSL certificate validation
+- [ ] Performance baseline check
+- [ ] User authentication test
+- [ ] Data consistency validation
+
+### 5. Communication Plan
+
+**Stakeholder Notification Matrix:**
+- CEO: P0 incidents within 15 minutes
+- CTO: P0/P1 incidents within 5 minutes
+- Engineering Team: All incidents immediately
+- Support Team: P0/P1/P2 incidents within 10 minutes
+- Users: P0 incidents via status page within 30 minutes
+
+### 6. Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO)
+
+**Production Environment:**
+- RTO: 4 hours maximum
+- RPO: 1 hour maximum
+
+**Critical Systems:**
+- Database: RTO 2 hours, RPO 15 minutes
+- Application: RTO 1 hour, RPO 5 minutes
+- Static Assets: RTO 30 minutes, RPO 1 hour
+
+### 7. Post-Incident Review
+
+**Required Actions:**
+1. Document timeline of events
+2. Identify root cause
+3. List contributing factors
+4. Create action items for prevention
+5. Update runbooks and procedures
+6. Schedule follow-up review meeting
+
+---
+# Automated Disaster Recovery Scripts
+
+#!/bin/bash
+# disaster-recovery.sh - Automated DR orchestration
+
+DR_ENVIRONMENT=${1:-"dr"}
+BACKUP_DATE=${2:-$(date -d "yesterday" +%Y%m%d)}
+
+echo "Starting disaster recovery for environment: $DR_ENVIRONMENT"
+echo "Using backup date: $BACKUP_DATE"
+
+# 1. Deploy DR infrastructure
+echo "Deploying DR infrastructure..."
+cd infrastructure/aws
+terraform workspace select $DR_ENVIRONMENT || terraform workspace new $DR_ENVIRONMENT
+terraform apply -auto-approve -var="environment=$DR_ENVIRONMENT"
+
+# 2. Restore database
+echo "Restoring database..."
+BACKUP_FILE="s3://azuria-db-backups/azuria_${BACKUP_DATE}_*.sql.gz"
+aws s3 cp $BACKUP_FILE /tmp/
+gunzip /tmp/*.sql.gz
+pg_restore -h $DR_DB_HOST -d azuria /tmp/*.sql
+
+# 3. Deploy application
+echo "Deploying application..."
+kubectl config use-context $DR_CLUSTER
+helm upgrade --install azuria ./infrastructure/kubernetes/helm \
+  --namespace azuria-prod --create-namespace \
+  --values ./infrastructure/kubernetes/helm/values-dr.yaml
+
+# 4. Restore Kubernetes resources
+echo "Restoring Kubernetes resources..."
+velero restore create dr-restore-$BACKUP_DATE \
+  --from-backup weekly-backup-$BACKUP_DATE
+
+# 5. Update DNS
+echo "Updating DNS for failover..."
+aws route53 change-resource-record-sets \
+  --hosted-zone-id $ZONE_ID \
+  --change-batch '{
+    "Changes": [{
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "azuria.com",
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": "'$DR_ALB_DNS'",
+          "EvaluateTargetHealth": false,
+          "HostedZoneId": "'$DR_ALB_ZONE_ID'"
+        }
+      }
+    }]
+  }'
+
+# 6. Validate deployment
+echo "Validating DR deployment..."
+curl -f https://azuria.com/health || exit 1
+curl -f https://azuria.com/api/health || exit 1
+
+echo "Disaster recovery completed successfully!"
+echo "DR environment is now serving traffic."
+
+# 7. Send notifications
+curl -X POST "$SLACK_WEBHOOK" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "🚨 Disaster Recovery activated for Azuria. Environment: '$DR_ENVIRONMENT'"}'

@@ -1,0 +1,352 @@
+# Kubernetes Manifests for Azuria Application
+# Production-ready deployment with monitoring, security, and scalability
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: azuria-prod
+  labels:
+    name: azuria-prod
+    environment: production
+    app: azuria
+---
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azuria-app
+  namespace: azuria-prod
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT-ID:role/azuria-prod-pod-role
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: azuria-config
+  namespace: azuria-prod
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  METRICS_ENABLED: "true"
+  HEALTH_CHECK_PATH: "/health"
+  READINESS_CHECK_PATH: "/ready"
+---
+# Secret for sensitive configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azuria-secrets
+  namespace: azuria-prod
+type: Opaque
+data:
+  # Base64 encoded secrets - replace with actual values
+  database-url: ""
+  jwt-secret: ""
+  api-keys: ""
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azuria-app
+  namespace: azuria-prod
+  labels:
+    app: azuria
+    component: web
+    environment: production
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: azuria
+      component: web
+  template:
+    metadata:
+      labels:
+        app: azuria
+        component: web
+        environment: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: azuria-app
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+      - name: azuria-web
+        image: azuria/app:latest  # Replace with actual image
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: azuria-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: azuria-config
+              key: PORT
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: azuria-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: azuria-secrets
+              key: jwt-secret
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/.next/cache
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - azuria
+              topologyKey: kubernetes.io/hostname
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: azuria-app-service
+  namespace: azuria-prod
+  labels:
+    app: azuria
+    component: web
+spec:
+  selector:
+    app: azuria
+    component: web
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  type: ClusterIP
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: azuria-app-hpa
+  namespace: azuria-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: azuria-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: azuria-app-ingress
+  namespace: azuria-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://azuria.com"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  tls:
+  - hosts:
+    - azuria.com
+    - www.azuria.com
+    secretName: azuria-tls-cert
+  rules:
+  - host: azuria.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: azuria-app-service
+            port:
+              number: 80
+  - host: www.azuria.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: azuria-app-service
+            port:
+              number: 80
+---
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: azuria-app-netpol
+  namespace: azuria-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: azuria
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: azuria-app-pdb
+  namespace: azuria-prod
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: azuria
+      component: web
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: azuria-app-metrics
+  namespace: azuria-prod
+  labels:
+    app: azuria
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: azuria
+      component: web
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s

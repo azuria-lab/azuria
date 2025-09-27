@@ -1,0 +1,19 @@
+# Helm Chart for Azuria Application
+# Production-ready Kubernetes deployment with advanced configuration
+
+# Chart.yaml
+apiVersion: v2
+name: azuria
+description: A Helm chart for Azuria application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Azuria Team
+    email: team@azuria.com
+keywords:
+  - calculator
+  - web-app
+  - saas
+home: https://azuria.com
+sources:
+  - https://github.com/azuria-lab/azuria
