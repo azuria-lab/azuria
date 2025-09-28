@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +27,7 @@ import {
 import { AutomationWorkflowBuilder } from './AutomationWorkflowBuilder';
 import { AutomationAnalytics } from './AutomationAnalytics';
 
-// Novos componentes que vamos criar
+// Imports normais (lazy loading requer export default)
 import { VisualWorkflowDesigner } from './visual/VisualWorkflowDesigner';
 import { EnterpriseTemplateLibrary } from './templates/EnterpriseTemplateLibrary';
 import { ApprovalSystemManager } from './approvals/ApprovalSystemManager';
@@ -38,13 +38,13 @@ interface EnterpriseAutomationCenterProps {
   userId?: string;
 }
 
-export default function EnterpriseAutomationCenter({ userId: _userId }: EnterpriseAutomationCenterProps) {
+const EnterpriseAutomationCenter = React.memo<Readonly<EnterpriseAutomationCenterProps>>(({ userId: _userId }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
 
-  // Dados simulados para estatísticas
-  const stats = {
+  // Dados simulados para estatísticas (memoized para performance)
+  const stats = useMemo(() => ({
     totalAutomations: 47,
     activeWorkflows: 32,
     executionsToday: 156,
@@ -53,9 +53,9 @@ export default function EnterpriseAutomationCenter({ userId: _userId }: Enterpri
     roisGenerated: "R$ 45.200",
     pendingApprovals: 3,
     integrations: 12
-  };
+  }), []);
 
-  const containerVariants = {
+  const containerVariants = useMemo(() => ({
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -65,12 +65,12 @@ export default function EnterpriseAutomationCenter({ userId: _userId }: Enterpri
         staggerChildren: 0.1
       }
     }
-  };
+  }), []);
 
-  const itemVariants = {
+  const itemVariants = useMemo(() => ({
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
-  };
+  }), []);
 
   return (
     <motion.div
@@ -228,21 +228,31 @@ export default function EnterpriseAutomationCenter({ userId: _userId }: Enterpri
                       { name: "Alerta Margem Baixa", status: "success", time: "5 min atrás" },
                       { name: "Sync Shopee", status: "running", time: "Em execução" },
                       { name: "Relatório Semanal", status: "success", time: "1h atrás" }
-                    ].map((execution, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{execution.name}</p>
-                          <p className="text-sm text-gray-600">{execution.time}</p>
+                    ].map((execution, index) => {
+                      const getStatusVariant = (status: string) => {
+                        if (status === 'success') { return 'default'; }
+                        if (status === 'running') { return 'secondary'; }
+                        return 'destructive';
+                      };
+                      
+                      const getStatusLabel = (status: string) => {
+                        if (status === 'success') { return 'Sucesso'; }
+                        if (status === 'running') { return 'Executando'; }
+                        return 'Erro';
+                      };
+                      
+                      return (
+                        <div key={`execution-${execution.name}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium">{execution.name}</p>
+                            <p className="text-sm text-gray-600">{execution.time}</p>
+                          </div>
+                          <Badge variant={getStatusVariant(execution.status)}>
+                            {getStatusLabel(execution.status)}
+                          </Badge>
                         </div>
-                        <Badge 
-                          variant={execution.status === 'success' ? 'default' : 
-                                  execution.status === 'running' ? 'secondary' : 'destructive'}
-                        >
-                          {execution.status === 'success' ? 'Sucesso' : 
-                           execution.status === 'running' ? 'Executando' : 'Erro'}
-                        </Badge>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -266,7 +276,7 @@ export default function EnterpriseAutomationCenter({ userId: _userId }: Enterpri
                       { workflow: "Nova Regra de Desconto", requester: "Maria Santos", time: "4h atrás" },
                       { workflow: "Integração ERP", requester: "Pedro Costa", time: "1 dia atrás" }
                     ].slice(0, stats.pendingApprovals).map((approval, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div key={`approval-${approval.workflow}-${index}`} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                         <div>
                           <p className="font-medium">{approval.workflow}</p>
                           <p className="text-sm text-gray-600">Por {approval.requester} • {approval.time}</p>
@@ -314,4 +324,8 @@ export default function EnterpriseAutomationCenter({ userId: _userId }: Enterpri
       </motion.div>
     </motion.div>
   );
-}
+});
+
+EnterpriseAutomationCenter.displayName = 'EnterpriseAutomationCenter';
+
+export default EnterpriseAutomationCenter;

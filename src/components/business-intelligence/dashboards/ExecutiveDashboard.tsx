@@ -4,12 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Area, 
-  AreaChart, 
-  Bar, 
-  BarChart, 
-  CartesianGrid, 
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
   Cell, 
   Legend, 
   Line, 
@@ -71,7 +69,7 @@ interface AlertData {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
-export function ExecutiveDashboard({ period, userId }: ExecutiveDashboardProps) {
+export function ExecutiveDashboard({ period, userId }: Readonly<ExecutiveDashboardProps>) {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -197,7 +195,7 @@ export function ExecutiveDashboard({ period, userId }: ExecutiveDashboardProps) 
     setRefreshing(false);
   };
 
-  const getAlertIcon = (type: string, severity: string) => {
+  const getAlertIcon = (_type: string, _severity: string) => {
     return AlertTriangle;
   };
 
@@ -214,8 +212,8 @@ export function ExecutiveDashboard({ period, userId }: ExecutiveDashboardProps) 
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {[...Array(5)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Card key={`loading-skeleton-${i}`} className="animate-pulse">
               <CardHeader className="space-y-2">
                 <div className="h-4 bg-gray-200 rounded w-24"></div>
                 <div className="h-8 bg-gray-200 rounded w-32"></div>

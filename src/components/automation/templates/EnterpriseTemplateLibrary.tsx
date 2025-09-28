@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Bot, 
   Building2, 
@@ -39,7 +39,7 @@ interface AutomationTemplate {
     triggers: string[];
     actions: string[];
   };
-  template: any; // JSON do template
+  template: Record<string, unknown>; // JSON do template
   isPremium: boolean;
   createdBy: string;
   createdAt: string;
@@ -223,7 +223,7 @@ export function EnterpriseTemplateLibrary() {
 
   const handleUseTemplate = (template: AutomationTemplate) => {
     // Implementar lógica para usar o template
-    console.log('Using template:', template.name);
+    // Using template: ${template.name}
   };
 
   const handlePreviewTemplate = (template: AutomationTemplate) => {
@@ -524,7 +524,7 @@ export function EnterpriseTemplateLibrary() {
                       <span className="font-medium">Gatilhos:</span>
                       <ul className="mt-1 space-y-1">
                         {selectedTemplate.preview.triggers.map((trigger, i) => (
-                          <li key={i} className="text-gray-600 text-xs">• {trigger}</li>
+                          <li key={`trigger-${i}-${trigger}`} className="text-gray-600 text-xs">• {trigger}</li>
                         ))}
                       </ul>
                     </div>
@@ -532,7 +532,7 @@ export function EnterpriseTemplateLibrary() {
                       <span className="font-medium">Ações:</span>
                       <ul className="mt-1 space-y-1">
                         {selectedTemplate.preview.actions.map((action, i) => (
-                          <li key={i} className="text-gray-600 text-xs">• {action}</li>
+                          <li key={`action-${i}-${action}`} className="text-gray-600 text-xs">• {action}</li>
                         ))}
                       </ul>
                     </div>

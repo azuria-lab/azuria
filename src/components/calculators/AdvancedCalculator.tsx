@@ -103,8 +103,7 @@ const AdvancedCalculator: React.FC<AdvancedCalculatorProps> = (_props) => {
       paymentFee: paymentEnabled ? numberOrZero(paymentFee) : 0,
       logisticsFee: logisticsEnabled ? numberOrZero(logisticsFee) : 0,
       advertisingFee: adsEnabled ? numberOrZero(advertisingFee) : 0,
-      otherFees: othersEnabled ? numberOrZero(otherFees) : 0,
-      otherCost: numberOrZero(otherCost)
+      otherFees: othersEnabled ? numberOrZero(otherFees) : 0
     });
 
     if (calc) { setTab("resumo"); }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useApplicationInsights } from '@/hooks/useApplicationInsights';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -86,10 +87,16 @@ interface BusinessIntelligenceDashboardProps {
   userId?: string;
 }
 
-export default function BusinessIntelligenceDashboard({ userId }: BusinessIntelligenceDashboardProps) {
+export default function BusinessIntelligenceDashboard({ userId }: Readonly<BusinessIntelligenceDashboardProps>) {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [refreshing, setRefreshing] = useState(false);
+  const { trackUserInteraction } = useApplicationInsights();
+
+  // Track dashboard usage on mount
+  useEffect(() => {
+    trackUserInteraction('dashboard_view', 'BusinessIntelligenceDashboard', { userId });
+  }, [trackUserInteraction, userId]);
 
   // Mock data para demonstração
   const dashboards: BIDashboard[] = [
@@ -179,17 +186,18 @@ export default function BusinessIntelligenceDashboard({ userId }: BusinessIntell
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    trackUserInteraction('dashboard_refresh', 'BusinessIntelligenceDashboard', { userId, period: selectedPeriod });
     // Simular refresh
     await new Promise(resolve => setTimeout(resolve, 2000));
     setRefreshing(false);
   };
 
-  const handleExport = (format: 'pdf' | 'excel' | 'csv') => {
+  const handleExport = (_format: 'pdf' | 'excel' | 'csv') => {
+    trackUserInteraction('dashboard_export', 'BusinessIntelligenceDashboard', { format: _format, userId });
     // Implementar lógica de exportação
-    console.log(`Exporting dashboard as ${format}`);
   };
 
-  const getPeriodLabel = (period: string) => {
+  const _getPeriodLabel = (period: string) => {
     switch (period) {
       case '7d': return 'Últimos 7 dias';
       case '30d': return 'Últimos 30 dias';
