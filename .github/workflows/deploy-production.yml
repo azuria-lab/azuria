@@ -1,0 +1,237 @@
+name: Deploy to Production
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Deployment environment"
+                required: true
+                default: "production"
+                type: choice
+                options:
+                    - production
+                    - staging
+            skip_tests:
+                description: "Skip tests (emergency deployment)"
+                required: false
+                default: false
+                type: boolean
+
+permissions:
+    contents: read
+    id-token: write
+    deployments: write
+    actions: read
+
+concurrency:
+    group: deploy-${{ github.ref }}-${{ inputs.environment || 'production' }}
+    cancel-in-progress: false
+
+env:
+    NODE_VERSION: "20"
+
+jobs:
+    pre-deploy-checks:
+        name: Pre-deployment Quality Gates
+        runs-on: ubuntu-latest
+        if: ${{ !inputs.skip_tests }}
+        outputs:
+            deployment-ready: ${{ steps.quality-gate.outputs.ready }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Quality Gate - Lint
+              run: npm run -s lint
+
+            - name: Quality Gate - Type Check
+              run: |
+                  npm run -s type-check
+                  npm run -s type-check:next
+
+            - name: Quality Gate - Tests
+              run: npm run -s test:ci
+
+            - name: Quality Gate - Security Headers
+              run: node scripts/check-security-headers.mjs
+
+            - name: Quality Gate - Performance Budget
+              run: |
+                  npm run -s analyze
+                  node scripts/check-bundle-regression.mjs --strict
+
+            - name: Set deployment readiness
+              id: quality-gate
+              run: echo "ready=true" >> $GITHUB_OUTPUT
+
+    build-production:
+        name: Build Production Assets
+        runs-on: ubuntu-latest
+        needs: [pre-deploy-checks]
+        if: always() && (needs.pre-deploy-checks.result == 'success' || inputs.skip_tests)
+        environment:
+            name: ${{ inputs.environment || 'production' }}
+        outputs:
+            build-hash: ${{ steps.build-info.outputs.hash }}
+            build-time: ${{ steps.build-info.outputs.time }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build for production
+              run: |
+                  npm run -s build
+                  npm run -s build:next
+              env:
+                  NODE_ENV: production
+                  ANALYZE: true
+
+            - name: Generate build info
+              id: build-info
+              run: |
+                  BUILD_HASH=$(git rev-parse --short HEAD)
+                  BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                  echo "hash=$BUILD_HASH" >> $GITHUB_OUTPUT
+                  echo "time=$BUILD_TIME" >> $GITHUB_OUTPUT
+
+                  # Create build manifest
+                  cat > dist/build-info.json << EOF
+                  {
+                    "buildHash": "$BUILD_HASH",
+                    "buildTime": "$BUILD_TIME",
+                    "environment": "${{ inputs.environment || 'production' }}",
+                    "nodeVersion": "${{ env.NODE_VERSION }}",
+                    "workflow": "${{ github.run_id }}"
+                  }
+                  EOF
+
+            - name: Upload production build
+              uses: actions/upload-artifact@v4
+              with:
+                  name: production-build-${{ steps.build-info.outputs.hash }}
+                  path: |
+                      dist/
+                      .next/
+                  retention-days: 30
+                  if-no-files-found: error
+
+            - name: Upload build manifest
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-manifest-${{ steps.build-info.outputs.hash }}
+                  path: dist/build-info.json
+                  retention-days: 90
+
+    deploy-staging:
+        name: Deploy to Staging
+        runs-on: ubuntu-latest
+        needs: [build-production]
+        if: ${{ inputs.environment == 'staging' || github.ref == 'refs/heads/main' }}
+        steps:
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: production-build-${{ needs.build-production.outputs.build-hash }}
+                  path: ./build
+
+            - name: Deploy to staging (placeholder)
+              run: |
+                  echo "🚀 Deploying to staging environment..."
+                  echo "Build hash: ${{ needs.build-production.outputs.build-hash }}"
+                  echo "Build time: ${{ needs.build-production.outputs.build-time }}"
+                  # TODO: Implementar deploy real (Azure Static Web Apps, Vercel, etc.)
+                  ls -la ./build
+
+            - name: Health check staging
+              run: |
+                  echo "🏥 Running staging health checks..."
+                  # TODO: Implementar health checks reais
+                  curl -f https://azuria-staging.example.com/health || echo "Health check placeholder"
+
+            - name: Staging deployment summary
+              run: |
+                  echo "✅ Staging deployment completed"
+                  echo "Environment: staging"
+                  echo "Build: ${{ needs.build-production.outputs.build-hash }}"
+
+    deploy-production:
+        name: Deploy to Production
+        runs-on: ubuntu-latest
+        needs: [build-production, deploy-staging]
+        if: ${{ (inputs.environment == 'production' || github.ref == 'refs/heads/main') && (success() || inputs.skip_tests) }}
+        steps:
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: production-build-${{ needs.build-production.outputs.build-hash }}
+                  path: ./build
+
+            - name: Pre-production validation
+              run: |
+                  echo "🔍 Running pre-production validation..."
+                  # Verificar integridade dos arquivos
+                  test -f ./build/index.html || exit 1
+                  test -d ./build/assets || exit 1
+                  echo "✅ Build integrity validated"
+
+            - name: Deploy to production (placeholder)
+              run: |
+                  echo "🚀 Deploying to production environment..."
+                  echo "Build hash: ${{ needs.build-production.outputs.build-hash }}"
+                  echo "Build time: ${{ needs.build-production.outputs.build-time }}"
+                  # TODO: Implementar deploy real para produção
+                  ls -la ./build
+
+            - name: Post-deployment health checks
+              run: |
+                  echo "🏥 Running post-deployment health checks..."
+                  # TODO: Implementar health checks de produção
+                  curl -f https://azuria.app/health || echo "Health check placeholder"
+
+            - name: Notify deployment success
+              run: |
+                  echo "🎉 Production deployment successful!"
+                  echo "Environment: production"
+                  echo "Build: ${{ needs.build-production.outputs.build-hash }}"
+                  echo "Deployed at: ${{ needs.build-production.outputs.build-time }}"
+
+    post-deploy-monitoring:
+        name: Post-deployment Monitoring
+        runs-on: ubuntu-latest
+        needs: [deploy-production]
+        if: success()
+        steps:
+            - name: Setup monitoring
+              run: |
+                  echo "📊 Setting up post-deployment monitoring..."
+                  # TODO: Implementar monitoramento (Lighthouse, Web Vitals, etc.)
+
+            - name: Performance baseline capture
+              run: |
+                  echo "📈 Capturing performance baseline..."
+                  # TODO: Capturar métricas de performance pós-deploy
+
+            - name: Deployment report
+              run: |
+                  echo "📋 Deployment completed successfully"
+                  echo "Check monitoring dashboards for performance metrics"

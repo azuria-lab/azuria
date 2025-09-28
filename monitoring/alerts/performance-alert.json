@@ -1,0 +1,31 @@
+{
+  "name": "azuria-performance-alert",
+  "description": "Alert when Azuria app response time exceeds 2 seconds",
+  "severity": 3,
+  "enabled": true,
+  "scopes": [
+    "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "evaluationFrequency": "PT5M",
+  "windowSize": "PT15M",
+  "criteria": {
+    "allOf": [
+      {
+        "threshold": 2000,
+        "name": "ResponseTimeMetric",
+        "metricNamespace": "Microsoft.Insights/components",
+        "metricName": "requests/duration",
+        "operator": "GreaterThan",
+        "timeAggregation": "Average",
+        "criterionType": "StaticThresholdCriterion"
+      }
+    ],
+    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+  },
+  "autoMitigate": true,
+  "actions": [
+    {
+      "actionGroupId": "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/microsoft.insights/actionGroups/azuria-alerts"
+    }
+  ]
+}

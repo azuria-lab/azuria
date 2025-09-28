@@ -1,0 +1,253 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# ⚡ Azuria - Performance & Core Web Vitals Workbook\n\nAnálise detalhada de performance, Core Web Vitals e experiência do usuário.\n\n---"
+      },
+      "name": "text - title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "timeRange",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Período de Análise",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 86400000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000,
+                  "displayName": "Últimos 5 minutos"
+                },
+                {
+                  "durationMs": 1800000,
+                  "displayName": "Últimos 30 minutos"
+                },
+                {
+                  "durationMs": 3600000,
+                  "displayName": "Última hora"
+                },
+                {
+                  "durationMs": 14400000,
+                  "displayName": "Últimas 4 horas"
+                },
+                {
+                  "durationMs": 43200000,
+                  "displayName": "Últimas 12 horas"
+                },
+                {
+                  "durationMs": 86400000,
+                  "displayName": "Últimas 24 horas"
+                },
+                {
+                  "durationMs": 172800000,
+                  "displayName": "Últimos 2 dias"
+                },
+                {
+                  "durationMs": 604800000,
+                  "displayName": "Última semana"
+                }
+              ]
+            }
+          }
+        ],
+        "style": "pills"
+      },
+      "name": "parameters - time range"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## ⚡ Core Web Vitals - Status Geral"
+      },
+      "name": "text - core web vitals header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"web_vitals\"\n| extend \n    metric = tostring(customDimensions.name),\n    value = todouble(customDimensions.value)\n| where metric in (\"LCP\", \"FID\", \"CLS\", \"TTFB\", \"FCP\")\n| summarize \n    AvgValue = round(avg(value), 2),\n    P95Value = round(percentile(value, 95), 2),\n    Count = count()\nby metric\n| extend \n    Status = case(\n        metric == \"LCP\" and AvgValue <= 2500, \"✅ Bom\",\n        metric == \"LCP\" and AvgValue <= 4000, \"⚠️ Precisa Melhorar\",\n        metric == \"LCP\", \"❌ Ruim\",\n        metric == \"FID\" and AvgValue <= 100, \"✅ Bom\", \n        metric == \"FID\" and AvgValue <= 300, \"⚠️ Precisa Melhorar\",\n        metric == \"FID\", \"❌ Ruim\",\n        metric == \"CLS\" and AvgValue <= 0.1, \"✅ Bom\",\n        metric == \"CLS\" and AvgValue <= 0.25, \"⚠️ Precisa Melhorar\", \n        metric == \"CLS\", \"❌ Ruim\",\n        \"📊 Medindo\"\n    )\n| project Métrica = metric, ['Valor Médio'] = AvgValue, ['P95'] = P95Value, ['Amostras'] = Count, Status",
+        "size": 0,
+        "title": "📊 Core Web Vitals - Resumo",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - core web vitals summary"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 LCP - Largest Contentful Paint"
+      },
+      "name": "text - lcp header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"LCP\"\n| extend \n    value = todouble(customDimensions.value),\n    page = tostring(customDimensions.page)\n| summarize AvgLCP = round(avg(value), 0) by bin(timestamp, 1h)\n| order by timestamp desc\n| extend Status = case(\n    AvgLCP <= 2500, \"Bom\",\n    AvgLCP <= 4000, \"Precisa Melhorar\",\n    \"Ruim\"\n)",
+        "size": 0,
+        "title": "⏱️ LCP ao Longo do Tempo (meta: < 2.5s)",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "timechart"
+      },
+      "name": "query - lcp trends"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"LCP\"\n| extend \n    value = todouble(customDimensions.value),\n    page = tostring(customDimensions.page)\n| where isnotempty(page)\n| summarize \n    AvgLCP = round(avg(value), 0),\n    P95LCP = round(percentile(value, 95), 0),\n    Samples = count()\nby page\n| extend Status = case(\n    AvgLCP <= 2500, \"✅ Bom\",\n    AvgLCP <= 4000, \"⚠️ Melhorar\",\n    \"❌ Ruim\"\n)\n| order by AvgLCP desc\n| take 15",
+        "size": 0,
+        "title": "📄 LCP por Página (piores primeiro)",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - lcp by page"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🖱️ FID - First Input Delay"
+      },
+      "name": "text - fid header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"FID\"\n| extend value = todouble(customDimensions.value)\n| summarize AvgFID = round(avg(value), 2) by bin(timestamp, 1h)\n| order by timestamp desc",
+        "size": 0,
+        "title": "🖱️ FID - Interatividade (meta: < 100ms)",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "timechart"
+      },
+      "name": "query - fid trends"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📐 CLS - Cumulative Layout Shift"
+      },
+      "name": "text - cls header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"CLS\"\n| extend value = todouble(customDimensions.value)\n| summarize AvgCLS = round(avg(value), 3) by bin(timestamp, 1h)\n| order by timestamp desc",
+        "size": 0,
+        "title": "📐 CLS - Estabilidade Visual (meta: < 0.1)",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "timechart"
+      },
+      "name": "query - cls trends"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🚀 Performance das APIs"
+      },
+      "name": "text - api performance header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "requests\n| where url contains \"api\" or url contains \"supabase\"\n| extend apiType = case(\n    url contains \"supabase\", \"Supabase\",\n    url contains \"calculations\", \"Calculations API\",\n    url contains \"auth\", \"Auth API\",\n    \"Other API\"\n)\n| summarize \n    AvgLatency = round(avg(duration), 0),\n    P95Latency = round(percentile(duration, 95), 0),\n    RequestCount = count(),\n    SuccessRate = round((countif(success == true) * 100.0) / count(), 2),\n    ErrorCount = countif(success == false)\nby apiType\n| extend PerformanceGrade = case(\n    AvgLatency <= 500, \"A\",\n    AvgLatency <= 1000, \"B\", \n    AvgLatency <= 2000, \"C\",\n    AvgLatency <= 5000, \"D\",\n    \"F\"\n)\n| order by RequestCount desc",
+        "size": 0,
+        "title": "🔗 Performance e Confiabilidade das APIs",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - api performance"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📱 Performance por Dispositivo"
+      },
+      "name": "text - device performance header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "pageViews\n| extend deviceType = case(\n    client_Type == \"PC\", \"Desktop\",\n    client_Type == \"Phone\", \"Mobile\", \n    client_Type == \"Tablet\", \"Tablet\",\n    \"Other\"\n)\n| summarize \n    AvgLoadTime = round(avg(duration), 0),\n    P95LoadTime = round(percentile(duration, 95), 0),\n    PageViews = count(),\n    UniqueUsers = dcount(user_Id)\nby deviceType\n| extend PerformanceScore = case(\n    AvgLoadTime <= 2000, \"Excelente\",\n    AvgLoadTime <= 4000, \"Bom\",\n    AvgLoadTime <= 8000, \"Regular\",\n    \"Ruim\"\n)\n| order by PageViews desc",
+        "size": 0,
+        "title": "📱 Análise por Tipo de Dispositivo",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - device performance"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🔄 Breakdown de Timings"
+      },
+      "name": "text - timings header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "browserTimings\n| summarize \n    AvgNetworkTime = round(avg(networkDuration), 2),\n    AvgSendTime = round(avg(sendDuration), 2), \n    AvgReceiveTime = round(avg(receiveDuration), 2),\n    AvgProcessingTime = round(avg(processingDuration), 2),\n    TotalSamples = count()\n| extend TotalTime = AvgNetworkTime + AvgSendTime + AvgReceiveTime + AvgProcessingTime\n| project \n    ['Tempo de Rede'] = AvgNetworkTime,\n    ['Tempo de Envio'] = AvgSendTime,\n    ['Tempo de Recebimento'] = AvgReceiveTime,\n    ['Tempo de Processamento'] = AvgProcessingTime,\n    ['Tempo Total'] = TotalTime,\n    ['Amostras'] = TotalSamples",
+        "size": 0,
+        "title": "⏱️ Análise Detalhada dos Tempos",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - timing breakdown"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/cdb292f9-b4c2-4513-ae78-de6238161d25/resourceGroups/Azuria-Resources/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

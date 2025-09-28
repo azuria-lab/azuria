@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import ErrorBoundary from './components/layout/ErrorBoundary.tsx';
 import { initWebVitals } from '@/utils/webvitals';
+import { initCoreWebVitals } from '@/lib/core-web-vitals';
 import './index.css';
 // import { SecurityHeaders } from '@/utils/securityHeaders';
 // Note: legacy reporter and optimizer are loaded lazily to avoid pulling web-vitals into main bundle
@@ -55,6 +56,8 @@ const initializeApp = () => {
   // New modular web vitals (skip during DEV to lighten startup)
     if (import.meta.env.PROD) {
       initWebVitals();
+      // Initialize Core Web Vitals monitoring
+      initCoreWebVitals();
     }
     // Legacy reporter (opt-in via localStorage flag)
     try {

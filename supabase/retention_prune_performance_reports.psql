@@ -1,0 +1,4 @@
+-- Same as .sql version, alternative extension for Postgres-specific tooling
+-- sql-lint-disable
+DELETE FROM public.performance_reports
+WHERE received_at < now() - INTERVAL '90 day';

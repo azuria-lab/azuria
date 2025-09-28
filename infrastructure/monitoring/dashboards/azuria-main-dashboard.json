@@ -1,0 +1,326 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# 📊 Azuria - Dashboard de Monitoramento Principal\n\nEste dashboard fornece uma visão abrangente da performance e saúde da aplicação Azuria em produção.\n\n---"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "b859a03f-2283-4ca0-8d69-8f2b7c47d7c1",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Período de Tempo",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 3600000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                }
+              ]
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🚀 Core Web Vitals - Performance Metrics"
+      },
+      "name": "text - 2"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where timestamp {TimeRange:query}\n| where name startswith \"CoreWebVitals.\"\n| summarize \n    avg_value = avg(value),\n    p95_value = percentile(value, 95),\n    count_measurements = count()\n    by name, bin(timestamp, 5m)\n| render timechart with (title=\"Core Web Vitals - Tendências de Performance\")",
+        "size": 0,
+        "title": "Core Web Vitals Timeline",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where timestamp {TimeRange:query}\n| where name startswith \"CoreWebVitals.\"\n| summarize \n    current_avg = avg(value),\n    rating_good = countif(tostring(customDimensions.rating) == \"good\"),\n    rating_needs_improvement = countif(tostring(customDimensions.rating) == \"needsImprovement\"),\n    rating_poor = countif(tostring(customDimensions.rating) == \"poor\")\n    by metric = name\n| extend \n    good_percentage = rating_good * 100.0 / (rating_good + rating_needs_improvement + rating_poor),\n    needs_improvement_percentage = rating_needs_improvement * 100.0 / (rating_good + rating_needs_improvement + rating_poor),\n    poor_percentage = rating_poor * 100.0 / (rating_good + rating_needs_improvement + rating_poor)\n| project metric, current_avg, good_percentage, needs_improvement_percentage, poor_percentage",
+        "size": 0,
+        "title": "Core Web Vitals - Distribuição de Ratings",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "current_avg",
+              "formatter": 0,
+              "numberFormat": {
+                "unit": 23,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "good_percentage",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": ">=",
+                    "thresholdValue": "75",
+                    "representation": "green"
+                  },
+                  {
+                    "operator": ">=",
+                    "thresholdValue": "50",
+                    "representation": "yellow"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "red"
+                  }
+                ]
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "customWidth": "50",
+      "name": "query - 4"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📈 Application Performance"
+      },
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "requests\n| where timestamp {TimeRange:query}\n| summarize \n    request_count = count(),\n    avg_duration = avg(duration),\n    p95_duration = percentile(duration, 95),\n    success_rate = avg(case(success == true, 100.0, 0.0))\n    by bin(timestamp, 5m)\n| render timechart with (title=\"Requests - Volume e Performance\")",
+        "size": 0,
+        "title": "Request Performance",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "dependencies\n| where timestamp {TimeRange:query}\n| summarize \n    dependency_count = count(),\n    avg_duration = avg(duration),\n    success_rate = avg(case(success == true, 100.0, 0.0))\n    by target, bin(timestamp, 5m)\n| render timechart with (title=\"Dependencies - Performance por Target\")",
+        "size": 0,
+        "title": "Dependency Performance",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🔍 Error Analysis"
+      },
+      "name": "text - 8"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "exceptions\n| where timestamp {TimeRange:query}\n| summarize error_count = count() by bin(timestamp, 5m), type\n| render timechart with (title=\"Errors ao Longo do Tempo\")",
+        "size": 0,
+        "title": "Error Timeline",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "exceptions\n| where timestamp {TimeRange:query}\n| summarize error_count = count() by type, method, outerMessage\n| top 10 by error_count desc\n| project [\"Error Type\"] = type, [\"Method\"] = method, [\"Message\"] = outerMessage, [\"Count\"] = error_count",
+        "size": 0,
+        "title": "Top Errors",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "customWidth": "50",
+      "name": "query - 10"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 👥 User Analytics"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "pageViews\n| where timestamp {TimeRange:query}\n| summarize \n    unique_users = dcount(user_Id),\n    page_views = count(),\n    avg_duration = avg(duration)\n    by bin(timestamp, 5m)\n| render timechart with (title=\"Usuários Ativos e Page Views\")",
+        "size": 0,
+        "title": "User Activity",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 12"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "pageViews\n| where timestamp {TimeRange:query}\n| summarize page_views = count() by name\n| top 10 by page_views desc\n| render piechart with (title=\"Páginas Mais Visitadas\")",
+        "size": 0,
+        "title": "Top Pages",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 13"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 Business Metrics"
+      },
+      "name": "text - 14"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where timestamp {TimeRange:query}\n| where name == \"calculation_completed\"\n| summarize calculation_count = count() by bin(timestamp, 5m)\n| render timechart with (title=\"Cálculos Completados por Minuto\")",
+        "size": 0,
+        "title": "Calculations Timeline",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 15"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where timestamp {TimeRange:query}\n| where name in (\"marketplace_view\", \"profile_update\", \"settings_change\")\n| summarize event_count = count() by name, bin(timestamp, 5m)\n| render timechart with (title=\"Eventos de Negócio\")",
+        "size": 0,
+        "title": "Business Events",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "customWidth": "50",
+      "name": "query - 16"
+    }
+  ],
+  "isLocked": false,
+  "fallbackResourceIds": [
+    "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/microsoft.insights/components/{app-insights-name}"
+  ]
+}

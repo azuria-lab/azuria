@@ -1,0 +1,149 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# 🏗️ Azuria - Dashboard de Infrastructure\n\nMonitoramento de recursos Azure, custos, e performance de infraestrutura.\n\n---"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## ☁️ Static Web Apps Performance"
+      },
+      "name": "text - 1"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "requests\n| where timestamp >= ago(1h)\n| where url contains \"azurestaticapps.net\"\n| summarize \n    request_count = count(),\n    avg_duration = avg(duration),\n    success_rate = avg(case(success == true, 100.0, 0.0)),\n    unique_users = dcount(user_Id)\n    by bin(timestamp, 5m)\n| render timechart with (title=\"Static Web App - Performance Metrics\")",
+        "size": 0,
+        "title": "SWA Performance",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 2"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 💰 Cost Analysis"
+      },
+      "name": "text - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Resource Usage Tracking\ncustomMetrics\n| where timestamp >= ago(24h)\n| where name in (\"requests_count\", \"data_transfer_mb\", \"storage_usage_mb\")\n| summarize \n    total_requests = sumif(value, name == \"requests_count\"),\n    data_transfer_gb = sumif(value, name == \"data_transfer_mb\") / 1024,\n    storage_usage_gb = sumif(value, name == \"storage_usage_mb\") / 1024\n    by bin(timestamp, 1h)\n| extend \n    estimated_cost_usd = (total_requests * 0.0001) + (data_transfer_gb * 0.087) + (storage_usage_gb * 0.0208)\n| project timestamp, total_requests, data_transfer_gb, storage_usage_gb, estimated_cost_usd\n| render timechart with (title=\"Usage Metrics & Estimated Costs\")",
+        "size": 0,
+        "title": "Cost Tracking",
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 4"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🌐 CDN & Network Performance"
+      },
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "dependencies\n| where timestamp >= ago(1h)\n| where type == \"Http\"\n| summarize \n    dependency_count = count(),\n    avg_duration = avg(duration),\n    success_rate = avg(case(success == true, 100.0, 0.0))\n    by target, bin(timestamp, 5m)\n| render timechart with (title=\"External Dependencies Performance\")",
+        "size": 0,
+        "title": "Network Dependencies",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 6"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📊 Database Performance (Supabase)"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "dependencies\n| where timestamp >= ago(1h)\n| where target contains \"supabase\"\n| summarize \n    query_count = count(),\n    avg_duration = avg(duration),\n    p95_duration = percentile(duration, 95),\n    success_rate = avg(case(success == true, 100.0, 0.0))\n    by bin(timestamp, 5m)\n| render timechart with (title=\"Supabase Database Performance\")",
+        "size": 0,
+        "title": "Database Performance",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 8"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🔧 Infrastructure Health"
+      },
+      "name": "text - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Infrastructure Health Score\nlet app_availability = requests\n| where timestamp >= ago(1h)\n| summarize availability = (countif(success == true) * 100.0) / count();\nlet database_availability = dependencies\n| where timestamp >= ago(1h) and target contains \"supabase\"\n| summarize db_availability = (countif(success == true) * 100.0) / count();\nlet cdn_performance = dependencies\n| where timestamp >= ago(1h) and type == \"Http\"\n| summarize cdn_avg_response = avg(duration);\nunion \n    (app_availability | extend component = \"Static Web App\", metric = \"Availability %\", value = availability, status = case(availability > 99.9, \"🟢 Excellent\", availability > 99, \"🟡 Good\", \"🔴 Poor\")),\n    (database_availability | extend component = \"Supabase DB\", metric = \"Availability %\", value = db_availability, status = case(db_availability > 99.5, \"🟢 Excellent\", db_availability > 95, \"🟡 Good\", \"🔴 Poor\")),\n    (cdn_performance | extend component = \"CDN/Network\", metric = \"Avg Response (ms)\", value = cdn_avg_response, status = case(cdn_avg_response < 500, \"🟢 Fast\", cdn_avg_response < 1500, \"🟡 Acceptable\", \"🔴 Slow\"))\n| project component, metric, value, status\n| where isnotnull(value)",
+        "size": 0,
+        "title": "Infrastructure Health Status",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "query - 10"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🚀 Deployment Tracking"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where timestamp >= ago(7d)\n| where name == \"deployment_completed\"\n| summarize deployment_count = count() by bin(timestamp, 1d)\n| render columnchart with (title=\"Deployments per Day - Last 7 Days\")",
+        "size": 0,
+        "title": "Deployment Frequency",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 12"
+    }
+  ],
+  "isLocked": false,
+  "fallbackResourceIds": [
+    "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/microsoft.insights/components/{app-insights-name}"
+  ]
+}

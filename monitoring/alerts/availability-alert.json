@@ -1,0 +1,31 @@
+{
+  "name": "azuria-availability-alert",
+  "description": "Alert when Azuria app availability drops below 99%",
+  "severity": 2,
+  "enabled": true,
+  "scopes": [
+    "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "evaluationFrequency": "PT5M",
+  "windowSize": "PT15M",
+  "criteria": {
+    "allOf": [
+      {
+        "threshold": 99,
+        "name": "AvailabilityMetric",
+        "metricNamespace": "Microsoft.Insights/components",
+        "metricName": "availabilityResults/availabilityPercentage",
+        "operator": "LessThan",
+        "timeAggregation": "Average",
+        "criterionType": "StaticThresholdCriterion"
+      }
+    ],
+    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+  },
+  "autoMitigate": true,
+  "actions": [
+    {
+      "actionGroupId": "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/microsoft.insights/actionGroups/azuria-alerts"
+    }
+  ]
+}

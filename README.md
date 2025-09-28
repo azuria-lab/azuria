@@ -1,17 +1,12 @@
 
 # 📊 Azuria - Plataforma Inteligente de Precificação
 
-<div align="center">
-  <img src="https://img.shields.io/badge/React-18.3.1-blue.svg" alt="React">
-  <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Vite-5.0-purple.svg" alt="Vite">
-  <img src="https://img.shields.io/badge/Supabase-2.49-green.svg" alt="Supabase">
-  <img src="https://img.shields.io/badge/PWA-Ready-orange.svg" alt="PWA">
-</div>
-
 ## 🚀 Visão Geral
 
 O **Azuria** é uma plataforma SaaS avançada de precificação desenvolvida especificamente para lojistas e empreendedores brasileiros. Combina cálculos inteligentes de preço de venda, análise de concorrência em tempo real e insights baseados em IA para maximizar a lucratividade dos negócios.
+
+🌐 **Produção**: [https://azuria.app.br](https://azuria.app.br)  
+⚡ **Status**: [https://blue-tree-0b17b720f.2.azurestaticapps.net](https://blue-tree-0b17b720f.2.azurestaticapps.net)
 
 ### ✨ Principais Funcionalidades
 
@@ -24,42 +19,62 @@ O **Azuria** é uma plataforma SaaS avançada de precificação desenvolvida esp
 - 👥 **Colaboração**: Sistema de equipes com aprovações e comentários
 - 📈 **Relatórios**: Exportação avançada e relatórios automatizados
 
+## 📈 Stack Tecnológico
+
+<div align="center">
+  <img src="https://img.shields.io/badge/React-18.3.1-blue.svg" alt="React">
+  <img src="https://img.shields.io/badge/Next.js-15.0-black.svg" alt="Next.js">
+  <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Azure-Static_Web_Apps-blue.svg" alt="Azure">
+  <img src="https://img.shields.io/badge/Supabase-2.49-green.svg" alt="Supabase">
+  <img src="https://img.shields.io/badge/PWA-Ready-orange.svg" alt="PWA">
+</div>
+
 ## 🏗️ Arquitetura Técnica
 
 ### Stack Tecnológico Principal
 
-```typescript
-Frontend:
+```yaml
+Frontend Framework:
+├── Next.js 15.0 (App Router, Server Components, Static Generation)
 ├── React 18.3.1 (Hooks, Suspense, Concurrent Features)
-├── TypeScript 5.0 (Strict Mode)
-├── Vite 5.0 (Build Tool + Dev Server)
+├── TypeScript 5.0 (Strict Mode, Path Mapping)
 ├── Tailwind CSS 3.0 (Utility-First Styling)
-└── Framer Motion (Animations)
+└── Framer Motion (Animations & Transitions)
 
-Backend & Services:
+Cloud Infrastructure (Azure):
+├── Azure Static Web Apps (Hosting & CI/CD)
+├── Azure Application Insights (Monitoring & Analytics)
+├── Azure Key Vault (Secrets Management)
+├── Azure Log Analytics (Centralized Logging)
+└── Azure CDN (Global Content Delivery)
+
+Backend & Database:
 ├── Supabase (Database, Auth, Storage, Edge Functions)
-├── PostgreSQL (Primary Database)
-├── Row Level Security (RLS)
-└── Real-time Subscriptions
+├── PostgreSQL (Primary Database with RLS)
+├── Real-time Subscriptions (Live Updates)
+└── Edge Functions (Serverless API)
 
 UI & Components:
-├── Shadcn/UI (Component Library)
-├── Radix UI (Primitive Components)
+├── Shadcn/UI (Modern Component Library)
+├── Radix UI (Accessible Primitives)
 ├── Lucide React (Icon System)
 ├── Recharts (Data Visualization)
 └── Sonner (Toast Notifications)
 
-State Management:
-├── React Query v5 (Server State)
+State Management & Data:
+├── React Query v5 (Server State & Caching)
 ├── React Context (Global State)
-├── React Hook Form (Form State)
-└── Zustand (Client State - when needed)
+├── React Hook Form (Form State Management)
+└── Zustand (Client State when needed)
 
-Development Tools:
-├── ESLint + Prettier (Code Quality)
-├── Vitest (Unit Testing)
-├── TypeScript (Type Safety)
-└── Git Hooks (Pre-commit validation)
+Development & Quality:
+├── ESLint + Prettier (Code Quality & Formatting)
+├── Vitest (Unit Testing Framework)
+├── GitHub Actions (CI/CD Pipeline)
+├── TypeScript (Type Safety & IntelliSense)
+├── Commitlint (Conventional Commits)
+└── Husky (Git Hooks & Pre-commit Validation)
 ```
 
 ### Estrutura de Diretórios
@@ -94,8 +109,8 @@ src/
 
 ### Pré-requisitos
 
-- Node.js 18+ 
-- npm ou yarn
+- Node.js 18+
+- npm ou yarn  
 - Conta Supabase (para backend)
 - Git
 
@@ -103,7 +118,7 @@ src/
 
 ```bash
 # Clone o repositório
-git clone <YOUR_GIT_URL>
+git clone https://github.com/azuria-lab/azuria.git
 cd azuria
 
 # Instale as dependências
@@ -115,32 +130,45 @@ cp .env.example .env.local
 # Configure o Supabase (ver seção Configuração)
 npm run setup:supabase
 
-# Inicie o servidor de desenvolvimento
+# Inicie o servidor de desenvolvimento (Vite)
 npm run dev
+
+# OU inicie o servidor Next.js
+npm run dev:next
 ```
 
 ### Configuração do Ambiente
 
 1. **Supabase Setup**:
+
    ```bash
    # Crie um projeto no Supabase Dashboard
    # Copie as credenciais para .env.local
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
    ```
 
-2. **Variáveis de Ambiente**:
+2. **Variáveis de Ambiente (.env.local)**:
+
    ```env
-   # Supabase
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
+   # Supabase Configuration
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
    
-   # Analytics (opcional)
-   VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+   # Azure Application Insights (Produção)
+   APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=your-key;...
    
-   # API Keys (para funcionalidades PRO)
-   VITE_OPENAI_API_KEY=your-openai-key
-   VITE_MARKETPLACE_API_KEY=your-marketplace-key
+   # Analytics & Monitoring
+   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+   
+   # API Keys (Funcionalidades PRO)
+   OPENAI_API_KEY=your-openai-key
+   MARKETPLACE_API_KEY=your-marketplace-key
+   
+   # Environment
+   NODE_ENV=development
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
 ## 🧪 Desenvolvimento
@@ -148,13 +176,27 @@ npm run dev
 ### Scripts Disponíveis
 
 ```bash
-npm run dev          # Servidor de desenvolvimento
-npm run build        # Build para produção
-npm run preview      # Preview do build local
-npm run test         # Executar testes
-npm run test:ui      # Interface visual dos testes
-npm run lint         # Verificar código
-npm run type-check   # Verificar tipos TypeScript
+# Desenvolvimento
+npm run dev              # Servidor Vite (http://localhost:8080)
+npm run dev:next         # Servidor Next.js (http://localhost:3000)
+
+# Build & Deploy
+npm run build            # Build Vite para desenvolvimento
+npm run build:next       # Build Next.js para produção
+npm run preview          # Preview do build Vite
+npm run start            # Start do build Next.js
+
+# Qualidade de Código
+npm run test             # Executar testes com Vitest
+npm run test:ui          # Interface visual dos testes
+npm run lint             # Verificar código com ESLint
+npm run lint:fix         # Corrigir erros do ESLint
+npm run type-check       # Verificar tipos TypeScript
+npm run type-check:next  # Verificar tipos Next.js
+
+# Análise & Performance
+npm run analyze          # Análise do bundle size
+npm run lighthouse       # Auditoria Lighthouse local
 ```
 
 ### Padrões de Desenvolvimento
@@ -229,8 +271,11 @@ export const useCustomFeature = (config: Config) => {
 ### Build Local
 
 ```bash
-# Build otimizado para produção
+# Build Vite (desenvolvimento)
 npm run build
+
+# Build Next.js (produção)
+npm run build:next
 
 # Análise do bundle
 npm run analyze
@@ -239,24 +284,46 @@ npm run analyze
 npm run preview
 ```
 
-### Deploy Automático (Lovable)
+### 🌐 Deploy Automático (Azure Static Web Apps)
 
-O projeto está configurado para deploy automático via Lovable:
+O projeto está configurado para deploy automático via **Azure Static Web Apps**:
 
-1. **Push para main**: Deploy automático em staging
-2. **Publish**: Deploy em produção via dashboard Lovable
-3. **Custom Domain**: Configurável nas configurações do projeto
+#### **Infraestrutura Azure**
+- **Static Web App**: `swa-jxbkuxsj7yfpo` (Standard Tier)
+- **Application Insights**: Monitoramento e métricas
+- **Key Vault**: Gerenciamento seguro de secrets
+- **Custom Domain**: `azuria.app.br` (configurado)
 
-### Deploy Manual
+#### **Pipeline CI/CD**
+1. **Push para feature branch**: Deploy automático em staging
+2. **Merge para main**: Deploy automático em produção
+3. **Pull Request**: Deploy preview automático
+4. **Rollback**: Versões anteriores disponíveis no Azure Portal
+
+#### **URLs de Deploy**
+- **Produção**: [https://azuria.app.br](https://azuria.app.br)
+- **Azure Default**: [https://blue-tree-0b17b720f.2.azurestaticapps.net](https://blue-tree-0b17b720f.2.azurestaticapps.net)
+- **PR Previews**: `https://blue-tree-0b17b720f-[branch].2.azurestaticapps.net`
+
+### 🔧 Deploy Manual (Alternativo)
 
 ```bash
-# Build para produção
-npm run build
+# Build para produção Next.js
+npm run build:next
 
-# Deploy em serviços estáticos
-# Vercel, Netlify, GitHub Pages, etc.
-# Arquivos ficam em ./dist
+# Deploy em outros serviços
+# Vercel, Netlify, etc.
+# Arquivos ficam em ./.next
 ```
+
+### 📊 Monitoramento de Deploy
+
+O projeto inclui monitoramento completo via **Azure Application Insights**:
+
+- **Build Status**: GitHub Actions status
+- **Performance**: Core Web Vitals automáticos
+- **Errors**: Tracking de erros em produção
+- **Analytics**: Métricas de uso e conversão
 
 ## 📊 Funcionalidades Principais
 
@@ -436,16 +503,80 @@ chore: tarefas de manutenção
 - [ ] **Multi-idioma**: Suporte internacional
 - [ ] **White Label**: Solução customizável para parceiros
 
-### 📊 Métricas do Projeto
+## ☁️ Infraestrutura Azure
 
-- **+50 Componentes** reutilizáveis
-- **+30 Custom Hooks** especializados
-- **+20 Páginas** funcionais
-- **+15 Integrações** externas
-- **PWA Score 100%** no Lighthouse
-- **Type Safety 100%** com TypeScript
+### 🏗️ Recursos Deployados
+
+| Recurso | Nome | Tipo | Status |
+|---------|------|------|--------|
+| **Static Web App** | `swa-jxbkuxsj7yfpo` | Standard | ✅ Ativo |
+| **Application Insights** | `ai-jxbkuxsj7yfpo` | Standard | ✅ Ativo |  
+| **Log Analytics** | `log-jxbkuxsj7yfpo` | Standard | ✅ Ativo |
+| **Key Vault** | `kvjxbkuxsj7yfpo` | Standard | ✅ Ativo |
+| **Resource Group** | `Azuria-Resources` | East US 2 | ✅ Ativo |
+
+### 🚀 Deployment Pipeline
+
+```mermaid
+graph LR
+    A[Push Code] --> B[GitHub Actions]
+    B --> C[Build Next.js]
+    C --> D[Deploy to Azure SWA]
+    D --> E[Application Insights]
+    E --> F[Live on azuria.app.br]
+```
+
+### 📊 Monitoramento & Observabilidade
+
+- **Application Insights**: Métricas em tempo real, errors tracking
+- **Log Analytics**: Logs centralizados e queries KQL
+- **Azure Monitor**: Alertas e dashboards customizados
+- **GitHub Actions**: Status de builds e deploys
+
+### 🔐 Segurança & Compliance
+
+- **Azure Key Vault**: Armazenamento seguro de secrets
+- **Managed Identity**: Autenticação sem passwords
+- **HTTPS**: SSL/TLS automático via Azure
+- **RBAC**: Controle de acesso baseado em roles
+
+### 📊 Status do Projeto
+
+| Métrica | Valor | Status |
+|---------|-------|--------|
+| **Componentes** | +50 reutilizáveis | ✅ |
+| **Custom Hooks** | +30 especializados | ✅ |
+| **Páginas** | +20 funcionais | ✅ |
+| **Integrações** | +15 externas | ✅ |
+| **PWA Score** | 100% Lighthouse | ✅ |
+| **Type Safety** | 100% TypeScript | ✅ |
+| **Azure Infrastructure** | Produção | ✅ |
+| **CI/CD Pipeline** | GitHub Actions | ✅ |
+| **Monitoramento** | Application Insights | ✅ |
+| **Custom Domain** | azuria.app.br | 🔄 |
+
+### 🌐 Links Importantes
+
+- **🚀 Aplicação**: [azuria.app.br](https://azuria.app.br)
+- **📊 Monitoramento**: Azure Application Insights
+- **🔧 CI/CD**: GitHub Actions
+- **📖 Documentação**: [/docs](./docs/)
+- **🐛 Issues**: [GitHub Issues](https://github.com/azuria-lab/azuria/issues)
+
+### 🏆 Conquistas Técnicas
+
+- ✅ **Migração Vite → Next.js** completa
+- ✅ **Infraestrutura Azure** enterprise-grade
+- ✅ **CI/CD Pipeline** totalmente automatizado
+- ✅ **TypeScript** sem erros críticos
+- ✅ **PWA** com funcionalidades offline
+- ✅ **Monitoramento** em tempo real
+- ✅ **Segurança** com Azure Key Vault
+- ✅ **Performance** otimizada para produção
 
 ---
 
 **Desenvolvido com ❤️ para empreendedores brasileiros**  
 *Azuria - Maximizando sua lucratividade com inteligência*
+
+**Infraestrutura**: Azure Static Web Apps | **Monitoramento**: Application Insights | **Domain**: azuria.app.br

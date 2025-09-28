@@ -1,0 +1,19 @@
+[
+  {
+    "timestamp": "2025-09-25T22:57:59.714Z",
+    "build": {
+      "totalTime": 73.806,
+      "status": "success"
+    },
+    "bundle": {
+      "distSize": 42942782,
+      "fileCount": 1493,
+      "nextSize": 1038381835,
+      "totalSize": 1081324617
+    },
+    "tests": {
+      "status": "failed",
+      "error": "Tests failed with code 1"
+    }
+  }
+]

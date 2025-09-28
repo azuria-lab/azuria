@@ -1,0 +1,31 @@
+{
+  "name": "azuria-error-rate-alert",
+  "description": "Alert when error rate exceeds 5% in Azuria app",
+  "severity": 2,
+  "enabled": true,
+  "scopes": [
+    "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "evaluationFrequency": "PT5M",
+  "windowSize": "PT15M",
+  "criteria": {
+    "allOf": [
+      {
+        "threshold": 5,
+        "name": "ErrorRateMetric",
+        "metricNamespace": "Microsoft.Insights/components",
+        "metricName": "requests/failed",
+        "operator": "GreaterThan",
+        "timeAggregation": "Average",
+        "criterionType": "StaticThresholdCriterion"
+      }
+    ],
+    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+  },
+  "autoMitigate": true,
+  "actions": [
+    {
+      "actionGroupId": "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/microsoft.insights/actionGroups/azuria-alerts"
+    }
+  ]
+}

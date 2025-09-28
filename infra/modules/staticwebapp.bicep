@@ -10,6 +10,9 @@ param environmentName string
 @description('The managed identity resource ID')
 param managedIdentityId string
 
+@description('Custom domain name for the Static Web App')
+param customDomain string = 'azuria.app.br'
+
 // Static Web App resource
 resource staticWebApp 'Microsoft.Web/staticSites@2023-01-01' = {
   name: staticWebAppName
@@ -54,8 +57,23 @@ resource staticWebAppSettings 'Microsoft.Web/staticSites/config@2023-01-01' = {
 @description('The Static Web App resource name')
 output staticWebAppName string = staticWebApp.name
 
+// Custom Domain Configuration
+resource customDomainResource 'Microsoft.Web/staticSites/customDomains@2023-01-01' = {
+  parent: staticWebApp
+  name: customDomain
+  properties: {
+    validationMethod: 'cname-delegation'
+  }
+}
+
 @description('The Static Web App default hostname')
 output staticWebAppUrl string = 'https://${staticWebApp.properties.defaultHostname}'
 
+@description('The Static Web App custom domain URL')
+output customDomainUrl string = 'https://${customDomain}'
+
 @description('The Static Web App resource ID')
 output staticWebAppId string = staticWebApp.id
+
+@description('Custom domain validation token')
+output domainValidationToken string = staticWebApp.properties.customDomains[0].validationToken

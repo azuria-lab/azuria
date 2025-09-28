@@ -1,0 +1,31 @@
+{
+  "name": "azuria-traffic-spike-alert",
+  "description": "Alert when traffic exceeds normal patterns in Azuria app",
+  "severity": 4,
+  "enabled": true,
+  "scopes": [
+    "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "evaluationFrequency": "PT5M",
+  "windowSize": "PT15M",
+  "criteria": {
+    "allOf": [
+      {
+        "threshold": 1000,
+        "name": "TrafficSpikeMetric",
+        "metricNamespace": "Microsoft.Insights/components",
+        "metricName": "requests/count",
+        "operator": "GreaterThan",
+        "timeAggregation": "Total",
+        "criterionType": "StaticThresholdCriterion"
+      }
+    ],
+    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+  },
+  "autoMitigate": true,
+  "actions": [
+    {
+      "actionGroupId": "/subscriptions/{subscription-id}/resourceGroups/rg-azuria-prod/providers/microsoft.insights/actionGroups/azuria-alerts"
+    }
+  ]
+}

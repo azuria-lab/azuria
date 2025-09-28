@@ -1,0 +1,106 @@
+{
+  "version": "1.0",
+  "description": "Performance budgets for Azuria project - optimized for calculator applications",
+  
+  "global": {
+    "total-size": 1000,
+    "script-size": 350,
+    "stylesheet-size": 80,
+    "image-size": 400,
+    "font-size": 120,
+    
+    "first-contentful-paint": 1800,
+    "largest-contentful-paint": 2500,
+    "first-input-delay": 100,
+    "interaction-to-next-paint": 200,
+    "total-blocking-time": 300,
+    "cumulative-layout-shift": 0.1,
+    
+    "network-requests": 45,
+    "third-party-size": 200,
+    
+    "dom-size": 1500,
+    "memory-usage": 60,
+    "cpu-time": 4000
+  },
+  
+  "pages": {
+    "homepage": {
+      "total-size": 800,
+      "script-size": 250,
+      "stylesheet-size": 60,
+      "first-contentful-paint": 1500,
+      "largest-contentful-paint": 2000,
+      "total-blocking-time": 200,
+      "dom-size": 1200
+    },
+    
+    "calculator": {
+      "script-size": 450,
+      "first-contentful-paint": 1800,
+      "largest-contentful-paint": 2800,
+      "total-blocking-time": 400,
+      "interaction-to-next-paint": 150,
+      "dom-size": 1800,
+      "memory-usage": 80
+    },
+    
+    "dashboard": {
+      "total-size": 1200,
+      "script-size": 500,
+      "network-requests": 60,
+      "first-contentful-paint": 2200,
+      "largest-contentful-paint": 3200,
+      "total-blocking-time": 500,
+      "dom-size": 2500,
+      "memory-usage": 100
+    }
+  },
+  
+  "environments": {
+    "development": {
+      "multiplier": 1.5,
+      "description": "Relaxed budgets for development builds"
+    },
+    "staging": {
+      "multiplier": 1.2,
+      "description": "Slightly relaxed budgets for staging"
+    },
+    "production": {
+      "multiplier": 0.9,
+      "description": "Stricter budgets for production"
+    }
+  },
+  
+  "optimization_targets": {
+    "core_web_vitals": {
+      "lcp": {
+        "target": 2000,
+        "description": "Largest Contentful Paint under 2s"
+      },
+      "fid": {
+        "target": 50,
+        "description": "First Input Delay under 50ms"
+      },
+      "cls": {
+        "target": 0.05,
+        "description": "Cumulative Layout Shift under 0.05"
+      }
+    },
+    
+    "business_metrics": {
+      "bounce_rate": {
+        "target": 25,
+        "description": "Bounce rate under 25%"
+      },
+      "conversion_rate": {
+        "target": 5,
+        "description": "Conversion rate above 5%"
+      },
+      "user_engagement": {
+        "target": 120,
+        "description": "Average session duration above 2 minutes"
+      }
+    }
+  }
+}

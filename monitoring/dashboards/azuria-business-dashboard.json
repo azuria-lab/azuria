@@ -1,0 +1,328 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 12,
+              "rowSpan": 2
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "union \n(customEvents | where name == \"pricing_calculation\" | summarize Calculations = count()),\n(customEvents | where name == \"marketplace_analysis\" | summarize Analyses = count()),\n(customEvents | where name == \"user_signup\" | summarize Signups = count()),\n(customEvents | where name == \"subscription_upgrade\" | summarize Upgrades = count()),\n(pageViews | summarize PageViews = count()),\n(pageViews | summarize UniqueUsers = dcount(user_Id))\n| project Metric = case(\n    isnotnull(Calculations), \"💰 Cálculos de Preço\",\n    isnotnull(Analyses), \"📊 Análises de Marketplace\", \n    isnotnull(Signups), \"👤 Novos Cadastros\",\n    isnotnull(Upgrades), \"⭐ Upgrades Premium\",\n    isnotnull(PageViews), \"📄 Page Views\",\n    isnotnull(UniqueUsers), \"👥 Usuários Únicos\",\n    \"Other\"\n), Value = coalesce(Calculations, Analyses, Signups, Upgrades, PageViews, UniqueUsers)",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "📊 KPIs de Negócio - Resumo Executivo",
+                  "PartSubTitle": "Métricas principais das últimas 24h"
+                }
+              }
+            }
+          },
+          "1": {
+            "position": {
+              "x": 0,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"pricing_calculation\"\n| extend calculatorType = tostring(customDimensions.type)\n| summarize \n    UsageCount = count(),\n    UniqueUsers = dcount(user_Id)\nby calculatorType\n| order by UsageCount desc\n| render piechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Pie",
+                  "PartTitle": "💰 Calculadoras por Tipo",
+                  "PartSubTitle": "Distribuição de uso"
+                }
+              }
+            }
+          },
+          "2": {
+            "position": {
+              "x": 4,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"marketplace_analysis\"\n| extend marketplace = tostring(customDimensions.marketplace)\n| summarize \n    AnalysisCount = count(),\n    AvgProducts = avg(toint(customDimensions.products_analyzed))\nby marketplace\n| order by AnalysisCount desc\n| render barchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "StackedColumn",
+                  "PartTitle": "🛒 Marketplaces Analisados",
+                  "PartSubTitle": "Volume por plataforma"
+                }
+              }
+            }
+          },
+          "3": {
+            "position": {
+              "x": 8,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "union \n(pageViews | where name contains \"landing\" | summarize Visitors = dcount(user_Id) | extend Step = \"1. Visitantes\", Order = 1),\n(customEvents | where name == \"user_signup\" | summarize Signups = dcount(user_Id) | extend Step = \"2. Cadastro\", Order = 2),\n(customEvents | where name == \"feature_usage\" | summarize ActiveUsers = dcount(user_Id) | extend Step = \"3. Uso Ativo\", Order = 3),\n(customEvents | where name == \"subscription_upgrade\" | summarize Premium = dcount(user_Id) | extend Step = \"4. Premium\", Order = 4)\n| project Step, Count = coalesce(Visitors, Signups, ActiveUsers, Premium), Order\n| order by Order\n| render columnchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Column",
+                  "PartTitle": "🎯 Funil de Conversão",
+                  "PartSubTitle": "Jornada completa do usuário"
+                }
+              }
+            }
+          },
+          "4": {
+            "position": {
+              "x": 0,
+              "y": 6,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"pricing_calculation\"\n| extend \n    calculatorType = tostring(customDimensions.type),\n    cost = todouble(customDimensions.cost),\n    margin = todouble(customDimensions.margin)\n| where isnotnull(cost) and isnotnull(margin)\n| summarize \n    Calculations = count(),\n    AvgCost = avg(cost),\n    AvgMargin = avg(margin),\n    TotalRevenuePotential = sum(cost * (margin / 100))\nby calculatorType\n| order by TotalRevenuePotential desc",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "💼 Análise de Revenue por Calculadora",
+                  "PartSubTitle": "Potencial de receita por tipo"
+                }
+              }
+            }
+          },
+          "5": {
+            "position": {
+              "x": 6,
+              "y": 6,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"user_onboarding\"\n| extend \n    step = tostring(customDimensions.step),\n    completed = tobool(customDimensions.completed)\n| summarize \n    TotalAttempts = count(),\n    Completed = countif(completed == true),\n    CompletionRate = (countif(completed == true) * 100.0) / count()\nby step\n| order by step\n| render columnchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Column",
+                  "PartTitle": "📈 Taxa de Conclusão - Onboarding",
+                  "PartSubTitle": "Performance por etapa"
+                }
+              }
+            }
+          },
+          "6": {
+            "position": {
+              "x": 0,
+              "y": 10,
+              "colSpan": 8,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"feature_usage\"\n| extend feature = tostring(customDimensions.feature)\n| summarize \n    UsageCount = count(),\n    UniqueUsers = dcount(user_Id),\n    AvgUsagePerUser = toreal(count()) / dcount(user_Id)\nby feature\n| order by UsageCount desc\n| take 15",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🎯 Features Mais Utilizadas",
+                  "PartSubTitle": "Ranking de adoção por feature"
+                }
+              }
+            }
+          },
+          "7": {
+            "position": {
+              "x": 8,
+              "y": 10,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "pageViews\n| extend sessionDuration = duration / 1000.0\n| summarize \n    AvgSessionTime = avg(sessionDuration),\n    MedianSessionTime = percentile(sessionDuration, 50),\n    TotalSessions = dcount(session_Id),\n    BounceRate = (countif(sessionDuration < 30) * 100.0) / count()\n| project \n    AvgSessionTime = round(AvgSessionTime, 2),\n    MedianSessionTime = round(MedianSessionTime, 2),\n    TotalSessions,\n    BounceRate = round(BounceRate, 2)",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "⏱️ Engagement Metrics",
+                  "PartSubTitle": "Tempo de sessão e rejeição"
+                }
+              }
+            }
+          },
+          "8": {
+            "position": {
+              "x": 0,
+              "y": 14,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name in (\"pricing_calculation\", \"marketplace_analysis\", \"user_signup\", \"subscription_upgrade\")\n| summarize EventCount = count() by name, bin(timestamp, 1h)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "📊 Tendência de Eventos de Negócio",
+                  "PartSubTitle": "Evolução por hora (24h)"
+                }
+              }
+            }
+          },
+          "9": {
+            "position": {
+              "x": 6,
+              "y": 14,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "let cohortPeriod = 7d;\ncustomEvents\n| where name == \"user_signup\"\n| extend CohortWeek = startofweek(timestamp)\n| summarize CohortSize = dcount(user_Id) by CohortWeek\n| join kind=inner (\n    customEvents\n    | where name == \"feature_usage\"\n    | extend \n        CohortWeek = startofweek(timestamp),\n        WeeksAfterSignup = (timestamp - startofweek(timestamp)) / 1h / 24 / 7\n    | summarize ActiveUsers = dcount(user_Id) by CohortWeek, WeeksAfterSignup\n) on CohortWeek\n| extend RetentionRate = (ActiveUsers * 100.0) / CohortSize\n| project CohortWeek, WeeksAfterSignup, RetentionRate\n| order by CohortWeek, WeeksAfterSignup",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "👥 Análise de Cohort",
+                  "PartSubTitle": "Taxa de retenção por semana"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 168,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  },
+  "name": "Azuria - Business Intelligence Dashboard",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "eastus2",
+  "tags": {
+    "hidden-title": "Azuria - Business Intelligence Dashboard",
+    "project": "azuria",
+    "environment": "production",
+    "type": "business-dashboard"
+  }
+}

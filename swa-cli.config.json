@@ -1,0 +1,13 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "azuria": {
+      "appLocation": ".",
+      "outputLocation": ".next",
+      "appBuildCommand": "npm run build:next",
+      "run": "npm run dev",
+      "appDevserverUrl": "http://localhost:3100",
+      "apiLocation": "api"
+    }
+  }
+}

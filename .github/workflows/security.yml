@@ -1,0 +1,103 @@
+name: Security and Quality Checks
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main]
+
+permissions:
+    contents: read
+    security-events: write
+    actions: read
+
+jobs:
+    security-scan:
+        runs-on: ubuntu-latest
+        name: Security Scanning
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run ESLint security check
+              run: npm run lint
+
+            - name: Run npm audit
+              run: npm audit --audit-level high
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  languages: javascript
+
+            - name: Autobuild
+              uses: github/codeql-action/autobuild@v3
+
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v3
+
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: "fs"
+                  scan-ref: "."
+                  format: "sarif"
+                  output: "trivy-results.sarif"
+
+            - name: Upload Trivy scan results to GitHub Security tab
+              uses: github/codeql-action/upload-sarif@v3
+              if: always()
+              with:
+                  sarif_file: "trivy-results.sarif"
+
+    dependency-check:
+        runs-on: ubuntu-latest
+        name: Dependency Analysis
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Run Dependency Review
+              uses: actions/dependency-review-action@v4
+              with:
+                  fail-on-severity: high
+
+    license-check:
+        runs-on: ubuntu-latest
+        name: License Compliance
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Generate license report
+              run: npm run generate:licenses
+
+            - name: Generate SBOM
+              run: npm run sbom
+
+            - name: Upload SBOM artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: sbom-report
+                  path: sbom.json

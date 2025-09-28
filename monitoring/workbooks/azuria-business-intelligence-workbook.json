@@ -1,0 +1,247 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# 📊 Azuria - Business Intelligence Workbook\n\nAnálise completa das métricas de negócio, conversão e performance do Azuria.\n\n---"
+      },
+      "name": "text - title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "2c2e8e4b-6cd3-4c41-8c71-5c5b7c8b4b4c",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Período de Análise",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 2592000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          }
+        ],
+        "style": "pills"
+      },
+      "name": "parameters - time range"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 KPIs Principais"
+      },
+      "name": "text - kpis header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union \n(customEvents | where name == \"pricing_calculation\" | summarize Calculations = count()),\n(customEvents | where name == \"marketplace_analysis\" | summarize Analyses = count()),\n(customEvents | where name == \"user_signup\" | summarize Signups = count()),\n(customEvents | where name == \"subscription_upgrade\" | summarize Upgrades = count()),\n(pageViews | summarize PageViews = count()),\n(pageViews | summarize UniqueUsers = dcount(user_Id))\n| project Metric = case(\n    isnotnull(Calculations), \"💰 Cálculos de Preço\",\n    isnotnull(Analyses), \"📊 Análises de Marketplace\", \n    isnotnull(Signups), \"👤 Novos Cadastros\",\n    isnotnull(Upgrades), \"⭐ Upgrades Premium\",\n    isnotnull(PageViews), \"📄 Page Views\",\n    isnotnull(UniqueUsers), \"👥 Usuários Únicos\",\n    \"Other\"\n), Value = coalesce(Calculations, Analyses, Signups, Upgrades, PageViews, UniqueUsers)",
+        "size": 3,
+        "title": "📈 Resumo Executivo",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - executive summary"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 Funil de Conversão"
+      },
+      "name": "text - conversion funnel header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union \n(pageViews | where name contains \"landing\" | summarize Visitors = dcount(user_Id) | extend Step = \"1. Visitantes\", Order = 1),\n(customEvents | where name == \"user_signup\" | summarize Signups = dcount(user_Id) | extend Step = \"2. Cadastro\", Order = 2),\n(customEvents | where name == \"feature_usage\" | summarize ActiveUsers = dcount(user_Id) | extend Step = \"3. Uso Ativo\", Order = 3),\n(customEvents | where name == \"subscription_upgrade\" | summarize Premium = dcount(user_Id) | extend Step = \"4. Premium\", Order = 4)\n| project Step, Count = coalesce(Visitors, Signups, ActiveUsers, Premium), Order\n| order by Order\n| extend ConversionRate = case(\n    Order == 1, 100.0,\n    Order == 2, (Count * 100.0) / prev(Count),\n    Order == 3, (Count * 100.0) / prev(Count, 2),\n    Order == 4, (Count * 100.0) / prev(Count, 3),\n    0.0\n)",
+        "size": 0,
+        "title": "🎯 Funil de Conversão com Taxas",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "barchart"
+      },
+      "name": "query - conversion funnel"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 💰 Análise de Revenue"
+      },
+      "name": "text - revenue header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"pricing_calculation\"\n| extend \n    calculatorType = tostring(customDimensions.type),\n    cost = todouble(customDimensions.cost),\n    margin = todouble(customDimensions.margin),\n    potentialRevenue = todouble(customDimensions.cost) * (todouble(customDimensions.margin) / 100)\n| where isnotnull(cost) and isnotnull(margin)\n| summarize \n    TotalCalculations = count(),\n    UniqueUsers = dcount(user_Id),\n    AvgCost = round(avg(cost), 2),\n    AvgMargin = round(avg(margin), 2),\n    TotalRevenuePotential = round(sum(potentialRevenue), 2),\n    AvgRevenuePerCalculation = round(avg(potentialRevenue), 2)\nby calculatorType\n| order by TotalRevenuePotential desc",
+        "size": 0,
+        "title": "💼 Revenue Potential por Calculadora",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - revenue analysis"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🛒 Marketplace Analysis"
+      },
+      "name": "text - marketplace header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"marketplace_analysis\"\n| extend \n    marketplace = tostring(customDimensions.marketplace),\n    products = toint(customDimensions.products_analyzed)\n| summarize \n    TotalAnalyses = count(),\n    UniqueUsers = dcount(user_Id),\n    AvgProducts = round(avg(products), 0),\n    TotalProducts = sum(products)\nby marketplace\n| order by TotalAnalyses desc\n| extend MarketShare = round((TotalAnalyses * 100.0) / toscalar(customEvents | where name == \"marketplace_analysis\" | summarize count()), 2)",
+        "size": 0,
+        "title": "🛒 Performance por Marketplace",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "piechart"
+      },
+      "name": "query - marketplace analysis"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 👥 Análise de Cohort"
+      },
+      "name": "text - cohort header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let signups = customEvents\n    | where name == \"user_signup\"\n    | extend CohortWeek = startofweek(timestamp)\n    | summarize CohortSize = dcount(user_Id) by CohortWeek;\nlet activity = customEvents\n    | where name == \"feature_usage\"\n    | extend \n        SignupWeek = startofweek(timestamp),\n        WeeksAfterSignup = (timestamp - startofweek(timestamp)) / 7d\n    | summarize ActiveUsers = dcount(user_Id) by SignupWeek, WeeksAfterSignup;\nsignups\n| join kind=inner activity on $left.CohortWeek == $right.SignupWeek\n| extend RetentionRate = round((ActiveUsers * 100.0) / CohortSize, 2)\n| project CohortWeek, WeeksAfterSignup, RetentionRate, CohortSize, ActiveUsers\n| order by CohortWeek, WeeksAfterSignup",
+        "size": 0,
+        "title": "📈 Taxa de Retenção por Cohort",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "query - cohort analysis"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 Features Mais Utilizadas"
+      },
+      "name": "text - features header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents\n| where name == \"feature_usage\"\n| extend feature = tostring(customDimensions.feature)\n| summarize \n    UsageCount = count(),\n    UniqueUsers = dcount(user_Id),\n    AvgUsagePerUser = round(toreal(count()) / dcount(user_Id), 2)\nby feature\n| order by UsageCount desc\n| take 15\n| extend AdoptionRate = round((UniqueUsers * 100.0) / toscalar(pageViews | summarize dcount(user_Id)), 2)",
+        "size": 0,
+        "title": "🎯 Ranking de Adoção de Features",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - feature usage"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📊 Tendências de Crescimento"
+      },
+      "name": "text - growth header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union \n(pageViews | extend MetricType = \"Page Views\"),\n(customEvents | where name == \"user_signup\" | extend MetricType = \"Signups\"),\n(customEvents | where name == \"pricing_calculation\" | extend MetricType = \"Calculations\"),\n(customEvents | where name == \"subscription_upgrade\" | extend MetricType = \"Premium Upgrades\")\n| summarize Count = count() by MetricType, Day = bin(timestamp, 1d)\n| order by Day, MetricType\n| serialize\n| extend PreviousDayCount = prev(Count, 1)\n| extend GrowthRate = case(\n    PreviousDayCount > 0, round(((Count - PreviousDayCount) * 100.0) / PreviousDayCount, 2),\n    0.0\n)\n| project Day, MetricType, Count, GrowthRate",
+        "size": 0,
+        "title": "📈 Crescimento Diário de Métricas",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "timechart"
+      },
+      "name": "query - growth trends"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/cdb292f9-b4c2-4513-ae78-de6238161d25/resourceGroups/Azuria-Resources/providers/Microsoft.Insights/components/ai-jxbkuxsj7yfpo"
+  ],
+  "fromTemplateId": "sentinel-UserAndEntityBehaviorAnalyticsWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

@@ -54,6 +54,7 @@ import { AuthProvider } from "@/domains/auth";
 import { MultiTenantProvider } from "@/contexts/MultiTenantContext";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
+import { ApplicationInsightsProvider } from "../lib/ApplicationInsightsProvider";
 
 // Optimized query client
 const queryClient = new QueryClient({
@@ -82,11 +83,12 @@ const App = () => {
     <ErrorBoundary>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <ThemeProvider defaultTheme="light" storageKey="azuria-theme">
-              <AuthProvider>
-                <MultiTenantProvider>
-                  <AnalyticsProvider>
+          <ApplicationInsightsProvider>
+            <BrowserRouter>
+              <ThemeProvider defaultTheme="light" storageKey="azuria-theme">
+                <AuthProvider>
+                  <MultiTenantProvider>
+                    <AnalyticsProvider>
                     <Toaster />
                     <PrefetchOnIdle />
                   <Suspense fallback={<LoadingSpinner />}>
@@ -133,11 +135,12 @@ const App = () => {
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                     </Suspense>
-                  </AnalyticsProvider>
-                </MultiTenantProvider>
-              </AuthProvider>
-            </ThemeProvider>
-          </BrowserRouter>
+                    </AnalyticsProvider>
+                  </MultiTenantProvider>
+                </AuthProvider>
+              </ThemeProvider>
+            </BrowserRouter>
+          </ApplicationInsightsProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>

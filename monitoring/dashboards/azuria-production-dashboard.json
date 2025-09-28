@@ -1,0 +1,377 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 3,
+              "rowSpan": 2
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "requests\n| where timestamp > ago(1h)\n| summarize \n    ActiveSessions = dcount(user_Id),\n    TotalRequests = count(),\n    AvgResponseTime = avg(duration),\n    SuccessRate = (countif(success == true) * 100.0) / count()\n| project ActiveSessions, TotalRequests, AvgResponseTime, SuccessRate",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🚀 Azuria - Status Geral (Última Hora)",
+                  "PartSubTitle": "Métricas principais em tempo real"
+                }
+              }
+            }
+          },
+          "1": {
+            "position": {
+              "x": 3,
+              "y": 0,
+              "colSpan": 4,
+              "rowSpan": 2
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\"\n| extend \n    metric = tostring(customDimensions.name),\n    value = todouble(customDimensions.value)\n| where metric in (\"LCP\", \"FID\", \"CLS\")\n| summarize AvgValue = avg(value) by metric\n| render columnchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Column",
+                  "PartTitle": "⚡ Core Web Vitals",
+                  "PartSubTitle": "Performance essencial"
+                }
+              }
+            }
+          },
+          "2": {
+            "position": {
+              "x": 7,
+              "y": 0,
+              "colSpan": 5,
+              "rowSpan": 2
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "requests\n| where timestamp > ago(24h)\n| summarize RequestCount = count() by bin(timestamp, 1h)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "📊 Tráfego (24h)",
+                  "PartSubTitle": "Requisições por hora"
+                }
+              }
+            }
+          },
+          "3": {
+            "position": {
+              "x": 0,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"pricing_calculation\"\n| extend calculatorType = tostring(customDimensions.type)\n| summarize UsageCount = count() by calculatorType\n| order by UsageCount desc\n| render piechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Pie",
+                  "PartTitle": "💰 Calculadoras Mais Usadas",
+                  "PartSubTitle": "Business Intelligence"
+                }
+              }
+            }
+          },
+          "4": {
+            "position": {
+              "x": 4,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "pageViews\n| extend country = tostring(client_CountryOrRegion)\n| summarize Users = dcount(user_Id) by country\n| order by Users desc\n| take 10\n| render barchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "StackedColumn",
+                  "PartTitle": "🌍 Usuários por País",
+                  "PartSubTitle": "Top 10 países"
+                }
+              }
+            }
+          },
+          "5": {
+            "position": {
+              "x": 8,
+              "y": 2,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "pageViews\n| extend deviceType = case(\n    client_Type == \"PC\", \"Desktop\",\n    client_Type == \"Phone\", \"Mobile\",\n    client_Type == \"Tablet\", \"Tablet\",\n    \"Other\"\n)\n| summarize Sessions = dcount(session_Id) by deviceType\n| render piechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Pie",
+                  "PartTitle": "📱 Dispositivos",
+                  "PartSubTitle": "Distribuição por tipo"
+                }
+              }
+            }
+          },
+          "6": {
+            "position": {
+              "x": 0,
+              "y": 5,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "union \n(pageViews | where name contains \"landing\" | summarize Visitors = dcount(user_Id) | extend Step = \"1. Landing\"),\n(customEvents | where name == \"user_signup\" | summarize Signups = dcount(user_Id) | extend Step = \"2. Cadastro\"),\n(customEvents | where name == \"subscription_upgrade\" | summarize Premium = dcount(user_Id) | extend Step = \"3. Premium\")\n| project Step, Count = coalesce(Visitors, Signups, Premium)\n| order by Step\n| render columnchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Column",
+                  "PartTitle": "🎯 Funil de Conversão",
+                  "PartSubTitle": "Jornada do usuário"
+                }
+              }
+            }
+          },
+          "7": {
+            "position": {
+              "x": 6,
+              "y": 5,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "exceptions\n| where timestamp > ago(24h)\n| summarize ErrorCount = count() by bin(timestamp, 1h), type\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "🚨 Erros por Tipo (24h)",
+                  "PartSubTitle": "Monitoramento de falhas"
+                }
+              }
+            }
+          },
+          "8": {
+            "position": {
+              "x": 0,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"api_request\"\n| extend endpoint = tostring(customDimensions.endpoint)\n| extend duration = toint(customDimensions.duration)\n| summarize \n    AvgLatency = avg(duration),\n    RequestCount = count(),\n    SuccessRate = (countif(toint(customDimensions.success) == 1) * 100.0) / count()\nby endpoint\n| order by AvgLatency desc",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🔗 Performance APIs",
+                  "PartSubTitle": "Latência e taxa de sucesso"
+                }
+              }
+            }
+          },
+          "9": {
+            "position": {
+              "x": 4,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "pageViews\n| summarize \n    PageViews = count(),\n    UniqueUsers = dcount(user_Id),\n    AvgDuration = avg(duration),\n    BounceRate = (countif(duration < 5000) * 100.0) / count()\nby name\n| order by PageViews desc\n| take 10",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "📊 Top Páginas",
+                  "PartSubTitle": "Mais visitadas e engagement"
+                }
+              }
+            }
+          },
+          "10": {
+            "position": {
+              "x": 8,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"marketplace_analysis\"\n| extend marketplace = tostring(customDimensions.marketplace)\n| extend products = toint(customDimensions.products_analyzed)\n| summarize \n    AnalysisCount = count(),\n    AvgProducts = avg(products),\n    TotalProducts = sum(products)\nby marketplace\n| order by AnalysisCount desc",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🛒 Análises de Marketplace",
+                  "PartSubTitle": "Business Intelligence"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 24,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        },
+        "filterLocale": {
+          "value": "pt-br"
+        },
+        "filters": {
+          "value": {
+            "MsPortalFx_TimeRange": {
+              "model": {
+                "format": "utc",
+                "granularity": "auto",
+                "relative": "24h"
+              },
+              "displayCache": {
+                "name": "UTC Time",
+                "value": "Últimas 24 horas"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "name": "Azuria - Dashboard de Produção",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "eastus2",
+  "tags": {
+    "hidden-title": "Azuria - Dashboard de Produção",
+    "project": "azuria",
+    "environment": "production",
+    "type": "main-dashboard"
+  }
+}

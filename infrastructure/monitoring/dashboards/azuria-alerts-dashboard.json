@@ -1,0 +1,208 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# 🚨 Azuria - Dashboard de Alertas e Incidentes\n\nMonitoramento em tempo real de alertas críticos, SLA e recuperação de incidentes.\n\n---"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "severity-filter",
+            "version": "KqlParameterItem/1.0",
+            "name": "SeverityFilter",
+            "label": "Severidade",
+            "type": 2,
+            "isRequired": false,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*"
+            },
+            "jsonData": "[
+              { \"value\": \"0\", \"label\": \"🔴 Critical\" },
+              { \"value\": \"1\", \"label\": \"🟠 Error\" },
+              { \"value\": \"2\", \"label\": \"🟡 Warning\" },
+              { \"value\": \"3\", \"label\": \"🔵 Informational\" },
+              { \"value\": \"4\", \"label\": \"⚪ Verbose\" }
+            ]"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🔴 Alertas Ativos"
+      },
+      "name": "text - 2"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "traces\n| where timestamp >= ago(24h)\n| where severityLevel in ({SeverityFilter})\n| where message contains \"alert\" or message contains \"error\" or message contains \"failure\"\n| summarize count() by bin(timestamp, 5m), severityLevel\n| render timechart with (title=\"Alertas por Severidade - Últimas 24h\")",
+        "size": 0,
+        "title": "Alert Timeline",
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// SLA Dashboard - Availability and Performance\nrequests\n| where timestamp >= ago(24h)\n| summarize \n    total_requests = count(),\n    successful_requests = countif(success == true),\n    avg_response_time = avg(duration),\n    p99_response_time = percentile(duration, 99)\n    by bin(timestamp, 1h)\n| extend availability_percentage = (successful_requests * 100.0) / total_requests\n| project timestamp, availability_percentage, avg_response_time, p99_response_time, total_requests\n| render timechart with (title=\"SLA Metrics - Availability & Response Time\")",
+        "size": 0,
+        "title": "SLA Metrics",
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 4"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📊 Health Status"
+      },
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Application Health Score\nlet error_rate = requests\n| where timestamp >= ago(1h)\n| summarize error_percentage = (countif(success == false) * 100.0) / count();\nlet avg_response_time = requests\n| where timestamp >= ago(1h)\n| summarize avg_duration = avg(duration);\nlet availability = requests\n| where timestamp >= ago(1h)\n| summarize availability_percentage = (countif(success == true) * 100.0) / count();\nlet core_web_vitals = customMetrics\n| where timestamp >= ago(1h)\n| where name startswith \"CoreWebVitals.\"\n| summarize \n    lcp_avg = avgif(value, name == \"CoreWebVitals.LCP\"),\n    fid_avg = avgif(value, name == \"CoreWebVitals.FID\"),\n    cls_avg = avgif(value, name == \"CoreWebVitals.CLS\");\nunion \n    (error_rate | extend metric = \"Error Rate %\", value = error_percentage, status = case(error_percentage < 1, \"🟢 Healthy\", error_percentage < 5, \"🟡 Warning\", \"🔴 Critical\")),\n    (avg_response_time | extend metric = \"Avg Response Time (ms)\", value = avg_duration, status = case(avg_duration < 1000, \"🟢 Fast\", avg_duration < 3000, \"🟡 Acceptable\", \"🔴 Slow\")),\n    (availability | extend metric = \"Availability %\", value = availability_percentage, status = case(availability_percentage > 99.9, \"🟢 Excellent\", availability_percentage > 99, \"🟡 Good\", \"🔴 Poor\")),\n    (core_web_vitals | extend metric = \"LCP (ms)\", value = lcp_avg, status = case(lcp_avg < 2500, \"🟢 Good\", lcp_avg < 4000, \"🟡 Needs Improvement\", \"🔴 Poor\")),\n    (core_web_vitals | extend metric = \"FID (ms)\", value = fid_avg, status = case(fid_avg < 100, \"🟢 Good\", fid_avg < 300, \"🟡 Needs Improvement\", \"🔴 Poor\")),\n    (core_web_vitals | extend metric = \"CLS\", value = cls_avg, status = case(cls_avg < 0.1, \"🟢 Good\", cls_avg < 0.25, \"🟡 Needs Improvement\", \"🔴 Poor\"))\n| project metric, value, status\n| where isnotnull(value)",
+        "size": 0,
+        "title": "Application Health Status",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "value",
+              "formatter": 0,
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 2
+                }
+              }
+            },
+            {
+              "columnMatch": "status",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "20%"
+              }
+            }
+          ]
+        }
+      },
+      "name": "query - 6"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## ⚡ Performance Alerts"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Performance Degradation Detection\nrequests\n| where timestamp >= ago(2h)\n| summarize \n    current_avg = avg(duration),\n    current_p95 = percentile(duration, 95),\n    request_count = count()\n    by bin(timestamp, 10m)\n| extend \n    baseline_avg = current_avg, // In real scenario, compare with historical baseline\n    performance_degradation = case(\n        current_avg > 3000, \"🔴 Severe Degradation\",\n        current_avg > 2000, \"🟡 Performance Warning\",\n        \"🟢 Normal\"\n    )\n| project timestamp, current_avg, current_p95, request_count, performance_degradation\n| render timechart with (title=\"Performance Degradation Detection\")",
+        "size": 0,
+        "title": "Performance Alerts",
+        "timeContext": {
+          "durationMs": 7200000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 8"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📈 Incident Recovery Tracking"
+      },
+      "name": "text - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// MTTR (Mean Time To Recovery) Analysis\nexceptions\n| where timestamp >= ago(7d)\n| extend incident_id = strcat(type, \"_\", toint(timestamp / 3600000))\n| summarize \n    first_occurrence = min(timestamp),\n    last_occurrence = max(timestamp),\n    error_count = count()\n    by incident_id, type\n| extend recovery_time_hours = datetime_diff('hour', last_occurrence, first_occurrence)\n| where recovery_time_hours > 0\n| summarize \n    avg_recovery_time = avg(recovery_time_hours),\n    incidents_count = count(),\n    total_errors = sum(error_count)\n    by type\n| project [\"Error Type\"] = type, [\"Avg Recovery Time (hours)\"] = round(avg_recovery_time, 2), [\"Incidents\"] = incidents_count, [\"Total Errors\"] = total_errors\n| order by [\"Avg Recovery Time (hours)\"] desc",
+        "size": 0,
+        "title": "MTTR Analysis",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "query - 10"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 Alert Rules Status"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Custom Alert Rules Status\ncustomEvents\n| where timestamp >= ago(1h)\n| where name startswith \"alert_\"\n| summarize alert_count = count() by name, bin(timestamp, 5m)\n| render timechart with (title=\"Custom Alert Triggers\")",
+        "size": 0,
+        "title": "Alert Rules Activity",
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 12"
+    }
+  ],
+  "isLocked": false,
+  "fallbackResourceIds": [
+    "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/microsoft.insights/components/{app-insights-name}"
+  ]
+}

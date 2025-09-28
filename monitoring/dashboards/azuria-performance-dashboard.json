@@ -1,0 +1,299 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 12,
+              "rowSpan": 2
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\"\n| extend \n    metric = tostring(customDimensions.name),\n    value = todouble(customDimensions.value),\n    page = tostring(customDimensions.page)\n| where metric in (\"LCP\", \"FID\", \"CLS\", \"TTFB\", \"FCP\")\n| summarize \n    AvgValue = avg(value),\n    P95Value = percentile(value, 95),\n    Count = count()\nby metric\n| extend \n    Status = case(\n        metric == \"LCP\" and AvgValue <= 2500, \"✅ Bom\",\n        metric == \"LCP\" and AvgValue <= 4000, \"⚠️ Precisa Melhorar\",\n        metric == \"LCP\", \"❌ Ruim\",\n        metric == \"FID\" and AvgValue <= 100, \"✅ Bom\", \n        metric == \"FID\" and AvgValue <= 300, \"⚠️ Precisa Melhorar\",\n        metric == \"FID\", \"❌ Ruim\",\n        metric == \"CLS\" and AvgValue <= 0.1, \"✅ Bom\",\n        metric == \"CLS\" and AvgValue <= 0.25, \"⚠️ Precisa Melhorar\", \n        metric == \"CLS\", \"❌ Ruim\",\n        \"📊 Medindo\"\n    )\n| project metric, AvgValue, P95Value, Count, Status",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "⚡ Core Web Vitals - Status Geral",
+                  "PartSubTitle": "Métricas de performance essenciais"
+                }
+              }
+            }
+          },
+          "1": {
+            "position": {
+              "x": 0,
+              "y": 2,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"LCP\"\n| extend value = todouble(customDimensions.value)\n| summarize AvgLCP = avg(value) by bin(timestamp, 1h)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "🎯 LCP - Largest Contentful Paint",
+                  "PartSubTitle": "Tempo de carregamento principal (meta: < 2.5s)"
+                }
+              }
+            }
+          },
+          "2": {
+            "position": {
+              "x": 6,
+              "y": 2,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"FID\"\n| extend value = todouble(customDimensions.value)\n| summarize AvgFID = avg(value) by bin(timestamp, 1h)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "🖱️ FID - First Input Delay",
+                  "PartSubTitle": "Interatividade (meta: < 100ms)"
+                }
+              }
+            }
+          },
+          "3": {
+            "position": {
+              "x": 0,
+              "y": 6,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\" and tostring(customDimensions.name) == \"CLS\"\n| extend value = todouble(customDimensions.value)\n| summarize AvgCLS = avg(value) by bin(timestamp, 1h)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "📐 CLS - Cumulative Layout Shift",
+                  "PartSubTitle": "Estabilidade visual (meta: < 0.1)"
+                }
+              }
+            }
+          },
+          "4": {
+            "position": {
+              "x": 6,
+              "y": 6,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "requests\n| summarize \n    AvgDuration = avg(duration),\n    P50Duration = percentile(duration, 50),\n    P95Duration = percentile(duration, 95),\n    P99Duration = percentile(duration, 99)\nby bin(timestamp, 15m)\n| order by timestamp desc\n| render timechart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Line",
+                  "PartTitle": "🚀 Response Time Distribution",
+                  "PartSubTitle": "P50, P95, P99 - Últimas 24h"
+                }
+              }
+            }
+          },
+          "5": {
+            "position": {
+              "x": 0,
+              "y": 10,
+              "colSpan": 8,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "customEvents\n| where name == \"web_vitals\"\n| extend \n    metric = tostring(customDimensions.name),\n    value = todouble(customDimensions.value),\n    page = tostring(customDimensions.page)\n| where metric == \"LCP\" and isnotempty(page)\n| summarize AvgLCP = avg(value) by page\n| order by AvgLCP desc\n| take 15",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "📄 Performance por Página",
+                  "PartSubTitle": "LCP médio por página (piores primeiro)"
+                }
+              }
+            }
+          },
+          "6": {
+            "position": {
+              "x": 8,
+              "y": 10,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "browserTimings\n| where timestamp > ago(24h)\n| summarize \n    AvgNetworkTime = avg(networkDuration),\n    AvgSendTime = avg(sendDuration), \n    AvgReceiveTime = avg(receiveDuration),\n    AvgProcessingTime = avg(processingDuration)\n| extend \n    NetworkTime = round(AvgNetworkTime, 2),\n    SendTime = round(AvgSendTime, 2),\n    ReceiveTime = round(AvgReceiveTime, 2),\n    ProcessingTime = round(AvgProcessingTime, 2)\n| project NetworkTime, SendTime, ReceiveTime, ProcessingTime",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🔄 Breakdown de Timings",
+                  "PartSubTitle": "Análise detalhada dos tempos"
+                }
+              }
+            }
+          },
+          "7": {
+            "position": {
+              "x": 0,
+              "y": 14,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "pageViews\n| extend deviceType = case(\n    client_Type == \"PC\", \"Desktop\",\n    client_Type == \"Phone\", \"Mobile\", \n    client_Type == \"Tablet\", \"Tablet\",\n    \"Other\"\n)\n| summarize AvgLoadTime = avg(duration) by deviceType\n| render columnchart",
+                  "ControlType": "FrameControlChart",
+                  "SpecificChart": "Column",
+                  "PartTitle": "📱 Performance por Dispositivo",
+                  "PartSubTitle": "Tempo de carregamento médio"
+                }
+              }
+            }
+          },
+          "8": {
+            "position": {
+              "x": 6,
+              "y": 14,
+              "colSpan": 6,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "ComponentId",
+                  "value": {
+                    "SubscriptionId": "cdb292f9-b4c2-4513-ae78-de6238161d25",
+                    "ResourceGroup": "Azuria-Resources",
+                    "Name": "ai-jxbkuxsj7yfpo"
+                  }
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+              "settings": {
+                "content": {
+                  "Query": "requests\n| where url contains \"api\" or url contains \"supabase\"\n| extend apiType = case(\n    url contains \"supabase\", \"Supabase\",\n    url contains \"calculations\", \"Calculations API\",\n    url contains \"auth\", \"Auth API\",\n    \"Other API\"\n)\n| summarize \n    AvgLatency = avg(duration),\n    RequestCount = count(),\n    SuccessRate = (countif(success == true) * 100.0) / count()\nby apiType\n| order by RequestCount desc",
+                  "ControlType": "AnalyticsGrid",
+                  "PartTitle": "🔗 Performance de APIs",
+                  "PartSubTitle": "Latência e taxa de sucesso"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 24,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  },
+  "name": "Azuria - Performance Dashboard",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "eastus2",
+  "tags": {
+    "hidden-title": "Azuria - Performance Dashboard",
+    "project": "azuria",
+    "environment": "production",
+    "type": "performance-dashboard"
+  }
+}
