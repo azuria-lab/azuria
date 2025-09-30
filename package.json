@@ -21,6 +21,7 @@
     "test:coverage": "node --max-old-space-size=6144 ./node_modules/vitest/vitest.mjs run --coverage --reporter=json",
     "test:coverage:ci": "vitest run --coverage --reporter=json --run --no-watch",
     "analyze": "vite --config vite.config.bundle-analyzer.ts build",
+    "health-check": "node scripts/health-check.mjs",
     "prepare": "husky",
     "release": "semantic-release",
     "sbom": "cyclonedx-npm --output-format JSON --output-file sbom.json"
