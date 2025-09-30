@@ -5,6 +5,7 @@ import type { ConnectionInfo, DeviceInfo, PerformanceReport, WebVitalMetric } fr
 import { startCollecting } from '@/services/perf/collect';
 import { computePerformanceScore, getMetricEmoji, metricIsCritical } from '@/services/perf/analyze';
 import { flushReportsQueue, sendSingleReport } from '@/services/perf/report';
+import { generateSecureSessionId } from './secureRandom';
 
 class WebVitalsReporter {
   private metrics: Map<string, WebVitalMetric> = new Map();
@@ -19,7 +20,7 @@ class WebVitalsReporter {
   }
 
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return generateSecureSessionId();
   }
 
   async initializeReporting() {

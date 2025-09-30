@@ -3,10 +3,11 @@ import { getRatingEmoji, isCritical, score } from './analyze.ts';
 import { createReport, sendReport, sendReportsBatch } from './report.ts';
 import { logger } from '@/services/logger';
 import type { PerformanceReport, WebVitalMetric } from './types.ts';
+import { generateSecureSessionId } from '../secureRandom';
 
 class Reporter {
   private metrics = new Map<string, WebVitalMetric>();
-  private sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  private sessionId = generateSecureSessionId();
   private isReporting = false;
   private queue: PerformanceReport[] = [];
   private timer?: number;
