@@ -19,6 +19,7 @@
     "test:smoke": "vitest run src/__tests__/smoke",
     "test:ui": "vitest --ui",
     "test:coverage": "node --max-old-space-size=6144 ./node_modules/vitest/vitest.mjs run --coverage --reporter=json",
+    "test:coverage:ci": "vitest run --coverage --reporter=json --run --no-watch",
     "analyze": "vite --config vite.config.bundle-analyzer.ts build",
     "prepare": "husky",
     "release": "semantic-release",
