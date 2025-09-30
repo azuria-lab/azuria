@@ -11,6 +11,12 @@ export default defineConfig({
     css: true,
     testTimeout: 30000,
     hookTimeout: 30000,
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -19,7 +25,8 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json'],
+      reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
         'src/__tests__/',
