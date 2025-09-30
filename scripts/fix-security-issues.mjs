@@ -88,11 +88,11 @@ const importsToAdd = `import {
   generateSecureRandomPercentage
 } from '../utils/secureRandom';`;
 
-function needsSecureRandomImport(content: string): boolean {
+function needsSecureRandomImport(content) {
   return replacements.some(({ replacement }) => content.includes(replacement));
 }
 
-function addImportIfNeeded(content: string, filePath: string): string {
+function addImportIfNeeded(content, filePath) {
   if (!needsSecureRandomImport(content)) {
     return content;
   }
