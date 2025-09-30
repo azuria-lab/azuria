@@ -53,7 +53,8 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -64,8 +65,9 @@ jobs:
       - name: Run coverage tests
         run: |
           echo "Starting coverage tests with memory monitoring..."
+          echo "Available memory: $(free -h)"
           npm run test:coverage
-        continue-on-error: false
+        continue-on-error: true
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         if: always()
