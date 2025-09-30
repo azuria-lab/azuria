@@ -1,0 +1,98 @@
+name: Health Check Monitor
+on:
+  schedule:
+    # Run health check every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+jobs:
+  health-check:
+    name: Application Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm ci --silent
+          
+      - name: Run health check
+        id: health-check
+        run: |
+          npm run health-check > health-report.txt 2>&1 || true
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          cat health-report.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Check if health check passed
+          if npm run health-check --silent; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Upload health report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health-report.txt
+          retention-days: 7
+          
+      - name: Create issue on health check failure
+        if: steps.health-check.outputs.status == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = `${{ steps.health-check.outputs.report }}`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Health Check Failed - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Health Check Report
+              
+              **Status:** ❌ Failed
+              **Workflow:** ${{ github.workflow }}
+              **Run:** #${{ github.run_number }}
+              **Environment:** ${{ github.event.inputs.environment || 'production' }}
+              
+              ### Details
+              \`\`\`
+              ${report}
+              \`\`\`
+              
+              ### Actions Required
+              - [ ] Review the health check report above
+              - [ ] Fix any failing checks
+              - [ ] Re-run the health check manually
+              - [ ] Close this issue once resolved
+              
+              **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+              labels: ['bug', 'health-check', 'monitoring']
+            });
+            
+      - name: Post success status
+        if: steps.health-check.outputs.status == 'success'
+        run: |
+          echo "✅ Health check passed successfully!"
+          echo "Application is healthy and ready for production."
