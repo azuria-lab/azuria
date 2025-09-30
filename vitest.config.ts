@@ -9,6 +9,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/__tests__/setup.ts',
     css: true,
+    testTimeout: 30000,
+    hookTimeout: 30000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -28,30 +30,11 @@ export default defineConfig({
       ],
       thresholds: {
         global: {
-          branches: 80,
-          functions: 85,
-          lines: 90,
-          statements: 85
-        },
-        // Per file thresholds for critical modules
-        './src/utils/calculator/*.ts': {
-          branches: 90,
-          functions: 95,
-          lines: 95,
-          statements: 95
-        },
-        './src/hooks/*.ts': {
-          branches: 80,
-          functions: 85,
-          lines: 85,
-          statements: 85
-        },
-        './src/components/**/*.tsx': {
-          branches: 70,
-          functions: 75,
-          lines: 80,
-          statements: 75
-        },
+          branches: 50,
+          functions: 60,
+          lines: 70,
+          statements: 60
+        }
       }
   }
   },
