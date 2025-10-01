@@ -6,6 +6,7 @@
 import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from './logger';
+import { generateSecureBackupId } from '@/utils/secureRandom';
 
 export interface BackupConfig {
   enabled: boolean;
@@ -422,7 +423,7 @@ export class BackupService {
   }
 
   private generateBackupId(): string {
-    return `backup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return generateSecureBackupId();
   }
 }
 
