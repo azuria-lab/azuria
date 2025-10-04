@@ -42,36 +42,12 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            // Core React bundle
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            // Charts - separate for lazy loading
-            if (id.includes('recharts')) {
-              return 'vendor-charts';
-            }
-            // UI libraries - combine to reduce chunk overhead
-            if (id.includes('framer-motion') || id.includes('radix-ui') || id.includes('lucide-react')) {
-              return 'vendor-ui';
-            }
-            // PDF generation (lazy loaded)
-            if (id.includes('jspdf') || id.includes('html2canvas')) {
-              return 'vendor-pdf';
-            }
-            // Supabase client
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-          }
-          // Don't create too many small chunks
-          return undefined;
-        },
-        // Optimize chunk names for better caching
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // CRITICAL FOR AZURE FREE: Inline ALL imports to create single bundle
+        // This reduces ~100+ files to just 3-4 files total
+        inlineDynamicImports: true,
+        // Simplest possible output structure
+        entryFileNames: 'assets/app.js',
+        assetFileNames: 'assets/[name].[ext]',
         // Compact output
         compact: true
       }
