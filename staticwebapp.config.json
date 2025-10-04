@@ -4,16 +4,13 @@
     "exclude": [
       "/assets/*",
       "/api/*",
-      "/.auth/*"
+      "/.auth/*",
+      "*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2,ttf,eot,json,xml}"
     ]
   },
   "mimeTypes": {
-    ".json": "text/json"
-  },
-  "responseOverrides": {
-    "404": {
-      "rewrite": "/index.html",
-      "statusCode": 200
-    }
+    ".json": "application/json",
+    ".js": "application/javascript",
+    ".css": "text/css"
   }
 }
