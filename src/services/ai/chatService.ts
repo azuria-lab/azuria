@@ -1,6 +1,7 @@
  
 import { AIContext, ChatMessage, ChatSession } from '@/shared/types/ai';
 import { logger } from './logger';
+import { generateSecureId } from '@/utils/secureRandom';
 
 class ChatService {
   private readonly sessions: Map<string, ChatSession> = new Map();
@@ -10,7 +11,7 @@ class ChatService {
    */
   async createSession(userId: string, context: AIContext): Promise<ChatSession> {
     const session: ChatSession = {
-      id: `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: `session_${Date.now()}_${generateSecureId(11)}`,
       userId,
       messages: [],
       startedAt: new Date(),
@@ -29,7 +30,7 @@ class ChatService {
   async processMessage(sessionId: string, content: string): Promise<ChatMessage> {
     try {
       const message: ChatMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+        id: `msg_${Date.now()}_${generateSecureId(11)}`,
         content,
         role: 'assistant',
         timestamp: new Date(),

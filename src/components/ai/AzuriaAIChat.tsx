@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, Mic, Paperclip, Send, Settings, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { AIAction, AIContext, ChatMessage } from '@/shared/types/ai';
 import { AzuriaAIMessage } from './AzuriaAIMessage';
 import { AzuriaAIAvatar } from './AzuriaAIAvatar';
 import { chatService } from '@/services/ai/chatService';
+import { logger } from '@/services/logger';
 
 interface AzuriaAIChatProps {
   className?: string;
@@ -36,26 +37,25 @@ export const AzuriaAIChat: React.FC<AzuriaAIChatProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Contexto padrão do usuário
-  const defaultContext: AIContext = {
+  const defaultContext: AIContext = useMemo(() => ({
     userId: 'user-1', // Em produção, obter do sistema de auth
     businessType: 'comercio',
-    taxRegime: 'simples_nacional',
-    averageMargin: 30,
+    conversationHistory: [],
     preferences: {
       language: 'pt-BR',
       responseStyle: 'friendly',
       detailLevel: 'detailed'
     },
     ...context
-  };
+  }), [context]);
 
   // Sugestões rápidas
-  const quickSuggestions = [
+  const quickSuggestions = useMemo(() => [
     '💰 Como calcular o preço de um produto?',
     '📊 Qual é o melhor regime tributário?',
     '🔍 Analisar concorrência',
     '⚠️ Ver alertas importantes'
-  ];
+  ], []);
 
   // Inicializa sessão de chat
   useEffect(() => {
@@ -87,14 +87,14 @@ Como posso te ajudar hoje? 😊`,
         
         setMessages([welcomeMessage]);
       } catch (error) {
-        console.error('Erro ao inicializar chat:', error);
+        logger.error('Erro ao inicializar chat:', error);
       }
     };
 
     if (!sessionId) {
       initializeChat();
     }
-  }, [sessionId]);
+  }, [sessionId, defaultContext, quickSuggestions]);
 
   // Auto-scroll para última mensagem
   useEffect(() => {
@@ -126,22 +126,11 @@ Como posso te ajudar hoje? 😊`,
       
       const response = await chatService.processMessage(sessionId, userMessage.content);
       
-      const aiMessage: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        role: 'assistant',
-        type: 'ai',
-        content: response.message,
-        timestamp: new Date(),
-        metadata: {
-          suggestedActions: response.suggestions,
-          data: { actions: response.actions }
-        }
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
+      // response já é um ChatMessage completo
+      setMessages(prev => [...prev, response]);
 
     } catch (error) {
-      console.error('Erro ao processar mensagem:', error);
+      logger.error('Erro ao processar mensagem:', error);
       
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
@@ -159,7 +148,7 @@ Como posso te ajudar hoje? 😊`,
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -185,7 +174,7 @@ Como posso te ajudar hoje? 😊`,
   };
 
   const handleFeedback = (messageId: string, feedback: 'positive' | 'negative') => {
-    console.log('Feedback:', messageId, feedback);
+    logger.info('Feedback recebido:', { messageId, feedback });
     // Implementar lógica de feedback
   };
 
@@ -323,7 +312,7 @@ Como posso te ajudar hoje? 😊`,
               placeholder="Digite sua pergunta..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               disabled={isLoading}
               className="pr-20"
             />

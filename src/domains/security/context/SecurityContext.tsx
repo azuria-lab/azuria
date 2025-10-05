@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 import { logger } from '@/services/logger';
+import { generateSecureId } from '@/utils/secureRandom';
 
 // Security State Types
 export interface SecurityState {
@@ -305,7 +306,7 @@ export const SecurityProvider: React.FC<{ children: ReactNode }> = ({ children }
   const addAlert = useCallback((alertData: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>) => {
     const alert: SecurityAlert = {
       ...alertData,
-      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      id: `alert_${Date.now()}_${generateSecureId(6)}`,
       timestamp: new Date(),
       resolved: false,
     };
@@ -326,7 +327,7 @@ export const SecurityProvider: React.FC<{ children: ReactNode }> = ({ children }
   const addThreat = useCallback((threatData: Omit<SecurityThreat, 'id' | 'timestamp' | 'blocked'>) => {
     const threat: SecurityThreat = {
       ...threatData,
-      id: `threat_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      id: `threat_${Date.now()}_${generateSecureId(6)}`,
       timestamp: new Date(),
       blocked: false,
     };
