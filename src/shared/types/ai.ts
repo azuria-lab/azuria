@@ -45,14 +45,19 @@ export interface AIContext {
   businessProfile?: BusinessProfile;
   conversationHistory: ChatMessage[];
   preferences: Record<string, unknown>;
+  businessType?: 'comercio' | 'industria' | 'servicos' | 'misto';
 }
 
 export interface AIAction {
   id: string;
   label: string;
-  type: 'navigation' | 'calculation' | 'analysis' | 'suggestion';
+  type: 'navigation' | 'calculation' | 'analysis' | 'suggestion' | 'prediction';
   handler: string;
   params?: Record<string, unknown>;
+  data?: {
+    suggestion?: string;
+    [key: string]: unknown;
+  };
 }
 
 // ============================================

@@ -60,8 +60,8 @@ interface TaxForecast {
 }
 
 class AdvancedTaxService {
-  private businessProfiles: Map<string, BusinessProfile> = new Map();
-  private optimizationPlans: Map<string, TaxOptimizationPlan> = new Map();
+  private readonly businessProfiles: Map<string, BusinessProfile> = new Map();
+  private readonly optimizationPlans: Map<string, TaxOptimizationPlan> = new Map();
 
   /**
    * Análise tributária completa e personalizada
@@ -306,10 +306,18 @@ class AdvancedTaxService {
         tier3: 13.5,
         tier4: 16.0,
         tier5: 21.0
+      },
+      misto: {
+        tier1: 5.0,
+        tier2: 9.0,
+        tier3: 11.5,
+        tier4: 13.5,
+        tier5: 17.5
       }
-    };
+    } as const;
 
-    const businessRates = rates[businessProfile.businessType] || rates.comercio;
+    type BusinessType = keyof typeof rates;
+    const businessRates = rates[businessProfile.businessType as BusinessType] || rates.comercio;
 
     if (annualRevenue <= 180000) {return businessRates.tier1;}
     if (annualRevenue <= 360000) {return businessRates.tier2;}
@@ -325,10 +333,12 @@ class AdvancedTaxService {
     const baseRates = {
       comercio: 11.33,
       industria: 11.33,
-      servicos: 16.33
-    };
+      servicos: 16.33,
+      misto: 13.00
+    } as const;
 
-    let rate = baseRates[businessProfile.businessType] || baseRates.comercio;
+    type BusinessType = keyof typeof baseRates;
+    let rate = baseRates[businessProfile.businessType as BusinessType];
 
     // Ajustes baseados no perfil
     if (businessProfile.hasExports) {
@@ -388,19 +398,19 @@ class AdvancedTaxService {
 
     const bestAlternative = viableAlternatives.reduce((best, scenario) => 
       scenario.annualTax < best.annualTax ? scenario : best
-    );
+    , viableAlternatives[0]);
 
     const potentialSavings = currentScenario.annualTax - bestAlternative.annualTax;
 
     // Só cria plano se a economia for significativa (> R$ 5.000/ano)
     if (potentialSavings < 5000) {return undefined;}
 
-    const planId = `tax_plan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const planId = `tax_plan_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
     const plan: TaxOptimizationPlan = {
       id: planId,
       businessId: businessProfile.id,
-      currentRegime: currentRegime as TaxRegimeType,
+      currentRegime: currentRegime,
       recommendedRegime: bestAlternative.regime,
       potentialSavingsAnnual: potentialSavings,
       implementationSteps: this.generateImplementationSteps(currentRegime, bestAlternative.regime),
@@ -510,7 +520,7 @@ class AdvancedTaxService {
   /**
    * Calcula timeline de implementação
    */
-  private calculateImplementationTimeline(currentRegime: TaxRegimeType, targetRegime: TaxRegimeType): string {
+  private calculateImplementationTimeline(_currentRegime: TaxRegimeType, _targetRegime: TaxRegimeType): string {
     // A maioria das mudanças de regime só pode ser feita no início do ano
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -584,7 +594,7 @@ class AdvancedTaxService {
    */
   private generateForecastInsights(
     businessProfile: BusinessProfile,
-    scenarios: any
+    scenarios: { conservative: { revenue: number; taxes: number }; realistic: { revenue: number; taxes: number }; optimistic: { revenue: number; taxes: number } }
   ): string[] {
     const insights: string[] = [];
     const currentAnnualRevenue = businessProfile.monthlyRevenue * 12;
@@ -612,7 +622,7 @@ class AdvancedTaxService {
    */
   private generateForecastRecommendations(
     businessProfile: BusinessProfile,
-    scenarios: any
+    _scenarios: { conservative: { revenue: number; taxes: number }; realistic: { revenue: number; taxes: number }; optimistic: { revenue: number; taxes: number } }
   ): string[] {
     const recommendations: string[] = [];
 
@@ -637,19 +647,22 @@ class AdvancedTaxService {
   private generateStrategicRecommendations(
     businessProfile: BusinessProfile,
     scenarios: TaxScenario[],
-    forecast: TaxForecast
+    _forecast: TaxForecast
   ): string[] {
     const recommendations: string[] = [];
 
     // Recomendação baseada no melhor cenário
     const bestScenario = scenarios.reduce((best, scenario) => 
       scenario.annualTax < best.annualTax ? scenario : best
-    );
+    , scenarios[0]);
 
     if (bestScenario.regime !== this.getCurrentRegime(businessProfile)) {
-      recommendations.push(
-        `🎯 Considere migrar para ${bestScenario.regime} - economia de R$ ${(scenarios.find(s => s.regime === this.getCurrentRegime(businessProfile))!.annualTax - bestScenario.annualTax).toLocaleString('pt-BR')}/ano`
-      );
+      const currentScenario = scenarios.find(s => s.regime === this.getCurrentRegime(businessProfile));
+      if (currentScenario) {
+        recommendations.push(
+          `🎯 Considere migrar para ${bestScenario.regime} - economia de R$ ${(currentScenario.annualTax - bestScenario.annualTax).toLocaleString('pt-BR')}/ano`
+        );
+      }
     }
 
     // Recomendações baseadas no perfil
