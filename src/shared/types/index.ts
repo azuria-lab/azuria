@@ -17,7 +17,18 @@ export type {
   ChatSession, 
   MLPredictionResult,
   PredictiveAnalysis,
-  PersonalizedRecommendation 
+  PersonalizedRecommendation,
+  AIConfig,
+  AIContext,
+  AIAction,
+  BusinessProfile,
+  TaxRegimeType,
+  TaxRegime,
+  TaxAnalysis,
+  AIAlert,
+  CompetitorPlatform,
+  CompetitorPricing,
+  PricingAnalysis
 } from './ai';
 
 // ============================================
