@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ChatMessage, ChatSession, AIContext } from '@/shared/types/ai';
+ 
+import { AIContext, ChatMessage, ChatSession } from '@/shared/types/ai';
 import { logger } from './logger';
 
 class ChatService {
