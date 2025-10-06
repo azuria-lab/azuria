@@ -33,7 +33,14 @@ export const useAIChatbot = (userId?: string) => {
       ],
       startedAt: new Date(),
       status: 'active',
-      context: { domain: 'pricing', language: 'pt-BR' }
+      context: {
+        userId: userId || 'anonymous',
+        conversationHistory: [],
+        preferences: {
+          domain: 'pricing',
+          language: 'pt-BR'
+        }
+      }
     };
 
     setSession(newSession);
