@@ -10,9 +10,18 @@ import { parseInputValue } from "../../utils/parseInputValue";
 import { useOfflineCalculator } from "@/hooks/useOfflineCalculator";
 import type { CalculationHistory } from "../../types/calculator";
 
-export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => {
+export interface SimpleCalculatorOptions {
+  onAfterCalculation?: (historyItem: CalculationHistory) => void | Promise<void>;
+}
+
+export const useSimpleCalculator = (
+  isPro: boolean = false,
+  userId?: string,
+  options: SimpleCalculatorOptions = {}
+) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { onAfterCalculation } = options;
   
   // Use specialized hooks for different concerns
   const {
@@ -123,7 +132,7 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
     if (isManualMode) {
       // Modo manual: usar o preço informado e calcular lucro/margem
       const manualPriceValue = parseInputValue(manualPrice);
-      
+
       if (manualPriceValue <= 0) {
         toast({
           title: "Valor inválido",
@@ -134,7 +143,7 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
       }
 
       const costValue = parseInputValue(cost);
-      
+
       if (costValue <= 0) {
         toast({
           title: "Valor inválido",
@@ -144,14 +153,13 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
         return;
       }
 
-  setIsLoading(true);
-  const meta = import.meta as (ImportMeta & { vitest?: unknown });
-  const delay = ('vitest' in meta) ? 0 : 400;
-  setTimeout(async () => {
+      setIsLoading(true);
+      const meta = import.meta as (ImportMeta & { vitest?: unknown });
+      const delay = ("vitest" in meta) ? 0 : 400;
+      setTimeout(async () => {
         const manualResult = calculateManualResult(manualPriceValue);
         setResult(manualResult);
 
-        // Adicionar ao histórico
         const newHistoryItem: CalculationHistory = {
           id: Date.now().toString(),
           date: new Date(),
@@ -162,26 +170,40 @@ export const useSimpleCalculator = (isPro: boolean = false, userId?: string) => 
           tax,
           cardFee,
           includeShipping,
-          result: manualResult
+          result: manualResult,
         };
 
         addToHistory(newHistoryItem);
-        
-        // Salvar offline
-        await saveCalculationOffline('simple', {
-          cost, margin, tax, cardFee, otherCosts, shipping, includeShipping
-        }, manualResult);
-        
+        onAfterCalculation?.(newHistoryItem);
+
+        await saveCalculationOffline(
+          "simple",
+          { cost, margin, tax, cardFee, otherCosts, shipping, includeShipping },
+          manualResult
+        );
+
         setIsLoading(false);
-        
+
         toast({
           title: "Cálculo processado!",
           description: `Preço mantido: R$ ${formatCurrency(manualPriceValue)}`,
         });
-  }, delay);
+      }, delay);
     } else {
       // Modo normal: calcular preço baseado na margem
-      calculatePrice(cost, margin, tax, cardFee, otherCosts, shipping, includeShipping, addToHistory);
+      calculatePrice(
+        cost,
+        margin,
+        tax,
+        cardFee,
+        otherCosts,
+        shipping,
+        includeShipping,
+        (historyItem) => {
+          addToHistory(historyItem);
+          onAfterCalculation?.(historyItem);
+        }
+      );
     }
   };
 
