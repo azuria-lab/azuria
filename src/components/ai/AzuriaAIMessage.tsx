@@ -158,8 +158,10 @@ export const AzuriaAIMessage: React.FC<AzuriaAIMessageProps> = ({
                     // Trigger suggestion as new user message
                     if (onActionClick) {
                       onActionClick({
+                        id: `action_${Date.now()}_${index}`,
                         type: 'prediction',
                         label: suggestion,
+                        handler: 'processSuggestion',
                         data: { suggestion }
                       });
                     }

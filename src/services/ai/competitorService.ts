@@ -1,7 +1,7 @@
 import { CompetitorPlatform, CompetitorPricing } from '@/shared/types/ai';
 import { logger } from './logger';
 
-interface CompetitorSearchParams {
+interface _CompetitorSearchParams {
   productName: string;
   category?: string;
   maxResults?: number;
@@ -25,10 +25,30 @@ class CompetitorService {
       baseUrl: 'https://amazon.com.br',
       enabled: true
     },
+    [CompetitorPlatform.MAGAZINE_LUIZA]: {
+      name: 'Magazine Luiza',
+      baseUrl: 'https://magazineluiza.com.br',
+      enabled: true
+    },
     [CompetitorPlatform.AMERICANAS]: {
       name: 'Americanas',
       baseUrl: 'https://americanas.com.br',
       enabled: true
+    },
+    [CompetitorPlatform.CARREFOUR]: {
+      name: 'Carrefour',
+      baseUrl: 'https://mercado.carrefour.com.br',
+      enabled: false
+    },
+    [CompetitorPlatform.CASAS_BAHIA]: {
+      name: 'Casas Bahia',
+      baseUrl: 'https://casasbahia.com.br',
+      enabled: false
+    },
+    [CompetitorPlatform.OUTROS]: {
+      name: 'Outros',
+      baseUrl: 'https://exemplo.com.br',
+      enabled: false
     }
   };
 
@@ -119,7 +139,7 @@ class CompetitorService {
         
         changes.push({
           platform: this.PLATFORMS[current.platform]?.name || current.platform,
-          seller: current.seller,
+          seller: current.seller || 'Desconhecido',
           oldPrice: current.price,
           newPrice: updated.price,
           changePercent: Math.round(changePercent * 100) / 100,
@@ -211,7 +231,7 @@ class CompetitorService {
    */
   async findMarketOpportunities(
     productCategory: string,
-    targetMargin: number
+    _targetMargin: number
   ): Promise<{
     opportunities: Array<{
       title: string;
@@ -287,10 +307,13 @@ class CompetitorService {
         const price = Math.round(basePrice * priceVariation * 100) / 100;
         
         competitors.push({
+          id: `competitor_${Date.now()}_${i}`,
           platform,
+          productName,
           price,
           seller: this.generateMockSellerName(platform, i),
-          url: `${this.PLATFORMS[platform].baseUrl}/produto-${Math.random().toString(36).substr(2, 9)}`,
+          url: `${this.PLATFORMS[platform].baseUrl}/produto-${Date.now()}-${i}`,
+          inStock: Math.random() > 0.1, // 90% em estoque
           lastUpdated: new Date()
         });
       }
@@ -320,7 +343,7 @@ class CompetitorService {
    * Gera nomes simulados de vendedores
    */
   private generateMockSellerName(platform: CompetitorPlatform, index: number): string {
-    const sellers = {
+    const sellers: Record<CompetitorPlatform, string[]> = {
       [CompetitorPlatform.MERCADO_LIVRE]: [
         'TechStore_BR', 'MegaEletronicos', 'LojaDoFuturo', 'SuperTech2024'
       ],
@@ -330,8 +353,20 @@ class CompetitorService {
       [CompetitorPlatform.AMAZON]: [
         'AmazonBasics', 'TechGlobal', 'PrimeSeller', 'FastDelivery'
       ],
+      [CompetitorPlatform.MAGAZINE_LUIZA]: [
+        'MagazineSeller', 'LuizaStore', 'MagaShop', 'LuStore'
+      ],
       [CompetitorPlatform.AMERICANAS]: [
         'LojaAmerica', 'TechAmerica', 'ExpressShop', 'MegaStore'
+      ],
+      [CompetitorPlatform.CARREFOUR]: [
+        'CarrefourMarket', 'CarrefourExpress', 'SuperCarrefour', 'CarrefourPlus'
+      ],
+      [CompetitorPlatform.CASAS_BAHIA]: [
+        'CasasBahiaStore', 'BahiaShop', 'CasasMega', 'BahiaExpress'
+      ],
+      [CompetitorPlatform.OUTROS]: [
+        'OutrosVendedor', 'LojaGenerica', 'VendedorPadrao', 'OutrosShop'
       ]
     };
 
@@ -344,10 +379,10 @@ class CompetitorService {
    */
   private generatePositionRecommendations(
     position: string,
-    yourPrice: number,
-    avgPrice: number,
-    minPrice: number,
-    maxPrice: number
+    _yourPrice: number,
+    _avgPrice: number,
+    _minPrice: number,
+    _maxPrice: number
   ): string[] {
     const recommendations: string[] = [];
 
@@ -399,7 +434,13 @@ class CompetitorService {
     sellerCount: number;
     marketShare: number;
   }>> {
-    const stats: Record<string, any> = {};
+    const stats: Record<string, {
+      averagePrice: number;
+      lowestPrice: number;
+      highestPrice: number;
+      sellerCount: number;
+      marketShare: number;
+    }> = {};
     const totalCompetitors = competitors.length;
 
     for (const platform of Object.values(CompetitorPlatform)) {

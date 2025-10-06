@@ -1,6 +1,7 @@
 import { AIAlert, CompetitorPlatform, CompetitorPricing } from '@/shared/types/ai';
 import { competitorService } from './competitorService';
 import { logger } from './logger';
+import { generateSecureId } from '@/utils/secureRandom';
 
 interface MonitoringRule {
   id: string;
@@ -36,8 +37,8 @@ interface MarketTrend {
 }
 
 class AdvancedCompetitorService {
-  private monitoringRules: Map<string, MonitoringRule> = new Map();
-  private priceHistory: Map<string, PriceHistory[]> = new Map();
+  private readonly monitoringRules: Map<string, MonitoringRule> = new Map();
+  private readonly priceHistory: Map<string, PriceHistory[]> = new Map();
   private monitoringInterval: NodeJS.Timeout | null = null;
 
   /**
@@ -76,7 +77,7 @@ class AdvancedCompetitorService {
     frequency: 'hourly' | 'daily' | 'weekly' = 'daily',
     priceThreshold: number = 5
   ): string {
-    const ruleId = `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const ruleId = `rule_${Date.now()}_${generateSecureId(9)}`;
     
     const rule: MonitoringRule = {
       id: ruleId,
@@ -161,11 +162,13 @@ class AdvancedCompetitorService {
       if (!productHistory) {
         productHistory = {
           productName: rule.productName,
-          platform: competitor.platform as CompetitorPlatform,
-          seller: competitor.seller,
+          platform: competitor.platform,
+          seller: competitor.seller || 'Desconhecido',
           prices: []
         };
-        history.push(productHistory);
+        if (productHistory) {
+          history.push(productHistory);
+        }
       }
 
       if (productHistory) {
@@ -211,15 +214,16 @@ class AdvancedCompetitorService {
       const changePercent = ((currentPrice - previousPrice) / previousPrice) * 100;
 
       if (Math.abs(changePercent) >= rule.priceThreshold) {
+        const suggestions = this.generatePriceChangeSuggestions(changePercent, competitor, rule.productName);
         const alert: AIAlert = {
-          id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: `alert_${Date.now()}_${generateSecureId(9)}`,
           type: 'competitor_price_change',
           severity: Math.abs(changePercent) > 15 ? 'high' : 'medium',
           title: `Mudança de preço detectada`,
-          message: `${competitor.seller} ${changePercent > 0 ? 'aumentou' : 'reduziu'} o preço em ${Math.abs(changePercent).toFixed(1)}%`,
-          actionRequired: Math.abs(changePercent) > 20,
-          suggestions: this.generatePriceChangeSuggestions(changePercent, competitor, rule.productName),
-          createdAt: new Date(),
+          message: `${competitor.seller || 'Vendedor'} ${changePercent > 0 ? 'aumentou' : 'reduziu'} o preço em ${Math.abs(changePercent).toFixed(1)}%`,
+          timestamp: new Date(),
+          actionable: Math.abs(changePercent) > 20,
+          suggestedAction: suggestions.length > 0 ? suggestions[0] : undefined,
           productId: rule.productName
         };
 
@@ -279,7 +283,7 @@ class AdvancedCompetitorService {
    */
   private async sendAlert(alert: AIAlert): Promise<void> {
     // Simula envio de alerta
-    console.log(`🚨 ALERTA: ${alert.title} - ${alert.message}`);
+    logger.info(`🚨 ALERTA: ${alert.title} - ${alert.message}`);
     
     // Em produção, integraria com:
     // - Sistema de notificações push

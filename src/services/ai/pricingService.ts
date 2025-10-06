@@ -47,12 +47,19 @@ class PricingService {
       );
 
       const analysis: PricingAnalysis = {
-        costPrice,
-        desiredMargin,
-        taxes,
-        fees: fees + additionalCosts,
         suggestedPrice: Math.round(suggestedPrice * 100) / 100,
-        explanation
+        minPrice: Math.round(totalCosts * 1.05 * 100) / 100,
+        maxPrice: Math.round(suggestedPrice * 1.2 * 100) / 100,
+        profitMargin: desiredMargin,
+        explanation,
+        confidence: 0.85,
+        factors: {
+          cost: costPrice,
+          taxes,
+          fees: fees + additionalCosts,
+          margin: desiredMargin
+        },
+        recommendations: []
       };
 
       const duration = Date.now() - startTime;

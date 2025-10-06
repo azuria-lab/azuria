@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AIContext, BusinessProfile, ChatSession } from '@/shared/types/ai';
 import { chatService } from '@/services/ai/chatService';
+import { logger } from '@/services/logger';
 
 interface UseAzuriaAIReturn {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
       const defaultContext: AIContext = {
         userId: 'dashboard-user',
         businessType: 'comercio',
+        conversationHistory: [],
         preferences: {
           language: 'pt-BR',
           responseStyle: 'friendly',
@@ -41,7 +43,7 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
           await chatService.processMessage(newSession.id, 'Olá! Sou a Azuria AI. Como posso ajudar você hoje?');
         }, 500);
       } catch (error) {
-        console.error('Erro ao inicializar sessão da Azuria AI:', error);
+        logger.error('Erro ao inicializar sessão da Azuria AI:', error);
       }
     }
   }, [session, initialContext]);
@@ -78,7 +80,9 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
   const updateBusinessProfile = useCallback((profile: BusinessProfile) => {
     if (session) {
       const updatedContext: AIContext = {
-        ...session.context,
+        userId: session.userId,
+        conversationHistory: session.messages,
+        preferences: session.context.preferences,
         businessProfile: profile,
         businessType: profile.businessType,
       };
