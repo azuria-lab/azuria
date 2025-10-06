@@ -63,6 +63,14 @@ class TaxService {
   };
 
   /**
+   * Calcula taxa efetiva de um regime
+   */
+  private getEffectiveRate(regime: TaxRegime): number {
+    // Soma simplificada das alíquotas (aproximação)
+    return regime.rates.irpj + regime.rates.csll + regime.rates.pis + regime.rates.cofins;
+  }
+
+  /**
    * Analisa otimização tributária
    */
   async analyzeTaxOptimization(input: TaxInput): Promise<TaxAnalysis> {
@@ -74,16 +82,23 @@ class TaxService {
       const recommendations = await this.generateRecommendations(input, alternativeRegimes);
       const potentialSavings = this.calculatePotentialSavings(input, alternativeRegimes);
 
-      const effectiveRate = currentRegime.rate;
+      const effectiveRate = this.getEffectiveRate(currentRegime);
       const monthlyTax = (input.monthlyRevenue * effectiveRate) / 100;
+      const annualTax = monthlyTax * 12;
 
       const analysis: TaxAnalysis = {
-        currentRegime,
-        alternativeRegimes,
-        recommendations,
-        potentialSavings,
+        regime: currentRegime.type,
         effectiveRate,
-        monthlyTax
+        monthlyTax,
+        annualTax,
+        breakdown: {
+          IRPJ: currentRegime.rates.irpj,
+          CSLL: currentRegime.rates.csll,
+          PIS: currentRegime.rates.pis,
+          COFINS: currentRegime.rates.cofins
+        },
+        recommendations,
+        potentialSavings
       };
 
       const duration = Date.now() - startTime;

@@ -25,7 +25,7 @@ export interface ChatSession {
   startedAt: Date;
   updatedAt?: Date;
   status: 'active' | 'closed';
-  context: Record<string, unknown>;
+  context: AIContext;
 }
 
 // ============================================
@@ -114,13 +114,14 @@ export interface TaxAnalysis {
 
 export interface AIAlert {
   id: string;
-  type: 'price_change' | 'competitor_alert' | 'tax_opportunity' | 'market_trend';
+  type: 'price_change' | 'competitor_alert' | 'competitor_price_change' | 'tax_opportunity' | 'market_trend';
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   message: string;
   timestamp: Date;
   actionable: boolean;
   suggestedAction?: string;
+  productId?: string;
 }
 
 // ============================================

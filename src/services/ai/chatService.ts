@@ -17,7 +17,7 @@ class ChatService {
       startedAt: new Date(),
       updatedAt: new Date(),
       status: 'active',
-      context: context as unknown as Record<string, unknown>
+      context
     };
     
     this.sessions.set(session.id, session);
