@@ -10,55 +10,65 @@ interface TaxInput {
 }
 
 class TaxService {
-  private readonly TAX_REGIMES = {
+  private readonly TAX_REGIMES: Record<TaxRegimeType, TaxRegime> = {
     [TaxRegimeType.SIMPLES_NACIONAL]: {
+      id: 'simples_nacional',
+      name: 'Simples Nacional',
+      description: 'Regime simplificado para micro e pequenas empresas',
       type: TaxRegimeType.SIMPLES_NACIONAL,
-      rate: 4.5,
-      description: 'Simples Nacional',
-      benefits: [
-        'Alíquotas reduzidas',
-        'Unificação de impostos em uma guia',
-        'Menos burocracia',
-        'Dispensa de alguns livros fiscais'
-      ],
-      requirements: [
-        'Faturamento anual até R$ 4.8 milhões',
-        'Não exercer atividades impeditivas',
-        'Não ter débitos com a Receita Federal'
-      ]
+      applicableToProduct: true,
+      applicableToService: true,
+      rates: {
+        irpj: 0.0,
+        csll: 0.0,
+        pis: 0.0,
+        cofins: 0.0,
+        icms: 1.25
+      }
     },
     [TaxRegimeType.LUCRO_PRESUMIDO]: {
+      id: 'lucro_presumido',
+      name: 'Lucro Presumido',
+      description: 'Regime intermediário com tributação sobre lucro presumido',
       type: TaxRegimeType.LUCRO_PRESUMIDO,
-      rate: 11.33,
-      description: 'Lucro Presumido',
-      benefits: [
-        'Apuração trimestral',
-        'Simplicidade no cálculo',
-        'Menor controle fiscal',
-        'Dispensa da escrituração do Livro Razão'
-      ],
-      requirements: [
-        'Faturamento anual até R$ 78 milhões',
-        'Não exercer atividades impeditivas',
-        'Manter documentação fiscal'
-      ]
+      applicableToProduct: true,
+      applicableToService: true,
+      rates: {
+        irpj: 1.20,
+        csll: 1.08,
+        pis: 1.65,
+        cofins: 7.60,
+        icms: 0.0
+      }
     },
     [TaxRegimeType.LUCRO_REAL]: {
+      id: 'lucro_real',
+      name: 'Lucro Real',
+      description: 'Regime com tributação sobre lucro efetivo',
       type: TaxRegimeType.LUCRO_REAL,
-      rate: 15.0,
-      description: 'Lucro Real',
-      benefits: [
-        'Tributação sobre lucro efetivo',
-        'Compensação de prejuízos fiscais',
-        'Aproveitamento de créditos fiscais',
-        'Deduções de despesas operacionais'
-      ],
-      requirements: [
-        'Obrigatório para empresas com faturamento > R$ 78 milhões',
-        'Escrituração completa',
-        'Controles fiscais rigorosos',
-        'Apuração mensal ou anual'
-      ]
+      applicableToProduct: true,
+      applicableToService: true,
+      rates: {
+        irpj: 2.5,
+        csll: 2.0,
+        pis: 1.65,
+        cofins: 7.6,
+        icms: 0.0
+      }
+    },
+    [TaxRegimeType.MEI]: {
+      id: 'mei',
+      name: 'MEI - Microempreendedor Individual',
+      description: 'Regime simplificado para microempreendedores',
+      type: TaxRegimeType.MEI,
+      applicableToProduct: true,
+      applicableToService: true,
+      rates: {
+        irpj: 0.0,
+        csll: 0.0,
+        pis: 0.0,
+        cofins: 0.0
+      }
     }
   };
 
@@ -124,13 +134,7 @@ class TaxService {
     const details = this.TAX_REGIMES[regimeKey];
     
     if (!details) {
-      return {
-        type: TaxRegimeType.SIMPLES_NACIONAL,
-        rate: 4.5,
-        description: 'Simples Nacional (padrão)',
-        benefits: this.TAX_REGIMES[TaxRegimeType.SIMPLES_NACIONAL].benefits,
-        requirements: this.TAX_REGIMES[TaxRegimeType.SIMPLES_NACIONAL].requirements
-      };
+      return this.TAX_REGIMES[TaxRegimeType.SIMPLES_NACIONAL];
     }
 
     return details;
@@ -223,15 +227,19 @@ class TaxService {
     if (alternatives.length === 0) {return 0;}
 
     const currentRegime = this.getRegimeDetails(input.currentRegime);
-    const currentTax = input.monthlyRevenue * (currentRegime.rate / 100);
+    const currentEffectiveRate = this.getEffectiveRate(currentRegime);
+    const currentTax = input.monthlyRevenue * (currentEffectiveRate / 100);
 
     const bestAlternative = alternatives.reduce((best, alternative) => {
-      const alternativeTax = input.monthlyRevenue * (alternative.rate / 100);
-      const bestTax = input.monthlyRevenue * (best.rate / 100);
+      const alternativeRate = this.getEffectiveRate(alternative);
+      const bestRate = this.getEffectiveRate(best);
+      const alternativeTax = input.monthlyRevenue * (alternativeRate / 100);
+      const bestTax = input.monthlyRevenue * (bestRate / 100);
       return alternativeTax < bestTax ? alternative : best;
-    });
+    }, alternatives[0]);
 
-    const bestTax = input.monthlyRevenue * (bestAlternative.rate / 100);
+    const bestRate = this.getEffectiveRate(bestAlternative);
+    const bestTax = input.monthlyRevenue * (bestRate / 100);
     const monthlySavings = Math.max(0, currentTax - bestTax);
 
     return Math.round(monthlySavings * 100) / 100;
@@ -263,7 +271,10 @@ class TaxService {
    * Obtém alíquotas por tipo de produto
    */
   private getProductTaxRates(regime: string, productType: 'produto' | 'servico') {
-    const rates = {
+    const rates: Record<TaxRegimeType, {
+      produto: { total: number; breakdown: Record<string, number> };
+      servico: { total: number; breakdown: Record<string, number> };
+    }> = {
       [TaxRegimeType.SIMPLES_NACIONAL]: {
         produto: {
           total: 4.0,
@@ -329,6 +340,20 @@ class TaxService {
             'ISS': 5.0 // Varia por município
           }
         }
+      },
+      [TaxRegimeType.MEI]: {
+        produto: {
+          total: 0.0,
+          breakdown: {
+            'DAS': 0.0 // Valor fixo mensal
+          }
+        },
+        servico: {
+          total: 0.0,
+          breakdown: {
+            'DAS': 0.0 // Valor fixo mensal
+          }
+        }
       }
     };
 
@@ -343,7 +368,7 @@ class TaxService {
     currentRegime: string,
     targetRegime: string,
     monthlyRevenue: number,
-    businessType: string
+    _businessType: string
   ): Promise<{
     currentTax: number;
     newTax: number;
@@ -355,8 +380,10 @@ class TaxService {
     const current = this.getRegimeDetails(currentRegime);
     const target = this.getRegimeDetails(targetRegime);
 
-    const currentTax = monthlyRevenue * (current.rate / 100);
-    const newTax = monthlyRevenue * (target.rate / 100);
+    const currentEffectiveRate = this.getEffectiveRate(current);
+    const targetEffectiveRate = this.getEffectiveRate(target);
+    const currentTax = monthlyRevenue * (currentEffectiveRate / 100);
+    const newTax = monthlyRevenue * (targetEffectiveRate / 100);
     const monthlySavings = currentTax - newTax;
     const annualSavings = monthlySavings * 12;
 
