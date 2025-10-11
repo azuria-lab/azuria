@@ -7,13 +7,15 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { HelmetProvider } from "react-helmet-async";
 import PrefetchOnIdle from "@/components/system/PrefetchOnIdle";
 
-// Import critical pages directly for faster loading
+// Import skeleton loaders for better UX
+import { SkeletonPage } from "@/components/ui/skeleton-loaders";
+
+// Import critical pages directly for faster initial load
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-
-// Keep lazy loading only for less critical pages
+// Lazy load all other pages with route-based code splitting
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
 const ProCalculatorPage = lazy(() => import("./pages/ProCalculatorPage"));
@@ -55,27 +57,18 @@ import { MultiTenantProvider } from "@/contexts/MultiTenantContext";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 
-// Optimized query client
+// Optimized query client with better cache configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
       retry: 1,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
     },
   },
 });
-
-// Optimized loading spinner
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
-      <p className="text-sm text-muted-foreground">Carregando...</p>
-    </div>
-  </div>
-);
 
 const App = () => {
   return (
@@ -89,7 +82,7 @@ const App = () => {
                   <AnalyticsProvider>
                     <Toaster />
                     <PrefetchOnIdle />
-                  <Suspense fallback={<LoadingSpinner />}>
+                  <Suspense fallback={<SkeletonPage />}>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/dashboard" element={<DashboardPage />} />

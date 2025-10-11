@@ -24,7 +24,7 @@ export default defineConfig({
     }
   },
   build: {
-    // CRITICAL: Optimize for Azure Static Web Apps Free tier (250 MB limit)
+    // Optimized for Vercel (no file limit constraints)
     target: 'es2015',
     minify: 'terser',
     terserOptions: {
@@ -42,22 +42,42 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // CRITICAL FOR AZURE FREE: Inline ALL imports to create single bundle
-        // This reduces ~100+ files to just 3-4 files total
-        inlineDynamicImports: true,
-        // Simplest possible output structure
-        entryFileNames: 'assets/app.js',
-        assetFileNames: 'assets/[name].[ext]',
-        // Compact output
+        // Smart chunking strategy for optimal loading
+        manualChunks: (id) => {
+          // Separate heavy libraries into their own chunks
+          if (id.includes('jspdf') || id.includes('autotable')) {
+            return 'pdf-export'; // 388KB → lazy loaded only when exporting
+          }
+          if (id.includes('html2canvas')) {
+            return 'screenshot'; // 201KB → lazy loaded only when needed
+          }
+          if (id.includes('recharts') || id.includes('victory')) {
+            return 'charts'; // 449KB → lazy loaded only on analytics pages
+          }
+          if (id.includes('node_modules')) {
+            // Split vendors by category
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('@tanstack') || id.includes('@supabase')) {
+              return 'data-vendor';
+            }
+            return 'vendor'; // Other dependencies
+          }
+        },
+        // Optimized file naming
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         compact: true
       }
     },
-    chunkSizeWarningLimit: 600,
-    // Reduce source map size
+    chunkSizeWarningLimit: 1000,
     sourcemap: false,
-    // Optimize CSS
     cssCodeSplit: true,
-    // Aggressive minification
     reportCompressedSize: false
   }
 });
