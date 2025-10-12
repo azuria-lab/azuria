@@ -1,9 +1,9 @@
-// Enhanced Service Worker v2.0.0 - Azuria PWA
-const SW_VERSION = '2.0.0';
-const CACHE_NAME = 'azuria-cache-v2';
-const IMAGE_CACHE = 'azuria-images-v1';
-const API_CACHE = 'azuria-api-v1';
-const STATIC_CACHE = 'azuria-static-v1';
+// Enhanced Service Worker v3.0.0 - Azuria PWA - Force Cache Clear
+const SW_VERSION = '3.0.0';
+const CACHE_NAME = 'azuria-cache-v3';
+const IMAGE_CACHE = 'azuria-images-v2';
+const API_CACHE = 'azuria-api-v2';
+const STATIC_CACHE = 'azuria-static-v2';
 
 // Cache strategy configurations
 const CACHE_CONFIG = {
