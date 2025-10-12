@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 // Dev-only security headers (approximation). In production, set headers at the reverse proxy.
 import { generateCSP, SECURITY_CONFIG } from "./src/config/security";
+// Build: 2025-10-12 18:30 - Force cache invalidation
 
 // https://vitejs.dev/config/
 export default defineConfig({
