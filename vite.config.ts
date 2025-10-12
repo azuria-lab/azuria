@@ -1,4 +1,4 @@
-
+// Force Vercel rebuild - 2025-10-12 15:30 BRT
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
