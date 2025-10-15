@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf dist && npm run build",
+  "buildCommand": "node -e \"require('fs').rmSync('dist', {recursive:true, force:true})\" && npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "npm install",
