@@ -56,17 +56,12 @@ export default defineConfig({
             return 'charts'; // 449KB → lazy loaded only on analytics pages
           }
           if (id.includes('node_modules')) {
-            // Split vendors by category
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
               return 'ui-vendor';
             }
             if (id.includes('@tanstack') || id.includes('@supabase')) {
               return 'data-vendor';
             }
-            return 'vendor'; // Other dependencies
           }
         },
         // Optimized file naming
