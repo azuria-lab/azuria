@@ -7,6 +7,42 @@ import React from 'react';
 import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * Estado geral de saúde da aplicação
+ * 
+ * Representa o resultado agregado de todas as verificações de saúde,
+ * incluindo status geral, score de confiabilidade e detalhes por check.
+ * 
+ * @interface HealthStatus
+ * 
+ * @property {'healthy' | 'degraded' | 'unhealthy'} status - Estado geral da aplicação
+ * @property {Date} timestamp - Momento em que o check foi executado
+ * @property {HealthCheck[]} checks - Lista de verificações individuais
+ * @property {number} overallScore - Score de 0-100 baseado em falhas/warnings
+ * 
+ * @example
+ * ```typescript
+ * const healthStatus: HealthStatus = {
+ *   status: 'healthy',
+ *   timestamp: new Date(),
+ *   checks: [
+ *     { name: 'database', status: 'pass', responseTime: 45 },
+ *     { name: 'auth', status: 'pass', responseTime: 32 }
+ *   ],
+ *   overallScore: 100
+ * };
+ * ```
+ * 
+ * @remarks
+ * **Status levels**:
+ * - `healthy`: Todos os checks críticos OK, <50% warnings
+ * - `degraded`: Nenhum check crítico falhou, mas há failures/warnings
+ * - `unhealthy`: Ao menos 1 check crítico falhou
+ * 
+ * **Score calculation**:
+ * - Cada failure: -30 pontos
+ * - Cada warning: -10 pontos (degraded) ou -5 pontos (healthy)
+ */
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
   timestamp: Date;
@@ -14,6 +50,37 @@ export interface HealthStatus {
   overallScore: number;
 }
 
+/**
+ * Resultado de uma verificação de saúde individual
+ * 
+ * Representa o resultado de um check específico (database, auth, etc).
+ * 
+ * @interface HealthCheck
+ * 
+ * @property {string} name - Identificador do check (ex: 'database', 'auth')
+ * @property {'pass' | 'fail' | 'warn'} status - Resultado do check
+ * @property {number} responseTime - Tempo de execução em milissegundos
+ * @property {string} [message] - Mensagem descritiva opcional
+ * @property {Record<string, unknown>} [details] - Dados adicionais do check
+ * 
+ * @example
+ * ```typescript
+ * const dbCheck: HealthCheck = {
+ *   name: 'database',
+ *   status: 'pass',
+ *   responseTime: 45,
+ *   message: 'Database connection healthy'
+ * };
+ * 
+ * const perfCheck: HealthCheck = {
+ *   name: 'performance',
+ *   status: 'warn',
+ *   responseTime: 120,
+ *   message: 'Performance test completed in 120ms',
+ *   details: { iterations: 100000, sum: 49823.4 }
+ * };
+ * ```
+ */
 export interface HealthCheck {
   name: string;
   status: 'pass' | 'fail' | 'warn';
@@ -22,6 +89,33 @@ export interface HealthCheck {
   details?: Record<string, unknown>;
 }
 
+/**
+ * Configuração do sistema de health checks
+ * 
+ * Define comportamento de monitoramento contínuo e endpoints verificados.
+ * 
+ * @interface HealthCheckConfig
+ * 
+ * @property {boolean} enabled - Se o monitoramento está ativo
+ * @property {number} interval - Intervalo entre checks em milissegundos (padrão: 30000)
+ * @property {number} timeout - Timeout por check em milissegundos (padrão: 5000)
+ * @property {number} retries - Número de retentativas em caso de falha
+ * @property {HealthEndpoint[]} endpoints - Lista de endpoints a serem verificados
+ * 
+ * @example
+ * ```typescript
+ * const config: HealthCheckConfig = {
+ *   enabled: true,
+ *   interval: 30000,  // 30 segundos
+ *   timeout: 5000,    // 5 segundos
+ *   retries: 3,
+ *   endpoints: [
+ *     { name: 'database', check: checkDB, critical: true },
+ *     { name: 'api', check: checkAPI, critical: false }
+ *   ]
+ * };
+ * ```
+ */
 export interface HealthCheckConfig {
   enabled: boolean;
   interval: number; // ms
@@ -30,6 +124,45 @@ export interface HealthCheckConfig {
   endpoints: HealthEndpoint[];
 }
 
+/**
+ * Definição de um endpoint de health check
+ * 
+ * Encapsula a lógica de verificação de um componente específico.
+ * 
+ * @interface HealthEndpoint
+ * 
+ * @property {string} name - Nome identificador do endpoint
+ * @property {string} [url] - URL opcional para checks HTTP
+ * @property {() => Promise<HealthCheck>} check - Função de verificação assíncrona
+ * @property {boolean} critical - Se a falha torna a aplicação unhealthy
+ * 
+ * @example
+ * ```typescript
+ * const databaseEndpoint: HealthEndpoint = {
+ *   name: 'database',
+ *   critical: true,
+ *   check: async () => {
+ *     const start = Date.now();
+ *     try {
+ *       await db.query('SELECT 1');
+ *       return {
+ *         name: 'database',
+ *         status: 'pass',
+ *         responseTime: Date.now() - start,
+ *         message: 'Database connection healthy'
+ *       };
+ *     } catch (error) {
+ *       return {
+ *         name: 'database',
+ *         status: 'fail',
+ *         responseTime: Date.now() - start,
+ *         message: error.message
+ *       };
+ *     }
+ *   }
+ * };
+ * ```
+ */
 export interface HealthEndpoint {
   name: string;
   url?: string;
@@ -37,6 +170,48 @@ export interface HealthEndpoint {
   critical: boolean;
 }
 
+/**
+ * Serviço singleton de monitoramento de saúde da aplicação
+ * 
+ * Gerencia verificações periódicas de componentes críticos (database, auth, etc),
+ * calcula status geral e notifica listeners sobre mudanças.
+ * 
+ * @class HealthCheckService
+ * 
+ * @example
+ * ```typescript
+ * // Inicializar monitoramento
+ * const healthCheck = HealthCheckService.getInstance();
+ * healthCheck.initialize({
+ *   interval: 30000,  // Check a cada 30s
+ *   timeout: 5000     // Timeout de 5s
+ * });
+ * 
+ * // Observar mudanças de status
+ * const unsubscribe = healthCheck.onStatusChange((status) => {
+ *   if (status.status === 'unhealthy') {
+ *     console.error('Application unhealthy!', status);
+ *   }
+ * });
+ * 
+ * // Executar check manual
+ * const result = await healthCheck.runHealthChecks();
+ * console.log('Status:', result.status, 'Score:', result.overallScore);
+ * 
+ * // Cleanup
+ * unsubscribe();
+ * healthCheck.stop();
+ * ```
+ * 
+ * @remarks
+ * **Default checks**:
+ * - `database` (critical): Testa conexão com Supabase
+ * - `auth` (critical): Valida serviço de autenticação
+ * - `localStorage`: Verifica read/write de localStorage
+ * - `performance`: CPU benchmark simples (100k iterações)
+ * 
+ * **Storage**: Histórico armazenado em localStorage (últimas 100 entradas, 24h)
+ */
 export class HealthCheckService {
   private static instance: HealthCheckService;
   private config: HealthCheckConfig;
@@ -62,7 +237,19 @@ export class HealthCheckService {
   }
 
   /**
-   * Initialize health checks
+   * Inicializa o sistema de health checks
+   * 
+   * Configura endpoints, inicia monitoramento periódico se habilitado.
+   * 
+   * @param {Partial<HealthCheckConfig>} [config] - Configuração parcial para override
+   * 
+   * @example
+   * ```typescript
+   * healthCheck.initialize({
+   *   interval: 60000,  // Check a cada 1min
+   *   timeout: 10000    // Timeout de 10s
+   * });
+   * ```
    */
   initialize(config?: Partial<HealthCheckConfig>) {
     if (config) {
@@ -78,7 +265,27 @@ export class HealthCheckService {
   }
 
   /**
-   * Add health check listener
+   * Registra listener para mudanças de status de saúde
+   * 
+   * Permite que componentes React sejam notificados quando o status mudar.
+   * 
+   * @param {(status: HealthStatus) => void} callback - Função executada a cada mudança de status
+   * 
+   * @returns {() => void} Função de cleanup para remover o listener
+   * 
+   * @example
+   * ```typescript
+   * const unsubscribe = healthCheck.onStatusChange((status) => {
+   *   if (status.status === 'degraded') {
+   *     toast.warning('Application performance degraded');
+   *   }
+   * });
+   * 
+   * // Cleanup
+   * useEffect(() => {
+   *   return unsubscribe;
+   * }, []);
+   * ```
    */
   onStatusChange(callback: (status: HealthStatus) => void) {
     this.listeners.push(callback);
@@ -93,7 +300,23 @@ export class HealthCheckService {
   }
 
   /**
-   * Run all health checks
+   * Executa todas as verificações de saúde registradas
+   * 
+   * Processa todos os endpoints em paralelo, calcula status geral e notifica listeners.
+   * 
+   * @returns {Promise<HealthStatus>} Status de saúde agregado com score
+   * 
+   * @example
+   * ```typescript
+   * const status = await healthCheck.runHealthChecks();
+   * 
+   * if (status.status === 'healthy') {
+   *   console.log('All systems operational');
+   * } else {
+   *   const failedChecks = status.checks.filter(c => c.status === 'fail');
+   *   console.error('Failed checks:', failedChecks);
+   * }
+   * ```
    */
   async runHealthChecks(): Promise<HealthStatus> {
     const startTime = Date.now();
@@ -121,7 +344,17 @@ export class HealthCheckService {
   }
 
   /**
-   * Get current health status
+   * Retorna o último status de saúde calculado
+   * 
+   * @returns {HealthStatus | null} Status atual ou null se nunca executado
+   * 
+   * @example
+   * ```typescript
+   * const current = healthCheck.getCurrentStatus();
+   * if (current) {
+   *   console.log('Last check:', current.timestamp);
+   * }
+   * ```
    */
   getCurrentStatus(): HealthStatus | null {
     return this.currentStatus;
@@ -138,7 +371,24 @@ export class HealthCheckService {
   }
 
   /**
-   * Get health history (from localStorage)
+   * Recupera histórico de health checks do localStorage
+   * 
+   * Filtra entradas recentes (últimas N horas) e deserializa timestamps.
+   * 
+   * @param {number} [hours=24] - Janela de histórico em horas (padrão: 24h)
+   * 
+   * @returns {HealthStatus[]} Array de status históricos ordenados cronologicamente
+   * 
+   * @example
+   * ```typescript
+   * // Últimas 24 horas
+   * const history = healthCheck.getHealthHistory();
+   * console.log('Checks nas últimas 24h:', history.length);
+   * 
+   * // Última hora
+   * const recent = healthCheck.getHealthHistory(1);
+   * const degradedCount = recent.filter(h => h.status === 'degraded').length;
+   * ```
    */
   getHealthHistory(hours: number = 24): HealthStatus[] {
     try {
@@ -390,7 +640,58 @@ export class HealthCheckService {
 // Global instance
 export const healthCheck = HealthCheckService.getInstance();
 
-// React hook for health monitoring
+/**
+ * React hook para monitoramento de saúde da aplicação
+ * 
+ * Fornece status em tempo real, controle manual de checks e acesso ao histórico.
+ * Automaticamente se inscreve em mudanças de status e limpa listeners no unmount.
+ * 
+ * @returns {object} Estado e métodos de health checking
+ * @returns {HealthStatus | null} returns.status - Status atual da aplicação (ou null se nunca executado)
+ * @returns {boolean} returns.isLoading - Indica se check está em execução
+ * @returns {() => Promise<HealthStatus>} returns.runCheck - Executa check manual
+ * @returns {(hours?: number) => HealthStatus[]} returns.getHistory - Acessa histórico de checks
+ * 
+ * @example
+ * ```typescript
+ * function HealthDashboard() {
+ *   const { status, isLoading, runCheck, getHistory } = useHealthCheck();
+ * 
+ *   useEffect(() => {
+ *     if (status?.status === 'unhealthy') {
+ *       toast.error('Application unhealthy!');
+ *     }
+ *   }, [status]);
+ * 
+ *   return (
+ *     <div>
+ *       <h1>Health Status: {status?.status || 'Unknown'}</h1>
+ *       <p>Score: {status?.overallScore || 0}/100</p>
+ * 
+ *       <button onClick={runCheck} disabled={isLoading}>
+ *         {isLoading ? 'Checking...' : 'Run Check'}
+ *       </button>
+ * 
+ *       <ul>
+ *         {status?.checks.map(check => (
+ *           <li key={check.name}>
+ *             {check.name}: {check.status} ({check.responseTime}ms)
+ *           </li>
+ *         ))}
+ *       </ul>
+ * 
+ *       <h2>History (Last Hour)</h2>
+ *       <p>Total checks: {getHistory(1).length}</p>
+ *     </div>
+ *   );
+ * }
+ * ```
+ * 
+ * @remarks
+ * **Auto-update**: Hook se inscreve automaticamente em mudanças de status.
+ * **Cleanup**: Unsubscribe é feito automaticamente no unmount.
+ * **Manual checks**: Use `runCheck()` para forçar verificação imediata.
+ */
 export const useHealthCheck = () => {
   const [status, setStatus] = React.useState<HealthStatus | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);

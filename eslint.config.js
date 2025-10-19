@@ -23,6 +23,7 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      
       // TypeScript strict rules
   "@typescript-eslint/no-unused-vars": ["warn", { 
         "argsIgnorePattern": "^_",
@@ -56,7 +57,11 @@ export default tseslint.config(
       }],
       
       // Performance
-      "no-unused-expressions": "error",
+      "@typescript-eslint/no-unused-expressions": ["error", {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }],
       "no-unreachable": "error",
       "no-constant-condition": "error",
     },
