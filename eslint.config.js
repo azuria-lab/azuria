@@ -73,7 +73,11 @@ export default tseslint.config(
       }],
       
       // Performance
-      "no-unused-expressions": "error",
+      "@typescript-eslint/no-unused-expressions": ["error", {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }],
       "no-unreachable": "error",
       "no-constant-condition": "error",
     },
