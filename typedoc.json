@@ -1,0 +1,49 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/services/ai/advancedTax/index.ts",
+    "src/services/ai/smartPricing/index.ts",
+    "src/services/ai/advancedCompetitor/index.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "name": "Azuria AI Services API",
+  "includeVersion": true,
+  "readme": "SERVICES_USAGE_GUIDE.md",
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/dist/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": false,
+  "plugin": [],
+  "theme": "default",
+  "hideGenerator": false,
+  "searchInComments": true,
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "categoryOrder": [
+    "Services",
+    "Types",
+    "Utilities",
+    "*"
+  ],
+  "sort": ["source-order"],
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "githubPages": false,
+  "gitRevision": "main",
+  "gitRemote": "origin",
+  "basePath": ".",
+  "disableSources": false,
+  "includeHierarchySummary": true,
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}

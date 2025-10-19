@@ -6,6 +6,37 @@
 import React, { useMemo } from 'react';
 import { logger } from '@/services/logger';
 
+/**
+ * Definição de uma feature flag individual
+ * 
+ * Representa uma funcionalidade que pode ser habilitada/desabilitada dinamicamente
+ * com controle granular por ambiente, usuário e porcentagem de rollout.
+ * 
+ * @interface FeatureFlag
+ * 
+ * @property {string} key - Identificador único da flag (ex: 'dark_mode')
+ * @property {string} name - Nome amigável para exibição
+ * @property {string} description - Descrição do que a flag controla
+ * @property {boolean} enabled - Se a flag está globalmente habilitada
+ * @property {number} [percentage] - Porcentagem de usuários (0-100) para A/B testing
+ * @property {string[]} [userSegments] - Segmentos permitidos (ex: ['pro', 'premium'])
+ * @property {Date} [startDate] - Data de ativação da flag
+ * @property {Date} [endDate] - Data de expiração da flag
+ * @property {string[]} [dependencies] - Flags que devem estar ativas (AND lógico)
+ * @property {('development' | 'staging' | 'production')[]} [environment] - Ambientes permitidos
+ * 
+ * @example
+ * ```typescript
+ * const betaFlag: FeatureFlag = {
+ *   key: 'beta_calculator',
+ *   name: 'Beta Calculator',
+ *   description: 'New experimental calculator',
+ *   enabled: false,
+ *   percentage: 10,  // 10% dos usuários
+ *   environment: ['development', 'staging']
+ * };
+ * ```
+ */
 export interface FeatureFlag {
   key: string;
   name: string;
@@ -19,6 +50,30 @@ export interface FeatureFlag {
   environment?: ('development' | 'staging' | 'production')[];
 }
 
+/**
+ * Configuração do serviço de feature flags
+ * 
+ * Define comportamento global do sistema de flags (ambiente, usuário, cache).
+ * 
+ * @interface FeatureFlagConfig
+ * 
+ * @property {boolean} enabled - Se o sistema de flags está ativo
+ * @property {'development' | 'staging' | 'production'} environment - Ambiente atual
+ * @property {string} [userId] - ID do usuário para A/B testing determinístico
+ * @property {string} [userSegment] - Segmento do usuário (ex: 'premium')
+ * @property {number} cacheTimeout - Tempo de cache em milissegundos (padrão: 300000 = 5min)
+ * 
+ * @example
+ * ```typescript
+ * const config: FeatureFlagConfig = {
+ *   enabled: true,
+ *   environment: 'production',
+ *   userId: 'user-123',
+ *   userSegment: 'premium',
+ *   cacheTimeout: 300000  // 5 minutos
+ * };
+ * ```
+ */
 export interface FeatureFlagConfig {
   enabled: boolean;
   environment: 'development' | 'staging' | 'production';
@@ -27,6 +82,61 @@ export interface FeatureFlagConfig {
   cacheTimeout: number; // ms
 }
 
+/**
+ * Serviço singleton de gerenciamento de feature flags
+ * 
+ * Controla habilitação de funcionalidades com suporte a:
+ * - A/B testing por porcentagem de usuários (determinístico via hash)
+ * - Segmentação de usuários (free, pro, premium, admin)
+ * - Controle por ambiente (dev, staging, production)
+ * - Janelas de tempo (startDate/endDate)
+ * - Dependências entre flags
+ * - Cache de resultados para performance
+ * 
+ * @class FeatureFlagsService
+ * 
+ * @example
+ * ```typescript
+ * // Inicialização
+ * const flags = FeatureFlagsService.getInstance();
+ * flags.initialize({
+ *   environment: 'production',
+ *   userId: 'user-123',
+ *   userSegment: 'premium'
+ * });
+ * 
+ * // Verificar flag
+ * if (flags.isEnabled('beta_calculator')) {
+ *   renderBetaCalculator();
+ * }
+ * 
+ * // Criar nova flag
+ * flags.setFlag({
+ *   key: 'new_feature',
+ *   name: 'New Feature',
+ *   description: 'Experimental feature',
+ *   enabled: true,
+ *   percentage: 50,  // 50% rollout
+ *   userSegments: ['premium']
+ * });
+ * 
+ * // Debug
+ * console.log(flags.getDebugInfo());
+ * ```
+ * 
+ * @remarks
+ * **Default flags** (setupDefaultFlags):
+ * - `ai_gemini_integration`: AI Gemini para análise de preços
+ * - `advanced_analytics`: Dashboard de analytics avançado
+ * - `collaboration_features`: Recursos de time (pro/premium)
+ * - `automation_workflows`: Automação de workflows (premium)
+ * - `beta_calculator`: Calculadora experimental (10% rollout)
+ * - `performance_monitoring`: Monitoramento de performance
+ * - `security_dashboard`: Dashboard de segurança (admin)
+ * - `interactive_tour`: Tour interativo para novos usuários
+ * - `dark_mode`: Tema escuro
+ * - `marketplace_integration`: Integração com marketplaces
+ */
 export class FeatureFlagsService {
   private static instance: FeatureFlagsService;
   private config: FeatureFlagConfig;
@@ -50,7 +160,21 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Initialize feature flags
+   * Inicializa o serviço de feature flags
+   * 
+   * Carrega configuração, define flags padrão e persiste em localStorage.
+   * 
+   * @param {Partial<FeatureFlagConfig>} [config] - Configuração parcial para override
+   * 
+   * @example
+   * ```typescript
+   * flags.initialize({
+   *   environment: 'production',
+   *   userId: 'user-456',
+   *   userSegment: 'pro',
+   *   cacheTimeout: 600000  // 10 minutos
+   * });
+   * ```
    */
   initialize(config?: Partial<FeatureFlagConfig>) {
     if (config) {
@@ -64,7 +188,31 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Check if feature is enabled
+   * Verifica se uma feature flag está habilitada para o usuário
+   * 
+   * Avalia todas as condições (ambiente, segmento, porcentagem, datas, dependências).
+   * Resultados são cacheados para performance.
+   * 
+   * @param {string} flagKey - Chave da feature flag (ex: 'dark_mode')
+   * @param {string} [userId] - ID do usuário (sobrescreve config.userId)
+   * 
+   * @returns {boolean} true se a flag está habilitada para o usuário
+   * 
+   * @example
+   * ```typescript
+   * // Verificação simples
+   * if (flags.isEnabled('dark_mode')) {
+   *   applyDarkTheme();
+   * }
+   * 
+   * // Com userId específico
+   * if (flags.isEnabled('beta_calculator', 'user-789')) {
+   *   renderBetaFeature();
+   * }
+   * 
+   * // Fallback para false se flag não existir
+   * const hasNewUI = flags.isEnabled('nonexistent_flag');  // false
+   * ```
    */
   isEnabled(flagKey: string, userId?: string): boolean {
     if (!this.config.enabled) {
@@ -95,21 +243,39 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Get feature flag details
+   * Busca detalhes de uma feature flag específica
+   * 
+   * @param {string} flagKey - Chave da flag
+   * @returns {FeatureFlag | undefined} Definição da flag ou undefined se não existir
    */
   getFlag(flagKey: string): FeatureFlag | undefined {
     return this.flags.get(flagKey);
   }
 
   /**
-   * Get all flags
+   * Lista todas as feature flags registradas
+   * 
+   * @returns {FeatureFlag[]} Array com todas as flags (padrão + custom)
    */
   getAllFlags(): FeatureFlag[] {
     return Array.from(this.flags.values());
   }
 
   /**
-   * Set feature flag
+   * Registra ou atualiza uma feature flag
+   * 
+   * @param {FeatureFlag} flag - Definição completa da flag
+   * 
+   * @example
+   * ```typescript
+   * flags.setFlag({
+   *   key: 'custom_feature',
+   *   name: 'Custom Feature',
+   *   description: 'My custom flag',
+   *   enabled: true,
+   *   percentage: 25
+   * });
+   * ```
    */
   setFlag(flag: FeatureFlag) {
     this.flags.set(flag.key, flag);
@@ -118,7 +284,9 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Enable feature
+   * Habilita uma feature flag existente
+   * 
+   * @param {string} flagKey - Chave da flag a habilitar
    */
   enable(flagKey: string) {
     const flag = this.flags.get(flagKey);
@@ -129,7 +297,9 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Disable feature
+   * Desabilita uma feature flag existente
+   * 
+   * @param {string} flagKey - Chave da flag a desabilitar
    */
   disable(flagKey: string) {
     const flag = this.flags.get(flagKey);
@@ -140,7 +310,16 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Set user context
+   * Define contexto do usuário para avaliação de flags
+   * 
+   * @param {string} userId - ID do usuário
+   * @param {string} [segment] - Segmento do usuário (ex: 'premium')
+   * 
+   * @example
+   * ```typescript
+   * flags.setUserContext('user-123', 'premium');
+   * // Agora todas as flags com userSegments: ['premium'] ficam disponíveis
+   * ```
    */
   setUserContext(userId: string, segment?: string) {
     this.config.userId = userId;
@@ -149,7 +328,19 @@ export class FeatureFlagsService {
   }
 
   /**
-   * Get feature flags status for debugging
+   * Retorna informações de debug sobre flags ativas
+   * 
+   * @returns {object} Objeto com config, flags avaliadas e tamanho do cache
+   * 
+   * @example
+   * ```typescript
+   * console.log(flags.getDebugInfo());
+   * // {
+   * //   config: { enabled: true, environment: 'production', ... },
+   * //   flags: [{ key: 'dark_mode', enabled: true, flag: {...} }, ...],
+   * //   cacheSize: 12
+   * // }
+   * ```
    */
   getDebugInfo() {
     const flags = Array.from(this.flags.entries()).map(([key, flag]) => ({
@@ -353,7 +544,35 @@ export class FeatureFlagsService {
 // Global instance
 export const featureFlags = FeatureFlagsService.getInstance();
 
-// React hook for feature flags
+/**
+ * React hook para verificar uma única feature flag
+ * 
+ * Retorna estado booleano que atualiza automaticamente quando flagKey ou userId mudam.
+ * 
+ * @param {string} flagKey - Chave da feature flag
+ * @param {string} [userId] - ID do usuário opcional
+ * 
+ * @returns {boolean} true se a flag está habilitada
+ * 
+ * @example
+ * ```typescript
+ * function DarkModeToggle() {
+ *   const isDarkModeEnabled = useFeatureFlag('dark_mode');
+ * 
+ *   if (!isDarkModeEnabled) {
+ *     return null;  // Não renderiza se flag desabilitada
+ *   }
+ * 
+ *   return <ThemeToggleButton />;
+ * }
+ * 
+ * // Com userId específico
+ * function BetaFeature({ userId }) {
+ *   const hasBeta = useFeatureFlag('beta_calculator', userId);
+ *   return hasBeta ? <BetaCalculator /> : <StandardCalculator />;
+ * }
+ * ```
+ */
 export const useFeatureFlag = (flagKey: string, userId?: string) => {
   const [isEnabled, setIsEnabled] = React.useState(
     () => featureFlags.isEnabled(flagKey, userId)
@@ -367,7 +586,50 @@ export const useFeatureFlag = (flagKey: string, userId?: string) => {
   return isEnabled;
 };
 
-// React hook for multiple feature flags
+/**
+ * React hook para verificar múltiplas feature flags de uma vez
+ * 
+ * Retorna objeto com status de cada flag. Otimizado para evitar re-renders desnecessários.
+ * 
+ * @param {string[]} flagKeys - Array de chaves de flags
+ * @param {string} [userId] - ID do usuário opcional
+ * 
+ * @returns {Record<string, boolean>} Objeto com flagKey → boolean
+ * 
+ * @example
+ * ```typescript
+ * function FeaturePanel() {
+ *   const flags = useFeatureFlags([
+ *     'dark_mode',
+ *     'beta_calculator',
+ *     'advanced_analytics'
+ *   ]);
+ * 
+ *   return (
+ *     <div>
+ *       {flags.dark_mode && <DarkModeToggle />}
+ *       {flags.beta_calculator && <BetaCalculator />}
+ *       {flags.advanced_analytics && <AnalyticsDashboard />}
+ *     </div>
+ *   );
+ * }
+ * 
+ * // Com userId
+ * function UserFeatures({ userId }) {
+ *   const { collaboration_features, automation_workflows } = useFeatureFlags(
+ *     ['collaboration_features', 'automation_workflows'],
+ *     userId
+ *   );
+ * 
+ *   return (
+ *     <>
+ *       {collaboration_features && <TeamInvite />}
+ *       {automation_workflows && <AutomationBuilder />}
+ *     </>
+ *   );
+ * }
+ * ```
+ */
 export const useFeatureFlags = (flagKeys: string[], userId?: string) => {
   const [flags, setFlags] = React.useState(() => 
     flagKeys.reduce((acc, key) => {
@@ -391,7 +653,51 @@ export const useFeatureFlags = (flagKeys: string[], userId?: string) => {
   return flags;
 };
 
-// Higher-order component for feature flags
+/**
+ * Higher-Order Component (HOC) para renderização condicional por feature flag
+ * 
+ * Envolve um componente e só renderiza se a flag estiver habilitada.
+ * Retorna null se flag desabilitada (sem fallback).
+ * 
+ * @param {string} flagKey - Chave da feature flag
+ * 
+ * @returns {<P extends object>(Component: React.ComponentType<P>) => React.ComponentType<P>} HOC function
+ * 
+ * @example
+ * ```typescript
+ * // Componente protegido por flag
+ * const BetaCalculator = () => <div>Beta Calculator UI</div>;
+ * 
+ * // Wrapped com HOC
+ * const BetaCalculatorWithFlag = withFeatureFlag('beta_calculator')(BetaCalculator);
+ * 
+ * // Uso normal
+ * <BetaCalculatorWithFlag />  // Renderiza apenas se 'beta_calculator' estiver habilitada
+ * 
+ * // Composição com outros HOCs
+ * const SecureAdminPanel = compose(
+ *   withAuth,
+ *   withFeatureFlag('security_dashboard')
+ * )(AdminPanel);
+ * 
+ * // Definição inline
+ * export default withFeatureFlag('advanced_analytics')(
+ *   function AnalyticsDashboard() {
+ *     return <div>Analytics...</div>;
+ *   }
+ * );
+ * ```
+ * 
+ * @remarks
+ * **Quando usar**:
+ * - Componentes inteiros que devem ser escondidos
+ * - Páginas/rotas condicionais
+ * - Features em rollout gradual
+ * 
+ * **Quando NÃO usar**:
+ * - Se precisar de fallback customizado (use hook diretamente)
+ * - Múltiplas flags no mesmo componente (use useFeatureFlags)
+ */
 export const withFeatureFlag = (flagKey: string) => {
   return function <P extends object>(Component: React.ComponentType<P>) {
     return function FeatureFlagWrapper(props: P) {
