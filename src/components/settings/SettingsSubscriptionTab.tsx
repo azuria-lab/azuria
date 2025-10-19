@@ -1,4 +1,5 @@
 
+import { logger } from '@/services/logger';
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const devLog = (...args: unknown[]) => {
   if (import.meta.env.DEV) {
     // eslint-disable-next-line no-console
-    console.error(...args);
+    logger.error(...args);
   }
 };
 

@@ -1,4 +1,5 @@
 
+import { logger } from '@/services/logger';
 import { supabase } from "@/integrations/supabase/client";
 import { UserProfileWithDisplayData } from "@/types/auth";
 import { User } from "@supabase/supabase-js";
@@ -22,8 +23,17 @@ export const useUserProfile = (
       const userMetadata = user?.user_metadata;
       const name = userMetadata?.name || user?.email?.split("@")[0] || "Usuário";
 
+      // eslint-disable-next-line no-console
+      logger.info("📝 CRIANDO PERFIL COM DADOS:", {
+        userId,
+        name,
+        userMetadata,
+        email: user?.email
+      });
+
       // Use properly typed insert
       const profileData: TablesInsert<"user_profiles"> = {
+        user_id: userId,
         id: userId,
         name,
         is_pro: isPro,
@@ -37,6 +47,9 @@ export const useUserProfile = (
         .single();
 
       if (error) { throw error; }
+
+      // eslint-disable-next-line no-console
+      logger.info("✅ PERFIL CRIADO COM SUCESSO:", data);
 
       setUserProfile({
         id: userId,
@@ -75,6 +88,14 @@ export const useUserProfile = (
 
       // Definir status PRO com base no perfil ou localStorage como fallback
       const isPro = data?.is_pro ?? localStorage.getItem("isPro") === "true";
+
+      // eslint-disable-next-line no-console
+      logger.info("📋 PERFIL CARREGADO DO BANCO:", {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        isPro: data.is_pro
+      });
 
       setUserProfile({
         id: data.id,

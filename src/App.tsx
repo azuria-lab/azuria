@@ -1,6 +1,7 @@
 
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/theme-provider";
@@ -13,10 +14,13 @@ import { SkeletonPage } from "@/components/ui/skeleton-loaders";
 // Import critical pages directly for faster initial load
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import EmailConfirmado from "./pages/EmailConfirmado";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 // Lazy load all other pages with route-based code splitting
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const DashboardCustomizable = lazy(() => import("./pages/DashboardCustomizable"));
 const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
 const ProCalculatorPage = lazy(() => import("./pages/ProCalculatorPage"));
 const AdvancedProCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
@@ -81,16 +85,21 @@ const App = () => {
                 <MultiTenantProvider>
                   <AnalyticsProvider>
                     <Toaster />
+                    <SonnerToaster position="top-right" expand={true} richColors closeButton />
                     <PrefetchOnIdle />
                   <Suspense fallback={<SkeletonPage />}>
                     <Routes>
                       <Route path="/" element={<Index />} />
-                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/dashboard-personalizado" element={<DashboardPage />} />
+                      <Route path="/dashboard-customizavel" element={<DashboardCustomizable />} />
                       <Route path="/calculadora-simples" element={<SimpleCalculatorPage />} />
                       <Route path="/calculadora-pro" element={<ProCalculatorPage />} />
                       <Route path="/calculadora-avancada" element={<AdvancedProCalculatorPage />} />
                       <Route path="/login" element={<Login />} />
+                      <Route path="/entrar" element={<Login />} />
                       <Route path="/cadastro" element={<Login />} />
+                      <Route path="/email-confirmado" element={<EmailConfirmado />} />
                       
                       {/* Lazy loaded routes */}
                       <Route path="/calculadora-lotes" element={<BatchCalculatorPage />} />
@@ -114,6 +123,7 @@ const App = () => {
                       <Route path="/api" element={<ApiPage />} />
                       <Route path="/enterprise" element={<EnterprisePage />} />
                       <Route path="/configuracoes" element={<SettingsPage />} />
+                      <Route path="/perfil" element={<SettingsPage />} />
                       <Route path="/seguranca" element={<SecurityDashboardPage />} />
                       <Route path="/planos" element={<PricingPage />} />
                       <Route path="/monetizacao" element={<MonetizationPage />} />

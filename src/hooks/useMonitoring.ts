@@ -7,6 +7,34 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { monitoringConfig, MonitoringUtils } from '@/config/monitoring';
 import { generateSecureId } from '@/utils/secureRandom';
 
+/**
+ * Extended Performance API with memory property (Chrome only)
+ */
+interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+}
+
+/**
+ * Network Information API (experimental)
+ */
+interface NetworkInformation {
+  effectiveType?: '2g' | '3g' | '4g' | 'slow-2g';
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+/**
+ * Extended Navigator with connection property
+ */
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformation;
+}
+
 interface MonitoringMetric {
   id: string;
   name: string;
@@ -113,27 +141,31 @@ export const useMonitoring = (options: UseMonitoringOptions = {}) => {
 
       // Memory usage (if available)
       if ('memory' in performance) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const memory = (performance as any).memory;
-        const memoryUsage = (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100;
+        const perfWithMemory = performance as PerformanceWithMemory;
+        const memory = perfWithMemory.memory;
         
-        metrics.push({
-          id: generateSecureId(),
-          name: 'JavaScript Memory Usage',
-          status: MonitoringUtils.checkThreshold(memoryUsage, { warning: 70, critical: 85 }),
-          value: `${memoryUsage.toFixed(1)}%`,
-          description: `${MonitoringUtils.formatMetric(memory.usedJSHeapSize, 'bytes')} / ${MonitoringUtils.formatMetric(memory.totalJSHeapSize, 'bytes')}`,
-          lastChecked: new Date(),
-          rawValue: memoryUsage,
-          unit: '%',
-          trend: 'stable'
-        });
+        if (memory) {
+          const memoryUsage = (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100;
+          
+          metrics.push({
+            id: generateSecureId(),
+            name: 'JavaScript Memory Usage',
+            status: MonitoringUtils.checkThreshold(memoryUsage, { warning: 70, critical: 85 }),
+            value: `${memoryUsage.toFixed(1)}%`,
+            description: `${MonitoringUtils.formatMetric(memory.usedJSHeapSize, 'bytes')} / ${MonitoringUtils.formatMetric(memory.totalJSHeapSize, 'bytes')}`,
+            lastChecked: new Date(),
+            rawValue: memoryUsage,
+            unit: '%',
+            trend: 'stable'
+          });
+        }
       }
 
       // Connection information
       if ('connection' in navigator) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const connection = (navigator as any).connection;
+        const navWithConnection = navigator as NavigatorWithConnection;
+        const connection = navWithConnection.connection;
+        
         if (connection) {
           metrics.push({
             id: generateSecureId(),

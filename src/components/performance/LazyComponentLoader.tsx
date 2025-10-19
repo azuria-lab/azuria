@@ -4,14 +4,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { UnifiedErrorBoundary as ErrorBoundary } from "@/shared/components/ErrorBoundary";
 
-type AnyProps = Record<string, unknown>;
-
-interface LazyComponentLoaderProps extends AnyProps {
+/**
+ * Props genéricas para componentes lazy-loaded
+ * Usa ComponentType sem restrições para permitir qualquer componente
+ */
+interface LazyComponentLoaderProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importFunc: () => Promise<{ default: React.ComponentType<any> }>;
   fallback?: React.ReactNode;
   errorFallback?: React.ReactNode;
   children?: React.ReactNode;
+  componentProps?: Record<string, unknown>;
 }
 
 const DefaultFallback = () => (
@@ -46,16 +49,15 @@ export const LazyComponentLoader: React.FC<LazyComponentLoaderProps> = ({
   fallback = <DefaultFallback />,
   errorFallback = <DefaultErrorFallback />,
   children,
-  ...props
+  componentProps = {},
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const LazyComponent = lazy(importFunc) as unknown as React.ComponentType<any>;
+  const LazyComponent = lazy(importFunc);
 
   return (
     <ErrorBoundary fallback={errorFallback}>
       <Suspense fallback={fallback}>
-  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-  <LazyComponent {...(props as any)}>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <LazyComponent {...(componentProps as any)}>
           {children}
         </LazyComponent>
       </Suspense>

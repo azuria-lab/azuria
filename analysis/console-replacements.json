@@ -1,0 +1,44 @@
+{
+  "date": "2025-10-19T16:52:49.965Z",
+  "dryRun": false,
+  "filesChanged": 9,
+  "totalReplacements": 19,
+  "files": [
+    {
+      "file": "src\\utils\\updateUserProfile.ts",
+      "changes": 6
+    },
+    {
+      "file": "src\\shared\\hooks\\useOptimizedHooks.ts",
+      "changes": 1
+    },
+    {
+      "file": "src\\shared\\hooks\\auth\\useUserProfile.ts",
+      "changes": 3
+    },
+    {
+      "file": "src\\shared\\hooks\\auth\\useAuthMethods.ts",
+      "changes": 1
+    },
+    {
+      "file": "src\\pages\\Login.tsx",
+      "changes": 1
+    },
+    {
+      "file": "src\\components\\settings\\SyncUserNameButton.tsx",
+      "changes": 2
+    },
+    {
+      "file": "src\\components\\settings\\SettingsSubscriptionTab.tsx",
+      "changes": 1
+    },
+    {
+      "file": "src\\components\\api\\SDKGenerator.tsx",
+      "changes": 2
+    },
+    {
+      "file": "src\\components\\api\\AdvancedApiDocumentation.tsx",
+      "changes": 2
+    }
+  ]
+}

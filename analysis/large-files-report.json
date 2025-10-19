@@ -1,0 +1,450 @@
+{
+  "date": "2025-10-19T16:45:00.777Z",
+  "threshold": 300,
+  "critical": 500,
+  "results": [
+    {
+      "file": "src\\integrations\\supabase\\types.ts",
+      "lines": 2011,
+      "sizeKB": "57.44",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\components\\ui\\sidebar.tsx",
+      "lines": 763,
+      "sizeKB": "23.62",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\services\\ai\\advancedTaxService.ts",
+      "lines": 714,
+      "sizeKB": "22.86",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\components\\api\\AdvancedApiDocumentation.tsx",
+      "lines": 672,
+      "sizeKB": "23.76",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\components\\analysis\\SensitivityAnalysis.tsx",
+      "lines": 608,
+      "sizeKB": "25.28",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\components\\monetization\\TrainingCertification.tsx",
+      "lines": 566,
+      "sizeKB": "22.00",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\domains\\security\\context\\SecurityContext.tsx",
+      "lines": 531,
+      "sizeKB": "17.87",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\hooks\\useDashboardStats.ts",
+      "lines": 528,
+      "sizeKB": "14.25",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\services\\ai\\smartPricingService.ts",
+      "lines": 512,
+      "sizeKB": "16.42",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\services\\ai\\advancedCompetitorService.ts",
+      "lines": 502,
+      "sizeKB": "15.61",
+      "status": "🔴 CRÍTICO"
+    },
+    {
+      "file": "src\\components\\api\\BidirectionalWebhookManager.tsx",
+      "lines": 498,
+      "sizeKB": "18.35",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\backupService.ts",
+      "lines": 487,
+      "sizeKB": "12.73",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\ai\\competitorService.ts",
+      "lines": 466,
+      "sizeKB": "15.03",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\abTesting.tsx",
+      "lines": 464,
+      "sizeKB": "13.38",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\Dashboard.tsx",
+      "lines": 461,
+      "sizeKB": "17.19",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\monetization\\ConsultingServices.tsx",
+      "lines": 461,
+      "sizeKB": "17.54",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\domains\\performance\\context\\PerformanceContext.tsx",
+      "lines": 460,
+      "sizeKB": "14.95",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\api\\SDKGenerator.tsx",
+      "lines": 439,
+      "sizeKB": "15.55",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\integrations\\WebhookAutomation.tsx",
+      "lines": 432,
+      "sizeKB": "15.32",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\healthCheck.ts",
+      "lines": 430,
+      "sizeKB": "11.34",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\automation\\RuleBuilder.tsx",
+      "lines": 429,
+      "sizeKB": "15.43",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\analysis\\CompetitivePricingCalculator.tsx",
+      "lines": 428,
+      "sizeKB": "16.43",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\calculators\\BatchCalculator.tsx",
+      "lines": 424,
+      "sizeKB": "16.06",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\multi-tenant\\StoreManager.tsx",
+      "lines": 423,
+      "sizeKB": "14.74",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\dashboard\\UnifiedDashboard.tsx",
+      "lines": 421,
+      "sizeKB": "14.76",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\ai\\taxService.ts",
+      "lines": 417,
+      "sizeKB": "12.50",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\featureFlags.ts",
+      "lines": 407,
+      "sizeKB": "10.62",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\monetization\\AffiliateSystem.tsx",
+      "lines": 400,
+      "sizeKB": "14.58",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\monetization\\TemplateMarketplace.tsx",
+      "lines": 390,
+      "sizeKB": "14.26",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\security\\SecurityDashboard.tsx",
+      "lines": 389,
+      "sizeKB": "15.08",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\Login.tsx",
+      "lines": 386,
+      "sizeKB": "16.34",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\DashboardCustomizable.tsx",
+      "lines": 382,
+      "sizeKB": "13.71",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\performance\\PerformanceDashboard.tsx",
+      "lines": 382,
+      "sizeKB": "15.81",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\AdminPanel.tsx",
+      "lines": 372,
+      "sizeKB": "14.66",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\shared\\hooks\\useBidirectionalWebhooks.ts",
+      "lines": 369,
+      "sizeKB": "11.71",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\enterprise\\AdvancedReports.tsx",
+      "lines": 367,
+      "sizeKB": "14.91",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\monitoring\\ProductionDashboard.tsx",
+      "lines": 366,
+      "sizeKB": "14.79",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\calculators\\ProCalculator.tsx",
+      "lines": 365,
+      "sizeKB": "14.80",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\ui\\chart.tsx",
+      "lines": 364,
+      "sizeKB": "10.58",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\ai\\AzuriaAIChat.tsx",
+      "lines": 362,
+      "sizeKB": "11.24",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\calculators\\AdvancedProCalculator.tsx",
+      "lines": 361,
+      "sizeKB": "14.31",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\ImportPage.tsx",
+      "lines": 359,
+      "sizeKB": "12.96",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\reports\\ScheduledReportsManager.tsx",
+      "lines": 358,
+      "sizeKB": "13.00",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\DashboardV2.tsx",
+      "lines": 354,
+      "sizeKB": "13.29",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\api\\AdvancedRateLimitDashboard.tsx",
+      "lines": 350,
+      "sizeKB": "13.83",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\hooks\\useMonitoring.ts",
+      "lines": 348,
+      "sizeKB": "10.54",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\security\\LGPDCompliance.tsx",
+      "lines": 345,
+      "sizeKB": "13.28",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\services\\errorTracking.ts",
+      "lines": 343,
+      "sizeKB": "9.14",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\reports\\ExportOptions.tsx",
+      "lines": 342,
+      "sizeKB": "12.60",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\calculators\\MarketplaceComparator.tsx",
+      "lines": 340,
+      "sizeKB": "13.54",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\dashboard\\DashboardTemplateSelector.tsx",
+      "lines": 335,
+      "sizeKB": "10.83",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\monitoring\\MonitoringDashboard.tsx",
+      "lines": 331,
+      "sizeKB": "10.93",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\collaboration\\ApprovalSystem.tsx",
+      "lines": 330,
+      "sizeKB": "10.96",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\utils\\webVitalsOptimizer.ts",
+      "lines": 329,
+      "sizeKB": "9.91",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\onboarding\\OnboardingTour.tsx",
+      "lines": 328,
+      "sizeKB": "10.28",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\integrations\\SpreadsheetSync.tsx",
+      "lines": 328,
+      "sizeKB": "11.42",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\shared\\hooks\\useExportReports.ts",
+      "lines": 326,
+      "sizeKB": "9.84",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\security\\PerformanceOptimizationDashboard.tsx",
+      "lines": 320,
+      "sizeKB": "12.50",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\onboarding\\OnboardingSystem.tsx",
+      "lines": 319,
+      "sizeKB": "12.13",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\analytics\\MarginAnalysis.tsx",
+      "lines": 318,
+      "sizeKB": "10.54",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\data\\marketplaces.ts",
+      "lines": 316,
+      "sizeKB": "8.31",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\DashboardOld.tsx",
+      "lines": 315,
+      "sizeKB": "11.02",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\enterprise\\ApiManagement.tsx",
+      "lines": 311,
+      "sizeKB": "12.68",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\home\\PlansOverviewSection.tsx",
+      "lines": 309,
+      "sizeKB": "13.07",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\multi-tenant\\ConsolidatedDashboard.tsx",
+      "lines": 308,
+      "sizeKB": "12.68",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\shared\\hooks\\usePerformanceMonitor.ts",
+      "lines": 307,
+      "sizeKB": "9.59",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\shared\\hooks\\useAdvancedBusinessMetrics.ts",
+      "lines": 307,
+      "sizeKB": "9.80",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\achievements\\GamificationSystem.tsx",
+      "lines": 306,
+      "sizeKB": "11.19",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\utils\\pwa.ts",
+      "lines": 304,
+      "sizeKB": "8.65",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\pages\\ScenariosPage.tsx",
+      "lines": 302,
+      "sizeKB": "11.41",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\templates\\TemplateMarketplace.tsx",
+      "lines": 302,
+      "sizeKB": "12.05",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\domains\\calculator\\hooks\\legacy\\useSimpleCalculator.ts",
+      "lines": 301,
+      "sizeKB": "8.21",
+      "status": "🟡 ALTO"
+    },
+    {
+      "file": "src\\components\\security\\DataBackup.tsx",
+      "lines": 301,
+      "sizeKB": "10.50",
+      "status": "🟡 ALTO"
+    }
+  ],
+  "summary": {
+    "total": 73,
+    "critical": 10,
+    "high": 63
+  }
+}

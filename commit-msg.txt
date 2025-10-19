@@ -1,0 +1,29 @@
+fix: force clean build on Vercel with prebuild script
+
+CRITICAL FIX - Last resort to fix stale builds
+
+Issue:
+- Vercel NOT rebuilding despite config changes
+- Build cache persisting across deployments
+- Users stuck with broken chunks (404 errors)
+
+Root Cause:
+- Vercel caching dist/ folder between builds
+- No cache invalidation happening
+- Stale index-tC7ffidB.js still being served
+
+Solution:
+- Add prebuild script to package.json
+- Deletes dist/ folder before every build
+- Forces complete rebuild from scratch
+- Runs automatically before 'npm run build'
+
+Expected Result:
+- Fresh dist/ on every Vercel build
+- New chunk hashes generated
+- Correct files served (index-DuDyYtyH.js, vendor-BCPl9KMR.js)
+- Site works for all users
+
+This MUST work.
+
+Refs: #critical #vercel #production-down

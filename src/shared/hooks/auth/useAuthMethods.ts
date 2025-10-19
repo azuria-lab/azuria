@@ -79,6 +79,13 @@ export const useAuthMethods = (
 
   logger.info("🔐 Registrando usuário:", email);
       
+      // eslint-disable-next-line no-console
+      logger.info("📝 DADOS DO REGISTRO:", {
+        email: email.trim(),
+        name: name.trim(),
+        metadata: { name: name.trim() }
+      });
+      
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -121,7 +128,7 @@ export const useAuthMethods = (
       setIsLoading(true);
       setError(null);
       
-  logger.info("🔐 Fazendo logout...");
+      logger.info("🔐 Fazendo logout...");
       
       const { error } = await supabase.auth.signOut();
       
@@ -131,6 +138,8 @@ export const useAuthMethods = (
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("isPro");
       localStorage.removeItem("azuria-theme");
+      localStorage.removeItem("azuria_authenticated");
+      localStorage.removeItem("azuria_user_email");
       
       logger.info("✅ Logout realizado com sucesso");
       return true;

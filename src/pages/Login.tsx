@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/domains/auth";
 import Layout from "@/components/layout/Layout";
 import DevControls from "@/components/dev/DevControls";
-import { ArrowRight, Loader2, Lock, Mail, User } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { logger } from "@/services/logger";
 
 export default function Login() {
@@ -19,18 +19,11 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { login, register, isAuthenticated } = useAuthContext();
-
-  // Redirecionar se já estiver autenticado
-  useEffect(() => {
-    if (isAuthenticated) {
-      const from = location.state?.from?.pathname || "/calculadora-simples";
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, location.state]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,16 +44,29 @@ export default function Login() {
       const session = await login(email, password);
       
       if (session) {
-        logger.info("✅ Login realizado com sucesso");
+        logger.info("✅ Login realizado com sucesso", { user: session.user.email });
+        
+        // Salvar flag de autenticação no localStorage
+        localStorage.setItem('azuria_authenticated', 'true');
+        localStorage.setItem('azuria_user_email', session.user.email || '');
+        
+        // Marcar onboarding como completo para não redirecionar para calculadora
+        localStorage.setItem('azuria-onboarding-completed', 'true');
+        localStorage.setItem('onboarding_completed', 'true');
+        
+        // Limpar qualquer redirect ou cache pendente
+        localStorage.removeItem('azuria_redirect_after_login');
+        sessionStorage.clear(); // Limpa session storage que pode ter redirects
+        
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo de volta ao Azuria",
+          description: "Redirecionando para o dashboard...",
         });
         
-        // Aguardar um pouco para garantir que o estado foi atualizado
+        // Usar replace para evitar voltar para login com botão voltar
         setTimeout(() => {
-          const from = location.state?.from?.pathname || "/calculadora-simples";
-          navigate(from, { replace: true });
+          logger.info("🔄 EXECUTANDO REDIRECT: window.location.replace('/dashboard')");
+          window.location.replace('/dashboard');
         }, 500);
       } else {
         throw new Error("Falha no login - sessão não criada");
@@ -118,15 +124,20 @@ export default function Login() {
       
       if (result) {
         logger.info("✅ Conta criada com sucesso");
+        
+        // Marcar onboarding como completo para não redirecionar para calculadora
+        localStorage.setItem('azuria-onboarding-completed', 'true');
+        localStorage.setItem('onboarding_completed', 'true');
+        
         toast({
           title: "Conta criada com sucesso!",
-          description: "Você já pode usar o Azuria. Bem-vindo!",
+          description: "Redirecionando para o dashboard...",
         });
         
-        // Aguardar um pouco para garantir que o estado foi atualizado
+        // Limpar cache e usar replace
+        sessionStorage.clear();
         setTimeout(() => {
-          const from = location.state?.from?.pathname || "/calculadora-simples";
-          navigate(from, { replace: true });
+          window.location.replace('/dashboard');
         }, 500);
       } else {
         throw new Error("Falha no cadastro");
@@ -219,15 +230,27 @@ export default function Login() {
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
                           id="password"
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           disabled={isLoading}
                           minLength={6}
-                          className="pl-10 h-12"
+                          className="pl-10 pr-10 h-12"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          disabled={isLoading}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
                     <Button 
@@ -297,15 +320,27 @@ export default function Login() {
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
                           id="password-register"
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="Mínimo 6 caracteres"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           disabled={isLoading}
                           minLength={6}
-                          className="pl-10 h-12"
+                          className="pl-10 pr-10 h-12"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          disabled={isLoading}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
                     <Button 

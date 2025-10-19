@@ -1,0 +1,35 @@
+# SQLFluff Configuration
+# This linter is DISABLED in .vscode/settings.json
+# We use Microsoft PostgreSQL extension instead
+
+[sqlfluff]
+# Dialect for PostgreSQL
+dialect = postgres
+
+# Templater (for embedded SQL)
+templater = jinja
+
+# Indentation
+indent_unit = space
+tab_space_size = 4
+
+# Line length
+max_line_length = 120
+
+# Rules to ignore (customize as needed)
+exclude_rules = L003, L016
+
+# File encoding
+encoding = utf-8
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 2
+
+[sqlfluff:rules]
+# Allow capitalized keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:L010]
+# Allow capitalized keywords
+capitalisation_policy = upper

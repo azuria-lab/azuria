@@ -99,7 +99,7 @@ export const usePerformanceTracker = (componentName: string) => {
         const msg = `${componentName} render took ${Math.round(duration)}ms`;
         logger.warn(msg);
         // eslint-disable-next-line no-console
-        console.warn(msg); // keep for tests compatibility
+        logger.warn(msg); // keep for tests compatibility
       } else {
         // noop in tests
       }

@@ -35,7 +35,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   variant = "page"
 }) => {
   const handleReload = () => {
-    window.location.reload();
+    globalThis.window.location.reload();
   };
 
   if (variant === "minimal") {

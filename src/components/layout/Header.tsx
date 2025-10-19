@@ -16,7 +16,12 @@ export default function Header() {
   const { isPro } = useProStatus();
   useLocation();
   const authContext = useAuthContext();
-  const isAuthenticated = authContext?.isAuthenticated || false;
+  
+  // Check both auth context and localStorage for authentication state
+  const isAuthenticatedFromContext = authContext?.isAuthenticated || false;
+  const isAuthenticatedFromStorage = typeof window !== 'undefined' && 
+    localStorage.getItem('azuria_authenticated') === 'true';
+  const isAuthenticated = isAuthenticatedFromContext || isAuthenticatedFromStorage;
 
   useEffect(() => {
     setMounted(true);

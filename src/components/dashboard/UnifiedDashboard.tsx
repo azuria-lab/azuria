@@ -1,9 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useAuthContext } from '@/domains/auth';
+import { getFirstName, getTimeBasedGreeting } from '@/utils/greetings';
+import { supabase } from '@/integrations/supabase/client';
+import { UpdateNameButton } from '@/components/settings/UpdateNameButton';
 //
 import { Link } from 'react-router-dom';
 import { 
@@ -28,6 +32,84 @@ interface DashboardStats {
 }
 
 export default function UnifiedDashboard() {
+  const authContext = useAuthContext();
+  const userProfile = authContext?.userProfile;
+  // Tratar string vazia como nome não definido
+  const userName = userProfile?.name && userProfile.name.trim() !== '' ? userProfile.name : null;
+  const firstName = getFirstName(userName);
+  const greeting = getTimeBasedGreeting();
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Atualizar nome automaticamente quando o componente carregar
+  useEffect(() => {
+    const updateProfileName = async () => {
+      // Se já está atualizando ou já tem nome, não fazer nada
+      if (isUpdating || userName) {
+        return;
+      }
+      
+      // Se não tem usuário autenticado, não fazer nada
+      if (!authContext?.user?.id) {
+        return;
+      }
+      
+      setIsUpdating(true);
+      
+      try {
+        // Tentar pegar o nome de diferentes fontes
+        const user = authContext.user;
+        let nameToSet = '';
+        
+        // 1. Tentar pegar do user_metadata
+        if (user.user_metadata?.name) {
+          nameToSet = user.user_metadata.name;
+        } 
+        // 2. Tentar pegar do user_metadata.full_name
+        else if (user.user_metadata?.full_name) {
+          nameToSet = user.user_metadata.full_name;
+        }
+        // 3. Tentar pegar da parte antes do @ do email
+        else if (user.email) {
+          const emailName = user.email.split('@')[0];
+          // Capitalizar primeira letra e remover números/caracteres especiais
+          nameToSet = emailName
+            .replace(/[0-9._-]/g, ' ')
+            .trim()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ') || 'Usuário';
+        }
+        // 4. Fallback final
+        else {
+          nameToSet = 'Usuário';
+        }
+        
+        // Atualizar o nome no banco de dados
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({ name: nameToSet })
+          .eq('id', user.id);
+        
+        if (!error) {
+          // Aguardar 1 segundo e recarregar para pegar o novo nome
+          setTimeout(() => {
+            globalThis.location.reload();
+          }, 1000);
+        }
+      } catch (_err) {
+        // Silenciar erros para não quebrar a UI
+        setIsUpdating(false);
+      }
+    };
+    
+    // Executar após 500ms para garantir que o contexto foi carregado
+    const timer = setTimeout(() => {
+      updateProfileName();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [authContext?.user?.id, userName, isUpdating, authContext]);
+  
   const [stats] = useState<DashboardStats>({
     totalCalculations: 127,
     aiAnalysis: 23,
@@ -104,12 +186,24 @@ export default function UnifiedDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Botão para atualizar nome - TEMPORÁRIO */}
+      {!firstName || firstName === 'Usuário' ? (
+        <UpdateNameButton />
+      ) : null}
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">
+            {greeting}, {firstName || 'Usuário'}! 👋
+          </h1>
+          {import.meta.env.DEV && (
+            <p className="text-xs text-slate-500 mt-1">
+              Perfil atual: {JSON.stringify({ name: userProfile?.name, email: userProfile?.email })}
+            </p>
+          )}
           <p className="text-muted-foreground">
-            Bem-vindo de volta! Aqui está o resumo da sua atividade.
+            Pronto para maximizar seus lucros hoje?
           </p>
         </div>
         <div className="flex items-center gap-2">

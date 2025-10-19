@@ -44,3 +44,13 @@ public/sw.js.map
 # Lockfiles (policy: npm only)
 yarn.lock
 pnpm-lock.yaml
+
+# Documentation generated files
+docs/api/
+jsdoc-coverage-report.json
+typedoc-output/
+.typedoc/
+
+# SBOM generated files
+sbom.json
+sbom.xml

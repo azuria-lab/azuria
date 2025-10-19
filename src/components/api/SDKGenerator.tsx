@@ -312,7 +312,7 @@ $client = new PrecificaClient([
   marketplace: 'mercado_livre'
 });
 
-console.log(result.sellingPrice);`}</pre>
+logger.info(result.sellingPrice);`}</pre>
                   )}
                   {selectedLanguage === 'python' && (
                     <pre>{`result = await client.calculations.create(
@@ -345,7 +345,7 @@ echo $result->getSellingPrice();`}</pre>
                   {selectedLanguage === 'javascript' && (
                     <pre>{`// Receber webhook
 client.webhooks.on('price_update', (data) => {
-  console.log('Preço atualizado:', data);
+  logger.info('Preço atualizado:', data);
 });
 
 // Enviar webhook

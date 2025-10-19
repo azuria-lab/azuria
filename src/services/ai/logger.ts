@@ -1,17 +1,62 @@
 // Serviço de logging para Azuria AI
+
+/**
+ * Tipo para dados estruturados de log
+ * Permite qualquer estrutura de objeto, mas mantém type safety
+ */
+export type LogData = Record<string, unknown>;
+
+/**
+ * Contexto de erro com informações adicionais
+ */
+export interface ErrorContext {
+  message?: string;
+  stack?: string;
+  code?: string | number;
+  [key: string]: unknown;
+}
+
+/**
+ * Type guard para verificar se é um Error
+ */
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+/**
+ * Converte unknown para Error ou ErrorContext
+ * Útil para tratar erros de catch blocks
+ */
+export function toErrorContext(error: unknown): Error | ErrorContext {
+  if (isError(error)) {
+    return error;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    return error as ErrorContext;
+  }
+
+  return {
+    message: String(error)
+  };
+}
+
+/**
+ * Entrada de log do sistema
+ */
 export interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
-  data?: any;
+  data?: LogData;
   timestamp: Date;
   service: string;
 }
 
 class Logger {
   private logs: LogEntry[] = [];
-  private maxLogs = 1000;
+  private readonly maxLogs = 1000;
 
-  private log(level: LogEntry['level'], message: string, data?: any, service = 'AzuriaAI'): void {
+  private log(level: LogEntry['level'], message: string, data?: LogData, service = 'AzuriaAI'): void {
     const entry: LogEntry = {
       level,
       message,
@@ -39,19 +84,19 @@ class Logger {
     }
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: LogData): void {
     this.log('info', message, data);
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: LogData): void {
     this.log('warn', message, data);
   }
 
-  error(message: string, data?: any): void {
+  error(message: string, data?: LogData): void {
     this.log('error', message, data);
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: LogData): void {
     this.log('debug', message, data);
   }
 
@@ -82,8 +127,14 @@ class Logger {
   private async sendToMonitoring(entry: LogEntry): Promise<void> {
     try {
       // Integração com Application Insights ou serviço similar
-      if (typeof window !== 'undefined' && (window as any).appInsights) {
-        (window as any).appInsights.trackException({
+      interface AppInsights {
+        trackException: (data: { exception: Error; properties?: Record<string, string> }) => void;
+      }
+
+      const appInsights = (globalThis as unknown as { appInsights?: AppInsights }).appInsights;
+
+      if (globalThis.window !== undefined && appInsights) {
+        appInsights.trackException({
           exception: new Error(entry.message),
           properties: {
             service: entry.service,
@@ -92,14 +143,17 @@ class Logger {
         });
       }
     } catch (error) {
-      console.error('Erro ao enviar log para monitoramento:', error);
+      // Silent fail in production - não usar console em produção
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao enviar log para monitoramento:', error);
+      }
     }
   }
 
   /**
    * Registra métricas de uso da IA
    */
-  trackAIUsage(action: string, duration: number, success: boolean, metadata?: any): void {
+  trackAIUsage(action: string, duration: number, success: boolean, metadata?: LogData): void {
     this.info(`AI Usage: ${action}`, {
       action,
       duration,
@@ -108,11 +162,17 @@ class Logger {
     });
 
     // Envia métricas em produção
-    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined' && (window as any).appInsights) {
-      (window as any).appInsights.trackEvent('ai_usage', {
+    interface AppInsights {
+      trackEvent: (name: string, properties?: Record<string, string>, measurements?: Record<string, number>) => void;
+    }
+
+    const appInsights = (globalThis as unknown as { appInsights?: AppInsights }).appInsights;
+
+    if (process.env.NODE_ENV === 'production' && globalThis.window !== undefined && appInsights) {
+      appInsights.trackEvent('ai_usage', {
         action,
         success: success.toString(),
-        ...metadata
+        ...(metadata as Record<string, string>)
       }, {
         duration
       });
@@ -122,11 +182,14 @@ class Logger {
   /**
    * Registra erro da IA
    */
-  trackAIError(action: string, error: any, context?: any): void {
+  trackAIError(action: string, error: Error | ErrorContext, context?: LogData): void {
+    const errorMessage = error instanceof Error ? error.message : (error.message || 'Unknown error');
+    const errorStack = error instanceof Error ? error.stack : (error.stack || undefined);
+
     this.error(`AI Error: ${action}`, {
       action,
-      error: error.message || error,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorStack,
       context
     });
   }

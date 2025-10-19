@@ -1,6 +1,6 @@
  
 import { AIContext, ChatMessage, ChatSession } from '@/shared/types/ai';
-import { logger } from './logger';
+import { logger, toErrorContext } from './logger';
 import { generateSecureId } from '@/utils/secureRandom';
 
 class ChatService {
@@ -56,7 +56,7 @@ class ChatService {
 
       return message;
     } catch (error) {
-      logger.trackAIError('chat_process_message', error, { sessionId });
+      logger.trackAIError('chat_process_message', toErrorContext(error), { sessionId });
       throw new Error('Erro ao processar mensagem do chat');
     }
   }

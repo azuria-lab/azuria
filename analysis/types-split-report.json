@@ -1,0 +1,13 @@
+{
+  "date": "2025-10-19T17:02:36.406Z",
+  "dryRun": false,
+  "originalSize": 2011,
+  "modules": {
+    "base.ts": 12,
+    "tables.ts": 1667,
+    "views.ts": 9,
+    "functions.ts": 183,
+    "enums.ts": 36,
+    "index.ts": 21
+  }
+}

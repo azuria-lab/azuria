@@ -1,5 +1,5 @@
 import { CompetitorPlatform, CompetitorPricing } from '@/shared/types/ai';
-import { logger } from './logger';
+import { logger, toErrorContext } from './logger';
 
 interface _CompetitorSearchParams {
   productName: string;
@@ -72,7 +72,7 @@ class CompetitorService {
       return mockData;
 
     } catch (error) {
-      logger.trackAIError('competitor_analysis', error, { productName });
+      logger.trackAIError('competitor_analysis', toErrorContext(error), { productName });
       return []; // Retorna lista vazia em caso de erro
     }
   }
@@ -107,7 +107,7 @@ class CompetitorService {
       return result;
 
     } catch (error) {
-      logger.trackAIError('price_monitoring', error, { productName });
+      logger.trackAIError('price_monitoring', toErrorContext(error), { productName });
       return { changes: [], alerts: [] };
     }
   }

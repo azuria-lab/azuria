@@ -49,7 +49,7 @@ export default function SupabaseDebug() {
 
       const { error } = await supabase
         .from('user_profiles')
-        .upsert({ id: user.id, email: user.email, name: 'Debug User', updated_at: new Date().toISOString() });
+        .upsert({ id: user.id, user_id: user.id, email: user.email, name: 'Debug User', updated_at: new Date().toISOString() });
       setChecks((prev) => prev.concat({ name: 'upsert user_profiles', ok: !error, error: error?.message }));
     } catch (e: unknown) {
       setChecks((prev) => prev.concat({ name: 'upsert user_profiles', ok: false, error: getErrorMessage(e) }));

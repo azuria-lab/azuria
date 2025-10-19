@@ -1,4 +1,5 @@
 
+import { logger } from '@/services/logger';
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,7 +52,7 @@ const batchResults = await client.calculations.batch([
 
 // Webhooks bidirecionais
 client.webhooks.onReceive('price_update', (data) => {
-  console.log('Preço atualizado:', data);
+  logger.info('Preço atualizado:', data);
 });
 
 await client.webhooks.send('calculation_completed', {
@@ -81,7 +82,7 @@ try {
     rateLimitedClient.calculations.create(calc3)
   ]);
 } catch (rateLimitError) {
-  console.log('Rate limit atingido, retry automático em:', rateLimitError.retryAfter);
+  logger.info('Rate limit atingido, retry automático em:', rateLimitError.retryAfter);
 }`
   },
     
