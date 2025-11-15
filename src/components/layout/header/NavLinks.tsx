@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { BarChart3, Brain, Calculator, FileText, History, Home, Puzzle, ShoppingBag, Target, Users, Zap } from 'lucide-react';
+import { BarChart3, Brain, Calculator, FileText, Home, Puzzle, ShoppingBag, Target, Users, Zap } from 'lucide-react';
 
 export const navLinks = [
   { 
@@ -15,7 +15,29 @@ export const navLinks = [
     label: "Calculadora",
     path: "/calculadora-simples",
     icon: <Calculator className="h-4 w-4" />,
-    dataOnboarding: "calculator-button"
+    dataOnboarding: "calculator-button",
+    subLinks: [
+      {
+        to: "/calculadora-simples",
+        label: "Calculadora Básica",
+        description: "Cálculo rápido de preços"
+      },
+      {
+        to: "/calculadora-avancada",
+        label: "Calculadora Avançada",
+        description: "Análise detalhada de margens"
+      },
+      {
+        to: "/calculadora-tributaria",
+        label: "Calculadora Tributária",
+        description: "Simples Nacional, Lucro Presumido e Real"
+      },
+      {
+        to: "/calculadora-licitacao",
+        label: "Calculadora de Licitação",
+        description: "🏛️ Calcule preços para licitações públicas e privadas"
+      }
+    ]
   },
   { 
     to: "/templates", 
@@ -63,10 +85,11 @@ export const navLinks = [
     dataOnboarding: "analytics-button"
   },
   { 
-    to: "/historico", 
-    label: "Histórico",
-    path: "/historico",
-    icon: <History className="h-4 w-4" />
+    to: "/dashboard-licitacoes", 
+    label: "Licitações",
+    path: "/dashboard-licitacoes",
+    icon: <FileText className="h-4 w-4" />,
+    badge: "Novo"
   },
   { 
     to: "/colaboracao", 

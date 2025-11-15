@@ -18,9 +18,11 @@ import NotFound from "./pages/NotFound";
 // Lazy load all other pages with route-based code splitting
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
-const ProCalculatorPage = lazy(() => import("./pages/ProCalculatorPage"));
-const AdvancedProCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
+const AdvancedCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
 const BatchCalculatorPage = lazy(() => import("./pages/BatchCalculatorPage"));
+// const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
+const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage"));
+const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
 const IntelligentBatchCalculatorPage = lazy(() => import("./pages/IntelligentBatchCalculatorPage"));
 const MarketplaceComparatorPage = lazy(() => import("./pages/MarketplaceComparatorPage"));
 const MarketplacePage = lazy(() => import("./pages/MarketplacePage"));
@@ -37,6 +39,9 @@ const ApiPage = lazy(() => import("./pages/ApiPage"));
 const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+// const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
+// const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
+// const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const Welcome = lazy(() => import("./pages/Welcome"));
 const SecurityDashboardPage = lazy(() => import("./pages/SecurityDashboardPage"));
@@ -56,6 +61,11 @@ import { AuthProvider } from "@/domains/auth";
 import { MultiTenantProvider } from "@/contexts/MultiTenantContext";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
+
+// UI/UX Providers
+import { TourOverlay, TourProvider } from "@/components/tour";
+import { KeyboardShortcutsModal, KeyboardShortcutsProvider } from "@/components/keyboard";
+import { GlobalShortcuts } from "@/components/shortcuts/GlobalShortcuts";
 
 // Optimized query client with better cache configuration
 const queryClient = new QueryClient({
@@ -77,18 +87,25 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <ThemeProvider defaultTheme="light" storageKey="azuria-theme">
-              <AuthProvider>
-                <MultiTenantProvider>
-                  <AnalyticsProvider>
-                    <Toaster />
-                    <PrefetchOnIdle />
+              <KeyboardShortcutsProvider>
+                <TourProvider>
+                  <AuthProvider>
+                    <MultiTenantProvider>
+                      <AnalyticsProvider>
+                        <Toaster />
+                        <PrefetchOnIdle />
+                        <TourOverlay />
+                        <KeyboardShortcutsModal />
+                        <GlobalShortcuts />
                   <Suspense fallback={<SkeletonPage />}>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/dashboard" element={<DashboardPage />} />
                       <Route path="/calculadora-simples" element={<SimpleCalculatorPage />} />
-                      <Route path="/calculadora-pro" element={<ProCalculatorPage />} />
-                      <Route path="/calculadora-avancada" element={<AdvancedProCalculatorPage />} />
+                      <Route path="/calculadora-avancada" element={<AdvancedCalculatorPage />} />
+                      {/* <Route path="/calculadora-tributaria" element={<TaxCalculatorPage />} /> */}
+                      <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
+                      <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/cadastro" element={<Login />} />
                       
@@ -116,6 +133,9 @@ const App = () => {
                       <Route path="/configuracoes" element={<SettingsPage />} />
                       <Route path="/seguranca" element={<SecurityDashboardPage />} />
                       <Route path="/planos" element={<PricingPage />} />
+                      {/* <Route path="/assinatura" element={<SubscriptionManagementPage />} /> */}
+                      {/* <Route path="/pagamento/retorno" element={<PaymentReturnPage />} /> */}
+                      {/* <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} /> */}
                       <Route path="/monetizacao" element={<MonetizationPage />} />
                       <Route path="/templates" element={<Templates />} />
                       <Route path="/colaboracao" element={<CollaborationPage />} />
@@ -125,11 +145,13 @@ const App = () => {
                       <Route path="/welcome" element={<Welcome />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
-                    </Suspense>
-                  </AnalyticsProvider>
-                </MultiTenantProvider>
-              </AuthProvider>
-            </ThemeProvider>
+                      </Suspense>
+                    </AnalyticsProvider>
+                  </MultiTenantProvider>
+                </AuthProvider>
+              </TourProvider>
+            </KeyboardShortcutsProvider>
+          </ThemeProvider>
           </BrowserRouter>
         </QueryClientProvider>
       </HelmetProvider>

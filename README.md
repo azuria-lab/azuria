@@ -9,6 +9,219 @@
 [![Documentation](https://img.shields.io/badge/docs-enterprise--grade-success)](./SERVICES_USAGE_GUIDE.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](./tsconfig.json)
 
+## 🚀 Visão Geral
+
+O **Azuria** é uma plataforma SaaS completa de precificação e gestão de vendas desenvolvida especificamente para empreendedores e lojistas brasileiros. Combina **calculadoras avançadas**, **análise tributária inteligente**, **integração multi-marketplace** e **insights baseados em IA** para maximizar a lucratividade e simplificar a gestão do seu negócio.
+
+### 🎯 Para Quem é o Azuria?
+
+- 🛒 **E-commerce**: Vendedores em Mercado Livre, Amazon, Shopee, Magazine Luiza
+- 🏪 **Varejistas**: Lojistas físicos que precisam calcular preços rapidamente
+- 📦 **Atacadistas**: Empresas que vendem em volume com margens complexas
+- 💼 **Prestadores de Serviço**: Profissionais que precisam precificar serviços
+- 🏭 **Indústria**: Fabricantes com cálculos de custo de produção
+
+### ⚡ Funcionalidades Principais
+
+| Funcionalidade | Descrição | Documentação |
+|----------------|-----------|--------------|
+| 🧮 **Calculadora Básica** | Cálculos rápidos de precificação | [Ver seção](#-calculadora-básica) |
+| 🚀 **Calculadora Avançada** | Precificação profissional multi-marketplace | [docs/ADVANCED_CALCULATOR.md](#) |
+| 💰 **Calculadora Tributária** | Análise completa de regimes fiscais brasileiros | [docs/TAX_CALCULATOR.md](#) |
+| 📦 **Lote Inteligente + IA** | Precificação em lote com análise competitiva e IA | [Ver seção](#-lote-inteligente--ia) |
+| 🏪 **Multi-Marketplace** | Integração com 30+ marketplaces | [docs/MARKETPLACE.md](#) |
+| 📊 **Análise de Rentabilidade** | Dashboard com gráficos e métricas detalhadas | [Ver seção](#-análise-de-rentabilidade) |
+| 🎯 **Cenários de Precificação** | Simule diferentes margens e condições | [Ver seção](#-cenários-de-precificação) |
+| 📥 **Importação em Massa** | Importe e calcule preços para múltiplos produtos | [Ver seção](#-importação-em-massa) |
+| � **Análise de Concorrência** | Compare seus preços com concorrentes | [Ver seção](#-análise-de-concorrência) |
+| 🌡️ **Análise de Sensibilidade** | Entenda o impacto de variáveis no preço | [Ver seção](#-análise-de-sensibilidade) |
+| �💳 **Pagamentos Stripe** | Sistema de assinaturas completo | [docs/STRIPE_INTEGRATION.md](./docs/STRIPE_INTEGRATION.md) |
+| 🤖 **IA Inteligente** | Otimização de preços com inteligência artificial | [Ver seção](#-ia-para-preços) |
+| � **Analytics** | Dashboard em tempo real com KPIs | [docs/ANALYTICS.md](#) |
+
+## 🧮 Calculadoras do Azuria
+
+O Azuria oferece duas calculadoras otimizadas para diferentes necessidades de precificação:
+
+### 📱 Calculadora Básica
+
+**Objetivo:** Cálculos rápidos e diretos para precificação do dia a dia.
+
+**Funcionalidades:**
+- ✅ Preço de custo do produto
+- ✅ Impostos de Nota Fiscal (ICMS, PIS, COFINS)
+- ✅ Taxas de maquininha de cartão
+- ✅ Cálculo do valor final de venda
+- ✅ Lucro líquido e margem de lucro
+
+**Ideal para:** Empreendedores que precisam de uma visão rápida da precificação sem complicações.
+
+**Acesso:** `/calculadora-simples`
+
+---
+
+### 🚀 Calculadora Avançada
+
+**Objetivo:** Precificação profissional para marketplaces com análise completa de custos e margens otimizadas.
+
+**🎯 Wizard em 3 Etapas:**
+
+#### Etapa 1: Dados do Produto
+- Nome do produto
+- Categoria (Eletrônicos, Moda, Casa, Esportes, Beleza, Outros)
+- Custo do produto
+- Preview em tempo real
+
+#### Etapa 2: Custos e Marketplace
+- **Margem de lucro:** Slider interativo 0-100% + botões rápidos (10%, 20%, 30%, 40%, 50%)
+- **Marketplace:** Mercado Livre, Shopee, Amazon, Custom (taxas automáticas)
+- **Meio de pagamento:** 
+  - Cartão de Crédito (2.5%)
+  - Cartão de Débito (1.5%)
+  - PIX (0.5%)
+  - Boleto (3.0%)
+- **Custos adicionais:**
+  - Frete
+  - Embalagem
+  - Marketing
+  - Outros
+
+#### Etapa 3: Resultado Final
+- 📊 **Painel lateral em tempo real** com cálculos instantâneos
+- 💰 Preço sugerido (destaque verde)
+- 📈 Lucro líquido
+- 📊 Margem total (%)
+- 💳 Total de taxas
+- 🎮 **Simulação de cenários:** Ajuste rápido de margem (±5%, ±10%)
+- 📥 **Exportação PDF:** Relatório completo com logo e data
+- 📜 **Histórico:** Últimos 10 cálculos salvos
+- 🧠 **Otimizar com IA:** Preparado para integração futura
+
+**🎨 Design Premium:**
+- Interface moderna com glassmorphism
+- Animações suaves (Framer Motion)
+- Sistema de cores semântico (custos=laranja, impostos=amarelo, lucro=verde)
+- Tooltips informativos em todos os campos
+- Responsividade total (mobile-first)
+
+**📝 Nota sobre Tributos:**
+> Para análise tributária completa com Simples Nacional, Lucro Presumido e Lucro Real, utilize a **Calculadora Tributária** (em desenvolvimento).
+
+**Ideal para:** Vendedores profissionais em marketplaces que precisam de precificação detalhada com exportação e histórico.
+
+**Acesso:** `/calculadora-avancada`
+
+**Documentação Completa:** [ADVANCED_CALCULATOR_IMPLEMENTATION.md](./ADVANCED_CALCULATOR_IMPLEMENTATION.md)
+
+---
+
+### 🔄 Diferença entre as Calculadoras
+
+| Característica | Básica | Avançada |
+|----------------|--------|----------|
+| **Interface** | ⚡ Single-page simples | 🎯 Wizard 3 etapas |
+| **Cálculo em tempo real** | ❌ Não | ✅ Painel lateral fixo |
+| **Impostos** | NF básica | Taxas automáticas marketplace + pagamento |
+| **Marketplace** | ❌ Não inclui | ✅ ML, Shopee, Amazon, Custom |
+| **Custos adicionais** | Apenas maquininha | Frete, embalagem, marketing, outros |
+| **Simulação de cenários** | ❌ Não | ✅ ±5%, ±10% instantâneo |
+| **Exportação** | ❌ Não | ✅ PDF completo com relatório |
+| **Histórico** | ❌ Não | ✅ Últimos 10 cálculos |
+| **IA** | ❌ Não | 🔮 Preparado (em breve) |
+| **Público-alvo** | Iniciantes e vendas rápidas | Vendedores profissionais e e-commerce |
+
+### ✨ Funcionalidades Avançadas da Plataforma
+
+#### 📦 Lote Inteligente + IA
+Precifique múltiplos produtos simultaneamente com análise competitiva e sugestões de IA:
+- Importação de planilhas (CSV, Excel)
+- Análise competitiva automática por categoria
+- Sugestões de preço baseadas em IA
+- Simulação de cenários em massa
+- Exportação de resultados
+
+#### 📊 Análise de Rentabilidade
+Dashboard completo com visualização de métricas:
+- Gráficos de rentabilidade por produto/categoria
+- Acompanhamento de margens ao longo do tempo
+- Comparação entre diferentes períodos
+- Identificação de produtos mais lucrativos
+- Relatórios personalizados
+
+#### 🎯 Cenários de Precificação
+Simule diferentes estratégias antes de aplicar:
+- Teste múltiplas margens de lucro
+- Compare condições de pagamento
+- Analise impacto de descontos
+- Visualize resultado em diferentes marketplaces
+- Salve e compare cenários
+
+#### 📥 Importação em Massa
+Importe e gerencie grandes volumes de produtos:
+- Suporte a CSV, Excel e Google Sheets
+- Mapeamento automático de colunas
+- Validação de dados em tempo real
+- Cálculo automático para todos os itens
+- Histórico de importações
+
+#### 👥 Análise de Concorrência
+Compare seus preços com o mercado:
+- Pesquisa automatizada de preços
+- Comparação com principais concorrentes
+- Alertas de mudanças de preço
+- Posicionamento de mercado
+- Sugestões de ajustes competitivos
+
+#### 🌡️ Análise de Sensibilidade
+Entenda o impacto das variáveis no seu preço:
+- Análise de elasticidade de preço
+- Impacto de custos variáveis
+- Simulação de cenários extremos
+- Gráficos de sensibilidade
+- Pontos de equilíbrio
+
+#### 🤖 IA para Preços
+Inteligência artificial para otimização automática:
+- Análise preditiva de demanda
+- Sugestões de preço dinâmicas
+- Aprendizado com histórico de vendas
+- Recomendações personalizadas
+- Otimização contínua
+
+#### 📊 Analytics Avançado
+- Dashboard em tempo real com métricas de negócio e KPIs
+- Funis de conversão e análise de comportamento
+- Métricas de engajamento e retenção
+
+#### 🏪 Multi-Marketplace
+- Integração com Mercado Livre, Amazon, Shopee e 30+ marketplaces
+- Sincronização automática de preços e estoque
+- Gestão centralizada de produtos
+
+#### 📱 PWA & Mobile
+- Experiência mobile-first com funcionalidades offline
+- Instalação como app nativo
+- Notificações push personalizadas
+
+#### 🔄 Automação
+- Workflows inteligentes para ajuste automático de preços
+- Regras personalizadas por produto/categoria
+- Integração com APIs externas
+
+#### 👥 Colaboração
+- Sistema de equipes com aprovações e comentários
+- Permissões granulares por função
+- Histórico de alterações
+
+#### 📈 Relatórios
+- Exportação avançada (PDF, CSV, Excel)
+- Relatórios automatizados por email
+- Templates personalizáveis
+
+## 🏗️ Arquitetura Técnica
+
+### Stack de Tecnologias
+
 | Stack | Versão |
 |-------|--------|
 | React | 18.3.1 |
@@ -17,24 +230,7 @@
 | Supabase | 2.49 |
 | PWA | Ready |
 
-## 🚀 Visão Geral
-
-O **Azuria** é uma plataforma SaaS avançada de precificação desenvolvida especificamente para lojistas e empreendedores brasileiros. Combina cálculos inteligentes de preço de venda, análise de concorrência em tempo real e insights baseados em IA para maximizar a lucratividade dos negócios.
-
-### ✨ Principais Funcionalidades
-
-- 🧮 **Calculadora Inteligente**: Cálculo automático de preços com base em custos, margens e impostos brasileiros
-- 📊 **Analytics Avançado**: Dashboard em tempo real com métricas de negócio e KPIs
-- 🤖 **IA Integrada**: Recomendações personalizadas e análise preditiva de demanda
-- 🏪 **Multi-Marketplace**: Integração com Mercado Livre, Amazon, Shopee e outros
-- 📱 **PWA Completo**: Experiência mobile-first com funcionalidades offline
-- 🔄 **Automação**: Workflows inteligentes para ajuste automático de preços
-- 👥 **Colaboração**: Sistema de equipes com aprovações e comentários
-- 📈 **Relatórios**: Exportação avançada e relatórios automatizados
-
-## 🏗️ Arquitetura Técnica
-
-### Stack Tecnológico Principal
+### Stack Tecnológico Completo
 
 ```typescript
 Frontend:
@@ -118,10 +314,8 @@ cd azuria
 npm install
 
 # Configure as variáveis de ambiente
-cp .env.example .env.local
 
 # Configure o Supabase (ver seção Configuração)
-npm run setup:supabase
 
 # Inicie o servidor de desenvolvimento
 npm run dev
@@ -129,11 +323,8 @@ npm run dev
 
 ### Configuração do Ambiente
 
-1. **Supabase Setup**:
-
   ```bash
    # Crie um projeto no Supabase Dashboard
-   # Copie as credenciais para .env.local
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
@@ -141,8 +332,6 @@ npm run dev
 1. **Variáveis de Ambiente**:
 
   ```env
-   # Supabase
-   VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    
    # Analytics (opcional)
@@ -249,12 +438,12 @@ npm run analyze
 npm run preview
 ```
 
-### Deploy Automático (Lovable)
+### Deploy Automático (Vercel)
 
-O projeto está configurado para deploy automático via Lovable:
+O projeto está configurado para deploy automático via Vercel ou outras plataformas:
 
 1. **Push para main**: Deploy automático em staging
-2. **Publish**: Deploy em produção via dashboard Lovable
+2. **Production**: Deploy em produção via dashboard
 3. **Custom Domain**: Configurável nas configurações do projeto
 
 ### Deploy Manual

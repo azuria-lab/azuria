@@ -4,11 +4,10 @@ import {
   BarChart2, 
   Brain, 
   Calculator, 
-  ChartBar,
   CircleDollarSign,
+  FileText,
   FileUp,
   Package2,
-  Search,
   ShoppingBag,
   Thermometer,
   Users,
@@ -19,10 +18,24 @@ import { FeatureItem } from "@/components/home/FeatureCard";
 // Feature cards for the dashboard
 export const features: FeatureItem[] = [
   {
-    title: "Calculadora Simples",
-    description: "Cálculo rápido de preços de venda para seus produtos",
+    title: "Calculadora Básica",
+    description: "Cálculo rápido de custo, impostos de NF e taxas de maquininha",
     icon: <Calculator className="w-10 h-10 text-brand-600" />,
     link: "/calculadora-simples",
+    available: true
+  },
+  {
+    title: "Calculadora Avançada",
+    description: "Análise completa com regimes tributários e custos de marketplace",
+    icon: <CircleDollarSign className="w-10 h-10 text-brand-600" />,
+    link: "/calculadora-avancada",
+    available: true
+  },
+  {
+    title: "Calculadora Tributária",
+    description: "Compare regimes tributários brasileiros: Simples, MEI, Lucro Presumido e Real",
+    icon: <FileText className="w-10 h-10 text-brand-600" />,
+    link: "/calculadora-tributaria",
     available: true
   },
   {
@@ -36,13 +49,6 @@ export const features: FeatureItem[] = [
     available: true
   },
   {
-    title: "Calculadora PRO",
-    description: "Cálculos avançados com marketplaces e mais detalhes",
-    icon: <CircleDollarSign className="w-10 h-10 text-brand-600" />,
-    link: "/calculadora-pro",
-    available: true
-  },
-  {
     title: "IA para Preços",
     description: "Inteligência artificial para otimização de preços",
     icon: <Brain className="w-10 h-10 text-brand-600" />,
@@ -50,10 +56,10 @@ export const features: FeatureItem[] = [
     available: true
   },
   {
-    title: "Análise de Rentabilidade",
-    description: "Dashboard com gráficos e métricas por produto/categoria",
-    icon: <ChartBar className="w-10 h-10 text-brand-600" />,
-    link: "/analise-rentabilidade",
+    title: "Calculadora de Licitação",
+    description: "Calcule preços competitivos para licitações públicas e privadas",
+    icon: <FileText className="w-10 h-10 text-brand-600" />,
+    link: "/calculadora-licitacao",
     available: true
   },
   {
@@ -96,13 +102,6 @@ export const features: FeatureItem[] = [
     description: "Entenda o impacto de diferentes variáveis no preço",
     icon: <Thermometer className="w-10 h-10 text-brand-600" />,
     link: "/analise-sensibilidade",
-    available: true
-  },
-  {
-    title: "Preferências",
-    description: "Configure seu perfil e preferências de cálculo",
-    icon: <Search className="w-10 h-10 text-brand-600" />,
-    link: "/configuracoes",
     available: true
   }
 ];
