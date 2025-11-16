@@ -63,31 +63,55 @@ export default function SettingsTabs({
 
   return (
     <Tabs defaultValue={currentTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:grid-cols-5 mb-8">
-        <TabsTrigger value="profile" className="flex items-center gap-2 sm:py-2.5">
+      <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:grid-cols-5 mb-8 bg-gray-100 p-1 rounded-xl">
+        <TabsTrigger 
+          value="profile" 
+          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
+        >
           <UserRound className="w-4 h-4" />
           <span className="hidden sm:block">Perfil</span>
         </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center gap-2 sm:py-2.5">
+        <TabsTrigger 
+          value="notifications" 
+          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
+        >
           <BellRing className="w-4 h-4" />
           <span className="hidden sm:block">Notificações</span>
         </TabsTrigger>
-        <TabsTrigger value="security" className="flex items-center gap-2 sm:py-2.5">
+        <TabsTrigger 
+          value="security" 
+          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
+        >
           <ShieldCheck className="w-4 h-4" />
           <span className="hidden sm:block">Segurança</span>
         </TabsTrigger>
-        <TabsTrigger value="subscription" className="flex items-center gap-2 sm:py-2.5">
+        <TabsTrigger 
+          value="subscription" 
+          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
+        >
           <CircleDollarSign className="w-4 h-4" />
           <span className="hidden sm:block">Assinatura</span>
         </TabsTrigger>
-        <TabsTrigger value="business" className="flex items-center gap-2 sm:py-2.5">
+        <TabsTrigger 
+          value="business" 
+          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
+        >
           <CircleDollarSign className="w-4 h-4" />
           <span className="hidden sm:block">Negócio</span>
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="profile">
-        <SettingsProfileTab onSave={handleProfileSave} />
+        <SettingsProfileTab 
+          onSave={handleProfileSave}
+          initialData={{
+            name: userProfile?.name || undefined,
+            email: userProfile?.email || undefined,
+            avatar_url: userProfile?.avatar_url || undefined,
+            phone: userProfile?.phone || undefined,
+            company: userProfile?.company || undefined
+          }}
+        />
       </TabsContent>
       
       <TabsContent value="notifications">

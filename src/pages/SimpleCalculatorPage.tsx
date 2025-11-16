@@ -72,20 +72,20 @@ export default function SimpleCalculatorPage() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-brand-800">Quer cálculos mais precisos?</h3>
+                <h3 className="text-xl font-semibold mb-2 text-brand-800">Precisa de cálculos mais detalhados?</h3>
                 <p className="text-gray-600">
-                  Assine o plano PRO e tenha acesso à calculadora avançada com suporte para marketplaces, 
-                  impostos e frete grátis.
+                  Experimente a Calculadora Avançada com regimes tributários completos (Simples Nacional, Lucro Presumido, Lucro Real),
+                  taxas de marketplace e análise de custos de e-commerce.
                 </p>
               </div>
               
               <div className="flex gap-4">
-                <Link to="/calculadora-pro">
+                <Link to="/calculadora-avancada">
                   <Button 
                     variant="outline" 
                     className="border-brand-600 text-brand-600 hover:bg-brand-50 transition-all hover:shadow"
                   >
-                    Ver calculadora PRO
+                    Ver Calculadora Avançada
                   </Button>
                 </Link>
                 <Link to="/planos">

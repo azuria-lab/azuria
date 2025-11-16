@@ -21,8 +21,6 @@ const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
 const AdvancedCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
 const BatchCalculatorPage = lazy(() => import("./pages/BatchCalculatorPage"));
 const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
-const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage"));
-const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
 const IntelligentBatchCalculatorPage = lazy(() => import("./pages/IntelligentBatchCalculatorPage"));
 const MarketplaceComparatorPage = lazy(() => import("./pages/MarketplaceComparatorPage"));
 const MarketplacePage = lazy(() => import("./pages/MarketplacePage"));
@@ -39,9 +37,9 @@ const ApiPage = lazy(() => import("./pages/ApiPage"));
 const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
-// const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
-// const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
-// const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
+const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
+const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
+const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
 const MonetizationPage = lazy(() => import("./pages/MonetizationPage"));
 const Welcome = lazy(() => import("./pages/Welcome"));
 const SecurityDashboardPage = lazy(() => import("./pages/SecurityDashboardPage"));
@@ -104,8 +102,6 @@ const App = () => {
                       <Route path="/calculadora-simples" element={<SimpleCalculatorPage />} />
                       <Route path="/calculadora-avancada" element={<AdvancedCalculatorPage />} />
                       <Route path="/calculadora-tributaria" element={<TaxCalculatorPage />} />
-                      <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
-                      <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/cadastro" element={<Login />} />
                       
@@ -133,9 +129,9 @@ const App = () => {
                       <Route path="/configuracoes" element={<SettingsPage />} />
                       <Route path="/seguranca" element={<SecurityDashboardPage />} />
                       <Route path="/planos" element={<PricingPage />} />
-                      {/* <Route path="/assinatura" element={<SubscriptionManagementPage />} /> */}
-                      {/* <Route path="/pagamento/retorno" element={<PaymentReturnPage />} /> */}
-                      {/* <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} /> */}
+                      <Route path="/assinatura" element={<SubscriptionManagementPage />} />
+                      <Route path="/pagamento/retorno" element={<PaymentReturnPage />} />
+                      <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} />
                       <Route path="/monetizacao" element={<MonetizationPage />} />
                       <Route path="/templates" element={<Templates />} />
                       <Route path="/colaboracao" element={<CollaborationPage />} />

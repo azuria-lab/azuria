@@ -1,7 +1,7 @@
 
-# 🔧 Guia de Solução de Problemas - Precifica+
+# 🔧 Guia de Solução de Problemas - Azuria
 
-Este guia ajuda a resolver os problemas mais comuns encontrados no Precifica+.
+Este guia ajuda a resolver os problemas mais comuns encontrados no Azuria.
 
 ## 🚨 Problemas Críticos
 

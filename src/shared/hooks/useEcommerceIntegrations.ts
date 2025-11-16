@@ -192,7 +192,7 @@ export const useEcommerceIntegrations = () => {
         timestamp: new Date().toISOString(),
         platform: connection.platform,
         data: {
-          message: 'Teste de webhook do Precifica+',
+          message: 'Teste de webhook do Azuria',
           connection_id: connectionId,
         }
       };

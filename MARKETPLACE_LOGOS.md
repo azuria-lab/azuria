@@ -1,4 +1,4 @@
-# 📋 Lista de Marketplaces - Precifica+
+# 📋 Lista de Marketplaces - Azuria
 
 ## 🎯 Status Atual
 

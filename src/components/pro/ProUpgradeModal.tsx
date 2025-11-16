@@ -132,7 +132,7 @@ export default function ProUpgradeModal({
               <div className="p-8">
                 <div className="text-center mb-8">
                   <h3 className="text-xl font-semibold mb-2">
-                    Desbloqueie o Poder PRO do Precifica+
+                    Desbloqueie o Poder PRO do Azuria
                   </h3>
                   <p className="text-muted-foreground">
                     Transforme sua estratégia de preços com recursos exclusivos
@@ -196,7 +196,7 @@ export default function ProUpgradeModal({
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    +1.000 lojistas já aumentaram seus lucros com o Precifica+ PRO
+                    +1.000 lojistas já aumentaram seus lucros com o Azuria PRO
                   </p>
                 </div>
               </div>

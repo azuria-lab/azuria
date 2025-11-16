@@ -63,7 +63,7 @@ export const useCalculatorExport = ({
   const handleShare = () => {
     // Preparar texto para compartilhamento
     const shareText = `
-*Calculadora PRO Precifica+*
+*Calculadora PRO Azuria*
 ${productInfo.name ? `Produto: ${productInfo.name}` : ''}
 ${productInfo.sku ? `SKU: ${productInfo.sku}` : ''}
 Custo: R$ ${formatCurrency(Number(cost))}
@@ -78,7 +78,7 @@ ${includeShipping ? `Frete: R$ ${formatCurrency(Number(shipping))}` : ''}
     // Tentar usar a API de compartilhamento do navegador se disponível
     if (navigator.share) {
       navigator.share({
-        title: 'Cálculo Precifica+',
+        title: 'Cálculo Azuria',
         text: shareText
       }).catch(err => {
         logger.error('Erro ao compartilhar:', err);

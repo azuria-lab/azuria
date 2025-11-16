@@ -96,13 +96,10 @@ export default function AdvancedProCalculator({ userId: _userId }: AdvancedProCa
         <div className="p-2 bg-brand-100 rounded-lg">
           <Calculator className="h-6 w-6 text-brand-600" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold">Calculadora PRO Avançada</h2>
-          <p className="text-gray-600">Cálculos precisos com impostos complexos e análise de mercado</p>
+        <div className="flex-1">
+          <h2 className="text-2xl font-bold">Calculadora Avançada</h2>
+          <p className="text-gray-600">Regimes tributários completos, custos de marketplace e análise de mercado</p>
         </div>
-        <Badge className="bg-gradient-to-r from-brand-500 to-brand-600 text-white">
-          PRO
-        </Badge>
       </div>
 
       <Tabs defaultValue="calculator" className="w-full">
@@ -304,7 +301,7 @@ export default function AdvancedProCalculator({ userId: _userId }: AdvancedProCa
               className="bg-brand-600 hover:bg-brand-700 px-8"
             >
               <Calculator className="h-4 w-4 mr-2" />
-              {isLoading ? "Calculando..." : "Calcular Preço PRO"}
+              {isLoading ? "Calculando..." : "Calcular Preço Avançado"}
             </Button>
           </div>
 
@@ -345,7 +342,7 @@ export default function AdvancedProCalculator({ userId: _userId }: AdvancedProCa
         <TabsContent value="settings" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Configurações PRO</CardTitle>
+              <CardTitle>Configurações Avançadas</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">

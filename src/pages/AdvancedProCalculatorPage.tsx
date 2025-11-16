@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import AdvancedProCalculator from "@/components/calculators/AdvancedProCalculator";
+import AdvancedCalculator from "@/components/calculators/AdvancedCalculator";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/services/logger";
@@ -49,9 +49,9 @@ export default function AdvancedProCalculatorPage() {
 
         setUser(session.user);
         
-        // Verificação de assinatura PRO
-        const userIsPro = localStorage.getItem("isPro") === "true";
-        setIsPro(userIsPro);
+        // ⚠️ MODO TESTE: Liberado acesso total para desenvolvimento
+        // TODO: Restaurar verificação real antes do deploy
+        setIsPro(true);
         
         setIsLoading(false);
       } catch (error) {
@@ -86,16 +86,16 @@ export default function AdvancedProCalculatorPage() {
             <>
               <motion.div variants={itemVariants} className="text-center mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                  Calculadora PRO Avançada
+                  Calculadora Avançada
                 </h1>
                 <p className="text-gray-600 max-w-3xl mx-auto">
-                  Ferramenta completa para cálculos precisos com impostos complexos, 
-                  análise automática de concorrência e suporte a múltiplos marketplaces.
+                  Ferramenta profissional para precificação em marketplaces com análise completa de custos operacionais, 
+                  comissões e estratégias de margem otimizada.
                 </p>
               </motion.div>
               
               <motion.div variants={itemVariants}>
-                <AdvancedProCalculator userId={user?.id} />
+                <AdvancedCalculator userId={user?.id} />
               </motion.div>
             </>
           )}

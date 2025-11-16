@@ -12,8 +12,6 @@ import ResultAnalysis from "@/components/calculators/ResultAnalysis";
 import TemplateSelector from "@/components/templates/TemplateSelector";
 import type { CalculationTemplate } from "@/types/templates";
 import OfflineIndicator from "@/components/offline/OfflineIndicator";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
-import { useOnboarding } from "@/hooks/useOnboarding";
 import {
   SubscriptionAuthError,
   UsageLimitError,
@@ -90,7 +88,6 @@ export default function SimpleCalculator({ isPro = false, userId }: SimpleCalcul
 
   const { getDisplayResult } = useSimpleCalculatorUI(isPro);
   const { applyTemplate } = useTemplateApplication();
-  const { showOnboarding, closeOnboarding, completeOnboarding } = useOnboarding();
 
   const handleMarginChange = (values: number[]) => {
     setMargin(values[0]);
@@ -241,12 +238,6 @@ export default function SimpleCalculator({ isPro = false, userId }: SimpleCalcul
         />
       </motion.div>
       </motion.div>
-
-      <OnboardingTour
-        isOpen={showOnboarding}
-        onClose={closeOnboarding}
-        onComplete={completeOnboarding}
-      />
 
       <UsageLimitDialog
         open={isLimitDialogOpen}

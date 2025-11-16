@@ -1,7 +1,7 @@
 
-# 🏗️ Arquitetura do Precifica+
+# 🏗️ Arquitetura do Azuria
 
-Este documento detalha a arquitetura técnica completa do Precifica+, incluindo decisões de design, padrões utilizados e estrutura do sistema.
+Este documento detalha a arquitetura técnica completa do Azuria, incluindo decisões de design, padrões utilizados e estrutura do sistema.
 
 ## 📋 Índice
 
@@ -18,7 +18,7 @@ Este documento detalha a arquitetura técnica completa do Precifica+, incluindo 
 
 ## 🎯 Visão Geral
 
-O Precifica+ é uma aplicação SaaS moderna construída com arquitetura JAMstack, combinando:
+O Azuria é uma aplicação SaaS moderna construída com arquitetura JAMstack, combinando:
 
 - **Frontend**: React SPA com TypeScript
 - **Backend**: Supabase (BaaS)

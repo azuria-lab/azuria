@@ -40,13 +40,19 @@ export const useKeyboardShortcuts = () => {
       key: 'c',
       ctrl: true,
       action: () => navigate('/calculadora-simples'),
-      description: 'Calculadora Simples'
+      description: 'Calculadora Básica'
     },
     {
-      key: 'p',
+      key: 'v',
       ctrl: true,
-      action: () => navigate('/calculadora-pro'),
-      description: 'Calculadora PRO'
+      action: () => navigate('/calculadora-avancada'),
+      description: 'Calculadora Avançada'
+    },
+    {
+      key: 't',
+      ctrl: true,
+      action: () => navigate('/calculadora-tributaria'),
+      description: 'Calculadora Tributária'
     },
     {
       key: 'a',

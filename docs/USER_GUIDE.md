@@ -1,7 +1,7 @@
 
-# 📖 Manual do Usuário - Precifica+
+# 📖 Manual do Usuário - Azuria
 
-Bem-vindo ao Precifica+! Este guia completo te ajudará a dominar todas as funcionalidades da plataforma para maximizar a lucratividade do seu negócio.
+Bem-vindo ao Azuria! Este guia completo te ajudará a dominar todas as funcionalidades da plataforma para maximizar a lucratividade do seu negócio.
 
 ## 📋 Índice
 
@@ -589,7 +589,7 @@ A: Cálculos são salvos automaticamente na nuvem se você estiver logado.
 
 ## 🎉 Parabéns!
 
-Você concluiu o guia completo do Precifica+! 
+Você concluiu o guia completo do Azuria! 
 
 Com essas informações, você está preparado para:
 - ✅ Calcular preços com precisão científica
@@ -598,7 +598,7 @@ Com essas informações, você está preparado para:
 - ✅ Tomar decisões baseadas em IA
 - ✅ Colaborar eficientemente com sua equipe
 
-**Lembre-se**: O sucesso na precificação vem da prática consistente e análise contínua. Use o Precifica+ como sua ferramenta principal, mas sempre valide com seu conhecimento do mercado.
+**Lembre-se**: O sucesso na precificação vem da prática consistente e análise contínua. Use o Azuria como sua ferramenta principal, mas sempre valide com seu conhecimento do mercado.
 
 **Boa sorte e boas vendas! 🚀**
 

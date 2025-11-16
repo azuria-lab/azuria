@@ -100,7 +100,6 @@ export {
 export { useDashboard } from './useDashboard';
 export { useOfflineCalculator } from './useOfflineCalculator';
 export { useAccessibility } from './useAccessibility';
-export { useOnboarding } from './useOnboarding';
 
 // ============================================
 // AUDIT & SECURITY HOOKS

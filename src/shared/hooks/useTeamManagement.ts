@@ -17,7 +17,7 @@ export const useTeamManagement = (teamId?: string) => {
     { id: 'analytics_view', name: 'Ver Analytics', description: 'Acessar relatórios e análises', category: 'analytics' },
     { id: 'analytics_export', name: 'Exportar Analytics', description: 'Baixar relatórios em PDF/Excel', category: 'analytics' },
     { id: 'team_manage', name: 'Gerenciar Equipe', description: 'Adicionar/remover membros da equipe', category: 'settings' },
-    { id: 'api_access', name: 'Acesso API', description: 'Usar a API do Precifica+', category: 'api' },
+    { id: 'api_access', name: 'Acesso API', description: 'Usar a API do Azuria', category: 'api' },
     { id: 'api_manage', name: 'Gerenciar API Keys', description: 'Criar e gerenciar chaves de API', category: 'api' },
     { id: 'reports_create', name: 'Criar Relatórios', description: 'Gerar relatórios personalizados', category: 'reports' },
     { id: 'reports_schedule', name: 'Agendar Relatórios', description: 'Configurar relatórios automáticos', category: 'reports' }
@@ -92,7 +92,7 @@ export const useTeamManagement = (teamId?: string) => {
       // Dados mockados da equipe - agora incluindo a propriedade members
       const mockTeam: Team = {
         id: teamId,
-        name: "Equipe Precifica+",
+        name: "Equipe Azuria",
         plan: "enterprise",
         ownerId: user.id,
         members: mockMembers, // Adding the missing members property

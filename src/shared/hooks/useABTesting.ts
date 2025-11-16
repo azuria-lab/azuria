@@ -42,16 +42,6 @@ const AB_TESTS: ABTest[] = [
     ],
     active: true,
     description: 'Teste do texto do botão de upgrade'
-  },
-  {
-    id: 'onboarding_flow',
-    name: 'Fluxo de Onboarding',
-    variants: [
-      { id: 'tutorial', name: 'Com Tutorial', weight: 50 },
-      { id: 'direct', name: 'Direto ao App', weight: 50 }
-    ],
-    active: true,
-    description: 'Teste do fluxo inicial para novos usuários'
   }
 ];
 

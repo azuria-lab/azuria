@@ -1,12 +1,10 @@
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, ExternalLink } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useStripe } from "@/hooks/useStripe";
 
 const devLog = (...args: unknown[]) => {
   if (import.meta.env.DEV) {
@@ -28,30 +26,11 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
   onCancel,
   onUpgrade,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { openCustomerPortal, isLoading } = useStripe();
 
-  const handleManageSubscription = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      
-      if (error) {
-        devLog("Erro ao abrir portal:", error);
-        toast.error("Erro ao abrir portal de gerenciamento");
-        return;
-      }
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.success("Abrindo portal de gerenciamento...");
-      }
-    } catch (error) {
-      devLog("Erro no portal:", error);
-      toast.error("Erro inesperado. Tente novamente.");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleManageSubscription = () => {
+    openCustomerPortal();
   };
 
   const handleUpgradeClick = () => {
@@ -85,7 +64,7 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
             <div>
               <h3 className="font-medium text-lg">Plano PRO</h3>
               <p className="text-gray-600 text-sm">
-                Você aproveita todos os recursos avançados do Precifica+ sem limites.
+                Você aproveita todos os recursos avançados do Azuria sem limites.
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -132,7 +111,7 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
             <div>
               <h3 className="font-medium text-lg">Plano Grátis</h3>
               <p className="text-gray-600 text-sm">
-                Você está usando a versão gratuita do Precifica+ <br />
+                Você está usando a versão gratuita do Azuria <br />
                 Aproveite recursos essenciais para precificação.
               </p>
             </div>

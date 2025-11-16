@@ -1,7 +1,7 @@
 
-# 🤝 Guia de Contribuição - Precifica+
+# 🤝 Guia de Contribuição - Azuria
 
-Obrigado por seu interesse em contribuir com o Precifica+! Este guia detalha como contribuir efetivamente para o projeto.
+Obrigado por seu interesse em contribuir com o Azuria! Este guia detalha como contribuir efetivamente para o projeto.
 
 ## 📋 Índice
 

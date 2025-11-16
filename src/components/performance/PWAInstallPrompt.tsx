@@ -90,7 +90,7 @@ export default function PWAInstallPrompt() {
   const handleShare = async () => {
     try {
       const success = await shareData({
-        title: "Precifica+ - Calculadora de Preços",
+        title: "Azuria - Gestão Inteligente de Preços",
         text: "Descubra a melhor ferramenta para calcular preços de produtos!",
         url: window.location.origin
       });
@@ -170,7 +170,7 @@ export default function PWAInstallPrompt() {
             </div>
             <div>
               <h3 className="font-semibold text-blue-900">
-                📱 Instale o Precifica+ no seu celular
+                📱 Instale o Azuria no seu celular
               </h3>
               <Badge variant="secondary" className="mt-1">
                 Versão PWA Completa
@@ -276,7 +276,7 @@ export default function PWAInstallPrompt() {
             <div>
               <h4 className="font-semibold text-green-800">Tudo pronto!</h4>
               <p className="text-sm text-green-600">
-                Precifica+ está instalado e configurado
+                Azuria está instalado e configurado
               </p>
             </div>
           </div>

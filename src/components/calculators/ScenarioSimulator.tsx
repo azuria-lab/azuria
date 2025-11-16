@@ -1,261 +1,305 @@
+﻿/**
+ * Component: ScenarioSimulator - VERSÃO PREMIUM
+ * Interface visual completa para criar e comparar cenários de precificação
+ */
 
-import React, { useCallback, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Calculator, Save } from "lucide-react";
-import { motion } from "framer-motion";
-
-interface Scenario {
-  name: string;
-  costVariation: number;
-  marginVariation: number;
-  taxVariation: number;
-  result: number | null;
-}
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ArrowLeftRight,
+  BarChart3, 
+  CheckCircle2,
+  Copy, 
+  Edit2, 
+  Lightbulb, 
+  Plus, 
+  Trash2,
+} from "lucide-react";
+import { useScenarioSimulator } from "@/hooks/useScenarioSimulator";
+import type { ScenarioInput } from "@/types/scenarioSimulator";
+import { SCENARIO_COLORS, SCENARIO_TEMPLATES } from "@/types/scenarioSimulator";
+import { cn } from "@/lib/utils";
 
 interface ScenarioSimulatorProps {
-  basePrice: number;
-  baseCost: number;
-  baseMargin: number;
-  baseTax: number;
-  onSaveScenario?: (scenario: Scenario) => void;
+  baseScenario: Omit<ScenarioInput, "id" | "name" | "color">;
 }
 
-export default function ScenarioSimulator({
-  basePrice,
-  baseCost,
-  baseMargin,
-  baseTax,
-  onSaveScenario,
-}: ScenarioSimulatorProps) {
-  const [scenarios, setScenarios] = useState<Scenario[]>([
-    { name: "Pessimista", costVariation: 10, marginVariation: -5, taxVariation: 2, result: null },
-    { name: "Otimista", costVariation: -5, marginVariation: 2, taxVariation: -1, result: null },
+export default function ScenarioSimulator({ baseScenario }: ScenarioSimulatorProps) {
+  const { compareScenarios } = useScenarioSimulator();
+  const [scenarios, setScenarios] = useState<ScenarioInput[]>([
+    { id: "1", name: "Cenário Base", color: SCENARIO_COLORS[0], ...baseScenario },
   ]);
-  
-  const [activeScenario, setActiveScenario] = useState<number>(0);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [scenarioName, setScenarioName] = useState<string>("");
-  
-  const calculateScenarioPrice = useCallback((scenario: Scenario) => {
-    // Ajustar custo e taxa com as variações
-    const adjustedCost = baseCost * (1 + scenario.costVariation / 100);
-    const adjustedMargin = baseMargin + scenario.marginVariation;
-    const adjustedTax = baseTax + scenario.taxVariation;
-    
-    // Cálculo similar ao usado na calculadora principal
-    const divisor = 1 - (adjustedMargin / 100) - (adjustedTax / 100);
-    return adjustedCost / (divisor > 0 ? divisor : 0.01);
-  }, [baseCost, baseMargin, baseTax]);
-  
-  const updateScenarioResults = useCallback(() => {
-    const updatedScenarios = scenarios.map(scenario => ({
-      ...scenario,
-      result: calculateScenarioPrice(scenario)
-    }));
-    setScenarios(updatedScenarios);
-  }, [scenarios, calculateScenarioPrice]);
-  
-  React.useEffect(() => {
-    if (basePrice > 0) {
-      updateScenarioResults();
-    }
-  }, [basePrice, updateScenarioResults]);
-  
-  const addNewScenario = () => {
-    if (!scenarioName.trim()) {return;}
-    
-    const newScenario: Scenario = {
-      name: scenarioName,
-      costVariation: 0,
-      marginVariation: 0, 
-      taxVariation: 0,
-      result: null
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const addScenario = (template?: typeof SCENARIO_TEMPLATES[0]) => {
+    const newId = (scenarios.length + 1).toString();
+    const colorIndex = scenarios.length % SCENARIO_COLORS.length;
+    const newScenario: ScenarioInput = {
+      id: newId,
+      name: template ? template.name : `Cenário ${newId}`,
+      color: SCENARIO_COLORS[colorIndex],
+      ...baseScenario,
+      ...(template?.adjustments || {}),
     };
-    
-    const updatedScenarios = [...scenarios, newScenario];
-    setScenarios(updatedScenarios);
-    setActiveScenario(updatedScenarios.length - 1);
-    setScenarioName("");
-    setIsEditMode(false);
-    
-    // Calcular resultado
-    setTimeout(() => updateScenarioResults(), 10);
-  };
-  
-  const updateCurrentScenario = (field: keyof Scenario, value: number) => {
-    const updatedScenarios = [...scenarios];
-    updatedScenarios[activeScenario] = {
-      ...updatedScenarios[activeScenario],
-      [field]: value
-    };
-    setScenarios(updatedScenarios);
-    
-    // Recalcular o resultado
-    updatedScenarios[activeScenario].result = calculateScenarioPrice(updatedScenarios[activeScenario]);
-  };
-  
-  const saveCurrentScenario = () => {
-    if (onSaveScenario) {
-      onSaveScenario(scenarios[activeScenario]);
-    }
+    setScenarios([...scenarios, newScenario]);
   };
 
-  if (!basePrice) {return null;}
+  const removeScenario = (id: string) => {
+    if (scenarios.length <= 1) {
+      return;
+    }
+    setScenarios(scenarios.filter((s) => s.id !== id));
+  };
+
+  const updateScenario = (id: string, updates: Partial<ScenarioInput>) => {
+    setScenarios(scenarios.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+  };
+
+  const duplicateScenario = (id: string) => {
+    const scenario = scenarios.find(s => s.id === id);
+    if (!scenario) {
+      return;
+    }
+    const newId = (scenarios.length + 1).toString();
+    const colorIndex = scenarios.length % SCENARIO_COLORS.length;
+    setScenarios([...scenarios, { ...scenario, id: newId, name: `${scenario.name} (Cópia)`, color: SCENARIO_COLORS[colorIndex] }]);
+  };
+
+  const comparison = scenarios.length > 0 ? compareScenarios(scenarios) : null;
 
   return (
-    <Card className="mt-6 overflow-hidden">
-      <div className="bg-brand-50 p-3 border-b font-medium flex justify-between items-center">
-        <h3 className="flex items-center gap-2">
-          <Calculator className="h-4 w-4" />
-          Simulador de Cenários
-        </h3>
-        <div className="flex gap-2">
-          {isEditMode ? (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={scenarioName}
-                onChange={(e) => setScenarioName(e.target.value)}
-                placeholder="Nome do cenário"
-                className="px-2 py-1 text-sm border rounded"
-              />
-              <Button 
-                size="sm"
-                variant="outline"
-                onClick={addNewScenario}
-              >
-                Adicionar
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsEditMode(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsEditMode(true)}
-            >
-              Novo Cenário
-            </Button>
-          )}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-2xl font-bold flex items-center gap-2">
+            <ArrowLeftRight className="h-6 w-6 text-blue-600" />
+            Simulador de Cenários
+          </h3>
+          <p className="text-gray-600 mt-1">
+            Compare diferentes estratégias de precificação lado a lado
+          </p>
         </div>
+        <Badge variant="secondary" className="text-sm px-3 py-1">
+          {scenarios.length} {scenarios.length === 1 ? 'cenário' : 'cenários'}
+        </Badge>
       </div>
-      <CardContent className="p-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
-          {scenarios.map((scenario, index) => (
-            <Button
-              key={index}
-              variant={activeScenario === index ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveScenario(index)}
-              className={`whitespace-nowrap ${
-                activeScenario === index ? "bg-brand-600" : ""
-              }`}
-            >
-              {scenario.name}
-            </Button>
-          ))}
-        </div>
-        
-        {scenarios[activeScenario] && (
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <Label>Variação no Custo</Label>
-                  <span className={scenarios[activeScenario].costVariation > 0 ? "text-red-500" : "text-green-600"}>
-                    {scenarios[activeScenario].costVariation > 0 ? "+" : ""}
-                    {scenarios[activeScenario].costVariation}%
-                  </span>
-                </div>
-                <Slider
-                  value={[scenarios[activeScenario].costVariation]}
-                  min={-20}
-                  max={20}
-                  step={1}
-                  onValueChange={(value) => updateCurrentScenario("costVariation", value[0])}
-                />
+
+      {/* Quick Templates */}
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-yellow-600" />
+            Templates Rápidos
+          </CardTitle>
+          <CardDescription>
+            Adicione cenários pré-configurados para análise rápida
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {SCENARIO_TEMPLATES.map((template) => (
+              <Button
+                key={template.name}
+                variant="outline"
+                size="sm"
+                onClick={() => addScenario(template)}
+                className="h-auto py-3 flex flex-col items-start gap-1 hover:bg-blue-100 hover:border-blue-400 transition-all"
+              >
+                <span className="font-semibold text-sm">{template.icon} {template.name}</span>
+                <span className="text-xs text-gray-600">{template.description}</span>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Scenarios Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AnimatePresence mode="popLayout">
+          {comparison?.scenarios.map((result, index) => {
+            const isBest = index === 0;
+            const scenario = scenarios.find(s => s.id === result.id);
+            
+            return (
+              <motion.div
+                key={result.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className={cn(
+                  "relative overflow-hidden transition-all hover:shadow-lg",
+                  isBest && "ring-2 ring-green-500 shadow-xl"
+                )}>
+                  {/* Best Badge */}
+                  {isBest && (
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-green-500 text-white shadow-lg">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Melhor Opção
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Color Bar */}
+                  <div 
+                    className="h-2 w-full" 
+                    style={{ backgroundColor: scenario?.color || SCENARIO_COLORS[0] }}
+                  />
+
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {editingId === result.id ? (
+                          <Input
+                            value={scenario?.name || ''}
+                            onChange={(e) => updateScenario(result.id, { name: e.target.value })}
+                            onBlur={() => setEditingId(null)}
+                            autoFocus
+                            className="h-8 text-lg font-bold"
+                          />
+                        ) : (
+                          <CardTitle 
+                            className="text-xl flex items-center gap-2 cursor-pointer hover:text-blue-600"
+                            onClick={() => setEditingId(result.id)}
+                          >
+                            {result.name}
+                            <Edit2 className="h-4 w-4 opacity-0 hover:opacity-100" />
+                          </CardTitle>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    {/* Main Metrics */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">Preço Final</p>
+                        <p className="text-xl font-bold text-blue-600">
+                          R$ {result.finalPrice.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">Lucro Líquido</p>
+                        <p className="text-xl font-bold text-green-600">
+                          R$ {result.netProfit.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">Margem</p>
+                        <p className="text-xl font-bold text-purple-600">
+                          {result.effectiveMargin.toFixed(1)}%
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Secondary Metrics */}
+                    {result.monthlyProfit && (
+                      <div className="space-y-2 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Receita Mensal</span>
+                          <span className="font-semibold">R$ {result.monthlyRevenue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Lucro Mensal</span>
+                          <span className="font-semibold text-green-700">R$ {result.monthlyProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        {result.roi && (
+                          <div className="flex items-center justify-between pt-2 border-t border-green-200">
+                            <span className="text-sm font-semibold text-green-800">ROI</span>
+                            <span className="font-bold text-green-700">{result.roi.toFixed(1)}%</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-2 border-t">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => duplicateScenario(result.id)}
+                        className="flex-1"
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Duplicar
+                      </Button>
+                      {scenarios.length > 1 && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => removeScenario(result.id)}
+                          className="text-red-600 hover:bg-red-50 hover:border-red-300"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Remover
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+
+      {/* Add Scenario Button */}
+      {scenarios.length < 4 && (
+        <Button
+          onClick={() => addScenario()}
+          className="w-full h-16 text-lg border-2 border-dashed"
+          variant="outline"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Adicionar Novo Cenário
+        </Button>
+      )}
+
+      {/* Comparison Summary */}
+      {comparison && scenarios.length > 1 && (
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-gray-700" />
+              Resumo Comparativo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Melhor Preço</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  R$ {comparison.bestScenario.finalPrice.toFixed(2)}
+                </p>
+                <p className="text-xs text-gray-500">{comparison.bestScenario.name}</p>
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <Label>Variação na Margem</Label>
-                  <span className={scenarios[activeScenario].marginVariation > 0 ? "text-green-600" : "text-red-500"}>
-                    {scenarios[activeScenario].marginVariation > 0 ? "+" : ""}
-                    {scenarios[activeScenario].marginVariation}%
-                  </span>
-                </div>
-                <Slider
-                  value={[scenarios[activeScenario].marginVariation]}
-                  min={-10}
-                  max={10}
-                  step={0.5}
-                  onValueChange={(value) => updateCurrentScenario("marginVariation", value[0])}
-                />
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Maior Lucro</p>
+                <p className="text-2xl font-bold text-green-600">
+                  R$ {comparison.bestScenario.netProfit.toFixed(2)}
+                </p>
+                <p className="text-xs text-gray-500">{comparison.bestScenario.name}</p>
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <Label>Variação nos Impostos</Label>
-                  <span className={scenarios[activeScenario].taxVariation > 0 ? "text-red-500" : "text-green-600"}>
-                    {scenarios[activeScenario].taxVariation > 0 ? "+" : ""}
-                    {scenarios[activeScenario].taxVariation}%
-                  </span>
-                </div>
-                <Slider
-                  value={[scenarios[activeScenario].taxVariation]}
-                  min={-5}
-                  max={5}
-                  step={0.5}
-                  onValueChange={(value) => updateCurrentScenario("taxVariation", value[0])}
-                />
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Melhor Margem</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {comparison.bestScenario.effectiveMargin.toFixed(1)}%
+                </p>
+                <p className="text-xs text-gray-500">{comparison.bestScenario.name}</p>
               </div>
             </div>
-            
-            <motion.div 
-              className="flex justify-between items-center p-4 rounded-lg bg-brand-50"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={scenarios[activeScenario].result || 'loading'}
-            >
-              <div>
-                <p className="text-sm text-gray-600">Preço Simulado:</p>
-                <p className="text-xl font-bold text-brand-700">
-                  R$ {(scenarios[activeScenario].result || 0).toFixed(2).replace(".", ",")}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Comparado com o preço base:</p>
-                {scenarios[activeScenario].result && (
-                  <p className={`font-semibold ${
-                    scenarios[activeScenario].result > basePrice ? "text-green-600" : "text-red-500"
-                  }`}>
-                    {scenarios[activeScenario].result > basePrice ? "+" : ""}
-                    {((scenarios[activeScenario].result - basePrice) / basePrice * 100).toFixed(1)}%
-                  </p>
-                )}
-              </div>
-            </motion.div>
-            
-            <Button 
-              className="w-full flex items-center gap-2 mt-2" 
-              variant="outline"
-              onClick={saveCurrentScenario}
-            >
-              <Save className="h-4 w-4" />
-              Salvar este Cenário
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

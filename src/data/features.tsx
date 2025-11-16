@@ -4,6 +4,7 @@ import {
   BarChart2, 
   Brain, 
   Calculator, 
+  ChartBar,
   CircleDollarSign,
   FileText,
   FileUp,
@@ -56,10 +57,10 @@ export const features: FeatureItem[] = [
     available: true
   },
   {
-    title: "Calculadora de Licitação",
-    description: "Calcule preços competitivos para licitações públicas e privadas",
-    icon: <FileText className="w-10 h-10 text-brand-600" />,
-    link: "/calculadora-licitacao",
+    title: "Análise de Rentabilidade",
+    description: "Dashboard com gráficos e métricas por produto/categoria",
+    icon: <ChartBar className="w-10 h-10 text-brand-600" />,
+    link: "/analise-rentabilidade",
     available: true
   },
   {

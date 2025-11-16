@@ -22,6 +22,8 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react';
+import SectionHeader from '@/components/ui/SectionHeader';
+import EmptyState from '@/components/ui/EmptyState';
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive';
 
@@ -71,22 +73,19 @@ export default function BiddingDashboardPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-6">
             {/* Cabeçalho */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">
-                  Licitações
-                </h1>
-                <p className="text-muted-foreground">
-                  Gerencie seus projetos de licitação e acompanhe suas análises
-                </p>
-              </div>
-              <Link to="/calculadora-licitacao">
-                <Button size="lg" className="gap-2">
-                  <Calculator className="h-4 w-4" />
-                  Nova Análise
-                </Button>
-              </Link>
-            </div>
+            <SectionHeader
+              title="Licitações"
+              description="Gerencie seus projetos de licitação e acompanhe suas análises"
+              icon={<BarChart3 className="h-5 w-5" />}
+              actions={(
+                <Link to="/calculadora-licitacao">
+                  <Button size="lg" className="gap-2">
+                    <Calculator className="h-4 w-4" />
+                    Nova Análise
+                  </Button>
+                </Link>
+              )}
+            />
 
             {/* Estatísticas Principais */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -162,9 +161,9 @@ export default function BiddingDashboardPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {lifecycleCards.map((card) => {
                     const statusConfig: Record<BiddingLifecycleStatus, { label: string; color: string; variant: BadgeVariant }> = {
-                      [BiddingLifecycleStatus.OPEN]: { label: 'Em Aberto', color: 'bg-blue-50 border-blue-200', variant: 'default' },
-                      [BiddingLifecycleStatus.WON]: { label: 'Vencedor', color: 'bg-green-50 border-green-200', variant: 'default' },
-                      [BiddingLifecycleStatus.LOST]: { label: 'Perdedor', color: 'bg-red-50 border-red-200', variant: 'destructive' },
+                      [BiddingLifecycleStatus.OPEN]: { label: 'Em Aberto', color: 'bg-gray-50 border-gray-200', variant: 'default' },
+                      [BiddingLifecycleStatus.WON]: { label: 'Vencedor', color: 'bg-gray-50 border-gray-200', variant: 'default' },
+                      [BiddingLifecycleStatus.LOST]: { label: 'Perdedor', color: 'bg-gray-50 border-gray-200', variant: 'destructive' },
                       [BiddingLifecycleStatus.ARCHIVED]: { label: 'Arquivado', color: 'bg-gray-50 border-gray-200', variant: 'secondary' },
                     };
                     
@@ -225,8 +224,8 @@ export default function BiddingDashboardPage() {
                         to={`/calculadora-licitacao?id=${project.summary.id}`}
                         className="flex items-start gap-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                       >
-                        <div className={`p-2 rounded-lg ${config.color}`}>
-                          <IconComponent className={`h-4 w-4 ${config.iconColor}`} />
+                        <div className={`p-2 rounded-lg bg-gray-100`}>
+                          <IconComponent className={`h-4 w-4 text-gray-600`} />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -255,13 +254,19 @@ export default function BiddingDashboardPage() {
                   })}
                   
                   {projects.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Nenhum projeto ainda</p>
-                      <p className="text-sm mt-2">
-                        Crie sua primeira análise de licitação
-                      </p>
-                    </div>
+                    <EmptyState
+                      title="Nenhum projeto ainda"
+                      description="Crie sua primeira análise de licitação para começar a acompanhar seus resultados."
+                      icon={<FileText className="h-6 w-6" />}
+                      action={(
+                        <Link to="/calculadora-licitacao">
+                          <Button variant="default" className="gap-2">
+                            <Calculator className="h-4 w-4" />
+                            Nova Análise
+                          </Button>
+                        </Link>
+                      )}
+                    />
                   )}
                   
                   {projects.length > 5 && (
@@ -284,8 +289,8 @@ export default function BiddingDashboardPage() {
                 <CardContent className="space-y-4">
                   <Link to="/calculadora-licitacao">
                     <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                      <div className="p-2 rounded-lg bg-blue-500">
-                        <Calculator className="h-5 w-5 text-white" />
+                      <div className="p-2 rounded-lg bg-gray-100">
+                        <Calculator className="h-5 w-5 text-gray-600" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">Nova Análise</h4>
@@ -297,9 +302,9 @@ export default function BiddingDashboardPage() {
                     </div>
                   </Link>
 
-                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-gray-50">
-                    <div className="p-2 rounded-lg bg-green-500">
-                      <Target className="h-5 w-5 text-white" />
+                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-white">
+                    <div className="p-2 rounded-lg bg-gray-100">
+                      <Target className="h-5 w-5 text-gray-600" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Simulador de Cenários</h4>
@@ -310,9 +315,9 @@ export default function BiddingDashboardPage() {
                     <Badge variant="outline">Em breve</Badge>
                   </div>
 
-                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-gray-50">
-                    <div className="p-2 rounded-lg bg-purple-500">
-                      <Users className="h-5 w-5 text-white" />
+                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-white">
+                    <div className="p-2 rounded-lg bg-gray-100">
+                      <Users className="h-5 w-5 text-gray-600" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Análise de Concorrência</h4>
@@ -323,9 +328,9 @@ export default function BiddingDashboardPage() {
                     <Badge variant="outline">Em breve</Badge>
                   </div>
 
-                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-gray-50">
-                    <div className="p-2 rounded-lg bg-orange-500">
-                      <FileText className="h-5 w-5 text-white" />
+                  <div className="flex items-center gap-4 p-3 rounded-lg border bg-white">
+                    <div className="p-2 rounded-lg bg-gray-100">
+                      <FileText className="h-5 w-5 text-gray-600" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Histórico de Editais</h4>
@@ -340,11 +345,11 @@ export default function BiddingDashboardPage() {
             </div>
 
             {/* Banner Informativo */}
-            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <Card className="border-gray-200 bg-white">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-blue-500">
-                    <Award className="h-6 w-6 text-white" />
+                  <div className="p-3 rounded-lg bg-gray-100">
+                    <Award className="h-6 w-6 text-gray-600" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">
@@ -355,15 +360,15 @@ export default function BiddingDashboardPage() {
                     </p>
                     <ul className="text-sm space-y-2 mb-4">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <CheckCircle2 className="h-4 w-4 text-gray-600" />
                         Cálculo automático de impostos e taxas
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <CheckCircle2 className="h-4 w-4 text-gray-600" />
                         Análise de viabilidade em tempo real
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <CheckCircle2 className="h-4 w-4 text-gray-600" />
                         Sugestões inteligentes de estratégia
                       </li>
                     </ul>

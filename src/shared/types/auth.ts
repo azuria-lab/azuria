@@ -9,6 +9,8 @@ export interface UserProfileWithDisplayData {
   isPro: boolean;
   createdAt: string;
   avatar_url?: string | null;
+  phone?: string | null;
+  company?: string | null;
 }
 
 /**
@@ -22,4 +24,6 @@ export interface UserProfile {
   is_pro: boolean;
   created_at: string;
   updated_at?: string;
+  phone?: string | null;
+  company?: string | null;
 }

@@ -12,10 +12,10 @@
 ## ⚡ Secrets Necessários
 
 ### 1. STRIPE_SECRET_KEY
-**Valor (definir no Dashboard, não commitar):** `sk_test_REDACTED`
+**Valor:** `[REDACTED - Obter do Dashboard do Stripe]`
 
 ### 2. STRIPE_WEBHOOK_SECRET
-**Valor (definir após criar o webhook):** `whsec_REDACTED`
+**Valor:** `[REDACTED - Obter do Dashboard do Stripe ao criar webhook]`
 
 ### 3. STRIPE_PRICE_ESSENCIAL_MENSAL
 **Valor:** `price_1SSP00JrAXrajkmpENptgPPs`

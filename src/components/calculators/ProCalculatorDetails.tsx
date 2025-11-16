@@ -63,7 +63,7 @@ export default function ProCalculatorDetails({
   // Gerar texto de compartilhamento
   const generateShareText = () => {
     return `
-*Calculadora PRO Precifica+*
+*Calculadora PRO Azuria*
 Custo: R$ ${breakdown.cost.toFixed(2).replace(".", ",")}
 Preço de venda: R$ ${sellingPrice.toFixed(2).replace(".", ",")}
 Lucro: R$ ${breakdown.profit.toFixed(2).replace(".", ",")} (${targetProfit}%)
@@ -79,7 +79,7 @@ ${includeShipping ? `Frete: R$ ${breakdown.shipping.toFixed(2).replace(".", ",")
 
     if (navigator.share) {
       navigator.share({
-        title: 'Cálculo Precifica+',
+        title: 'Cálculo Azuria',
         text: shareText
       }).catch(() => {
         // Fallback: copiar para área de transferência

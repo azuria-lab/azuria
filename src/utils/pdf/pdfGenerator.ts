@@ -27,11 +27,11 @@ export const generateCalculationPDF = (data: PdfData): void => {
   // Header
   doc.setFontSize(20);
   doc.setTextColor(41, 84, 209); // Brand blue
-  doc.text('PRECIFICA+', margin, yPosition);
+  doc.text('AZURIA', margin, yPosition);
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
-  doc.text('Relatório de Precificação', margin, yPosition + 10);
+  doc.text('Relatório de Gestão de Preços', margin, yPosition + 10);
 
   // Company/Product info
   yPosition += 30;
@@ -126,7 +126,7 @@ export const generateCalculationPDF = (data: PdfData): void => {
   const footerY = doc.internal.pageSize.height - 30;
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
-  doc.text('Gerado por Precifica+ - Sua ferramenta de precificação inteligente', margin, footerY);
+  doc.text('Gerado por Azuria - Sua ferramenta de gestão inteligente de preços', margin, footerY);
   doc.text(`${new Date().toLocaleString('pt-BR')}`, margin, footerY + 10);
 
   // Add page border
@@ -149,11 +149,11 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
   // Header
   doc.setFontSize(20);
   doc.setTextColor(41, 84, 209);
-  doc.text('PRECIFICA+', margin, yPosition);
+  doc.text('AZURIA', margin, yPosition);
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
-  doc.text('Relatório de Precificação em Lote', margin, yPosition + 10);
+  doc.text('Relatório de Gestão de Preços em Lote', margin, yPosition + 10);
   
   yPosition += 30;
   doc.setFontSize(12);
@@ -209,12 +209,12 @@ export const generateBatchPDF = (calculations: Array<PdfData>): void => {
   const footerY = doc.internal.pageSize.height - 30;
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
-  doc.text('Gerado por Precifica+ - Sua ferramenta de precificação inteligente', margin, footerY);
+  doc.text('Gerado por Azuria - Sua ferramenta de gestão inteligente de preços', margin, footerY);
   doc.text(`${new Date().toLocaleString('pt-BR')}`, margin, footerY + 10);
 
   // Generate filename and save
   const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-  const filename = `Precificacao_Lote_${timestamp}.pdf`;
+  const filename = `Gestao_Precos_Lote_${timestamp}.pdf`;
   
   doc.save(filename);
 };

@@ -132,7 +132,7 @@ export default function AffiliateSystem() {
       <div className="text-center">
         <h2 className="text-3xl font-bold mb-4">Sistema de Afiliados</h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Ganhe dinheiro indicando o Precifica+ para outros empreendedores. 
+          Ganhe dinheiro indicando o Azuria para outros empreendedores. 
           Sistema transparente com pagamentos automáticos e comissões progressivas.
         </p>
       </div>
@@ -257,7 +257,7 @@ export default function AffiliateSystem() {
             <CardHeader>
               <CardTitle>Materiais de Marketing</CardTitle>
               <CardDescription>
-                Recursos para ajudar você a promover o Precifica+
+                Recursos para ajudar você a promover o Azuria
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -292,7 +292,7 @@ export default function AffiliateSystem() {
                 <div className="p-4 border rounded-lg">
                   <h4 className="font-medium mb-2">Apresentações</h4>
                   <p className="text-sm text-gray-600 mb-3">
-                    Slides para apresentar o Precifica+ em eventos
+                    Slides para apresentar o Azuria em eventos
                   </p>
                   <Button variant="outline" size="sm">
                     Download PPT

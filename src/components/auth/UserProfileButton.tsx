@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "@/domains/auth";
 import { 
@@ -14,55 +14,65 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calculator, Crown, History, LogOut, Settings } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { logger } from "@/services/logger";
 
 const UserProfileButton: React.FC = () => {
-  const [isReady, setIsReady] = useState(false);
-  
-  // Initialize safely
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 200);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   // Read auth context at top-level (hooks must not be conditional)
   const auth = useAuthContext();
   const userProfile = auth?.userProfile ?? null;
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const isPro = auth?.isPro ?? false;
+  const isLoading = auth?.isLoading ?? false;
   const logout = auth?.logout ?? (async () => false);
   
   const handleLogout = async () => {
     try {
       const success = await logout();
       if (success) {
-        toast.success("Você saiu com sucesso!");
+        toast({
+          title: "Sucesso",
+          description: "Você saiu com sucesso!"
+        });
+        // Redirecionar para home após logout
+        globalThis.location.href = "/";
       } else {
-        toast.error("Erro ao sair. Tente novamente.");
+        toast({
+          title: "Erro",
+          description: "Erro ao sair. Tente novamente.",
+          variant: "destructive"
+        });
       }
-    } catch (_error) {
-      toast.error("Erro ao sair. Tente novamente.");
+    } catch (error) {
+      logger.error("Erro ao fazer logout:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao sair. Tente novamente.",
+        variant: "destructive"
+      });
     }
   };
   
-  // Show loading state until ready
-  if (!isReady) {
+  // Don't show anything if there's no profile (Header handles auth buttons)
+  if (!userProfile && !isLoading) {
+    return null;
+  }
+  
+  // Show loading state
+  if (!userProfile && isLoading) {
     return (
       <Button 
-        variant="outline" 
+        variant="ghost" 
         size="sm" 
+        className="relative rounded-full h-8 w-8 p-0 overflow-hidden"
         disabled
-        className="border-brand-200 text-brand-700 hover:bg-brand-50 dark:border-brand-800 dark:text-brand-300 dark:hover:bg-brand-900"
       >
-        <div className="animate-pulse">Carregando...</div>
+        <div className="w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
       </Button>
     );
   }
   
-  // Show login button if not authenticated
-  if (!isAuthenticated) {
+  // Legacy fallback - if not authenticated, don't show button
+  if (!isAuthenticated && !userProfile) {
     return (
       <Link to="/login">
         <Button 
@@ -93,15 +103,24 @@ const UserProfileButton: React.FC = () => {
           variant="ghost" 
           size="sm" 
           className="relative rounded-full h-8 w-8 p-0 overflow-hidden"
+          disabled={isLoading}
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage 
-              src={userProfile?.avatar_url || ""} 
-              alt={userProfile?.name || "Usuário"} 
-            />
-            <AvatarFallback className="bg-brand-100 text-brand-800">
-              {initials}
-            </AvatarFallback>
+            {isLoading ? (
+              <AvatarFallback className="bg-gray-200 dark:bg-gray-700 animate-pulse">
+                <div className="w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+              </AvatarFallback>
+            ) : (
+              <>
+                <AvatarImage 
+                  src={userProfile?.avatar_url || ""} 
+                  alt={userProfile?.name || "Usuário"} 
+                />
+                <AvatarFallback className="bg-brand-100 text-brand-800">
+                  {initials}
+                </AvatarFallback>
+              </>
+            )}
           </Avatar>
           
           {isPro && (

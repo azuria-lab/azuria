@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAuthState } from "./useAuthState";
 import { useAuthMethods } from "./useAuthMethods";
 import { useUserProfile } from "./useUserProfile";
@@ -41,6 +41,29 @@ export const useAuth = () => {
     }
   }, [user?.id, fetchUserProfile]);
 
+  // Wrapper para login que carrega o perfil imediatamente
+  const loginWithProfile = useCallback(async (email: string, password: string) => {
+    // Setar loading antes de iniciar
+    setIsLoading(true);
+    
+    const sessionResult = await login(email, password);
+    
+    if (sessionResult?.user?.id) {
+      // Aguardar que o listener onAuthStateChange processe a mudança
+      // Isso é necessário porque o login retorna a sessão, mas o estado local
+      // só é atualizado quando o listener dispara
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Forçar carregamento imediato do perfil (fetchUserProfile já gerencia isLoading)
+      await fetchUserProfile(sessionResult.user.id);
+    } else {
+      // Se não há sessão, desligar loading
+      setIsLoading(false);
+    }
+    
+    return sessionResult;
+  }, [login, fetchUserProfile, setIsLoading]);
+
   return {
     // Auth state
     session,
@@ -52,7 +75,7 @@ export const useAuth = () => {
     isPro: userProfile?.isPro || false,
     
     // Auth methods
-    login,
+    login: loginWithProfile, // Usar login com carregamento de perfil
     register,
     logout,
     resetPassword,

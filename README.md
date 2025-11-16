@@ -314,8 +314,10 @@ cd azuria
 npm install
 
 # Configure as variáveis de ambiente
+cp .env.example .env.local
 
 # Configure o Supabase (ver seção Configuração)
+npm run setup:supabase
 
 # Inicie o servidor de desenvolvimento
 npm run dev
@@ -323,8 +325,11 @@ npm run dev
 
 ### Configuração do Ambiente
 
+1. **Supabase Setup**:
+
   ```bash
    # Crie um projeto no Supabase Dashboard
+   # Copie as credenciais para .env.local
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
@@ -332,6 +337,8 @@ npm run dev
 1. **Variáveis de Ambiente**:
 
   ```env
+   # Supabase
+   VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    
    # Analytics (opcional)
