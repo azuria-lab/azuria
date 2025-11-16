@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-//
+import DashboardGreeting from '@/components/dashboard/DashboardGreeting';
 import { Link } from 'react-router-dom';
 import { 
   ArrowRight, 
@@ -104,20 +104,15 @@ export default function UnifiedDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Bem-vindo de volta! Aqui está o resumo da sua atividade.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-green-600 border-green-200">
-            <TrendingUp className="h-3 w-3 mr-1" />
-            +{stats.weeklyGrowth}% esta semana
-          </Badge>
-        </div>
+      {/* Saudação Personalizada */}
+      <DashboardGreeting />
+
+      {/* Badge de Crescimento */}
+      <div className="flex items-center justify-end">
+        <Badge variant="outline" className="text-green-600 border-green-200">
+          <TrendingUp className="h-3 w-3 mr-1" />
+          +{stats.weeklyGrowth}% esta semana
+        </Badge>
       </div>
 
       {/* Métricas Principais */}
