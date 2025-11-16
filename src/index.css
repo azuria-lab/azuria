@@ -238,24 +238,6 @@ input[type="number"] {
   top: 6px;
 }
 
-/* Onboarding highlight effect */
-.onboarding-highlight {
-  position: relative;
-  z-index: 51;
-  animation: onboarding-pulse 2s ease-in-out infinite;
-}
-
-@keyframes onboarding-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 8px hsl(var(--primary) / 0.2);
-  }
-}
-
 /* High contrast button styles */
 .high-contrast button {
   border: 2px solid hsl(var(--foreground)) !important;

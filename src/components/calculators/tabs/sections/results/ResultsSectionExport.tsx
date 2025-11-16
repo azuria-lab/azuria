@@ -30,7 +30,7 @@ export default function ResultsSectionExport({
   
   const generateShareText = () => {
     return `
-*Calculadora Precifica+*
+*Calculadora Azuria*
 ${data.productName ? `Produto: ${data.productName}\n` : ''}
 Custo: R$ ${data.cost.toFixed(2).replace('.', ',')}
 Preço de venda: R$ ${data.sellingPrice.toFixed(2).replace('.', ',')}

@@ -9,6 +9,8 @@ import { useFilteredNavLinks } from "./header/NavLinks";
 import DesktopNavigation from "./header/DesktopNavigation";
 import MobileNavigation from "./header/MobileNavigation";
 import { useProStatus } from "@/hooks/useProStatus";
+import { logger } from "@/services/logger";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 
 export default function Header() {
@@ -16,11 +18,25 @@ export default function Header() {
   const { isPro } = useProStatus();
   useLocation();
   const authContext = useAuthContext();
+  
+  // Extrair valores de forma reativa
   const isAuthenticated = authContext?.isAuthenticated || false;
+  const userProfile = authContext?.userProfile;
+  const isLoadingProfile = authContext?.isLoading || false;
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Log de debug apenas quando necessário
+  useEffect(() => {
+    logger.info('🔍 Header - Auth State:', {
+      isAuthenticated,
+      hasProfile: !!userProfile,
+      profileName: userProfile?.name,
+      isLoadingProfile,
+    });
+  }, [isAuthenticated, userProfile, isLoadingProfile]);
 
   useFilteredNavLinks(isAuthenticated, isPro);
 
@@ -45,13 +61,22 @@ export default function Header() {
         {/* Right side items */}
         <div className="flex items-center space-x-3">
           
-          {/* Notificações (apenas para usuários logados) */}
-          {isAuthenticated && <SmartNotificationCenter />}
+          {/* Theme Toggle - Dark Mode */}
+          <ThemeToggle />
           
-          {/* User Profile or Auth buttons */}
-          {isAuthenticated ? (
-            <UserProfileButton />
-          ) : (
+          {/* Notificações (apenas para usuários logados com perfil) */}
+          {userProfile && <SmartNotificationCenter />}
+          
+          {/* User Profile Button - mostrar se tem perfil carregado */}
+          {userProfile && <UserProfileButton />}
+          
+          {/* Loading state - mostrar spinner se está carregando e autenticado */}
+          {!userProfile && isAuthenticated && isLoadingProfile && (
+            <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+          )}
+          
+          {/* Auth buttons - mostrar APENAS se não tem perfil E não está autenticado E não está carregando */}
+          {!userProfile && !isAuthenticated && !isLoadingProfile && (
             <div className="hidden md:flex items-center space-x-2">
               <Link to="/login">
                 <Button variant="ghost" size="sm">

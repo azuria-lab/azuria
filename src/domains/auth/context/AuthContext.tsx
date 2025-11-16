@@ -124,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [auth.error]);
 
   useEffect(() => {
+    logger.info('🔐 AuthContext - Atualizando isAuthenticated:', auth.isAuthenticated, 'hasSession:', !!auth.session, 'hasUser:', !!auth.user);
     dispatch({ type: 'SET_AUTHENTICATED', payload: auth.isAuthenticated ?? false });
   }, [auth.isAuthenticated]);
 
@@ -131,7 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_PRO', payload: auth.isPro ?? false });
   }, [auth.isPro]);
 
-  // Context value with actions
+  // Context value with actions - incluir todas as dependências relevantes
   const contextValue = useMemo(() => ({
     ...state,
     dispatch,
@@ -142,7 +143,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateProfile: auth.updateProfile,
     updatePassword: auth.updatePassword,
     updateProStatus: auth.updateProStatus,
-  }), [state, auth]);
+  }), [
+    state, 
+    auth.login, 
+    auth.register, 
+    auth.logout, 
+    auth.resetPassword, 
+    auth.updateProfile, 
+    auth.updatePassword, 
+    auth.updateProStatus
+  ]);
 
   return (
     <AuthContext.Provider value={contextValue}>

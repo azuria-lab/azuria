@@ -113,10 +113,18 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
-                  to="/calculadora-pro" 
+                  to="/calculadora-avancada" 
                   className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
                 >
-                  Calculadora PRO
+                  Calculadora Avançada
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/calculadora-tributaria" 
+                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                >
+                  Calculadora Tributária
                 </Link>
               </li>
               <li>

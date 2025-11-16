@@ -133,7 +133,6 @@ export interface FeatureFlagConfig {
  * - `beta_calculator`: Calculadora experimental (10% rollout)
  * - `performance_monitoring`: Monitoramento de performance
  * - `security_dashboard`: Dashboard de segurança (admin)
- * - `interactive_tour`: Tour interativo para novos usuários
  * - `dark_mode`: Tema escuro
  * - `marketplace_integration`: Integração com marketplaces
  */
@@ -511,12 +510,6 @@ export class FeatureFlagsService {
         description: 'Show security monitoring dashboard',
         enabled: true,
         userSegments: ['admin']
-      },
-      {
-        key: 'interactive_tour',
-        name: 'Interactive Tour',
-        description: 'Show interactive tour for new users',
-        enabled: true
       },
       {
         key: 'dark_mode',

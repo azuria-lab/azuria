@@ -1,7 +1,7 @@
 
-# 🚀 Guia de Deploy - Precifica+
+# 🚀 Guia de Deploy - Azuria
 
-Este guia detalha como fazer o deploy do Precifica+ em diferentes ambientes, desde desenvolvimento local até produção.
+Este guia detalha como fazer o deploy do Azuria em diferentes ambientes, desde desenvolvimento local até produção.
 
 ## 📋 Índice
 
@@ -17,7 +17,7 @@ Este guia detalha como fazer o deploy do Precifica+ em diferentes ambientes, des
 
 ## 🎯 Visão Geral
 
-O Precifica+ é uma aplicação React/Vite que pode ser deployada como arquivos estáticos em qualquer servidor web. O backend é fornecido pelo Supabase como BaaS (Backend as a Service).
+O Azuria é uma aplicação React/Vite que pode ser deployada como arquivos estáticos em qualquer servidor web. O backend é fornecido pelo Supabase como BaaS (Backend as a Service).
 
 ### Arquitetura de Deploy
 
@@ -70,7 +70,7 @@ npm run build
 
 ### Deploy Automático
 
-O Precifica+ está configurado para deploy automático via Lovable:
+O Azuria está configurado para deploy automático via Vercel ou outras plataformas:
 
 1. **Push para Main**: Qualquer push para a branch `main` dispara deploy automático
 2. **Preview**: Deploy é disponível em URL de staging

@@ -13,7 +13,7 @@ export const generatePDFReport = async (data: ExportData, fileName: string): Pro
   // Header with brand colors
   doc.setFontSize(24);
   doc.setTextColor(59, 130, 246); // Brand blue
-  doc.text("Precifica+ - Relatório Avançado", 20, yPosition);
+  doc.text("Azuria - Relatório Avançado", 20, yPosition);
   yPosition += 15;
   
   doc.setFontSize(10);
@@ -191,6 +191,6 @@ const addFooter = (doc: jsPDF): void => {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 10);
-    doc.text("© Precifica+ - Relatório Gerado Automaticamente", 20, doc.internal.pageSize.getHeight() - 10);
+    doc.text("© Azuria - Relatório Gerado Automaticamente", 20, doc.internal.pageSize.getHeight() - 10);
   }
 };

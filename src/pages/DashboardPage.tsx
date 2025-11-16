@@ -2,23 +2,22 @@
 import React from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import Layout from '@/components/layout/Layout';
-import PersonalizedDashboard from '@/components/dashboard/PersonalizedDashboard';
+import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 
 export default function DashboardPage() {
   const canonical = typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : 'https://azuria.plus/dashboard';
   return (
     <>
       <SEOHead 
-        title="Dashboard Personalizado - Precifica+"
-        description="Dashboard personalizado com widgets arrastar e soltar, métricas personalizáveis e múltiplos dashboards."
+        title="Dashboard - Azuria"
+        description="Dashboard principal com métricas, ações rápidas e atividades recentes."
         url={canonical}
         type="website"
       />
       
       <Layout>
-        <div className="container mx-auto py-8 px-4">
-          <h1 className="sr-only">Dashboard Personalizado - Precifica+</h1>
-          <PersonalizedDashboard />
+        <div className="container mx-auto px-4 py-8">
+          <UnifiedDashboard />
         </div>
       </Layout>
     </>

@@ -59,7 +59,7 @@ export default function IntegrationsPage() {
           <motion.div variants={itemVariants}>
             <h1 className="text-3xl font-bold mb-2 text-center md:text-left">Integrações Avançadas</h1>
             <p className="text-gray-600 mb-8 text-center md:text-left">
-              Conecte o Precifica+ com marketplaces, ERPs, planilhas e outras ferramentas do seu negócio
+              Conecte o Azuria com marketplaces, ERPs, planilhas e outras ferramentas do seu negócio
             </p>
           </motion.div>
 

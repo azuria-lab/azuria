@@ -99,7 +99,7 @@ export const useAdvancedReports = () => {
         <head><title>Relatório ${type}</title></head>
         <body>
           <h1>Relatório ${type.charAt(0).toUpperCase() + type.slice(1)}</h1>
-          <p>Este é um relatório de exemplo gerado pelo sistema Precifica+.</p>
+          <p>Este é um relatório de exemplo gerado pelo sistema Azuria.</p>
           <table border="1">
             <tr><th>Item</th><th>Valor</th></tr>
             <tr><td>Total de Cálculos</td><td>1,247</td></tr>

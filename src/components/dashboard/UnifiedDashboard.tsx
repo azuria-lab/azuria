@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import DashboardGreeting from '@/components/dashboard/DashboardGreeting';
+//
 import { Link } from 'react-router-dom';
 import { 
   ArrowRight, 
@@ -106,7 +107,7 @@ export default function UnifiedDashboard() {
     <div className="space-y-6">
       {/* Saudação Personalizada */}
       <DashboardGreeting />
-
+      
       {/* Badge de Crescimento */}
       <div className="flex items-center justify-end">
         <Badge variant="outline" className="text-green-600 border-green-200">

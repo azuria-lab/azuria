@@ -29,7 +29,7 @@ export default function SharingOptions() {
   // Função para gerar o texto de compartilhamento
   const generateShareText = () => {
     return `
-*Calculadora Precifica+*
+*Calculadora Azuria*
 ${calculationData.productName ? `Produto: ${calculationData.productName}\n` : ''}
 ${calculationData.cost ? `Custo: R$ ${calculationData.cost.replace(".", ",")}\n` : ''}
 ${calculationData.sellingPrice ? `Preço de venda: R$ ${calculationData.sellingPrice.replace(".", ",")}\n` : ''}
@@ -49,7 +49,7 @@ ${calculationData.tax ? `Imposto: ${calculationData.tax}%\n` : ''}
   const shareNative = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Cálculo Precifica+',
+        title: 'Cálculo Azuria',
         text: generateShareText()
       }).catch(() => {
         // Fallback: copiar para área de transferência

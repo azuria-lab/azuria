@@ -16,6 +16,5 @@ export function useRegisterShortcut(shortcut: KeyboardShortcut) {
     return () => {
       unregisterShortcut(shortcut.id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shortcut.id]);
+  }, [shortcut, registerShortcut, unregisterShortcut]);
 }

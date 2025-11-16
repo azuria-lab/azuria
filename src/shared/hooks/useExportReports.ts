@@ -65,7 +65,7 @@ export const useExportReports = () => {
       // Header
       doc.setFontSize(20);
       doc.setTextColor(40, 116, 240); // Brand color
-      doc.text("Precifica+ - Relatório de Cálculos", 20, 25);
+      doc.text("Azuria - Relatório de Cálculos", 20, 25);
       
       doc.setFontSize(10);
       doc.setTextColor(100);
@@ -152,7 +152,7 @@ export const useExportReports = () => {
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 10);
-        doc.text("Gerado pelo Precifica+ - Calculadora de Preços", 20, doc.internal.pageSize.getHeight() - 10);
+        doc.text("Gerado pelo Azuria - Gestão Inteligente de Preços", 20, doc.internal.pageSize.getHeight() - 10);
       }
       
       doc.save(`${fileName}.pdf`);

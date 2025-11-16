@@ -24,7 +24,7 @@ export const generatePDF = async (
 
   // Adicionar título
   doc.setFontSize(20);
-  doc.text("Precifica+", 105, 15, { align: "center" });
+  doc.text("Azuria", 105, 15, { align: "center" });
   
   doc.setFontSize(14);
   doc.text("Relatório de Cálculo de Preço", 105, 25, { align: "center" });
@@ -171,7 +171,7 @@ export const generatePDF = async (
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      "© Precifica+ - Documento gerado automaticamente",
+      "© Azuria - Documento gerado automaticamente",
       105,
       doc.internal.pageSize.height - 10,
       { align: "center" }

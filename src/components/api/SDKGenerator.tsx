@@ -188,7 +188,7 @@ $client = new PrecificaClient([
                 {sdkOptions[selectedLanguage].name}
               </CardTitle>
               <CardDescription>
-                SDK oficial para integração com a API do Precifica+
+                SDK oficial para integração com a API do Azuria
               </CardDescription>
             </CardHeader>
             <CardContent>

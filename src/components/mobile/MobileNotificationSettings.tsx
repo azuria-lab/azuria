@@ -45,7 +45,7 @@ export default function MobileNotificationSettings() {
       toast.success("Notificações ativadas com sucesso!");
       
       // Show test notification
-      new Notification("Precifica+ Ativado!", {
+      new Notification("Azuria Ativado!", {
         body: "Você receberá alertas importantes sobre seus preços",
         icon: "/favicon.ico",
         tag: "welcome"

@@ -54,3 +54,4 @@ typedoc-output/
 # SBOM generated files
 sbom.json
 sbom.xml
+.vercel

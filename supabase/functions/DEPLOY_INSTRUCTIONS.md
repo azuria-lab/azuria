@@ -9,12 +9,11 @@ Antes de fazer o deploy, configure os **Secrets** no Supabase Dashboard:
 Adicione estas variáveis:
 
 ```env
-# Substitua pelos valores reais no Dashboard (NÃO COMMITAR chaves reais)
-STRIPE_SECRET_KEY=sk_test_REDACTED
-STRIPE_PRICE_ESSENCIAL_MENSAL=price_1SSP00JrAXrajkmpENptgPPs
-STRIPE_PRICE_ESSENCIAL_ANUAL=price_1SSP06JrAXrajkmpi35qX9cA
-STRIPE_PRICE_PRO_MENSAL=price_1SSP0IJrAXrajkmpw9vj8b3S
-STRIPE_PRICE_PRO_ANUAL=price_1SSP0NJrAXrajkmpwWfw2sdh
+STRIPE_SECRET_KEY=[REDACTED - Obter do Dashboard do Stripe]
+STRIPE_PRICE_ESSENCIAL_MENSAL=[Obter do Stripe após criar produto]
+STRIPE_PRICE_ESSENCIAL_ANUAL=[Obter do Stripe após criar produto]
+STRIPE_PRICE_PRO_MENSAL=[Obter do Stripe após criar produto]
+STRIPE_PRICE_PRO_ANUAL=[Obter do Stripe após criar produto]
 FRONTEND_URL=http://localhost:5173
 ```
 

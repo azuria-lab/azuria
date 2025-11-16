@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { UserProfileWithDisplayData } from "@/types/auth";
@@ -20,9 +20,10 @@ export const useAuthState = () => {
   // Função estável para atualizar sessão
   const updateSession = useCallback((newSession: Session | null) => {
     try {
-  logger.info("Atualizando sessão:", newSession ? "Ativa" : "Nula");
+  logger.info("🔄 Atualizando sessão:", newSession ? `Ativa - User: ${newSession.user.email}` : "Nula");
       setSession(newSession);
       setUser(newSession?.user ?? null);
+      logger.info("📊 Estados setados - session:", !!newSession, "user:", !!newSession?.user);
       
       // Limpar perfil se não há usuário
       if (!newSession?.user) {
@@ -73,11 +74,10 @@ export const useAuthState = () => {
                 }));
               }
               
-              if (isMounted) {
-                updateSession(currentSession);
-                setIsLoading(false);
-                setIsInitialized(true);
-              }
+              // Sempre atualizar - React ignora updates em componentes desmontados
+              updateSession(currentSession);
+              setIsLoading(false);
+              setIsInitialized(true);
             }
           );
         
@@ -97,13 +97,13 @@ export const useAuthState = () => {
           throw error;
         }
         
-  logger.info("Sessão obtida:", data?.session ? "Ativa" : "Nenhuma");
+  logger.info("🔑 Sessão obtida do Supabase:", data?.session ? "Ativa" : "Nenhuma", data?.session ? `User: ${data.session.user.email}` : '');
         
-        if (isMounted) {
-          updateSession(data?.session || null);
-          setIsLoading(false);
-          setIsInitialized(true);
-        }
+        // Sempre atualizar os estados - React ignora updates em componentes desmontados
+        updateSession(data?.session || null);
+        setIsLoading(false);
+        setIsInitialized(true);
+        logger.info("✅ Estado atualizado - isInitialized: true, session:", !!data?.session);
 
         return () => authListener.subscription.unsubscribe();
         
@@ -173,6 +173,19 @@ export const useAuthState = () => {
     };
   }, [updateSession, isInitialized]);
 
+  // Memoize isAuthenticated para garantir reatividade
+  const isAuthenticated = useMemo(() => {
+    const result = !!session && !!user && isInitialized;
+    logger.info('🎯 useAuthState - isAuthenticated calculado:', result, { 
+      hasSession: !!session, 
+      hasUser: !!user, 
+      isInitialized,
+      sessionUserId: session?.user?.id,
+      userUserId: user?.id
+    });
+    return result;
+  }, [session, user, isInitialized]);
+
   return {
     session,
     user,
@@ -182,6 +195,6 @@ export const useAuthState = () => {
     setIsLoading,
     error,
     setError,
-    isAuthenticated: !!session && !!user && isInitialized
+    isAuthenticated
   };
 };

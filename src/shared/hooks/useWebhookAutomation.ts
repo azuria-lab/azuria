@@ -75,7 +75,7 @@ export const useWebhookAutomation = () => {
         timestamp: new Date().toISOString(),
         source: "Precifica+",
         data: {
-          message: "Este é um teste de webhook do Precifica+",
+          message: "Este é um teste de webhook do Azuria",
           webhook_name: webhook.name
         }
       };

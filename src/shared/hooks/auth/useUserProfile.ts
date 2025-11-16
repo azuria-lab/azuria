@@ -58,6 +58,8 @@ export const useUserProfile = (
   // Buscar perfil do usuário no banco de dados
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
+      setIsLoading(true);
+      
       // Verificar se existe um perfil para o usuário
       const { data, error } = await supabase
         .from("user_profiles")
@@ -82,7 +84,9 @@ export const useUserProfile = (
         email: user?.email ?? "",
         isPro,
         createdAt: data.created_at,
-        avatar_url: data.avatar_url
+        avatar_url: data.avatar_url,
+        phone: (data as { phone?: string | null }).phone,
+        company: (data as { company?: string | null }).company
       });
 
       // Atualizar localStorage para compatibilidade
@@ -91,8 +95,10 @@ export const useUserProfile = (
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro ao buscar perfil";
       setError(message);
+    } finally {
+      setIsLoading(false);
     }
-  }, [user, setUserProfile, setError, createUserProfile]);
+  }, [user, setUserProfile, setError, createUserProfile, setIsLoading]);
 
   // Atualizar perfil
   const updateProfile = async (profileData: Partial<UserProfileWithDisplayData>) => {
@@ -102,11 +108,27 @@ export const useUserProfile = (
       
       if (!user) {throw new Error("Usuário não autenticado");}
       
-      // Use properly typed update
+      // Use properly typed update - incluir todos os campos enviados
       const updates: TablesUpdate<"user_profiles"> = {
-        name: profileData.name,
         updated_at: new Date().toISOString()
       };
+      
+      // Adicionar apenas os campos que foram enviados
+      if (profileData.name !== undefined) {
+        updates.name = profileData.name;
+      }
+      if (profileData.avatar_url !== undefined) {
+        updates.avatar_url = profileData.avatar_url;
+      }
+      if (profileData.email !== undefined) {
+        updates.email = profileData.email;
+      }
+      if (profileData.phone !== undefined) {
+        (updates as { phone?: string | null }).phone = profileData.phone;
+      }
+      if (profileData.company !== undefined) {
+        (updates as { company?: string | null }).company = profileData.company;
+      }
       
       const { error } = await supabase
         .from("user_profiles")

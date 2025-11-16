@@ -3,10 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/domains/auth";
 import { useIsAdminOrOwner } from "@/hooks/useUserRoles";
+import { logger } from "@/services/logger";
 import TwoFactorAuth from "@/components/security/TwoFactorAuth";
 import AuditLogs from "@/components/security/AuditLogs";
 import DataBackup from "@/components/security/DataBackup";
@@ -77,7 +79,8 @@ const SettingsSecurityTab: React.FC<Props> = ({ userId }) => {
         setNewPassword("");
         setConfirmPassword("");
       }
-  } catch (_error) {
+  } catch (error) {
+      logger.error("Erro ao atualizar senha:", error);
       toast({
         title: "Erro ao atualizar senha",
         description: "Ocorreu um erro ao atualizar sua senha. Tente novamente.",
@@ -88,60 +91,84 @@ const SettingsSecurityTab: React.FC<Props> = ({ userId }) => {
     }
   };
 
-  const tabCount = isAdmin ? 6 : 5;
-
   return (
     <Tabs defaultValue="password" className="w-full">
-      <TabsList className={`grid w-full grid-cols-2 lg:grid-cols-${tabCount}`}>
-        <TabsTrigger value="password">Senha</TabsTrigger>
-        <TabsTrigger value="2fa">2FA</TabsTrigger>
-        <TabsTrigger value="audit">Auditoria</TabsTrigger>
-        <TabsTrigger value="backup">Backup</TabsTrigger>
-        <TabsTrigger value="lgpd">LGPD</TabsTrigger>
-        {isAdmin && <TabsTrigger value="dashboard">Dashboard</TabsTrigger>}
+      <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+        <TabsTrigger value="password" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white">
+          Senha
+        </TabsTrigger>
+        <TabsTrigger value="2fa" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white">
+          2FA
+        </TabsTrigger>
+        <TabsTrigger value="audit" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white">
+          Auditoria
+        </TabsTrigger>
+        <TabsTrigger value="backup" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white">
+          Backup
+        </TabsTrigger>
+        <TabsTrigger value="lgpd" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white">
+          LGPD
+        </TabsTrigger>
+        {isAdmin && (
+          <TabsTrigger value="dashboard" className="data-[state=active]:bg-brand-600 data-[state=active]:text-white col-span-2 md:col-span-1">
+            Dashboard
+          </TabsTrigger>
+        )}
       </TabsList>
 
-      <TabsContent value="password">
-        <Card>
-          <CardHeader>
-            <CardTitle>Alterar Senha</CardTitle>
+      <TabsContent value="password" className="mt-6">
+        <Card className="border-2 border-gray-100">
+          <CardHeader className="bg-gradient-to-r from-brand-50 to-white">
+            <CardTitle className="flex items-center gap-2">
+              <div className="p-2 bg-brand-600 rounded-lg">
+                <ShieldCheck className="h-5 w-5 text-white" />
+              </div>
+              Alterar Senha
+            </CardTitle>
             <CardDescription>
-              Mantenha sua conta segura com uma senha forte
+              Mantenha sua conta segura com uma senha forte. Use pelo menos 6 caracteres.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-1">
-              <Label htmlFor="current-password">Senha atual</Label>
+          <CardContent className="space-y-6 pt-6">
+            <div className="space-y-2">
+              <Label htmlFor="current-password" className="font-semibold">Senha atual</Label>
               <Input 
                 id="current-password" 
                 type="password" 
+                placeholder="Digite sua senha atual"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
+                className="border-gray-300 focus:border-brand-500 focus:ring-brand-500"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="new-password">Nova senha</Label>
+            <div className="space-y-2">
+              <Label htmlFor="new-password" className="font-semibold">Nova senha</Label>
               <Input 
                 id="new-password" 
                 type="password"
+                placeholder="Digite sua nova senha"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                className="border-gray-300 focus:border-brand-500 focus:ring-brand-500"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="confirm-password">Confirmar nova senha</Label>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password" className="font-semibold">Confirmar nova senha</Label>
               <Input 
                 id="confirm-password" 
                 type="password"
+                placeholder="Digite novamente a nova senha"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                className="border-gray-300 focus:border-brand-500 focus:ring-brand-500"
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col items-start">
+          <CardFooter className="flex flex-col items-start bg-gray-50 border-t">
             <Button 
               onClick={handleUpdatePassword}
               disabled={isUpdating}
+              className="bg-brand-600 hover:bg-brand-700 text-white"
             >
               {isUpdating ? "Atualizando..." : "Atualizar senha"}
             </Button>

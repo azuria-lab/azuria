@@ -164,7 +164,7 @@ const LGPDCompliance: React.FC = () => {
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  O Precifica+ está em total conformidade com a LGPD. Seus dados são tratados com máxima segurança e transparência.
+                  O Azuria está em total conformidade com a LGPD. Seus dados são tratados com máxima segurança e transparência.
                 </AlertDescription>
               </Alert>
 

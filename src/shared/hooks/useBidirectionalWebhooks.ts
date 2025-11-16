@@ -195,7 +195,7 @@ export const useBidirectionalWebhooks = () => {
       event,
       timestamp: new Date().toISOString(),
       data,
-      source: 'Precifica+',
+      source: 'Azuria',
       ...options?.customPayload
     };
 
@@ -211,7 +211,7 @@ export const useBidirectionalWebhooks = () => {
       try {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'User-Agent': 'Precifica+ Webhook/1.0'
+          'User-Agent': 'Azuria Webhook/1.0'
         };
 
         // Adicionar autenticação
@@ -305,7 +305,7 @@ export const useBidirectionalWebhooks = () => {
   const testEndpoint = useCallback(async (endpointId: string): Promise<boolean> => {
     try {
       await sendWebhook(endpointId, 'test_connection', {
-        message: 'Teste de conectividade do Precifica+',
+        message: 'Teste de conectividade do Azuria',
         timestamp: new Date().toISOString()
       }, { immediate: true });
       

@@ -15,14 +15,6 @@ test.describe('Azuria E2E Tests', () => {
       await page.click('text=Calculadora');
       await expect(page).toHaveURL(/.*calculator/);
     });
-
-    test('should show tour on first visit', async ({ page }) => {
-      await page.goto('/', { waitUntil: 'networkidle' });
-      
-      // Check if tour appears for new users
-      const tourElement = page.locator('[data-testid="interactive-tour"]');
-      await expect(tourElement).toBeVisible({ timeout: 5000 });
-    });
   });
 
   test.describe('Calculator Functionality', () => {

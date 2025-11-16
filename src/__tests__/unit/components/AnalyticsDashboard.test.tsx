@@ -51,7 +51,7 @@ describe('AnalyticsDashboard', () => {
     render(<AnalyticsDashboard />)
     
   expect(screen.getByText('Analytics & Métricas')).toBeInTheDocument()
-  expect(screen.getByText('Acompanhe o desempenho e comportamento dos usuários do Precifica+')).toBeInTheDocument()
+  expect(screen.getByText('Acompanhe o desempenho e comportamento dos usuários do Azuria')).toBeInTheDocument()
   })
 
   it('should display key metrics', () => {
