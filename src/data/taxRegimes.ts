@@ -6,7 +6,7 @@
  * for clarity and alignment with official tax tables.
  */
 
-/* eslint-disable unicorn/number-literal-case */
+ 
 
 // Simples Nacional - Anexos e Faixas
 export interface SimplesNacionalFaixa {

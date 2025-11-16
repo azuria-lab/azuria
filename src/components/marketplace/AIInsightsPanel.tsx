@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { Variant } from '@/components/ui/badge';
+import { Badge, type Variant } from '@/components/ui/badge';
 import {
   AlertCircle,
   ArrowDown,
@@ -22,7 +22,6 @@ import {
   Zap
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

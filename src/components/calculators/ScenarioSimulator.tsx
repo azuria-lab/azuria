@@ -20,8 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useScenarioSimulator } from "@/hooks/useScenarioSimulator";
-import type { ScenarioInput } from "@/types/scenarioSimulator";
-import { SCENARIO_COLORS, SCENARIO_TEMPLATES } from "@/types/scenarioSimulator";
+import { SCENARIO_COLORS, SCENARIO_TEMPLATES, type ScenarioInput } from "@/types/scenarioSimulator";
 import { cn } from "@/lib/utils";
 
 interface ScenarioSimulatorProps {
