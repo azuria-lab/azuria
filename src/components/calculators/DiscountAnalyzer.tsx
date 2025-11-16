@@ -13,16 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle,
   CheckCircle2,
+  DollarSign,
   Info,
   Percent,
+  Tag,
   TrendingDown,
   TrendingUp,
-  Tag,
-  DollarSign,
 } from "lucide-react";
 import { useDiscountAnalyzer } from "@/hooks/useDiscountAnalyzer";
-import type { DiscountInput, DiscountScenario } from "@/types/discountAnalyzer";
-import { DISCOUNT_METADATA } from "@/types/discountAnalyzer";
+import { DISCOUNT_METADATA, type DiscountInput, type DiscountScenario } from "@/types/discountAnalyzer";
 import { cn } from "@/lib/utils";
 
 interface DiscountAnalyzerProps {

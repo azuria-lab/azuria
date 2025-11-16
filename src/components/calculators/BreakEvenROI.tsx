@@ -7,21 +7,19 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle,
-  CheckCircle2,
-  Info,
-  TrendingUp,
-  Target,
-  DollarSign,
-  Calendar,
   BarChart3,
+  Calendar,
+  CheckCircle2,
+  DollarSign,
+  Info,
+  Target,
+  TrendingUp,
 } from "lucide-react";
 import { useBreakEvenROI } from "@/hooks/useBreakEvenROI";
-import type { BreakEvenInput, ROIScenario } from "@/types/breakEvenROI";
-import { BREAK_EVEN_SCENARIOS } from "@/types/breakEvenROI";
+import { BREAK_EVEN_SCENARIOS, type BreakEvenInput, type ROIScenario } from "@/types/breakEvenROI";
 import { cn } from "@/lib/utils";
 
 interface BreakEvenROIProps {

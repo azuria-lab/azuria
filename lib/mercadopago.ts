@@ -13,6 +13,8 @@
  * @see https://www.mercadopago.com.br/developers/pt/docs
  */
 
+/* eslint-disable no-console, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
+
 import mercadopago from 'mercadopago';
 
 // Configure Mercado Pago SDK

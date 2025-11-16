@@ -7,8 +7,7 @@
 import { useEffect } from 'react';
 import { useTheme } from '@/components/ui/theme-provider';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import { useTour } from '@/components/tour';
-import { TourButton } from '@/components/tour';
+import { type Tour, TourButton, useTour } from '@/components/tour';
 import { useKeyboardShortcuts, useRegisterShortcut } from '@/components/keyboard';
 
 // ============================================
@@ -265,8 +264,6 @@ export function AutoStartTour() {
 // ============================================
 // EXEMPLO 9: Criar Tour Personalizado
 // ============================================
-
-import type { Tour } from '@/components/tour';
 
 export const customTour: Tour = {
   id: 'custom-feature',
