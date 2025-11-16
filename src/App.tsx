@@ -20,7 +20,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
 const AdvancedCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
 const BatchCalculatorPage = lazy(() => import("./pages/BatchCalculatorPage"));
-// const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
+const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
 const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage"));
 const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
 const IntelligentBatchCalculatorPage = lazy(() => import("./pages/IntelligentBatchCalculatorPage"));
@@ -103,7 +103,7 @@ const App = () => {
                       <Route path="/dashboard" element={<DashboardPage />} />
                       <Route path="/calculadora-simples" element={<SimpleCalculatorPage />} />
                       <Route path="/calculadora-avancada" element={<AdvancedCalculatorPage />} />
-                      {/* <Route path="/calculadora-tributaria" element={<TaxCalculatorPage />} /> */}
+                      <Route path="/calculadora-tributaria" element={<TaxCalculatorPage />} />
                       <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
                       <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
                       <Route path="/login" element={<Login />} />
