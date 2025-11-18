@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createEmptyTemplate,
@@ -12,6 +11,7 @@ import {
   type TemplateSearchResult,
   validateTemplate,
 } from '@/types/advancedTemplates';
+import { logger } from '@/services/logger';
 
 /**
  * Hook for managing advanced pricing templates
@@ -52,7 +52,7 @@ export const useTemplates = () => {
         }
       } catch (err) {
         setError('Erro ao carregar templates');
-        console.error(err);
+        logger.error('[useTemplates] Falha ao carregar templates do storage', { error: err });
       }
     };
 
@@ -68,7 +68,7 @@ export const useTemplates = () => {
       setTemplates(updatedTemplates);
     } catch (err) {
       setError('Erro ao salvar templates');
-      console.error(err);
+      logger.error('[useTemplates] Falha ao salvar templates', { error: err });
     }
   }, []);
 
@@ -137,7 +137,7 @@ export const useTemplates = () => {
       return true;
     } catch (err) {
       setError('Erro ao atualizar template');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao atualizar template', { error: err, templateId });
       setIsLoading(false);
       return false;
     }
@@ -172,7 +172,7 @@ export const useTemplates = () => {
       return true;
     } catch (err) {
       setError('Erro ao deletar template');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao deletar template', { error: err, templateId });
       setIsLoading(false);
       return false;
     }
@@ -231,7 +231,7 @@ export const useTemplates = () => {
       return duplicate;
     } catch (err) {
       setError('Erro ao duplicar template');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao duplicar template', { error: err, templateId });
       setIsLoading(false);
       return null;
     }
@@ -387,7 +387,7 @@ export const useTemplates = () => {
       return true;
     } catch (err) {
       setError('Erro ao compartilhar template');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao compartilhar template', { error: err, templateId, targetUserId });
       setIsLoading(false);
       return false;
     }
@@ -477,7 +477,7 @@ export const useTemplates = () => {
       return result;
     } catch (err) {
       setError('Erro ao executar operação em lote');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao executar operação em lote', { error: err, operation });
       setIsLoading(false);
       return result;
     }
@@ -604,7 +604,7 @@ export const useTemplates = () => {
       return result;
     } catch (err) {
       setError('Erro ao importar templates');
-      console.error(err);
+      logger.error('[useTemplates] Erro ao importar templates', { error: err, importData });
       setIsLoading(false);
       return result;
     }
