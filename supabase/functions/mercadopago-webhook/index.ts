@@ -21,12 +21,10 @@ Deno.serve(async (req) => {
     // Parse webhook notification
     const notification: MercadoPagoWebhookNotification = await req.json();
 
-    // Log da notificação recebida
+    // Log da notificação recebida (apenas tipo e ação para reduzir logs)
     console.log('Webhook received:', {
-      id: notification.id,
       type: notification.type,
       action: notification.action,
-      data: notification.data,
     });
 
     // Processar apenas notificações de pagamento
@@ -42,11 +40,10 @@ Deno.serve(async (req) => {
       method: 'GET',
     });
 
-    console.log('Payment details:', {
-      id: payment.id,
+    // Log apenas status e referência (informações críticas)
+    console.log('Payment processed:', {
       status: payment.status,
       external_reference: payment.external_reference,
-      transaction_amount: payment.transaction_amount,
     });
 
     // Extrair user_id do external_reference
@@ -132,7 +129,7 @@ Deno.serve(async (req) => {
             });
         }
 
-        console.log(`Subscription activated for user ${userId}`);
+        console.log(`Subscription activated: user ${userId}`);
         break;
       }
 
@@ -147,7 +144,7 @@ Deno.serve(async (req) => {
           })
           .eq('id', subscription.id);
 
-        console.log(`Subscription pending for user ${userId}`);
+        console.log(`Subscription pending: user ${userId}`);
         break;
       }
 
@@ -162,7 +159,7 @@ Deno.serve(async (req) => {
           })
           .eq('id', subscription.id);
 
-        console.log(`Subscription failed for user ${userId}`);
+        console.log(`Subscription failed: user ${userId}`);
         break;
       }
 
@@ -191,12 +188,12 @@ Deno.serve(async (req) => {
             effective_date: new Date().toISOString(),
           });
 
-        console.log(`Subscription canceled due to ${payment.status} for user ${userId}`);
+        console.log(`Subscription canceled: user ${userId}, reason: ${payment.status}`);
         break;
       }
 
       default: {
-        console.log(`Unhandled payment status: ${payment.status}`);
+        console.log(`Unhandled payment status: ${payment.status} for user ${userId}`);
       }
     }
 
