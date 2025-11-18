@@ -1,6 +1,6 @@
 // Serviço de logging para Azuria AI
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
-type LogMetadata = Record<string, unknown>;
+export type LogMetadata = Record<string, unknown>;
 
 interface AppInsightsClient {
   trackException(args: {

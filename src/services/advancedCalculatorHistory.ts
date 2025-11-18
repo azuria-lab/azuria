@@ -198,9 +198,9 @@ class AdvancedCalculatorHistoryService {
       tags: entry.tags,
     };
 
-    // @ts-expect-error - Table exists but types may not be fully synced
     const { error } = await supabase
       .from('advanced_calculation_history')
+      // @ts-expect-error - Table exists but types may not be fully synced
       .insert(payload);
 
     if (error) {
