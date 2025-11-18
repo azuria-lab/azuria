@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Edge Function: mercadopago-webhook
  * 

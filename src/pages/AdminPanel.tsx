@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { Database } from "@/types/supabase";
 import { 
   BarChart3, 
   CreditCard, 
@@ -101,7 +102,7 @@ export default function AdminPanel() {
     try {
       const { error } = await supabase
         .from('user_profiles')
-        .update({ is_pro: !currentStatus })
+        .update({ is_pro: !currentStatus } satisfies Database['public']['Tables']['user_profiles']['Update'])
         .eq('id', userId);
 
       if (error) {throw error;}

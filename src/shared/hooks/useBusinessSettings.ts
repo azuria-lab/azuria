@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/services/logger";
+import type { Database } from "@/types/supabase";
 
 export interface BusinessSettingsState {
   defaultMargin: number;
@@ -58,6 +59,15 @@ export function useBusinessSettings(userId?: string) {
         throw error;
       }
       
+      if (!data) {
+        setSettings({
+          ...defaultSettings,
+          isLoading: false,
+          error: null
+        });
+        return;
+      }
+      
       setSettings({
         defaultMargin: data.default_margin ?? defaultSettings.defaultMargin,
         defaultTax: data.default_tax ?? defaultSettings.defaultTax,
@@ -91,7 +101,7 @@ export function useBusinessSettings(userId?: string) {
           default_card_fee: defaultSettings.defaultCardFee,
           default_shipping: defaultSettings.defaultShipping,
           include_shipping_default: defaultSettings.includeShippingDefault,
-        });
+        } satisfies Database['public']['Tables']['business_settings']['Insert']);
       
       if (error) {throw error;}
       
@@ -139,7 +149,7 @@ export function useBusinessSettings(userId?: string) {
       
       const { error } = await supabase
         .from("business_settings")
-        .update(updateData)
+        .update(updateData satisfies Database['public']['Tables']['business_settings']['Update'])
         .eq("user_id", userId);
       
       if (error) {throw error;}

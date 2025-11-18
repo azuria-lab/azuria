@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from './useSubscription';
 import { PLANS } from '@/config/plans';
 import type { UsageTracking, UserLimits } from '@/types/subscription';
+import type { Database } from '@/types/supabase';
 
 export const usePlanLimits = () => {
   const [usage, setUsage] = useState<UsageTracking | null>(null);
@@ -33,26 +34,29 @@ export const usePlanLimits = () => {
         .limit(1)
         .single();
 
-      if (error) {
+      if (error || !data) {
         setLoading(false);
         return;
       }
-
+      
+      // Type assertion para garantir tipos corretos durante type-check
+      const usageData = data as Database['public']['Tables']['usage_tracking']['Row'];
+      
       setUsage({
-        id: data.id,
-        userId: data.user_id,
-        subscriptionId: data.subscription_id,
-        calculationsToday: data.calculations_today,
-        calculationsThisMonth: data.calculations_this_month,
-        aiQueriesThisMonth: data.ai_queries_this_month,
-        apiRequestsThisMonth: data.api_requests_this_month,
-        lastCalculationAt: data.last_calculation_at ? new Date(data.last_calculation_at) : undefined,
-        lastAiQueryAt: data.last_ai_query_at ? new Date(data.last_ai_query_at) : undefined,
-        lastApiRequestAt: data.last_api_request_at ? new Date(data.last_api_request_at) : undefined,
-        periodStart: new Date(data.period_start),
-        periodEnd: new Date(data.period_end),
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
+        id: usageData.id,
+        userId: usageData.user_id,
+        subscriptionId: usageData.subscription_id,
+        calculationsToday: usageData.calculations_today,
+        calculationsThisMonth: usageData.calculations_this_month,
+        aiQueriesThisMonth: usageData.ai_queries_this_month,
+        apiRequestsThisMonth: usageData.api_requests_this_month,
+        lastCalculationAt: usageData.last_calculation_at ? new Date(usageData.last_calculation_at) : undefined,
+        lastAiQueryAt: usageData.last_ai_query_at ? new Date(usageData.last_ai_query_at) : undefined,
+        lastApiRequestAt: usageData.last_api_request_at ? new Date(usageData.last_api_request_at) : undefined,
+        periodStart: new Date(usageData.period_start),
+        periodEnd: new Date(usageData.period_end),
+        createdAt: new Date(usageData.created_at),
+        updatedAt: new Date(usageData.updated_at),
       });
       
     } catch {
@@ -215,7 +219,7 @@ export const usePlanLimits = () => {
           calculations_today: usage.calculationsToday + 1,
           calculations_this_month: usage.calculationsThisMonth + 1,
           last_calculation_at: new Date().toISOString(),
-        })
+        } satisfies Database['public']['Tables']['usage_tracking']['Update'])
         .eq('id', usage.id);
 
       if (error) {
@@ -265,7 +269,7 @@ export const usePlanLimits = () => {
         .update({
           ai_queries_this_month: usage.aiQueriesThisMonth + 1,
           last_ai_query_at: new Date().toISOString(),
-        })
+        } as Database['public']['Tables']['usage_tracking']['Update'])
         .eq('id', usage.id);
 
       if (error) {
@@ -314,7 +318,7 @@ export const usePlanLimits = () => {
         .update({
           api_requests_this_month: usage.apiRequestsThisMonth + 1,
           last_api_request_at: new Date().toISOString(),
-        })
+        } as Database['public']['Tables']['usage_tracking']['Update'])
         .eq('id', usage.id);
 
       if (error) {

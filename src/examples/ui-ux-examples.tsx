@@ -1,3 +1,4 @@
+/* eslint-disable no-console, react-refresh/only-export-components */
 /**
  * Example: Como usar o Sistema de UI/UX
  * 

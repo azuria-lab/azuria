@@ -72,19 +72,20 @@ function mapWorkflow(row: z.infer<typeof automationWorkflowRow>): AutomationWork
   };
 }
 
-function mapExecution(row: Database["public"]["Tables"]["automation_executions"]["Row"]): AutomationExecution {
+function mapExecution(row: Database["public"]["Tables"]["automation_executions"]["Row"] | unknown): AutomationExecution {
+  const typedRow = row as Database["public"]["Tables"]["automation_executions"]["Row"];
   return {
-    id: row.id,
-    rule_id: row.rule_id,
-    user_id: row.user_id,
-    status: row.status as AutomationExecution["status"],
-    input_data: row.input_data ?? undefined,
-    output_data: row.output_data ?? undefined,
-    error_message: row.error_message ?? undefined,
-    execution_time_ms: row.execution_time_ms ?? undefined,
-    started_at: row.started_at,
-    completed_at: row.completed_at ?? undefined,
-  metadata: (row.metadata ?? undefined) as Record<string, unknown> | undefined,
+    id: typedRow.id,
+    rule_id: typedRow.rule_id,
+    user_id: typedRow.user_id,
+    status: typedRow.status as AutomationExecution["status"],
+    input_data: typedRow.input_data ?? undefined,
+    output_data: typedRow.output_data ?? undefined,
+    error_message: typedRow.error_message ?? undefined,
+    execution_time_ms: typedRow.execution_time_ms ?? undefined,
+    started_at: typedRow.started_at,
+    completed_at: typedRow.completed_at ?? undefined,
+    metadata: (typedRow.metadata ?? undefined) as Record<string, unknown> | undefined,
   };
 }
 
@@ -163,7 +164,7 @@ export async function createRule(input: Omit<AutomationRule, "id"|"user_id"|"cre
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) { throw new Error("Usuário não autenticado"); }
 
-  const payload: Database["public"]["Tables"]["automation_rules"]["Insert"] = {
+  const payload = {
     name: input.name,
     description: input.description ?? null,
     rule_type: input.rule_type,
@@ -176,7 +177,7 @@ export async function createRule(input: Omit<AutomationRule, "id"|"user_id"|"cre
 
   const { data, error } = await supabase
     .from("automation_rules")
-    .insert(payload)
+    .insert(payload as Database["public"]["Tables"]["automation_rules"]["Insert"])
     .select()
     .single();
   if (error) { throw error; }
@@ -184,7 +185,7 @@ export async function createRule(input: Omit<AutomationRule, "id"|"user_id"|"cre
 }
 
 export async function updateRule(id: string, updates: Partial<Omit<AutomationRule, "id"|"user_id"|"created_at"|"updated_at">>) {
-  const updatesPayload: Database["public"]["Tables"]["automation_rules"]["Update"] = {
+  const updatesPayload = {
     name: updates.name,
     description: updates.description,
     rule_type: updates.rule_type,
@@ -196,7 +197,7 @@ export async function updateRule(id: string, updates: Partial<Omit<AutomationRul
 
   const { data, error } = await supabase
     .from("automation_rules")
-    .update(updatesPayload)
+    .update(updatesPayload as Database["public"]["Tables"]["automation_rules"]["Update"])
     .eq("id", id)
     .select()
     .single();
@@ -215,7 +216,7 @@ export async function deleteRule(id: string) {
 export async function resolveAlert(id: string) {
   const { error } = await supabase
     .from("automation_alerts")
-    .update({ is_resolved: true, resolved_at: new Date().toISOString() })
+    .update({ is_resolved: true, resolved_at: new Date().toISOString() } satisfies Database["public"]["Tables"]["automation_alerts"]["Update"])
     .eq("id", id);
   if (error) { throw error; }
 }
@@ -239,7 +240,7 @@ export async function createAlert(input: Omit<AutomationAlert, "id" | "user_id" 
 
   const { data, error } = await supabase
     .from("automation_alerts")
-    .insert(payload)
+    .insert(payload satisfies Database["public"]["Tables"]["automation_alerts"]["Insert"])
     .select()
     .single();
   if (error) { throw error; }
@@ -249,7 +250,7 @@ export async function createAlert(input: Omit<AutomationAlert, "id" | "user_id" 
 export async function markAlertAsRead(id: string) {
   const { error } = await supabase
     .from("automation_alerts")
-    .update({ is_read: true })
+    .update({ is_read: true } satisfies Database["public"]["Tables"]["automation_alerts"]["Update"])
     .eq("id", id);
   if (error) { throw error; }
 }
@@ -265,7 +266,7 @@ export async function createExecution(ruleId: string, inputData?: Json) {
   };
   const { data, error } = await supabase
     .from("automation_executions")
-    .insert(payload)
+    .insert(payload satisfies Database["public"]["Tables"]["automation_executions"]["Insert"])
     .select()
     .single();
   if (error) { throw error; }

@@ -5,7 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
-import type { Json } from '@/integrations/supabase/types';
+import type { Json, TablesInsert } from '@/integrations/supabase/types';
 
 // Types for Advanced Calculator History
 export interface AdvancedCalculationEntry {
@@ -176,7 +176,7 @@ class AdvancedCalculatorHistoryService {
   // ========== SUPABASE METHODS ==========
 
   private static async saveToSupabase(entry: AdvancedCalculationEntry): Promise<void> {
-    const payload = {
+    const payload: TablesInsert<'advanced_calculation_history'> = {
       id: entry.id,
       user_id: entry.user_id,
       date: entry.date.toISOString(),
@@ -200,6 +200,7 @@ class AdvancedCalculatorHistoryService {
 
     const { error } = await supabase
       .from('advanced_calculation_history')
+      // @ts-expect-error - Table exists but types may not be fully synced
       .insert(payload);
 
     if (error) {

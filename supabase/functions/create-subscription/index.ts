@@ -8,7 +8,7 @@
  */
 
 import { type BillingInterval, corsHeaders, type EdgeFunctionResponse, type MercadoPagoSubscription, type PlanId, PLANS } from '../_shared/types.ts';
-import { getReturnUrl, logError, mercadoPagoRequest, validateAuth } from '../_shared/utils.ts';
+import { getReturnUrl, mercadoPagoRequest, validateAuth } from '../_shared/utils.ts';
 
 interface CreateSubscriptionRequest {
   planId: PlanId;

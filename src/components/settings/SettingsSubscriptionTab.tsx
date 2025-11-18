@@ -6,13 +6,6 @@ import { Check, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStripe } from "@/hooks/useStripe";
 
-const devLog = (...args: unknown[]) => {
-  if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
-    console.error(...args);
-  }
-};
-
 interface Props {
   isPro: boolean;
   subscriptionEnd: Date | null;

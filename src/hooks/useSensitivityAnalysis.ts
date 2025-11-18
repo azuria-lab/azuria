@@ -6,12 +6,6 @@
 
 import { type BreakEvenPoint, type ScenarioPoint, type SensitivityAnalysisInput, type SensitivityAnalysisResult, VARIABLE_METADATA, type VariableImpact } from '@/types/sensitivityAnalysis';
 
-const getRiskLevel = (elasticity: number, threshold1: number, threshold2: number): 'low' | 'medium' | 'high' => {
-  if (elasticity > threshold1) { return 'high'; }
-  if (elasticity > threshold2) { return 'medium'; }
-  return 'low';
-};
-
 export function useSensitivityAnalysis() {
   /**
    * Calculate price for given inputs

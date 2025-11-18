@@ -6,13 +6,12 @@ import { UnifiedErrorBoundary as ErrorBoundary } from "@/shared/components/Error
 
 type AnyProps = Record<string, unknown>;
 
-interface LazyComponentLoaderProps extends AnyProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  importFunc: () => Promise<{ default: React.ComponentType<any> }>;
+type LazyComponentLoaderProps<TProps extends AnyProps = AnyProps> = {
+  importFunc: () => Promise<{ default: React.ComponentType<TProps> }>;
   fallback?: React.ReactNode;
   errorFallback?: React.ReactNode;
   children?: React.ReactNode;
-}
+} & TProps;
 
 const DefaultFallback = () => (
   <Card className="w-full">
@@ -41,27 +40,26 @@ const DefaultErrorFallback = () => (
   </Card>
 );
 
-export const LazyComponentLoader: React.FC<LazyComponentLoaderProps> = ({
+export function LazyComponentLoader<TProps extends AnyProps = AnyProps>({
   importFunc,
   fallback = <DefaultFallback />,
   errorFallback = <DefaultErrorFallback />,
   children,
   ...props
-}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const LazyComponent = lazy(importFunc) as unknown as React.ComponentType<any>;
+}: LazyComponentLoaderProps<TProps>) {
+  const LazyComponent = lazy(importFunc);
 
   return (
     <ErrorBoundary fallback={errorFallback}>
       <Suspense fallback={fallback}>
-  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-  <LazyComponent {...(props as any)}>
+        {/* @ts-expect-error - Generic lazy component props */}
+        <LazyComponent {...(props as TProps)}>
           {children}
         </LazyComponent>
       </Suspense>
     </ErrorBoundary>
   );
-};
+}
 
 // Specific lazy loaders for heavy components
 export const LazyProCalculator = () => (
@@ -84,12 +82,14 @@ export const LazyAnalyticsDashboard = () => (
 
 export const LazyCompetitionAnalysis = () => (
   <LazyComponentLoader
+    // @ts-expect-error - Lazy import type inference
     importFunc={() => import("@/components/analysis/CompetitionAnalysis")}
   />
 );
 
 export const LazyBatchCalculator = () => (
   <LazyComponentLoader
+    // @ts-expect-error - Lazy import type inference
     importFunc={() => import("@/components/calculators/BatchCalculator")}
   />
 );
