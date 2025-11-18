@@ -96,10 +96,23 @@ class HealthChecker {
 
   async checkTypeScript() {
     try {
-      this.runCommand('npm run type-check', 120000); // 2 minutes timeout
+      // Set environment to prevent Supabase connection attempts during type-check
+      const env = {
+        ...process.env,
+        NODE_ENV: 'type-check',
+        VITE_ENV: 'type-check'
+      };
+      
+      const result = execSync('npm run type-check', {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+        timeout: 120000, // 2 minutes
+        env: env
+      });
+      
       this.addResult('TypeScript', 'pass', 'No type errors');
     } catch (error) {
-      if (error.message.includes('timed out')) {
+      if (error.killed) {
         this.addResult('TypeScript', 'warn', 'Type check timed out (> 2min)');
       } else {
         this.addResult('TypeScript', 'fail', 'TypeScript errors detected');
@@ -136,10 +149,23 @@ class HealthChecker {
 
   async checkBuild() {
     try {
-      this.runCommand('npm run build', 300000); // 5 minutes timeout
+      // Set environment to prevent Supabase connection attempts during build
+      const env = {
+        ...process.env,
+        NODE_ENV: 'production',
+        CI: 'true'
+      };
+      
+      execSync('npm run build', {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+        timeout: 300000, // 5 minutes
+        env: env
+      });
+      
       this.addResult('Build', 'pass', 'Production build successful');
     } catch (error) {
-      if (error.message.includes('timed out')) {
+      if (error.killed) {
         this.addResult('Build', 'warn', 'Build timed out (> 5min)');
       } else {
         this.addResult('Build', 'fail', 'Build errors detected');
