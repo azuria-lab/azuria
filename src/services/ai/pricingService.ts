@@ -1,5 +1,5 @@
 import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
-import { logger } from './logger';
+import { logger, LogMetadata } from './logger';
 
 interface PricingInput {
   costPrice: number;
@@ -73,7 +73,7 @@ class PricingService {
       return analysis;
 
     } catch (error) {
-      logger.trackAIError('pricing_analysis', error, input);
+      logger.trackAIError('pricing_analysis', error, input as unknown as LogMetadata);
       throw new Error('Erro ao analisar precificação');
     }
   }

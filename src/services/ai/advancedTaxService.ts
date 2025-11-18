@@ -1,6 +1,6 @@
 import { TaxAnalysis, TaxRegimeType } from '@/shared/types/ai';
 import { taxService } from './taxService';
-import { logger } from './logger';
+import { logger, LogMetadata } from './logger';
 
 interface BusinessProfile {
   id: string;
@@ -113,7 +113,7 @@ class AdvancedTaxService {
       };
 
     } catch (error) {
-      logger.trackAIError('comprehensive_tax_analysis', error, businessProfile);
+      logger.trackAIError('comprehensive_tax_analysis', error, businessProfile as unknown as LogMetadata);
       throw new Error('Erro ao realizar análise tributária abrangente');
     }
   }

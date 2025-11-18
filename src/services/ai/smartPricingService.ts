@@ -1,7 +1,7 @@
 import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
 import { pricingService } from './pricingService';
 import { competitorService } from './competitorService';
-import { logger } from './logger';
+import { logger, LogMetadata } from './logger';
 
 interface SmartPricingInput {
   productName: string;
@@ -92,7 +92,7 @@ class SmartPricingService {
       return recommendation;
 
     } catch (error) {
-      logger.trackAIError('smart_pricing_analysis', error, input);
+      logger.trackAIError('smart_pricing_analysis', error, input as unknown as LogMetadata);
       throw new Error('Erro ao realizar análise inteligente de precificação');
     }
   }

@@ -1,5 +1,5 @@
 import { TaxAnalysis, TaxRegime, TaxRegimeType } from '@/shared/types/ai';
-import { logger } from './logger';
+import { logger, LogMetadata } from './logger';
 
 interface TaxInput {
   currentRegime: string;
@@ -121,7 +121,7 @@ class TaxService {
       return analysis;
 
     } catch (error) {
-      logger.trackAIError('tax_analysis', error, input);
+      logger.trackAIError('tax_analysis', error, input as unknown as LogMetadata);
       throw new Error('Erro ao analisar situação tributária');
     }
   }
