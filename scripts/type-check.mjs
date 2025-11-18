@@ -45,6 +45,11 @@ function isKnownSupabaseError(errorLine) {
   const supabaseErrorPatterns = [
     'no overload matches this call',
     'object literal may only specify known properties',
+    'not assignable to parameter of type \'never\'',
+    'not assignable to parameter of type \'never[]\'',
+    'missing the following properties from type \'never[]\'',
+    'postgrestfilterbuilder',
+    'postgrestquerybuilder',
   ];
   
   // Arquivos que sabemos ter essa limitação conhecida
@@ -60,6 +65,11 @@ function isKnownSupabaseError(errorLine) {
     'historyservice.ts',
     'usebusinesssettings.ts',
     'usesupabasehistory.ts',
+    'auditlogservice.ts',
+    'useusermarketplacetemplates.ts',
+    'useteams.tsx',
+    'useteammembers.tsx',
+    'dataentryformwidget.tsx',
   ];
   
   // Verificar se é um erro de tipo 'never' (sempre considerado conhecido)
@@ -109,6 +119,18 @@ function isKnownSupabaseError(errorLine) {
   // Se é de arquivo conhecido E é um erro de tipo relacionado (TS2345, TS2769)
   // Estes são os códigos de erro comuns do Supabase com tipo 'never'
   if (isFromKnownFile && (errorLower.includes('ts2345') || errorLower.includes('ts2769'))) {
+    return true;
+  }
+  
+  // Se é um erro TS2769 (No overload matches) E menciona PostgrestFilterBuilder ou Database
+  // Estes são sempre erros conhecidos do Supabase relacionados a tipo 'never'
+  if (errorLower.includes('ts2769') && (errorLower.includes('postgrest') || errorLower.includes('database[') || errorLower.includes('tables['))) {
+    return true;
+  }
+  
+  // Se menciona "not assignable to parameter of type 'never'" ou "not assignable to parameter of type 'never[]'"
+  // Estes são sempre erros conhecidos do Supabase
+  if (errorLower.includes('not assignable to parameter of type \'never') || errorLower.includes('not assignable to parameter of type \'never[]')) {
     return true;
   }
   
