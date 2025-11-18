@@ -1,6 +1,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseAuth } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { UserProfileWithDisplayData } from "@/types/auth";
 import { logger } from "@/services/logger";
@@ -59,7 +59,7 @@ export const useAuthState = () => {
           logger.info("Inicializando autenticação... (tentativa:", retryCount + 1, ")");
           
           // Configurar listener primeiro
-          const { data: authListener } = supabase.auth.onAuthStateChange(
+          const { data: authListener } = supabaseAuth.auth.onAuthStateChange(
             (event, currentSession) => {
               logger.debug("Evento de auth:", event);
               
@@ -82,7 +82,7 @@ export const useAuthState = () => {
           );
         
         // Buscar sessão atual com timeout otimizado
-        const sessionPromise = supabase.auth.getSession();
+        const sessionPromise = supabaseAuth.auth.getSession();
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Auth timeout')), 2000)
         );
