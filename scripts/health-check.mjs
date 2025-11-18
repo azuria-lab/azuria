@@ -4,9 +4,10 @@
  * Verifies application health, dependencies, and production readiness
  */
 
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * @typedef {Object} HealthCheckResult
@@ -96,26 +97,56 @@ class HealthChecker {
 
   async checkTypeScript() {
     try {
-      // Set environment to prevent Supabase connection attempts during type-check
+      // Use the type-check.mjs script directly, which filters known Supabase errors
+      // This prevents connection errors and properly handles known 'never' type issues
       const env = {
         ...process.env,
+        TSC: 'true',
+        TYPESCRIPT: 'true',
         NODE_ENV: 'type-check',
-        VITE_ENV: 'type-check'
+        TSC_COMPILE_ON_ERROR: 'true',
       };
       
-      const result = execSync('npm run type-check', {
-        encoding: 'utf-8',
-        stdio: 'pipe',
-        timeout: 120000, // 2 minutes
-        env: env
-      });
+      // Get script directory
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = dirname(__filename);
+      const projectRoot = join(__dirname, '..');
+      const typeCheckScript = join(__dirname, 'type-check.mjs');
       
-      this.addResult('TypeScript', 'pass', 'No type errors');
+      // Execute type-check.mjs directly with timeout
+      // Note: spawnSync doesn't support timeout directly, so we'll use execSync with timeout wrapper
+      // But first, let's try with a simpler approach using execSync
+      try {
+        const result = execSync(`node "${typeCheckScript}"`, {
+          encoding: 'utf-8',
+          cwd: projectRoot,
+          env: env,
+          stdio: 'pipe',
+          timeout: 120000 // 2 minutes
+        });
+        
+        // type-check.mjs returns exit code 0 even with known Supabase errors
+        const output = result || '';
+        if (output.includes('erros conhecidos do Supabase')) {
+          this.addResult('TypeScript', 'pass', 'No type errors (known Supabase limitations ignored)');
+        } else {
+          this.addResult('TypeScript', 'pass', 'No type errors');
+        }
+      } catch (execError) {
+        // execSync throws if exit code is non-zero
+        // But type-check.mjs returns 0 for known errors, so if we get here, it's a real error
+        if (execError.killed) {
+          this.addResult('TypeScript', 'warn', 'Type check timed out (> 2min)');
+        } else {
+          const errorOutput = execError.stdout || execError.stderr || execError.message || '';
+          this.addResult('TypeScript', 'fail', `TypeScript errors detected: ${errorOutput.substring(0, 200)}`);
+        }
+      }
     } catch (error) {
-      if (error.killed) {
+      if (error.killed || error.message?.includes('timed out')) {
         this.addResult('TypeScript', 'warn', 'Type check timed out (> 2min)');
       } else {
-        this.addResult('TypeScript', 'fail', 'TypeScript errors detected');
+        this.addResult('TypeScript', 'fail', `Type check failed: ${error.message || 'Unknown error'}`);
       }
     }
   }
