@@ -134,16 +134,19 @@ const MODE = isTypeCheck
 
 // Cloud credentials (used for auth in hybrid mode, or everything in cloud mode)
 // Durante type-check, usar undefined sem acessar import.meta.env
+// FALLBACK: Se as variáveis de ambiente falharem, usar os valores hardcoded de produção
 const CLOUD_URL = isTypeCheck
 	? undefined
 	: (getEnvVar('VITE_SUPABASE_CLOUD_URL') || 
 	   getEnvVar('VITE_SUPABASE_URL') || 
-	   (getEnvVar('VITE_SUPABASE_PROJECT_ID') && `https://${getEnvVar('VITE_SUPABASE_PROJECT_ID')}.supabase.co`)) as string | undefined;
+	   (getEnvVar('VITE_SUPABASE_PROJECT_ID') && `https://${getEnvVar('VITE_SUPABASE_PROJECT_ID')}.supabase.co`) ||
+	   'https://crpzkppsriranmeumfqs.supabase.co') as string | undefined;
 const CLOUD_ANON_KEY = isTypeCheck
 	? undefined
 	: (getEnvVar('VITE_SUPABASE_CLOUD_ANON_KEY') || 
 	   getEnvVar('VITE_SUPABASE_ANON_KEY') || 
-	   getEnvVar('VITE_SUPABASE_PUBLISHABLE_KEY')) as string | undefined;
+	   getEnvVar('VITE_SUPABASE_PUBLISHABLE_KEY') ||
+	   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycHprcHBzcmlyYW5tZXVtZnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1ODkwNjcsImV4cCI6MjA3MjE2NTA2N30.OB2LjijKKxDJMg4zwv-ky-u2yH4MUbeUpe-YPi37WnM') as string | undefined;
 
 // Local credentials (used for data in hybrid mode, or everything in local mode)
 // Durante type-check, usar valores padrão sem acessar import.meta.env
