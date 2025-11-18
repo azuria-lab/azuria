@@ -56,7 +56,7 @@ export function useAnalytics() {
 
       const totalCalculations = calculations?.length || 0;
       const totalUsers = users?.length || 0;
-      const proUsers = users?.filter(user => user.is_pro)?.length || 0;
+      const proUsers = users?.filter((user: any) => user?.is_pro)?.length || 0;
       const conversionRate = totalUsers > 0 ? (proUsers / totalUsers) * 100 : 0;
 
       // Gerar dados diários dos últimos 7 dias
@@ -65,8 +65,8 @@ export function useAnalytics() {
         const date = subDays(currentDate, i);
         const dateStr = format(date, 'dd/MM');
         
-        const dayCalculations = calculations?.filter(calc => 
-          format(new Date(calc.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+        const dayCalculations = calculations?.filter((calc: any) => 
+          calc?.date && format(new Date(calc.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
         )?.length || 0;
 
         dailyStats.push({
@@ -84,10 +84,10 @@ export function useAnalytics() {
         conversionRate,
         avgCalculationsPerUser: totalUsers > 0 ? totalCalculations / totalUsers : 0,
         dailyStats,
-        topTemplates: templates?.map(t => ({
-          name: t.name,
-          downloads: t.downloads_count || 0,
-          category: t.category
+        topTemplates: templates?.map((t: any) => ({
+          name: t?.name || '',
+          downloads: t?.downloads_count || 0,
+          category: t?.category || ''
         })) || [],
         userEngagement: {
           avgSessionTime: 11.4, // Dados mockados - necessário integração com analytics

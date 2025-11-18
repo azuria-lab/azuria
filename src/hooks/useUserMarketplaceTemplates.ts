@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth';
 import { toast } from '@/components/ui/use-toast';
+import type { Database } from '@/types/supabase';
 
 export interface UserMarketplaceTemplate {
   id: string;
@@ -109,7 +110,7 @@ export const useUserMarketplaceTemplates = () => {
         .insert({
           user_id: user.id,
           ...params,
-        })
+        } as Database['public']['Tables']['user_marketplace_templates']['Insert'])
         .select()
         .single();
 
@@ -151,7 +152,7 @@ export const useUserMarketplaceTemplates = () => {
     try {
       const { error } = await supabase
         .from('user_marketplace_templates')
-        .update(updates)
+        .update(updates as Database['public']['Tables']['user_marketplace_templates']['Update'])
         .eq('id', templateId)
         .eq('user_id', user.id);
 

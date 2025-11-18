@@ -10,6 +10,7 @@ import { useSimpleCalculator } from "@/hooks/useSimpleCalculator";
 import Header from "@/components/layout/Header";
 import MobileNavigationBar from "@/components/mobile/MobileNavigationBar";
 import { logger } from "@/services/logger";
+import type { Database } from "@/types/supabase";
 
 interface TemplateDefaults {
   cost?: string | number;
@@ -117,7 +118,7 @@ const Templates = () => {
       // Incrementar contador de downloads
       await supabase
         .from('calculation_templates')
-        .update({ downloads_count: (template.downloads_count ?? 0) + 1 })
+        .update({ downloads_count: (template.downloads_count ?? 0) + 1 } satisfies Database['public']['Tables']['calculation_templates']['Update'])
         .eq('id', template.id);
 
       toast({

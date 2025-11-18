@@ -9,8 +9,9 @@ import { useAdvancedBusinessMetrics } from '@/hooks/useAdvancedBusinessMetrics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/domains/auth';
 import { useToast } from '@/hooks/use-toast';
-import { Database, Save, Upload } from 'lucide-react';
+import { Database as DatabaseIcon, Save, Upload } from 'lucide-react';
 import { logger } from '@/services/logger';
+import type { Database } from '@/types/supabase';
 
 interface DataEntryFormWidgetProps {
   userPlan: string;
@@ -88,7 +89,7 @@ export default function DataEntryFormWidget({ userPlan }: DataEntryFormWidgetPro
           advertising_cost: 0,
           shipping_cost: 0,
           metadata: { source: 'manual_entry' }
-        });
+        } as Database['public']['Tables']['sales_data']['Insert']);
 
       if (error) {throw error;}
 
@@ -133,7 +134,7 @@ export default function DataEntryFormWidget({ userPlan }: DataEntryFormWidgetPro
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
+            <DatabaseIcon className="h-5 w-5" />
             Entrada de Dados
           </CardTitle>
           <Badge variant={userPlan === 'premium' ? 'default' : 'secondary'}>

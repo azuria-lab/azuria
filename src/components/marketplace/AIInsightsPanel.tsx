@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Badge, type Variant } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import {
   AlertCircle,
   ArrowDown,
@@ -41,7 +41,7 @@ function getPeriodLabel(period: string): string {
   return '90 dias';
 }
 
-function getTrendBadgeVariant(trend: string): Variant {
+function getTrendBadgeVariant(trend: string): BadgeProps['variant'] {
   if (trend === 'increasing') {
     return 'default';
   }

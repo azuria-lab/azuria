@@ -32,12 +32,14 @@ export const useUserProfile = (
 
       const { data, error } = await supabase
         .from("user_profiles")
-        .insert(profileData)
+        .insert(profileData satisfies TablesInsert<"user_profiles">)
         .select()
         .single();
 
       if (error) { throw error; }
 
+      if (!data) return null;
+      
       setUserProfile({
         id: userId,
         name,
@@ -75,12 +77,14 @@ export const useUserProfile = (
         throw error;
       }
 
+      if (!data) return null;
+      
       // Definir status PRO com base no perfil ou localStorage como fallback
-      const isPro = data?.is_pro ?? localStorage.getItem("isPro") === "true";
+      const isPro = data.is_pro ?? localStorage.getItem("isPro") === "true";
 
       setUserProfile({
         id: data.id,
-        name: data.name,
+        name: data.name ?? "",
         email: user?.email ?? "",
         isPro,
         createdAt: data.created_at,
@@ -132,7 +136,7 @@ export const useUserProfile = (
       
       const { error } = await supabase
         .from("user_profiles")
-        .update(updates)
+        .update(updates satisfies TablesUpdate<"user_profiles">)
         .eq("id", user.id);
       
       if (error) {throw error;}
@@ -165,7 +169,7 @@ export const useUserProfile = (
       
       const { error } = await supabase
         .from("user_profiles")
-        .update(updates)
+        .update(updates satisfies TablesUpdate<"user_profiles">)
         .eq("id", user.id);
       
       if (error) {throw error;}

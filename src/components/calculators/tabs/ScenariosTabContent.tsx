@@ -55,11 +55,17 @@ export default function ScenariosTabContent({
           <h3 className="text-lg font-medium text-center mb-4">Simulação de Cenários</h3>
           
           <ScenarioSimulator
-            basePrice={sellingPrice}
-            baseCost={Number(cost)}
-            baseMargin={targetProfit}
-            baseTax={Number(taxPercent)}
-            onSaveScenario={onSaveScenario}
+            baseScenario={{
+              cost: Number(cost),
+              targetMargin: targetProfit,
+              shipping: 0,
+              packaging: 0,
+              marketing: 0,
+              otherCosts: 0,
+              marketplace: '',
+              paymentMethod: 'credit',
+              includePaymentFee: false,
+            }}
           />
           
           <div className="border-t pt-4 mt-8">
