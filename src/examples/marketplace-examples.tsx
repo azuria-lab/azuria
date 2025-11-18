@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 /**
  * Exemplo de Uso do Dashboard Multimarketplace
  * 

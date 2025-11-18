@@ -264,7 +264,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
   const {
     history: advancedHistory,
     saveCalculation: saveToHistory,
-    deleteEntry,
     isLoading: isHistoryLoading,
   } = useAdvancedCalculatorHistory();
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 // Serviço de logging para Azuria AI
 export interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';

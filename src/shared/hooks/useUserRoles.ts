@@ -2,7 +2,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/domains/auth';
-import type { Database } from '@/types/supabase';
 
 export type AppRole = 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
 

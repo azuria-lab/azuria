@@ -27,7 +27,7 @@ export default function AIPriceSuggestions({ input, onSelectPrice }: AIPriceSugg
   useEffect(() => {
     const results = generateSuggestions(input);
     setSuggestions(results);
-  }, [input]);
+  }, [input, generateSuggestions]);
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) { return "text-green-600"; }

@@ -23,5 +23,5 @@ export function useRegisterShortcut(shortcut: KeyboardShortcut) {
     return () => {
       unregisterShortcut(shortcut.id);
     };
-  }, [shortcut.id, shortcut.key, shortcut.ctrl, shortcut.shift, shortcut.alt, shortcut.action, shortcut.description, shortcut.category, registerShortcut, unregisterShortcut]);
+  }, [shortcut, registerShortcut, unregisterShortcut]);
 }

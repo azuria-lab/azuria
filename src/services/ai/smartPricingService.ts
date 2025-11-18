@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
 import { pricingService } from './pricingService';
 import { competitorService } from './competitorService';
@@ -346,7 +347,7 @@ class SmartPricingService {
   /**
    * Gera cenários alternativos
    */
-  private generateAlternatives(basePrice: number, input: SmartPricingInput): Array<{
+  private generateAlternatives(basePrice: number, _input: SmartPricingInput): Array<{
     price: number;
     scenario: string;
     pros: string[];

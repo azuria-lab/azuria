@@ -25,9 +25,9 @@ export default function ScenariosTabContent({
   sellingPrice,
   cost,
   targetProfit,
-  taxPercent,
+  taxPercent: _taxPercent,
   setActiveTab,
-  onSaveScenario
+  onSaveScenario: _onSaveScenario
 }: ScenariosTabContentProps) {
   
   if (!sellingPrice) {
