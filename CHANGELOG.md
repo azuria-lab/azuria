@@ -1,3 +1,7 @@
+## <small>2.0.1 (2025-11-18)</small>
+
+* fix: adicionar timeouts aos comandos do health-check para evitar travamentos ([fd7dc29](https://github.com/azuria-lab/azuria/commit/fd7dc29))
+
 ## 2.0.0 (2025-11-18)
 
 * feat: adicionar migrações do Supabase e documentação de recuperação ([40cef92](https://github.com/azuria-lab/azuria/commit/40cef92))
