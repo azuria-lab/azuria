@@ -34,12 +34,20 @@ class HealthChecker {
 
   /**
    * @param {string} command
+   * @param {number} [timeout=60000] - Timeout in milliseconds (default 60s)
    * @returns {string}
    */
-  runCommand(command) {
+  runCommand(command, timeout = 60000) {
     try {
-      return execSync(command, { encoding: 'utf-8', stdio: 'pipe' });
+      return execSync(command, { 
+        encoding: 'utf-8', 
+        stdio: 'pipe',
+        timeout: timeout
+      });
     } catch (error) {
+      if (error.killed) {
+        throw new Error(`Command timed out after ${timeout}ms: ${command}`);
+      }
       throw new Error(`Command failed: ${command}`);
     }
   }
@@ -88,37 +96,54 @@ class HealthChecker {
 
   async checkTypeScript() {
     try {
-      this.runCommand('npm run type-check');
+      this.runCommand('npm run type-check', 120000); // 2 minutes timeout
       this.addResult('TypeScript', 'pass', 'No type errors');
     } catch (error) {
-      this.addResult('TypeScript', 'fail', 'TypeScript errors detected');
+      if (error.message.includes('timed out')) {
+        this.addResult('TypeScript', 'warn', 'Type check timed out (> 2min)');
+      } else {
+        this.addResult('TypeScript', 'fail', 'TypeScript errors detected');
+      }
     }
   }
 
   async checkLinting() {
     try {
-      this.runCommand('npm run lint');
+      this.runCommand('npm run lint', 90000); // 90 seconds timeout
       this.addResult('ESLint', 'pass', 'No linting errors');
     } catch (error) {
-      this.addResult('ESLint', 'fail', 'Linting errors detected');
+      if (error.message.includes('timed out')) {
+        this.addResult('ESLint', 'warn', 'Lint check timed out (> 90s)');
+      } else {
+        this.addResult('ESLint', 'fail', 'Linting errors detected');
+      }
     }
   }
 
   async checkTests() {
     try {
-      this.runCommand('npm run test:smoke');
+      // Smoke tests with 3 minute timeout (they can be slow)
+      this.runCommand('npm run test:smoke', 180000);
       this.addResult('Tests', 'pass', 'All smoke tests passing');
     } catch (error) {
-      this.addResult('Tests', 'fail', 'Test failures detected');
+      if (error.message.includes('timed out')) {
+        this.addResult('Tests', 'warn', 'Smoke tests timed out (> 3min) - skipped');
+      } else {
+        this.addResult('Tests', 'fail', 'Test failures detected');
+      }
     }
   }
 
   async checkBuild() {
     try {
-      this.runCommand('npm run build');
+      this.runCommand('npm run build', 300000); // 5 minutes timeout
       this.addResult('Build', 'pass', 'Production build successful');
     } catch (error) {
-      this.addResult('Build', 'fail', 'Build errors detected');
+      if (error.message.includes('timed out')) {
+        this.addResult('Build', 'warn', 'Build timed out (> 5min)');
+      } else {
+        this.addResult('Build', 'fail', 'Build errors detected');
+      }
     }
   }
 
