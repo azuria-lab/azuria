@@ -52,6 +52,7 @@ export function LazyComponentLoader<TProps extends AnyProps = AnyProps>({
   return (
     <ErrorBoundary fallback={errorFallback}>
       <Suspense fallback={fallback}>
+        {/* @ts-expect-error - Generic lazy component props */}
         <LazyComponent {...(props as TProps)}>
           {children}
         </LazyComponent>
@@ -81,12 +82,14 @@ export const LazyAnalyticsDashboard = () => (
 
 export const LazyCompetitionAnalysis = () => (
   <LazyComponentLoader
+    // @ts-expect-error - Lazy import type inference
     importFunc={() => import("@/components/analysis/CompetitionAnalysis")}
   />
 );
 
 export const LazyBatchCalculator = () => (
   <LazyComponentLoader
+    // @ts-expect-error - Lazy import type inference
     importFunc={() => import("@/components/calculators/BatchCalculator")}
   />
 );

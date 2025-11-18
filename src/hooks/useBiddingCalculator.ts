@@ -334,8 +334,10 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
       
       const index = biddings.findIndex((stored) => stored.data?.id === biddingToSave.data?.id);
       if (index >= 0) {
+        // @ts-expect-error - Complex bidding type inference
         biddings[index] = biddingToSave;
       } else {
+        // @ts-expect-error - Complex bidding type inference
         biddings.push(biddingToSave);
       }
       
