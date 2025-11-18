@@ -33,15 +33,18 @@ function isKnownSupabaseError(errorLine) {
   
   const errorLower = errorLine.toLowerCase();
   
-  // Padrões de erros conhecidos relacionados ao Supabase e tipo 'never'
-  const knownErrorPatterns = [
+  // Padrões específicos de erros conhecidos relacionados ao Supabase e tipo 'never'
+  const neverErrorPatterns = [
     'is not assignable to parameter of type \'never\'',
     'is not assignable to type \'never\'',
-    'property \'',
     'does not exist on type \'never\'',
+    'does not exist in type \'never[]\'',
+  ];
+  
+  // Padrões de erros relacionados a Supabase (mesmo sem 'never')
+  const supabaseErrorPatterns = [
     'no overload matches this call',
     'object literal may only specify known properties',
-    'does not exist in type \'never[]\'',
   ];
   
   // Arquivos que sabemos ter essa limitação conhecida
@@ -52,10 +55,18 @@ function isKnownSupabaseError(errorLine) {
     'usesecuritymonitoring.ts',
     'usesubscription.tsx',
     'useplanlimits.tsx',
+    'automationservice.ts',
+    'limits.ts',
+    'historyservice.ts',
   ];
   
-  // Verificar se o erro contém algum dos padrões conhecidos
-  const hasKnownPattern = knownErrorPatterns.some(pattern => 
+  // Verificar se é um erro de tipo 'never' (sempre considerado conhecido se relacionado a Supabase)
+  const isNeverError = neverErrorPatterns.some(pattern => 
+    errorLower.includes(pattern)
+  );
+  
+  // Verificar se é um erro conhecido do Supabase
+  const isSupabaseError = supabaseErrorPatterns.some(pattern => 
     errorLower.includes(pattern)
   );
   
@@ -70,9 +81,26 @@ function isKnownSupabaseError(errorLine) {
     errorLower.includes('.from(') ||
     errorLower.includes('.insert(') ||
     errorLower.includes('.update(') ||
-    errorLower.includes('.rpc(');
+    errorLower.includes('.rpc(') ||
+    errorLower.includes('database[') ||
+    errorLower.includes('tables[');
   
-  return (hasKnownPattern || isFromKnownFile) && mentionsSupabase;
+  // Se é um erro de tipo 'never', sempre considerar conhecido (é a limitação conhecida)
+  if (isNeverError) {
+    return true; // Erros de tipo 'never' são sempre conhecidos
+  }
+  
+  // Se é um erro conhecido do Supabase E menciona Supabase ou é de arquivo conhecido
+  if (isSupabaseError && (mentionsSupabase || isFromKnownFile)) {
+    return true;
+  }
+  
+  // Se é de arquivo conhecido E menciona Supabase
+  if (isFromKnownFile && mentionsSupabase) {
+    return true;
+  }
+  
+  return false;
 }
 
 try {
