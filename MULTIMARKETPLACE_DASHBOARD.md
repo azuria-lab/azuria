@@ -306,7 +306,9 @@ npm run test:marketplace -- mercado-livre
 
 ## 📝 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+<!-- GOVERNANCE-ALLOW-LICENSING-START -->
+Este projeto está sob licença proprietária. Veja o arquivo `LICENSE` para mais detalhes.
+<!-- GOVERNANCE-ALLOW-LICENSING-END -->
 
 ## 🙋 Suporte
 
