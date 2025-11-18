@@ -100,25 +100,23 @@ const getEnvVar = (key: string, defaultValue: string = ''): string => {
 	try {
 		// Só executar se NÃO estiver em type-check (verificação dupla)
 		if (!isTypeCheck) {
-			// Usar uma função wrapper para evitar análise estática durante type-check
-			// eslint-disable-next-line @typescript-eslint/no-implied-eval
-			const getMetaEnvValue = (() => {
+			// Usar Function constructor para evitar análise estática durante type-check
+			// eslint-disable-next-line no-new-func
+			const getMetaEnvValue = new Function(`
 				try {
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore - import.meta só existe em runtime
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 					if (typeof import !== 'undefined' && import.meta && import.meta.env) {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 						return import.meta.env;
 					}
 					return undefined;
 				} catch {
 					return undefined;
 				}
-			})();
+			`);
 			
-			if (getMetaEnvValue && typeof getMetaEnvValue[key] !== 'undefined') {
-				return String(getMetaEnvValue[key]);
+			const metaEnv = getMetaEnvValue() as Record<string, unknown> | undefined;
+			if (metaEnv && typeof metaEnv[key] !== 'undefined') {
+				return String(metaEnv[key]);
 			}
 		}
 		return defaultValue;
@@ -322,12 +320,12 @@ if (isTypeCheck) {
 			supabaseAuthInstance = createClient<Database>(mockUrl, mockKey, mockOptions);
 			supabaseDataInstance = createClient<Database>(mockUrl, mockKey, mockOptions);
 			supabaseInstance = createClient<Database>(mockUrl, mockKey, mockOptions);
-		} catch (error) {
+		} catch (_error) {
 			// Se houver qualquer erro durante a criação (improvável), usar createClient com tipo explícito
 			// Isso garante que os tipos sejam preservados mesmo em caso de erro
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			 
 			const emptyUrl = '';
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			 
 			const emptyKey = '';
 			supabaseAuthInstance = createClient<Database>(emptyUrl, emptyKey, mockOptions);
 			supabaseDataInstance = createClient<Database>(emptyUrl, emptyKey, mockOptions);
@@ -372,7 +370,7 @@ if (!isTypeCheck && MODE === 'hybrid' && dataUrl !== authUrl) {
 					access_token: session.access_token,
 					refresh_token: session.refresh_token || '',
 				});
-			} catch (err) {
+			} catch (_err) {
 				if (!isTypeCheck) {
 					try {
 						// Usar função para evitar análise estática durante type-check

@@ -2,18 +2,19 @@
  * Hook para gerenciar assinatura do usuário
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { PlanId, Subscription } from '@/types/subscription';
 import type { Database } from '@/types/supabase';
+import { logger } from '@/services/logger';
 
 export const useSubscription = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchSubscription = async () => {
+  const fetchSubscription = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -30,7 +31,7 @@ export const useSubscription = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching subscription:', error);
+        logger.error('Error fetching subscription:', error);
         toast({
           title: 'Erro ao carregar assinatura',
           description: 'Não foi possível carregar sua assinatura. Tente novamente.',
@@ -62,11 +63,11 @@ export const useSubscription = () => {
         updatedAt: new Date(subscriptionData.updated_at),
       });
     } catch (error) {
-      console.error('Error in fetchSubscription:', error);
+      logger.error('Error in fetchSubscription:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchSubscription();
@@ -90,7 +91,7 @@ export const useSubscription = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchSubscription]);
 
   const updateSubscription = async (planId: PlanId, billingInterval: 'monthly' | 'annual') => {
     try {
@@ -115,7 +116,7 @@ export const useSubscription = () => {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error updating subscription:', error);
+        logger.error('Error updating subscription:', error);
         toast({
           title: 'Erro ao atualizar assinatura',
           description: 'Não foi possível atualizar sua assinatura. Tente novamente.',
@@ -132,7 +133,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in updateSubscription:', error);
+      logger.error('Error in updateSubscription:', error);
       return false;
     }
   };
@@ -160,7 +161,7 @@ export const useSubscription = () => {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error canceling subscription:', error);
+        logger.error('Error canceling subscription:', error);
         toast({
           title: 'Erro ao cancelar assinatura',
           description: 'Não foi possível cancelar sua assinatura. Tente novamente.',
@@ -177,7 +178,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in cancelSubscription:', error);
+      logger.error('Error in cancelSubscription:', error);
       return false;
     }
   };
@@ -205,7 +206,7 @@ export const useSubscription = () => {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error reactivating subscription:', error);
+        logger.error('Error reactivating subscription:', error);
         toast({
           title: 'Erro ao reativar assinatura',
           description: 'Não foi possível reativar sua assinatura. Tente novamente.',
@@ -222,7 +223,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in reactivateSubscription:', error);
+      logger.error('Error in reactivateSubscription:', error);
       return false;
     }
   };

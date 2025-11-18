@@ -35,7 +35,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
  * Verifica se um erro é retryable (pode ser tentado novamente)
  */
 function isRetryableError(error: unknown): boolean {
-	if (!error) return false;
+	if (!error) { return false; }
 
 	const errorMessage = error instanceof Error ? error.message : String(error);
 	const errorString = errorMessage.toLowerCase();

@@ -6,6 +6,14 @@ import { useAuthContext } from '@/domains/auth';
 
 type AnalyticsMetricsInsert = Database['public']['Tables']['analytics_metrics']['Insert'];
 type AutomationAlertsUpdate = Database['public']['Tables']['automation_alerts']['Update'];
+type RLSPerformanceMetric = {
+  policy_name?: string;
+  avg_execution_time?: number;
+  table_name?: string;
+  total_calls?: number;
+  avg_policy_execution_time?: number;
+  total_policies?: number;
+};
 
 interface SecurityMetric {
   id: string;
@@ -179,9 +187,9 @@ export function useRLSPerformanceMetrics() {
   return useQuery({
     queryKey: ['rls-performance-metrics'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_rls_performance_summary' as any);
+      const { data, error } = await supabase.rpc('get_rls_performance_summary');
       if (error) {throw error;}
-      return data as Array<{ policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number }>;
+      return (data ?? []) as RLSPerformanceMetric[];
     },
     refetchInterval: 60000 // Refetch every minute
   });
