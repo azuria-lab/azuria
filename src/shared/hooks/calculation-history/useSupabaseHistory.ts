@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CalculationHistory, CalculationResult } from "@/types/simpleCalculator";
 import { Json } from "@/integrations/supabase/types";
-import { TablesInsert } from "@/types/supabase";
+import { type Database, TablesInsert } from "@/types/supabase";
 
 /**
  * Supabase-related operations for calculation history
@@ -67,7 +67,7 @@ export const useSupabaseHistory = (userId: string | undefined) => {
 
     const { error } = await supabase
       .from("calculation_history")
-      .insert(calculation);
+      .insert(calculation satisfies Database['public']['Tables']['calculation_history']['Insert']);
 
     if (error) {throw error;}
     return true;

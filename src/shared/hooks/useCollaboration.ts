@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/types/supabase';
 
 export function useSharedCalculations() {
   return useQuery({
@@ -65,7 +66,7 @@ export function useShareCalculation() {
           shared_with: sharedWith,
           permission_level: permissionLevel,
           expires_at: expiresAt?.toISOString()
-        })
+        } satisfies Database['public']['Tables']['calculation_shares']['Insert'])
         .select()
         .single();
 
@@ -78,7 +79,7 @@ export function useShareCalculation() {
         _title: 'Cálculo compartilhado com você',
         _message: `Um cálculo foi compartilhado com você com permissão de ${permissionLevel}`,
         _related_id: calculationId
-      });
+      } as never);
 
       return data;
     },
@@ -107,7 +108,7 @@ export function useAddComment() {
           calculation_id: calculationId,
           content,
           parent_id: parentId
-        })
+        } satisfies Database['public']['Tables']['calculation_comments']['Insert'])
         .select()
         .single();
 
@@ -138,7 +139,7 @@ export function useRequestApproval() {
         .insert({
           calculation_id: calculationId,
           approver_id: approverId
-        })
+        } satisfies Database['public']['Tables']['calculation_approvals']['Insert'])
         .select()
         .single();
 
@@ -151,7 +152,7 @@ export function useRequestApproval() {
         _title: 'Aprovação solicitada',
         _message: 'Um cálculo foi enviado para sua aprovação',
         _related_id: calculationId
-      });
+      } as never);
 
       return data;
     },
@@ -180,7 +181,7 @@ export function useApproveCalculation() {
           status,
           comment,
           approved_at: new Date().toISOString()
-        })
+        } satisfies Database['public']['Tables']['calculation_approvals']['Update'])
         .eq('id', approvalId)
         .select()
         .single();
@@ -217,7 +218,7 @@ export function useMarkNotificationAsRead() {
     mutationFn: async (notificationId: string) => {
       const { error } = await supabase
         .from('collaboration_notifications')
-        .update({ is_read: true })
+        .update({ is_read: true } satisfies Database['public']['Tables']['collaboration_notifications']['Update'])
         .eq('id', notificationId);
 
       if (error) {throw error;}

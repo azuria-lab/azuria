@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Database } from '@/types/supabase';
 
 type Check = { name: string; ok: boolean; details?: unknown; error?: string };
 
@@ -49,7 +50,7 @@ export default function SupabaseDebug() {
 
       const { error } = await supabase
         .from('user_profiles')
-        .upsert({ id: user.id, email: user.email, name: 'Debug User', updated_at: new Date().toISOString() });
+        .upsert({ id: user.id, email: user.email, name: 'Debug User', updated_at: new Date().toISOString() } satisfies Database['public']['Tables']['user_profiles']['Insert']);
       setChecks((prev) => prev.concat({ name: 'upsert user_profiles', ok: !error, error: error?.message }));
     } catch (e: unknown) {
       setChecks((prev) => prev.concat({ name: 'upsert user_profiles', ok: false, error: getErrorMessage(e) }));

@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from './useSubscription';
 import type { Team } from '@/types/subscription';
+import type { Database } from '@/types/supabase';
 
 export const useTeams = () => {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -119,7 +120,7 @@ export const useTeams = () => {
           require_approval: options?.requireApproval ?? false,
           allow_comments: options?.allowComments ?? true,
           audit_log_enabled: options?.auditLogEnabled ?? true,
-        })
+        } as Database['public']['Tables']['teams']['Insert'])
         .select()
         .single();
 
@@ -206,7 +207,7 @@ export const useTeams = () => {
 
       const { error } = await supabase
         .from('teams')
-        .update(updateData)
+        .update(updateData as Database['public']['Tables']['teams']['Update'])
         .eq('id', teamId);
 
       if (error) {

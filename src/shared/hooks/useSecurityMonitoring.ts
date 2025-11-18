@@ -1,8 +1,19 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Json } from '@/types/supabase';
+import { type Database, Json } from '@/types/supabase';
 import { useAuthContext } from '@/domains/auth';
+
+type AnalyticsMetricsInsert = Database['public']['Tables']['analytics_metrics']['Insert'];
+type AutomationAlertsUpdate = Database['public']['Tables']['automation_alerts']['Update'];
+type RLSPerformanceMetric = {
+  policy_name?: string;
+  avg_execution_time?: number;
+  table_name?: string;
+  total_calls?: number;
+  avg_policy_execution_time?: number;
+  total_policies?: number;
+};
 
 interface SecurityMetric {
   id: string;
@@ -102,7 +113,7 @@ export function useLogSecurityMetric() {
           metric_type: metricType,
           metric_value: value,
           metadata: metadata || {}
-        })
+        } as AnalyticsMetricsInsert)
         .select()
         .single();
 
@@ -125,7 +136,7 @@ export function useResolveAlert() {
         .update({ 
           is_resolved: true, 
           resolved_at: new Date().toISOString() 
-        })
+        } as AutomationAlertsUpdate)
         .eq('id', alertId);
 
       if (error) {throw error;}
@@ -178,7 +189,7 @@ export function useRLSPerformanceMetrics() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_rls_performance_summary');
       if (error) {throw error;}
-      return data;
+      return (data ?? []) as RLSPerformanceMetric[];
     },
     refetchInterval: 60000 // Refetch every minute
   });

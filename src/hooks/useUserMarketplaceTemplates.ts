@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth';
 import { toast } from '@/components/ui/use-toast';
+import type { Database } from '@/types/supabase';
 
 export interface UserMarketplaceTemplate {
   id: string;
@@ -41,7 +42,7 @@ export const useUserMarketplaceTemplates = () => {
   const [loading, setLoading] = useState(false);
 
   // Load user templates
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     if (!user) {
       return;
     }
@@ -69,15 +70,14 @@ export const useUserMarketplaceTemplates = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   // Load templates on mount
   useEffect(() => {
     if (user) {
       loadTemplates();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, loadTemplates]);
 
   // Get default template for a specific marketplace
   const getDefaultTemplate = (marketplaceId: string): UserMarketplaceTemplate | null => {
@@ -109,7 +109,7 @@ export const useUserMarketplaceTemplates = () => {
         .insert({
           user_id: user.id,
           ...params,
-        })
+        } as Database['public']['Tables']['user_marketplace_templates']['Insert'])
         .select()
         .single();
 
@@ -151,7 +151,7 @@ export const useUserMarketplaceTemplates = () => {
     try {
       const { error } = await supabase
         .from('user_marketplace_templates')
-        .update(updates)
+        .update(updates as Database['public']['Tables']['user_marketplace_templates']['Update'])
         .eq('id', templateId)
         .eq('user_id', user.id);
 

@@ -2,17 +2,19 @@
  * Hook para gerenciar assinatura do usuário
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { PlanId, Subscription } from '@/types/subscription';
+import type { Database } from '@/types/supabase';
+import { logger } from '@/services/logger';
 
 export const useSubscription = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchSubscription = async () => {
+  const fetchSubscription = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -29,7 +31,7 @@ export const useSubscription = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching subscription:', error);
+        logger.error('Error fetching subscription:', error);
         toast({
           title: 'Erro ao carregar assinatura',
           description: 'Não foi possível carregar sua assinatura. Tente novamente.',
@@ -38,29 +40,34 @@ export const useSubscription = () => {
         return;
       }
 
+      if (!data) { return; }
+      
+      // Type assertion para garantir tipos corretos durante type-check
+      const subscriptionData = data as Database['public']['Tables']['subscriptions']['Row'];
+      
       setSubscription({
-        id: data.id,
-        userId: data.user_id,
-        planId: data.plan_id as PlanId,
-        status: data.status,
-        billingInterval: data.billing_interval,
-        currentPeriodStart: new Date(data.current_period_start),
-        currentPeriodEnd: new Date(data.current_period_end),
-        cancelAtPeriodEnd: data.cancel_at_period_end,
-        canceledAt: data.canceled_at ? new Date(data.canceled_at) : undefined,
-        trialStart: data.trial_start ? new Date(data.trial_start) : undefined,
-        trialEnd: data.trial_end ? new Date(data.trial_end) : undefined,
-        mercadoPagoSubscriptionId: data.mercadopago_subscription_id,
-        mercadoPagoPreapprovalId: data.mercadopago_preapproval_id,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
+        id: subscriptionData.id,
+        userId: subscriptionData.user_id,
+        planId: subscriptionData.plan_id as PlanId,
+        status: subscriptionData.status,
+        billingInterval: subscriptionData.billing_interval,
+        currentPeriodStart: new Date(subscriptionData.current_period_start),
+        currentPeriodEnd: new Date(subscriptionData.current_period_end),
+        cancelAtPeriodEnd: subscriptionData.cancel_at_period_end,
+        canceledAt: subscriptionData.canceled_at ? new Date(subscriptionData.canceled_at) : undefined,
+        trialStart: subscriptionData.trial_start ? new Date(subscriptionData.trial_start) : undefined,
+        trialEnd: subscriptionData.trial_end ? new Date(subscriptionData.trial_end) : undefined,
+        mercadoPagoSubscriptionId: subscriptionData.mercadopago_subscription_id,
+        mercadoPagoPreapprovalId: subscriptionData.mercadopago_preapproval_id,
+        createdAt: new Date(subscriptionData.created_at),
+        updatedAt: new Date(subscriptionData.updated_at),
       });
     } catch (error) {
-      console.error('Error in fetchSubscription:', error);
+      logger.error('Error in fetchSubscription:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchSubscription();
@@ -84,7 +91,7 @@ export const useSubscription = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchSubscription]);
 
   const updateSubscription = async (planId: PlanId, billingInterval: 'monthly' | 'annual') => {
     try {
@@ -105,11 +112,11 @@ export const useSubscription = () => {
           plan_id: planId,
           billing_interval: billingInterval,
           updated_at: new Date().toISOString(),
-        })
+        } as Database['public']['Tables']['subscriptions']['Update'])
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error updating subscription:', error);
+        logger.error('Error updating subscription:', error);
         toast({
           title: 'Erro ao atualizar assinatura',
           description: 'Não foi possível atualizar sua assinatura. Tente novamente.',
@@ -126,7 +133,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in updateSubscription:', error);
+      logger.error('Error in updateSubscription:', error);
       return false;
     }
   };
@@ -150,11 +157,11 @@ export const useSubscription = () => {
           cancel_at_period_end: true,
           canceled_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        } as Database['public']['Tables']['subscriptions']['Update'])
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error canceling subscription:', error);
+        logger.error('Error canceling subscription:', error);
         toast({
           title: 'Erro ao cancelar assinatura',
           description: 'Não foi possível cancelar sua assinatura. Tente novamente.',
@@ -171,7 +178,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in cancelSubscription:', error);
+      logger.error('Error in cancelSubscription:', error);
       return false;
     }
   };
@@ -195,11 +202,11 @@ export const useSubscription = () => {
           cancel_at_period_end: false,
           canceled_at: null,
           updated_at: new Date().toISOString(),
-        })
+        } as Database['public']['Tables']['subscriptions']['Update'])
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error reactivating subscription:', error);
+        logger.error('Error reactivating subscription:', error);
         toast({
           title: 'Erro ao reativar assinatura',
           description: 'Não foi possível reativar sua assinatura. Tente novamente.',
@@ -216,7 +223,7 @@ export const useSubscription = () => {
       fetchSubscription();
       return true;
     } catch (error) {
-      console.error('Error in reactivateSubscription:', error);
+      logger.error('Error in reactivateSubscription:', error);
       return false;
     }
   };

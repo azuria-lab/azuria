@@ -253,7 +253,7 @@ export default function MultiMarketplaceComparison({ input }: MultiMarketplaceCo
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {results.map((result, index) => (
+                    {results.map((result, _index) => (
                       <tr 
                         key={result.marketplaceId}
                         className={cn(
