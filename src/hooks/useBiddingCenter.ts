@@ -170,8 +170,7 @@ export function useBiddingCenter(initialFilter?: BiddingStoreFilter): UseBidding
 
   useEffect(() => {
     void fetchProjects(filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchProjects, filters]);
 
   const refresh = useCallback(async () => {
     await fetchProjects(filters);

@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-non-null-assertion */
 /**
  * Utilitários compartilhados entre as Edge Functions
  */

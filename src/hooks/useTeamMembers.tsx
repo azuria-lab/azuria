@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { TeamMember, TeamRole } from '@/types/subscription';
+import type { Database } from '@/types/supabase';
 
 export const useTeamMembers = (teamId?: string) => {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -128,7 +129,7 @@ export const useTeamMembers = (teamId?: string) => {
           can_manage_team: finalPermissions.manageTeam,
           can_manage_billing: finalPermissions.manageBilling,
           invited_by: currentUser.id,
-        });
+        } as Database['public']['Tables']['team_members']['Insert']);
 
       if (error) {
         throw error;
@@ -201,7 +202,7 @@ export const useTeamMembers = (teamId?: string) => {
 
       const { error } = await supabase
         .from('team_members')
-        .update(updateData)
+        .update(updateData as Database['public']['Tables']['team_members']['Update'])
         .eq('id', memberId);
 
       if (error) {

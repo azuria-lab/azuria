@@ -1,17 +1,41 @@
 // Serviço de logging para Azuria AI
+type LogLevel = 'info' | 'warn' | 'error' | 'debug';
+type LogMetadata = Record<string, unknown>;
+
+interface AppInsightsClient {
+  trackException(args: {
+    exception: Error;
+    properties?: Record<string, string>;
+  }): void;
+  trackEvent(
+    name: string,
+    properties?: Record<string, string>,
+    measurements?: Record<string, number>
+  ): void;
+}
+
 export interface LogEntry {
-  level: 'info' | 'warn' | 'error' | 'debug';
+  level: LogLevel;
   message: string;
-  data?: any;
+  data?: LogMetadata;
   timestamp: Date;
   service: string;
 }
+
+const serializeProperties = (metadata?: LogMetadata): Record<string, string> | undefined => {
+  if (!metadata) {
+    return undefined;
+  }
+  return Object.fromEntries(
+    Object.entries(metadata).map(([key, value]) => [key, String(value)])
+  );
+};
 
 class Logger {
   private logs: LogEntry[] = [];
   private maxLogs = 1000;
 
-  private log(level: LogEntry['level'], message: string, data?: any, service = 'AzuriaAI'): void {
+  private log(level: LogEntry['level'], message: string, data?: LogMetadata, service = 'AzuriaAI'): void {
     const entry: LogEntry = {
       level,
       message,
@@ -29,7 +53,8 @@ class Logger {
 
     // Log no console em desenvolvimento
     if (process.env.NODE_ENV === 'development') {
-      const logMethod = console[level] || console.log;
+      // eslint-disable-next-line no-console
+      const logMethod = (console[level as keyof Console] as typeof console.log | undefined) ?? console.log;
       logMethod(`[${service}] ${message}`, data || '');
     }
 
@@ -39,19 +64,19 @@ class Logger {
     }
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: LogMetadata): void {
     this.log('info', message, data);
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: LogMetadata): void {
     this.log('warn', message, data);
   }
 
-  error(message: string, data?: any): void {
+  error(message: string, data?: LogMetadata): void {
     this.log('error', message, data);
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: LogMetadata): void {
     this.log('debug', message, data);
   }
 
@@ -82,16 +107,20 @@ class Logger {
   private async sendToMonitoring(entry: LogEntry): Promise<void> {
     try {
       // Integração com Application Insights ou serviço similar
-      if (typeof window !== 'undefined' && (window as any).appInsights) {
-        (window as any).appInsights.trackException({
+      if (typeof window !== 'undefined') {
+        const analyticsWindow = window as Window & { appInsights?: AppInsightsClient };
+        if (analyticsWindow.appInsights) {
+          analyticsWindow.appInsights.trackException({
           exception: new Error(entry.message),
           properties: {
             service: entry.service,
-            data: JSON.stringify(entry.data)
-          }
+            data: JSON.stringify(entry.data),
+          },
         });
+        }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro ao enviar log para monitoramento:', error);
     }
   }
@@ -99,7 +128,7 @@ class Logger {
   /**
    * Registra métricas de uso da IA
    */
-  trackAIUsage(action: string, duration: number, success: boolean, metadata?: any): void {
+  trackAIUsage(action: string, duration: number, success: boolean, metadata?: LogMetadata): void {
     this.info(`AI Usage: ${action}`, {
       action,
       duration,
@@ -108,25 +137,35 @@ class Logger {
     });
 
     // Envia métricas em produção
-    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined' && (window as any).appInsights) {
-      (window as any).appInsights.trackEvent('ai_usage', {
-        action,
-        success: success.toString(),
-        ...metadata
-      }, {
-        duration
-      });
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      const analyticsWindow = window as Window & { appInsights?: AppInsightsClient };
+      analyticsWindow.appInsights?.trackEvent(
+        'ai_usage',
+        {
+          action,
+          success: success.toString(),
+          ...serializeProperties(metadata),
+        },
+        {
+          duration,
+        }
+      );
     }
   }
 
   /**
    * Registra erro da IA
    */
-  trackAIError(action: string, error: any, context?: any): void {
+  trackAIError(action: string, error: unknown, context?: LogMetadata): void {
+    const serializedError =
+      error instanceof Error
+        ? { message: error.message, stack: error.stack }
+        : { message: String(error) };
+
     this.error(`AI Error: ${action}`, {
       action,
-      error: error.message || error,
-      stack: error.stack,
+      error: serializedError.message,
+      stack: serializedError.stack,
       context
     });
   }

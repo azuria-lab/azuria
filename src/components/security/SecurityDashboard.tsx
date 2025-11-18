@@ -348,9 +348,10 @@ const SecurityDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-        {Array.isArray(rlsMetrics) && rlsMetrics.length > 0 ? (
+        {rlsMetrics && Array.isArray(rlsMetrics) && rlsMetrics.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
-          {rlsMetrics.map((metric: { policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number }, index: number) => {
+          {rlsMetrics.map((metric: { policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number } | null, index: number) => {
+            if (!metric) { return null; }
                       // Support both per-policy and summary shapes
                       const policy = metric.policy_name ?? 'Resumo';
                       const avg = metric.avg_execution_time ?? metric.avg_policy_execution_time ?? 0;

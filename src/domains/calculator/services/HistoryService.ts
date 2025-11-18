@@ -3,6 +3,7 @@ import type { CalculationHistory, CalculationResult } from '../types/calculator'
 import { logger } from '@/services/logger';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import type { Database } from '@/types/supabase';
 
 export class HistoryService {
   private static readonly STORAGE_KEY = 'calculator_history';
@@ -135,7 +136,9 @@ export class HistoryService {
       date: new Date().toISOString()
     };
 
-    const { error } = await supabase.from('calculation_history').insert(payload);
+    const { error } = await supabase
+      .from('calculation_history')
+      .insert(payload satisfies Database['public']['Tables']['calculation_history']['Insert']);
     if (error) {throw error;}
   }
 

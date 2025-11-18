@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     logger.info('🔐 AuthContext - Atualizando isAuthenticated:', auth.isAuthenticated, 'hasSession:', !!auth.session, 'hasUser:', !!auth.user);
     dispatch({ type: 'SET_AUTHENTICATED', payload: auth.isAuthenticated ?? false });
-  }, [auth.isAuthenticated]);
+  }, [auth.isAuthenticated, auth.session, auth.user]);
 
   useEffect(() => {
     dispatch({ type: 'SET_PRO', payload: auth.isPro ?? false });

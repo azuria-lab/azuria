@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Badge, type Variant } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertCircle,
   ArrowDown,
@@ -29,60 +29,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { aiInsightsService } from '@/services/ai-insights.service';
 import type { AIInsightsReport, PriceRecommendation, SalesOpportunity } from '@/types/ai-insights';
-
-// Helper functions
-function getPeriodLabel(period: string): string {
-  if (period === '7d') {
-    return '7 dias';
-  }
-  if (period === '30d') {
-    return '30 dias';
-  }
-  return '90 dias';
-}
-
-function getTrendBadgeVariant(trend: string): Variant {
-  if (trend === 'increasing') {
-    return 'default';
-  }
-  if (trend === 'decreasing') {
-    return 'destructive';
-  }
-  return 'secondary';
-}
-
-function getTrendLabel(trend: string): string {
-  if (trend === 'increasing') {
-    return '↗️ Crescente';
-  }
-  if (trend === 'decreasing') {
-    return '↘️ Decrescente';
-  }
-  return '→ Estável';
-}
-
-function getPriorityLabel(priority: string): string {
-  if (priority === 'critical') {
-    return 'Crítico';
-  }
-  if (priority === 'high') {
-    return 'Alto';
-  }
-  if (priority === 'medium') {
-    return 'Médio';
-  }
-  return 'Baixo';
-}
-
-function getRiskLabel(risk: string): string {
-  if (risk === 'low') {
-    return 'Baixo';
-  }
-  if (risk === 'medium') {
-    return 'Médio';
-  }
-  return 'Alto';
-}
 
 interface AIInsightsPanelProps {
   marketplaceId: string;
