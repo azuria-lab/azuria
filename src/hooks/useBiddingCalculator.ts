@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /**
  * useBiddingCalculator Hook
  * 
@@ -407,14 +407,14 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
     if (canCalculate && bidding.items && bidding.items.length > 0) {
       calculate();
     }
-  }, [bidding.items, bidding.taxConfig, bidding.strategy, bidding.guarantee]);
+  }, [calculate, canCalculate, bidding.items, bidding.taxConfig, bidding.strategy, bidding.guarantee]);
 
   // Gera cenários automaticamente
   useEffect(() => {
     if (result) {
       simulateScenarios([5, 8, 10, 12, 15, 20]);
     }
-  }, [result]);
+  }, [result, simulateScenarios]);
 
   // ============================================
   // RETORNO
