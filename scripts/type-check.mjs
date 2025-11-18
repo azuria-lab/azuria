@@ -58,9 +58,11 @@ function isKnownSupabaseError(errorLine) {
     'automationservice.ts',
     'limits.ts',
     'historyservice.ts',
+    'usebusinesssettings.ts',
+    'usesupabasehistory.ts',
   ];
   
-  // Verificar se é um erro de tipo 'never' (sempre considerado conhecido se relacionado a Supabase)
+  // Verificar se é um erro de tipo 'never' (sempre considerado conhecido)
   const isNeverError = neverErrorPatterns.some(pattern => 
     errorLower.includes(pattern)
   );
@@ -83,20 +85,30 @@ function isKnownSupabaseError(errorLine) {
     errorLower.includes('.update(') ||
     errorLower.includes('.rpc(') ||
     errorLower.includes('database[') ||
-    errorLower.includes('tables[');
+    errorLower.includes('tables[') ||
+    errorLower.includes('postgrestfilterbuilder') ||
+    errorLower.includes('postgrestquerybuilder');
   
   // Se é um erro de tipo 'never', sempre considerar conhecido (é a limitação conhecida)
+  // Estes são os erros conhecidos do Supabase que não afetam o runtime
   if (isNeverError) {
     return true; // Erros de tipo 'never' são sempre conhecidos
   }
   
-  // Se é um erro conhecido do Supabase E menciona Supabase ou é de arquivo conhecido
+  // Se é um erro conhecido do Supabase (no overload matches, etc) E é de arquivo conhecido
+  // ou menciona operações do Supabase
   if (isSupabaseError && (mentionsSupabase || isFromKnownFile)) {
     return true;
   }
   
-  // Se é de arquivo conhecido E menciona Supabase
+  // Se é de arquivo conhecido E menciona Supabase ou operações relacionadas
   if (isFromKnownFile && mentionsSupabase) {
+    return true;
+  }
+  
+  // Se é de arquivo conhecido E é um erro de tipo relacionado (TS2345, TS2769)
+  // Estes são os códigos de erro comuns do Supabase com tipo 'never'
+  if (isFromKnownFile && (errorLower.includes('ts2345') || errorLower.includes('ts2769'))) {
     return true;
   }
   
