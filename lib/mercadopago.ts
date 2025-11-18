@@ -17,11 +17,19 @@
 
 import mercadopago from 'mercadopago';
 
+// Simple logger for Node.js environment
+const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+const logger = {
+  info: (...args: unknown[]) => isDev && console.log(...args),
+  warn: (...args: unknown[]) => console.warn(...args), // Warnings sempre logados
+  error: (...args: unknown[]) => console.error(...args), // Errors sempre logados
+};
+
 // Configure Mercado Pago SDK
 // Access token should be set in environment variables
 // For testing: use TEST-xxx token from https://www.mercadopago.com.br/developers/panel
 if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
-  console.warn('⚠️ MERCADOPAGO_ACCESS_TOKEN not set. Mercado Pago features will not work.');
+  logger.warn('⚠️ MERCADOPAGO_ACCESS_TOKEN not set. Mercado Pago features will not work.');
 } else {
   mercadopago.configure({
     access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
@@ -108,10 +116,10 @@ export async function createSubscriptionPlan(
       reason: `Azuria ${plan.name} - Assinatura Mensal`
     });
 
-    console.log(`✅ Plan ${planType} created successfully:`, response.body.id);
+    logger.info(`✅ Plan ${planType} created successfully:`, response.body.id);
     return response.body.id;
   } catch (error) {
-    console.error(`❌ Error creating plan ${planType}:`, error);
+    logger.error(`❌ Error creating plan ${planType}:`, error);
     throw new Error(`Failed to create subscription plan: ${error}`);
   }
 }
@@ -183,7 +191,7 @@ export async function createSubscription(params: {
       status: response.body.status
     };
   } catch (error) {
-    console.error('❌ Error creating subscription:', error);
+    logger.error('❌ Error creating subscription:', error);
     throw new Error(`Failed to create subscription: ${error}`);
   }
 }
@@ -210,10 +218,10 @@ export async function cancelSubscription(subscriptionId: string): Promise<boolea
       status: 'cancelled'
     });
 
-    console.log(`✅ Subscription ${subscriptionId} cancelled successfully`);
+    logger.info(`✅ Subscription ${subscriptionId} cancelled successfully`);
     return true;
   } catch (error) {
-    console.error('❌ Error cancelling subscription:', error);
+    logger.error('❌ Error cancelling subscription:', error);
     throw new Error(`Failed to cancel subscription: ${error}`);
   }
 }
@@ -234,7 +242,7 @@ export async function getSubscription(subscriptionId: string) {
 
     return response.body;
   } catch (error) {
-    console.error('❌ Error getting subscription:', error);
+    logger.error('❌ Error getting subscription:', error);
     throw new Error(`Failed to get subscription: ${error}`);
   }
 }
@@ -274,7 +282,7 @@ export async function handleMercadoPagoWebhook(event: {
   action: string;
   data: { id: string };
 }) {
-  console.log('📥 Webhook received:', event.type, event.action);
+  logger.info('📥 Webhook received:', event.type, event.action);
 
   try {
     switch (event.type) {
@@ -287,11 +295,11 @@ export async function handleMercadoPagoWebhook(event: {
         return await handleSubscriptionEvent(event.data.id);
       
       default:
-        console.log('ℹ️ Unhandled event type:', event.type);
+        logger.info('ℹ️ Unhandled event type:', event.type);
         return { status: 'ignored', type: event.type };
     }
   } catch (error) {
-    console.error('❌ Error handling webhook:', error);
+    logger.error('❌ Error handling webhook:', error);
     throw error;
   }
 }
@@ -305,9 +313,9 @@ async function handlePaymentEvent(paymentId: string) {
   try {
     const payment = await mercadopago.payment.get(paymentId);
     
-    console.log('💳 Payment status:', payment.body.status);
-    console.log('💰 Amount:', payment.body.transaction_amount);
-    console.log('👤 Payer:', payment.body.payer?.email);
+    logger.info('💳 Payment status:', payment.body.status);
+    logger.info('💰 Amount:', payment.body.transaction_amount);
+    logger.info('👤 Payer:', payment.body.payer?.email);
 
     // Payment approved - activate subscription
     if (payment.body.status === 'approved') {
@@ -336,7 +344,7 @@ async function handlePaymentEvent(paymentId: string) {
       action: 'pending'
     };
   } catch (error) {
-    console.error('❌ Error handling payment event:', error);
+    logger.error('❌ Error handling payment event:', error);
     throw error;
   }
 }
@@ -350,8 +358,8 @@ async function handleSubscriptionEvent(subscriptionId: string) {
   try {
     const subscription = await getSubscription(subscriptionId);
     
-    console.log('📋 Subscription status:', subscription.status);
-    console.log('👤 Subscriber:', subscription.payer_email);
+    logger.info('📋 Subscription status:', subscription.status);
+    logger.info('👤 Subscriber:', subscription.payer_email);
 
     const userId = subscription.external_reference;
 
@@ -392,7 +400,7 @@ async function handleSubscriptionEvent(subscriptionId: string) {
         };
     }
   } catch (error) {
-    console.error('❌ Error handling subscription event:', error);
+    logger.error('❌ Error handling subscription event:', error);
     throw error;
   }
 }
@@ -419,7 +427,7 @@ export function verifyWebhookSignature(
   // In production, you should implement proper HMAC verification
   
   if (!signature || !requestId) {
-    console.warn('⚠️ Missing webhook signature headers');
+    logger.warn('⚠️ Missing webhook signature headers');
     return false;
   }
 
