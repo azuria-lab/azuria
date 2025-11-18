@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CalculationHistory, CalculationResult } from "@/types/simpleCalculator";
 import { Json } from "@/integrations/supabase/types";
-import { TablesInsert, type Database } from "@/types/supabase";
+import { type Database, TablesInsert } from "@/types/supabase";
 
 /**
  * Supabase-related operations for calculation history

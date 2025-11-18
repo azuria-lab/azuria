@@ -265,7 +265,7 @@ try {
   if (knownErrors.length > 0) {
     console.log(`✅ Type-check concluído! (${knownErrors.length} erros conhecidos do Supabase ignorados)`);
   } else {
-    console.log('✅ Type-check concluído com sucesso!');
+  console.log('✅ Type-check concluído com sucesso!');
   }
   process.exit(0);
 } catch (error) {

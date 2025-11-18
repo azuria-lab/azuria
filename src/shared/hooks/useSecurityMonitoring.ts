@@ -1,7 +1,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Json, type Database } from '@/types/supabase';
+import { type Database, Json } from '@/types/supabase';
 import { useAuthContext } from '@/domains/auth';
 
 type AnalyticsMetricsInsert = Database['public']['Tables']['analytics_metrics']['Insert'];

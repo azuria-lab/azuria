@@ -38,7 +38,7 @@ export const useUserProfile = (
 
       if (error) { throw error; }
 
-      if (!data) return null;
+      if (!data) { return null; }
       
       setUserProfile({
         id: userId,
@@ -77,7 +77,7 @@ export const useUserProfile = (
         throw error;
       }
 
-      if (!data) return null;
+      if (!data) { return null; }
       
       // Definir status PRO com base no perfil ou localStorage como fallback
       const isPro = data.is_pro ?? localStorage.getItem("isPro") === "true";

@@ -39,7 +39,7 @@ export const useSubscription = () => {
         return;
       }
 
-      if (!data) return;
+      if (!data) { return; }
       
       // Type assertion para garantir tipos corretos durante type-check
       const subscriptionData = data as Database['public']['Tables']['subscriptions']['Row'];
