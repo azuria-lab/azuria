@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion, no-console, react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, react-hooks/exhaustive-deps */
 /**
  * useBiddingCalculator Hook
  * 
@@ -27,6 +27,7 @@ import {
   generateScenarios,
   simulateDiscount,
 } from '@/services/bidding/biddingCalculations';
+import { logger } from '@/services/logger';
 
 // ============================================
 // VALORES PADRÕES
@@ -243,7 +244,7 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
         result: calculationResult,
       }));
     } catch (error) {
-      console.error('Erro ao calcular licitação:', error);
+      logger.error('Erro ao calcular licitação', { error });
       setErrors({ calculation: 'Erro ao calcular. Verifique os dados.' });
     }
   }, [bidding, canCalculate]);
@@ -277,7 +278,7 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
           scenarios: newScenarios,
         }));
       } catch (error) {
-        console.error('Erro ao simular cenários:', error);
+        logger.error('Erro ao simular cenários', { error });
       }
     },
     [bidding.items, bidding.taxConfig, bidding.guarantee]
@@ -293,7 +294,7 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
           discount: 0,
           price: 0,
           profit: 0,
-          viability: 'inviavel' as any,
+          viability: 'inviavel' as BiddingScenario['viability'],
         };
       }
 
@@ -329,9 +330,9 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
 
       // Salvar no localStorage por enquanto
       const saved = localStorage.getItem('biddings') || '[]';
-      const biddings = JSON.parse(saved);
+      const biddings = JSON.parse(saved) as Bidding[];
       
-      const index = biddings.findIndex((b: any) => b.data?.id === biddingToSave.data?.id);
+      const index = biddings.findIndex((stored) => stored.data?.id === biddingToSave.data?.id);
       if (index >= 0) {
         biddings[index] = biddingToSave;
       } else {
@@ -340,9 +341,11 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
       
       localStorage.setItem('biddings', JSON.stringify(biddings));
 
-      console.log('Licitação salva com sucesso!');
+      logger.info('Licitação salva com sucesso', {
+        biddingId: biddingToSave.data?.id,
+      });
     } catch (error) {
-      console.error('Erro ao salvar licitação:', error);
+      logger.error('Erro ao salvar licitação', { error });
       throw error;
     }
   }, [bidding]);
@@ -353,8 +356,8 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
       
       // Carregar do localStorage por enquanto
       const saved = localStorage.getItem('biddings') || '[]';
-      const biddings = JSON.parse(saved);
-      const found = biddings.find((b: any) => b.data?.id === id);
+      const biddings = JSON.parse(saved) as Bidding[];
+      const found = biddings.find((stored) => stored.data?.id === id);
 
       if (found) {
         setBidding(found);
@@ -366,7 +369,7 @@ export function useBiddingCalculator(initialData?: Partial<Bidding>): UseBidding
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar licitação:', error);
+      logger.error('Erro ao carregar licitação', { error });
       throw error;
     }
   }, []);
