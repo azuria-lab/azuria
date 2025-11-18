@@ -377,7 +377,7 @@ if (!isTypeCheck && MODE === 'hybrid' && dataUrl !== authUrl) {
 						// Usar função para evitar análise estática durante type-check
 						const isDev = ((): boolean => {
 							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-							// @ts-expect-error - import.meta só existe em runtime
+							// @ts-ignore - import.meta só existe em runtime
 							return import.meta?.env?.DEV === true;
 						})();
 						
@@ -403,7 +403,7 @@ if (!isTypeCheck) {
 		// Usar função para evitar análise estática durante type-check
 		const isDev = ((): boolean => {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error - import.meta só existe em runtime
+			// @ts-ignore - import.meta só existe em runtime
 			return import.meta?.env?.DEV === true;
 		})();
 		

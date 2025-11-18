@@ -79,7 +79,7 @@ export function useShareCalculation() {
         _title: 'Cálculo compartilhado com você',
         _message: `Um cálculo foi compartilhado com você com permissão de ${permissionLevel}`,
         _related_id: calculationId
-      } satisfies Database['public']['Functions']['create_collaboration_notification']['Args']);
+      } as never);
 
       return data;
     },
@@ -152,7 +152,7 @@ export function useRequestApproval() {
         _title: 'Aprovação solicitada',
         _message: 'Um cálculo foi enviado para sua aprovação',
         _related_id: calculationId
-      } satisfies Database['public']['Functions']['create_collaboration_notification']['Args']);
+      } as never);
 
       return data;
     },
