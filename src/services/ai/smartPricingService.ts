@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
 import { pricingService } from './pricingService';
 import { competitorService } from './competitorService';
@@ -32,6 +31,26 @@ interface SmartPricingRecommendation {
   }>;
   warnings: string[];
   optimizations: string[];
+}
+
+interface CompetitorAnalysisResult {
+  competitors: CompetitorPricing[];
+  averagePrice: number;
+  priceRange: { min: number; max: number };
+  competitivePosition: string;
+}
+
+interface MarketAnalysisResult {
+  seasonalityMultiplier: number;
+  audienceMultiplier: number;
+  categoryMultiplier: number;
+  insights: string[];
+}
+
+interface VolumeAnalysisResult {
+  volumeScore: number;
+  elasticityFactor: number;
+  volumeInsights: string[];
 }
 
 class SmartPricingService {
@@ -99,12 +118,7 @@ class SmartPricingService {
   /**
    * Análise da concorrência
    */
-  private async analyzeCompetition(productName: string): Promise<{
-    competitors: CompetitorPricing[];
-    averagePrice: number;
-    priceRange: { min: number; max: number };
-    competitivePosition: string;
-  }> {
+  private async analyzeCompetition(productName: string): Promise<CompetitorAnalysisResult> {
     const competitors = await competitorService.analyzeCompetitors(productName);
     
     if (competitors.length === 0) {
@@ -132,12 +146,7 @@ class SmartPricingService {
   /**
    * Análise de fatores de mercado
    */
-  private analyzeMarketFactors(input: SmartPricingInput): {
-    seasonalityMultiplier: number;
-    audienceMultiplier: number;
-    categoryMultiplier: number;
-    insights: string[];
-  } {
+  private analyzeMarketFactors(input: SmartPricingInput): MarketAnalysisResult {
     const insights: string[] = [];
     
     // Multiplicador de sazonalidade
@@ -185,11 +194,7 @@ class SmartPricingService {
   /**
    * Análise de volume e elasticidade de preço
    */
-  private analyzeVolumeElasticity(input: SmartPricingInput): {
-    volumeScore: number;
-    elasticityFactor: number;
-    volumeInsights: string[];
-  } {
+  private analyzeVolumeElasticity(input: SmartPricingInput): VolumeAnalysisResult {
     const insights: string[] = [];
     
     // Score baseado no volume mensal
@@ -228,9 +233,9 @@ class SmartPricingService {
    */
   private generateSmartRecommendation(
     basicAnalysis: PricingAnalysis,
-    competitorAnalysis: any,
-    marketAnalysis: any,
-    volumeAnalysis: any,
+    competitorAnalysis: CompetitorAnalysisResult,
+    marketAnalysis: MarketAnalysisResult,
+    volumeAnalysis: VolumeAnalysisResult,
     input: SmartPricingInput
   ): SmartPricingRecommendation {
     
@@ -315,9 +320,9 @@ class SmartPricingService {
    */
   private generateReasoning(
     basicAnalysis: PricingAnalysis,
-    competitorAnalysis: any,
-    marketAnalysis: any,
-    volumeAnalysis: any,
+    competitorAnalysis: CompetitorAnalysisResult,
+    marketAnalysis: MarketAnalysisResult,
+    volumeAnalysis: VolumeAnalysisResult,
     finalPrice: number,
     input: SmartPricingInput
   ): string[] {
@@ -381,7 +386,7 @@ class SmartPricingService {
   private generateWarnings(
     price: number,
     input: SmartPricingInput,
-    competitorAnalysis: any
+    competitorAnalysis: CompetitorAnalysisResult
   ): string[] {
     const warnings: string[] = [];
     
@@ -410,7 +415,7 @@ class SmartPricingService {
    */
   private generateOptimizations(
     input: SmartPricingInput,
-    competitorAnalysis: any
+    competitorAnalysis: CompetitorAnalysisResult
   ): string[] {
     const optimizations: string[] = [];
     
