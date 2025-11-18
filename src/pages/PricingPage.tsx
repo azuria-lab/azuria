@@ -214,9 +214,8 @@ export default function PricingPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    Aceitamos pagamentos via Mercado Pago, incluindo cartão de crédito, 
-                    débito, PIX e boleto bancário. Para o plano Enterprise, também 
-                    oferecemos faturamento empresarial.
+                    Aceitamos pagamentos via Stripe, incluindo cartão de crédito e débito. 
+                    Para o plano Enterprise, também oferecemos faturamento empresarial.
                   </AccordionContent>
                 </AccordionItem>
 

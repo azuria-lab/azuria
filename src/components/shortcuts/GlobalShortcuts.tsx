@@ -4,7 +4,7 @@
  * Registra atalhos de teclado globais da aplicação
  */
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRegisterShortcut } from '@/components/keyboard';
 import { useTheme } from '@/components/ui/theme-provider';
@@ -16,16 +16,18 @@ export function GlobalShortcuts() {
   const { startTour } = useTour();
 
   // Atalho: Toggle Dark Mode (Ctrl+D)
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  }, [theme, setTheme]);
+
   useRegisterShortcut({
     id: 'toggle-dark-mode',
     key: 'd',
     ctrl: true,
     description: 'Alternar tema escuro/claro',
     category: 'view',
-    action: () => {
-      const newTheme = theme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-    }
+    action: toggleTheme
   });
 
   // Atalho: Ir para Dashboard (G + D)
@@ -75,12 +77,17 @@ export function GlobalShortcuts() {
   }, [navigate]);
 
   // Registrar atalhos de navegação no modal de ajuda
+  const navigateToDashboard = useCallback(() => navigate('/dashboard'), [navigate]);
+  const navigateToMarketplace = useCallback(() => navigate('/marketplace'), [navigate]);
+  const navigateToAnalytics = useCallback(() => navigate('/analytics'), [navigate]);
+  const navigateToCalculator = useCallback(() => navigate('/calculadora-simples'), [navigate]);
+
   useRegisterShortcut({
     id: 'goto-dashboard',
     key: 'G → D',
     description: 'Ir para Dashboard',
     category: 'navigation',
-    action: () => navigate('/dashboard')
+    action: navigateToDashboard
   });
 
   useRegisterShortcut({
@@ -88,7 +95,7 @@ export function GlobalShortcuts() {
     key: 'G → P',
     description: 'Ir para Marketplaces',
     category: 'navigation',
-    action: () => navigate('/marketplace')
+    action: navigateToMarketplace
   });
 
   useRegisterShortcut({
@@ -96,7 +103,7 @@ export function GlobalShortcuts() {
     key: 'G → A',
     description: 'Ir para Analytics',
     category: 'navigation',
-    action: () => navigate('/analytics')
+    action: navigateToAnalytics
   });
 
   useRegisterShortcut({
@@ -104,10 +111,22 @@ export function GlobalShortcuts() {
     key: 'G → C',
     description: 'Ir para Calculadora',
     category: 'navigation',
-    action: () => navigate('/calculadora-simples')
+    action: navigateToCalculator
   });
 
   // Atalho: Iniciar Tour (Ctrl+Shift+T)
+  const handleStartTour = useCallback(() => {
+    // Detectar página atual e iniciar tour apropriado
+    const path = window.location.pathname;
+    if (path.includes('marketplace')) {
+      startTour('marketplace-dashboard');
+    } else if (path.includes('analytics')) {
+      startTour('analytics');
+    } else {
+      startTour('marketplace-dashboard');
+    }
+  }, [startTour]);
+
   useRegisterShortcut({
     id: 'start-tour',
     key: 't',
@@ -115,30 +134,22 @@ export function GlobalShortcuts() {
     shift: true,
     description: 'Iniciar tour guiado',
     category: 'general',
-    action: () => {
-      // Detectar página atual e iniciar tour apropriado
-      const path = window.location.pathname;
-      if (path.includes('marketplace')) {
-        startTour('marketplace-dashboard');
-      } else if (path.includes('analytics')) {
-        startTour('analytics');
-      } else {
-        startTour('marketplace-dashboard');
-      }
-    }
+    action: handleStartTour
   });
 
   // Atalho: Busca Global (Ctrl+K)
+  const handleGlobalSearch = useCallback(() => {
+    // TODO: Implementar busca global
+    // Placeholder - será implementado futuramente
+  }, []);
+
   useRegisterShortcut({
     id: 'global-search',
     key: 'k',
     ctrl: true,
     description: 'Busca global (em breve)',
     category: 'general',
-    action: () => {
-      // TODO: Implementar busca global
-      // Placeholder - será implementado futuramente
-    }
+    action: handleGlobalSearch
   });
 
   return null;

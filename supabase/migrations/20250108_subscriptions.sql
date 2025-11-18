@@ -1,8 +1,11 @@
 -- =====================================================
--- MIGRATION: Sistema de Planos e Assinaturas
+-- MIGRATION: Sistema de Planos e Assinaturas (CONSOLIDADA)
 -- Criado em: 2025-01-08
+-- Atualizado em: 2025-01-11
 -- Descrição: Tabelas para gerenciamento de assinaturas,
 --           uso, equipes e histórico de mudanças de plano
+-- NOTA: Esta migração cria as tabelas base. Use 20250111_consolidate_subscriptions.sql
+--       para adicionar suporte Stripe e consolidar estrutura.
 -- =====================================================
 
 -- Extensões necessárias
@@ -44,10 +47,10 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 );
 
 -- Índices para performance
-CREATE INDEX idx_subscriptions_user_id ON public.subscriptions(user_id);
-CREATE INDEX idx_subscriptions_plan_id ON public.subscriptions(plan_id);
-CREATE INDEX idx_subscriptions_status ON public.subscriptions(status);
-CREATE INDEX idx_subscriptions_mercadopago_id ON public.subscriptions(mercadopago_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON public.subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_plan_id ON public.subscriptions(plan_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON public.subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_mercadopago_id ON public.subscriptions(mercadopago_subscription_id);
 
 -- Comentários
 COMMENT ON TABLE public.subscriptions IS 'Assinaturas dos usuários';
@@ -88,9 +91,9 @@ CREATE TABLE IF NOT EXISTS public.usage_tracking (
 );
 
 -- Índices
-CREATE INDEX idx_usage_tracking_user_id ON public.usage_tracking(user_id);
-CREATE INDEX idx_usage_tracking_subscription_id ON public.usage_tracking(subscription_id);
-CREATE INDEX idx_usage_tracking_period ON public.usage_tracking(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_user_id ON public.usage_tracking(user_id);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_subscription_id ON public.usage_tracking(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_period ON public.usage_tracking(period_start, period_end);
 
 -- Comentários
 COMMENT ON TABLE public.usage_tracking IS 'Rastreamento de uso de recursos dos usuários';
@@ -120,8 +123,8 @@ CREATE TABLE IF NOT EXISTS public.teams (
 );
 
 -- Índices
-CREATE INDEX idx_teams_owner_id ON public.teams(owner_id);
-CREATE INDEX idx_teams_subscription_id ON public.teams(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_teams_owner_id ON public.teams(owner_id);
+CREATE INDEX IF NOT EXISTS idx_teams_subscription_id ON public.teams(subscription_id);
 
 -- Comentários
 COMMENT ON TABLE public.teams IS 'Equipes para colaboração (Enterprise)';
@@ -161,9 +164,9 @@ CREATE TABLE IF NOT EXISTS public.team_members (
 );
 
 -- Índices
-CREATE INDEX idx_team_members_team_id ON public.team_members(team_id);
-CREATE INDEX idx_team_members_user_id ON public.team_members(user_id);
-CREATE INDEX idx_team_members_role ON public.team_members(role);
+CREATE INDEX IF NOT EXISTS idx_team_members_team_id ON public.team_members(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON public.team_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_role ON public.team_members(role);
 
 -- Comentários
 COMMENT ON TABLE public.team_members IS 'Membros das equipes com suas permissões';
@@ -192,9 +195,9 @@ CREATE TABLE IF NOT EXISTS public.plan_change_history (
 );
 
 -- Índices
-CREATE INDEX idx_plan_change_history_user_id ON public.plan_change_history(user_id);
-CREATE INDEX idx_plan_change_history_subscription_id ON public.plan_change_history(subscription_id);
-CREATE INDEX idx_plan_change_history_effective_date ON public.plan_change_history(effective_date);
+CREATE INDEX IF NOT EXISTS idx_plan_change_history_user_id ON public.plan_change_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_plan_change_history_subscription_id ON public.plan_change_history(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_plan_change_history_effective_date ON public.plan_change_history(effective_date);
 
 -- Comentários
 COMMENT ON TABLE public.plan_change_history IS 'Histórico de mudanças de plano';
@@ -212,21 +215,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers para updated_at
+DROP TRIGGER IF EXISTS update_subscriptions_updated_at ON public.subscriptions;
 CREATE TRIGGER update_subscriptions_updated_at
     BEFORE UPDATE ON public.subscriptions
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_usage_tracking_updated_at ON public.usage_tracking;
 CREATE TRIGGER update_usage_tracking_updated_at
     BEFORE UPDATE ON public.usage_tracking
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_teams_updated_at ON public.teams;
 CREATE TRIGGER update_teams_updated_at
     BEFORE UPDATE ON public.teams
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_team_members_updated_at ON public.team_members;
 CREATE TRIGGER update_team_members_updated_at
     BEFORE UPDATE ON public.team_members
     FOR EACH ROW
@@ -273,6 +280,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger para criar assinatura FREE
+DROP TRIGGER IF EXISTS on_auth_user_created_create_free_subscription ON auth.users;
 CREATE TRIGGER on_auth_user_created_create_free_subscription
     AFTER INSERT ON auth.users
     FOR EACH ROW
@@ -328,33 +336,40 @@ ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.plan_change_history ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para subscriptions
+DROP POLICY IF EXISTS "Users can view their own subscription" ON public.subscriptions;
 CREATE POLICY "Users can view their own subscription"
     ON public.subscriptions FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own subscription" ON public.subscriptions;
 CREATE POLICY "Users can update their own subscription"
     ON public.subscriptions FOR UPDATE
     USING (auth.uid() = user_id);
 
 -- Políticas para usage_tracking
+DROP POLICY IF EXISTS "Users can view their own usage" ON public.usage_tracking;
 CREATE POLICY "Users can view their own usage"
     ON public.usage_tracking FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own usage" ON public.usage_tracking;
 CREATE POLICY "Users can update their own usage"
     ON public.usage_tracking FOR UPDATE
     USING (auth.uid() = user_id);
 
 -- Políticas para teams
+DROP POLICY IF EXISTS "Team owners can view their teams" ON public.teams;
 CREATE POLICY "Team owners can view their teams"
     ON public.teams FOR SELECT
     USING (auth.uid() = owner_id);
 
+DROP POLICY IF EXISTS "Team owners can manage their teams" ON public.teams;
 CREATE POLICY "Team owners can manage their teams"
     ON public.teams FOR ALL
     USING (auth.uid() = owner_id);
 
 -- Políticas para team_members
+DROP POLICY IF EXISTS "Team members can view their memberships" ON public.team_members;
 CREATE POLICY "Team members can view their memberships"
     ON public.team_members FOR SELECT
     USING (
@@ -362,6 +377,7 @@ CREATE POLICY "Team members can view their memberships"
         auth.uid() IN (SELECT owner_id FROM public.teams WHERE id = team_id)
     );
 
+DROP POLICY IF EXISTS "Team owners can manage members" ON public.team_members;
 CREATE POLICY "Team owners can manage members"
     ON public.team_members FOR ALL
     USING (
@@ -369,6 +385,7 @@ CREATE POLICY "Team owners can manage members"
     );
 
 -- Políticas para plan_change_history
+DROP POLICY IF EXISTS "Users can view their own plan history" ON public.plan_change_history;
 CREATE POLICY "Users can view their own plan history"
     ON public.plan_change_history FOR SELECT
     USING (auth.uid() = user_id);

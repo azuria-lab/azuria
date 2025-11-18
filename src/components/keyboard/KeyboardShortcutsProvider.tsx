@@ -43,7 +43,7 @@ export function KeyboardShortcutsProvider({ children }: Readonly<KeyboardShortcu
       // Abre modal de ajuda com Ctrl/Cmd + /
       if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
-        openShortcutsModal();
+        setIsShortcutsModalOpen(true);
         return;
       }
 
@@ -64,7 +64,7 @@ export function KeyboardShortcutsProvider({ children }: Readonly<KeyboardShortcu
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [shortcuts, openShortcutsModal]);
+  }, [shortcuts]); // Removido openShortcutsModal das dependências para evitar loop
 
   const contextValue = useMemo(() => ({
     shortcuts,
