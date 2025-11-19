@@ -17,6 +17,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,6 +30,7 @@ jobs:
   typecheck:
     name: Type check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,6 +43,7 @@ jobs:
   tests:
     name: Tests (smoke)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,7 +51,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: npm run -s test:smoke
+      - name: Run smoke tests
+        run: npm run -s test:smoke
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
 
   coverage:
     name: Coverage
@@ -79,6 +85,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [lint, typecheck, tests]
     # Coverage não é obrigatório para build
     steps:
@@ -99,6 +106,7 @@ jobs:
   sbom:
     name: SBOM
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [lint, typecheck, tests]
     steps:
       - uses: actions/checkout@v4
