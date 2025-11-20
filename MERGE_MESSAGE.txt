@@ -1,0 +1,4 @@
+feat: recuperacao completa de todas features e refatoracao estrutural
+
+Todos os checks criticos passaram
+
