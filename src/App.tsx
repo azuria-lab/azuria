@@ -54,6 +54,11 @@ const RuleDetailsPage = lazy(() => import("./pages/RuleDetailsPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const SupabaseDebug = lazy(() => import("./pages/SupabaseDebug"));
 
+// Bidding Module Pages
+const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage"));
+const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
+const DocumentosPage = lazy(() => import("./pages/DocumentosPage"));
+
 // Domain Providers
 import { AuthProvider } from "@/domains/auth";
 import { MultiTenantProvider } from "@/contexts/MultiTenantContext";
@@ -139,6 +144,12 @@ const App = () => {
                       <Route path="/admin" element={<AdminPanel />} />
                       <Route path="/debug-supabase" element={<SupabaseDebug />} />
                       <Route path="/welcome" element={<Welcome />} />
+                      
+                      {/* Bidding Module Routes */}
+                      <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
+                      <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
+                      <Route path="/documentos" element={<DocumentosPage />} />
+                      
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                       </Suspense>

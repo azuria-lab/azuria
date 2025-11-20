@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { BarChart3, Brain, Calculator, FileText, History, Home, Puzzle, ShoppingBag, Target, Users, Zap } from 'lucide-react';
+import { BarChart3, Brain, Calculator, FileText, Gavel, History, Home, Puzzle, ShoppingBag, Target, Users, Zap } from 'lucide-react';
 
 export const navLinks = [
   { 
@@ -65,6 +65,31 @@ export const navLinks = [
     icon: <Target className="h-4 w-4" />,
     badge: "Novo",
     dataOnboarding: "competition-button"
+  },
+  { 
+    to: "/dashboard-licitacoes", 
+    label: "Licitação",
+    path: "/dashboard-licitacoes",
+    icon: <Gavel className="h-4 w-4" />,
+    badge: "Novo",
+    dataOnboarding: "bidding-button",
+    subLinks: [
+      {
+        to: "/dashboard-licitacoes",
+        label: "Dashboard",
+        description: "Visão geral de licitações"
+      },
+      {
+        to: "/calculadora-licitacao",
+        label: "Calculadora",
+        description: "Calcular viabilidade"
+      },
+      {
+        to: "/documentos",
+        label: "Documentos",
+        description: "Checklist de certidões"
+      }
+    ]
   },
   { 
     to: "/marketplace", 
