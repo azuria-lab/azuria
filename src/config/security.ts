@@ -6,11 +6,11 @@ export const SECURITY_CONFIG = {
   // Content Security Policy
   CSP: {
     DEFAULT_SRC: "'self'",
-    SCRIPT_SRC: "'self' 'unsafe-inline' 'unsafe-eval' https://crpzkppsriranmeumfqs.supabase.co https://vercel.live",
+    SCRIPT_SRC: "'self' 'unsafe-inline' 'unsafe-eval' https://crpzkppsriranmeumfqs.supabase.co",
     STYLE_SRC: "'self' 'unsafe-inline'",
     IMG_SRC: "'self' data: https:",
     FONT_SRC: "'self' data:",
-    CONNECT_SRC: "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co https://vercel.live",
+    CONNECT_SRC: "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co",
     FRAME_SRC: "'none'",
     OBJECT_SRC: "'none'",
     BASE_URI: "'self'"
