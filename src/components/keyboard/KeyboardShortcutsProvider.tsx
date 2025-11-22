@@ -52,7 +52,7 @@ export function KeyboardShortcutsProvider({ children }: Readonly<KeyboardShortcu
         const ctrlMatch = shortcut.ctrl ? (e.ctrlKey || e.metaKey) : !e.ctrlKey && !e.metaKey;
         const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
         const altMatch = shortcut.alt ? e.altKey : !e.altKey;
-        const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
+        const keyMatch = e.key && shortcut.key && e.key.toLowerCase() === shortcut.key.toLowerCase();
 
         if (ctrlMatch && shiftMatch && altMatch && keyMatch) {
           e.preventDefault();

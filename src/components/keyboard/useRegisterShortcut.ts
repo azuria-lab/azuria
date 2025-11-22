@@ -12,16 +12,24 @@ export function useRegisterShortcut(shortcut: KeyboardShortcut) {
   const { registerShortcut, unregisterShortcut } = useKeyboardShortcuts();
   const shortcutIdRef = useRef(shortcut.id);
 
+  const { id, key, ctrl, shift, alt, description, category, action } = shortcut;
+
   useEffect(() => {
-    // Atualizar ID se mudou
-    if (shortcutIdRef.current !== shortcut.id) {
-      unregisterShortcut(shortcutIdRef.current);
-      shortcutIdRef.current = shortcut.id;
-    }
-    
-    registerShortcut(shortcut);
+    const s = { id, key, ctrl, shift, alt, description, category, action };
+    registerShortcut(s);
     return () => {
-      unregisterShortcut(shortcut.id);
+      unregisterShortcut(id);
     };
-  }, [shortcut, registerShortcut, unregisterShortcut]);
+  }, [
+    id, 
+    key, 
+    ctrl, 
+    shift, 
+    alt, 
+    description, 
+    category, 
+    action, 
+    registerShortcut, 
+    unregisterShortcut
+  ]);
 }

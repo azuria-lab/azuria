@@ -59,6 +59,9 @@ const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage")
 const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
 const DocumentosPage = lazy(() => import("./pages/DocumentosPage"));
 
+// AI Module Pages
+const AzuriaPage = lazy(() => import("./pages/AzuriaPage"));
+
 // Domain Providers
 import { AuthProvider } from "@/domains/auth";
 import { MultiTenantProvider } from "@/contexts/MultiTenantContext";
@@ -149,6 +152,9 @@ const App = () => {
                       <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
                       <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
                       <Route path="/documentos" element={<DocumentosPage />} />
+                      
+                      {/* AI Module Routes */}
+                      <Route path="/azuria" element={<AzuriaPage />} />
                       
                       <Route path="*" element={<NotFound />} />
                     </Routes>

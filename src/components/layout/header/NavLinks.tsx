@@ -59,6 +59,14 @@ export const navLinks = [
     dataOnboarding: "ai-pricing-button"
   },
   { 
+    to: "/azuria", 
+    label: "Azuria AI", 
+    badge: "Beta",
+    path: "/azuria",
+    icon: <Brain className="h-4 w-4" />,
+    dataOnboarding: "azuria-button"
+  },
+  { 
     to: "/analise-concorrencia", 
     label: "Competitividade",
     path: "/analise-concorrencia",

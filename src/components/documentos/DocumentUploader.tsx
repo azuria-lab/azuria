@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useDocumentos } from '@/hooks/useDocumentos';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const TIPOS_DOCUMENTO = [
   { value: 'cnd_federal', label: 'CND Federal' },

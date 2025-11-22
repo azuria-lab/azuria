@@ -7,6 +7,8 @@
     "dorzey.vscode-sqlfluff",
     "usernamehw.errorlens",
     "esbenp.prettier-vscode",
-    "mkloubert.vscode-http-client"
+    "mkloubert.vscode-http-client",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss"
   ]
 }

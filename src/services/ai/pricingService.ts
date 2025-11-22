@@ -1,280 +1,249 @@
-import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
-import { logger, LogMetadata } from './logger';
+/**
+ * Pricing Service - Azuria AI
+ * 
+ * Serviço responsável por análises e sugestões de precificação
+ */
 
-interface PricingInput {
-  costPrice: number;
-  desiredMargin: number;
-  taxRegime: string;
-  businessType: string;
-  fees?: number;
-  additionalCosts?: number;
-}
+import { MarginAnalysis, PricingSuggestion } from '@/types/azuriaAI';
 
-class PricingService {
-  /**
-   * Analisa precificação baseada nos parâmetros fornecidos
-   */
-  async analyzePricing(input: PricingInput): Promise<PricingAnalysis> {
-    try {
-      const startTime = Date.now();
-      
-      const {
-        costPrice,
-        desiredMargin,
-        taxRegime,
-        businessType,
-        fees = 0,
-        additionalCosts = 0
-      } = input;
+/**
+ * Calcula sugestão de preço inteligente
+ */
+export function calculatePricingSuggestion(params: {
+  cost_price: number;
+  current_price?: number;
+  target_margin?: number;
+  tax_rate: number;
+  marketplace_fee?: number;
+  shipping_cost?: number;
+}): PricingSuggestion {
+  const {
+    cost_price,
+    current_price,
+    target_margin = 30, // Margem padrão 30%
+    tax_rate,
+    marketplace_fee = 0,
+    shipping_cost = 0,
+  } = params;
 
-      // Calcula impostos baseado no regime tributário
-      const taxRate = this.getTaxRate(taxRegime, businessType);
-      const taxes = this.calculateTaxes(costPrice, taxRate, desiredMargin);
+  // Custo total (custo + frete)
+  const total_cost = cost_price + shipping_cost;
 
-      // Calcula preço sugerido
-      const totalCosts = costPrice + taxes + fees + additionalCosts;
-      const marginMultiplier = 1 + (desiredMargin / 100);
-      const suggestedPrice = totalCosts * marginMultiplier;
+  // Taxa total (impostos + marketplace)
+  const total_fee_rate = tax_rate + marketplace_fee;
 
-      // Gera explicação didática
-      const explanation = this.generatePricingExplanation(
-        costPrice,
-        taxes,
-        fees + additionalCosts,
-        desiredMargin,
-        suggestedPrice,
-        taxRegime
-      );
+  // Fórmula por divisor (garante margem líquida real)
+  const suggested_price = total_cost / (1 - (target_margin / 100) - (total_fee_rate / 100));
 
-      const analysis: PricingAnalysis = {
-        suggestedPrice: Math.round(suggestedPrice * 100) / 100,
-        minPrice: Math.round(totalCosts * 1.05 * 100) / 100,
-        maxPrice: Math.round(suggestedPrice * 1.2 * 100) / 100,
-        profitMargin: desiredMargin,
-        explanation,
-        confidence: 0.85,
-        factors: {
-          cost: costPrice,
-          taxes,
-          fees: fees + additionalCosts,
-          margin: desiredMargin
-        },
-        recommendations: []
-      };
+  // Cálculos de lucro
+  const taxes_and_fees = suggested_price * (total_fee_rate / 100);
+  const profit = suggested_price - total_cost - taxes_and_fees;
+  const profit_percentage = (profit / suggested_price) * 100;
 
-      const duration = Date.now() - startTime;
-      logger.trackAIUsage('pricing_analysis', duration, true, {
-        costPrice,
-        suggestedPrice: analysis.suggestedPrice,
-        margin: desiredMargin,
-        taxRegime
-      });
+  // Preços alternativos
+  const competitive_price = total_cost / (1 - 0.15 - (total_fee_rate / 100)); // 15% margem
+  const premium_price = total_cost / (1 - 0.40 - (total_fee_rate / 100)); // 40% margem
+  const minimum_price = total_cost / (1 - 0.05 - (total_fee_rate / 100)); // 5% margem
 
-      return analysis;
+  // Confiança baseada na margem
+  let confidence = 80;
+  if (profit_percentage < 10) {confidence = 50;}
+  if (profit_percentage > 20 && profit_percentage < 40) {confidence = 95;}
 
-    } catch (error) {
-      logger.trackAIError('pricing_analysis', error, input as unknown as LogMetadata);
-      throw new Error('Erro ao analisar precificação');
-    }
-  }
-
-  /**
-   * Calcula impostos baseado no regime tributário
-   */
-  private calculateTaxes(costPrice: number, taxRate: number, margin: number): number {
-    // Cálculo simplificado baseado no preço de venda estimado
-    const estimatedPrice = costPrice * (1 + margin / 100);
-    return estimatedPrice * (taxRate / 100);
-  }
-
-  /**
-   * Obtém alíquota de imposto baseada no regime
-   */
-  private getTaxRate(regime: string, businessType: string): number {
-    const rates = {
-      simples_nacional: {
-        comercio: 4.0,
-        industria: 4.5,
-        servicos: 6.0,
-        default: 4.5
-      },
-      lucro_presumido: {
-        comercio: 11.33,
-        industria: 11.33,
-        servicos: 16.33,
-        default: 11.33
-      },
-      lucro_real: {
-        comercio: 13.0,
-        industria: 13.0,
-        servicos: 18.0,
-        default: 13.0
-      }
-    };
-
-    const regimeRates = rates[regime as keyof typeof rates] || rates.simples_nacional;
-    return regimeRates[businessType as keyof typeof regimeRates] || regimeRates.default;
-  }
-
-  /**
-   * Gera explicação didática sobre a formação do preço
-   */
-  private generatePricingExplanation(
-    costPrice: number,
-    taxes: number,
-    fees: number,
-    margin: number,
-    finalPrice: number,
-    taxRegime: string
-  ): string {
-    const regimeNames = {
-      simples_nacional: 'Simples Nacional',
-      lucro_presumido: 'Lucro Presumido',
-      lucro_real: 'Lucro Real'
-    };
-
-    const netMargin = ((finalPrice - costPrice - taxes - fees) / finalPrice * 100).toFixed(1);
+  // Reasoning
+  let reasoning = `Baseado no custo de R$ ${total_cost.toFixed(2)}, impostos de ${total_fee_rate.toFixed(1)}% e margem desejada de ${target_margin}%, `;
+  
+  if (current_price) {
+    const difference = suggested_price - current_price;
+    const diff_percentage = (difference / current_price) * 100;
     
-    return `Calculei seu preço considerando todos os custos:
-
-💰 **Composição do preço:**
-• Custo do produto: R$ ${costPrice.toFixed(2)}
-• Impostos (${regimeNames[taxRegime as keyof typeof regimeNames] || taxRegime}): R$ ${taxes.toFixed(2)}
-${fees > 0 ? `• Taxas e custos adicionais: R$ ${fees.toFixed(2)}\n` : ''}• Margem desejada: ${margin}%
-
-🎯 **Resultado:**
-• Margem líquida real: ${netMargin}%
-• Preço final competitivo: R$ ${finalPrice.toFixed(2)}
-
-✅ Este preço garante sua margem desejada e cobre todos os custos!`;
-  }
-
-  /**
-   * Analisa competitividade do preço
-   */
-  async analyzeCompetitiveness(
-    price: number,
-    competitors: CompetitorPricing[]
-  ): Promise<{
-    position: 'lowest' | 'competitive' | 'premium' | 'highest';
-    recommendation: string;
-    adjustmentSuggestion?: number;
-  }> {
-    if (competitors.length === 0) {
-      return {
-        position: 'competitive',
-        recommendation: 'Não encontrei concorrentes para comparar. Monitore o mercado regularmente.'
-      };
-    }
-
-    const competitorPrices = competitors.map(c => c.price).sort((a, b) => a - b);
-    const minPrice = Math.min(...competitorPrices);
-    const maxPrice = Math.max(...competitorPrices);
-    const avgPrice = competitorPrices.reduce((sum, p) => sum + p, 0) / competitorPrices.length;
-
-    let position: 'lowest' | 'competitive' | 'premium' | 'highest';
-    let recommendation: string;
-    let adjustmentSuggestion: number | undefined;
-
-    if (price <= minPrice) {
-      position = 'lowest';
-      recommendation = 'Seu preço é o mais baixo do mercado. Considere aumentar para melhorar a margem.';
-      adjustmentSuggestion = avgPrice * 0.95; // 5% abaixo da média
-    } else if (price >= maxPrice) {
-      position = 'highest';
-      recommendation = 'Seu preço está acima da concorrência. Pode ser necessário ajustar para competir.';
-      adjustmentSuggestion = avgPrice * 1.05; // 5% acima da média
-    } else if (price > avgPrice * 1.1) {
-      position = 'premium';
-      recommendation = 'Preço premium. Certifique-se de que oferece valor diferenciado.';
+    if (Math.abs(diff_percentage) < 5) {
+      reasoning += `seu preço atual está ótimo! 👍`;
+    } else if (difference > 0) {
+      reasoning += `sugiro aumentar em R$ ${difference.toFixed(2)} (${diff_percentage.toFixed(1)}%) para garantir sua margem.`;
     } else {
-      position = 'competitive';
-      recommendation = 'Preço competitivo e bem posicionado no mercado.';
+      reasoning += `você pode reduzir em R$ ${Math.abs(difference).toFixed(2)} (${Math.abs(diff_percentage).toFixed(1)}%) e manter lucratividade.`;
     }
-
-    return {
-      position,
-      recommendation,
-      adjustmentSuggestion
-    };
+  } else {
+    reasoning += `este preço garante ${profit_percentage.toFixed(1)}% de margem líquida real.`;
   }
 
-  /**
-   * Calcula impacto de desconto na margem
-   */
-  calculateDiscountImpact(
-    originalPrice: number,
-    costPrice: number,
-    taxes: number,
-    discountPercent: number
-  ): {
-    newPrice: number;
-    newMargin: number;
-    marginImpact: number;
-    recommendation: string;
-  } {
-    const newPrice = originalPrice * (1 - discountPercent / 100);
-    const totalCosts = costPrice + taxes;
-    const newMargin = ((newPrice - totalCosts) / newPrice) * 100;
-    const originalMargin = ((originalPrice - totalCosts) / originalPrice) * 100;
-    const marginImpact = newMargin - originalMargin;
-
-    let recommendation: string;
-    if (newMargin < 5) {
-      recommendation = '⚠️ Cuidado! Margem muito baixa, pode gerar prejuízo.';
-    } else if (newMargin < 15) {
-      recommendation = '⚠️ Margem reduzida. Monitore o volume de vendas.';
-    } else {
-      recommendation = '✅ Desconto viável, margem ainda saudável.';
-    }
-
-    return {
-      newPrice: Math.round(newPrice * 100) / 100,
-      newMargin: Math.round(newMargin * 100) / 100,
-      marginImpact: Math.round(marginImpact * 100) / 100,
-      recommendation
-    };
-  }
-
-  /**
-   * Sugere estratégias de precificação
-   */
-  async suggestPricingStrategies(
-    currentPrice: number,
-    costPrice: number,
-    competitors: CompetitorPricing[],
-    salesVolume?: number
-  ): Promise<string[]> {
-    const strategies: string[] = [];
-
-    const competitiveness = competitors.length > 0 ? 
-      await this.analyzeCompetitiveness(currentPrice, competitors) : null;
-
-    // Estratégias baseadas na posição competitiva
-    if (competitiveness?.position === 'highest') {
-      strategies.push('Considere reduzir o preço em 5-10% para melhorar competitividade');
-      strategies.push('Adicione valor percebido (frete grátis, garantia estendida)');
-    } else if (competitiveness?.position === 'lowest') {
-      strategies.push('Aumente gradualmente o preço para melhorar margem');
-      strategies.push('Teste preços premium com diferenciação');
-    }
-
-    // Estratégias baseadas no volume
-    if (salesVolume !== undefined) {
-      if (salesVolume < 10) {
-        strategies.push('Volume baixo: teste redução de preço para aumentar vendas');
-      } else if (salesVolume > 50) {
-        strategies.push('Alto volume: pode suportar aumento de preço');
-      }
-    }
-
-    // Estratégias gerais
-    strategies.push('Monitore preços dos concorrentes semanalmente');
-    strategies.push('Teste preços sazonais (Black Friday, Natal)');
-    strategies.push('Considere pacotes ou combos para aumentar ticket médio');
-
-    return strategies;
-  }
+  return {
+    suggested_price: Math.round(suggested_price * 100) / 100,
+    current_price,
+    cost_price: total_cost,
+    profit_margin: Math.round(profit * 100) / 100,
+    profit_margin_percentage: Math.round(profit_percentage * 10) / 10,
+    reasoning,
+    confidence,
+    alternatives: {
+      competitive_price: Math.round(competitive_price * 100) / 100,
+      premium_price: Math.round(premium_price * 100) / 100,
+      minimum_price: Math.round(minimum_price * 100) / 100,
+    },
+  };
 }
 
-export const pricingService = new PricingService();
+/**
+ * Analisa margem de lucro
+ */
+export function analyzeMargin(params: {
+  product_name: string;
+  sale_price: number;
+  cost_price: number;
+  taxes: number;
+  other_costs?: number;
+  target_margin?: number;
+}): MarginAnalysis {
+  const {
+    product_name,
+    sale_price,
+    cost_price,
+    taxes,
+    other_costs = 0,
+    target_margin = 20,
+  } = params;
+
+  const total_cost = cost_price + other_costs;
+  const net_profit = sale_price - total_cost - taxes;
+  const current_margin = (net_profit / sale_price) * 100;
+
+  const is_healthy = current_margin >= target_margin;
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  const potential_savings: { description: string; amount: number }[] = [];
+
+  // Análise de problemas
+  if (current_margin < 5) {
+    issues.push('⚠️ Margem crítica - prejuízo iminente');
+    suggestions.push('Aumente o preço em pelo menos 10% ou reduza custos');
+  } else if (current_margin < 10) {
+    issues.push('⚠️ Margem baixa - risco elevado');
+    suggestions.push('Considere aumentar o preço ou negociar custos com fornecedores');
+  } else if (current_margin < target_margin) {
+    issues.push(`Margem abaixo do alvo de ${target_margin}%`);
+  }
+
+  if (current_margin > 50) {
+    issues.push('Margem muito alta - pode estar perdendo vendas');
+    suggestions.push('Considere reduzir o preço para aumentar volume de vendas');
+  }
+
+  // Sugestões de economia
+  if (other_costs > 0) {
+    const potential_cost_reduction = other_costs * 0.2; // 20% de redução
+    potential_savings.push({
+      description: 'Negociação de custos operacionais',
+      amount: potential_cost_reduction,
+    });
+  }
+
+  if (taxes > sale_price * 0.15) {
+    potential_savings.push({
+      description: 'Otimização tributária',
+      amount: taxes * 0.1, // 10% de economia
+    });
+  }
+
+  // Sugestões gerais
+  if (is_healthy) {
+    suggestions.push('✅ Margem saudável! Continue monitorando concorrentes');
+  }
+
+  return {
+    product_name,
+    current_margin: Math.round(current_margin * 10) / 10,
+    target_margin,
+    is_healthy,
+    issues,
+    suggestions,
+    potential_savings,
+  };
+}
+
+/**
+ * Calcula impacto de promoção
+ */
+export function calculatePromotionImpact(params: {
+  original_price: number;
+  discount_percentage: number;
+  cost_price: number;
+  tax_rate: number;
+  expected_volume_increase?: number;
+}): {
+  new_price: number;
+  new_margin: number;
+  margin_reduction: number;
+  break_even_volume_increase: number;
+  is_viable: boolean;
+  recommendation: string;
+} {
+  const {
+    original_price,
+    discount_percentage,
+    cost_price,
+    tax_rate,
+    expected_volume_increase = 0,
+  } = params;
+
+  const new_price = original_price * (1 - discount_percentage / 100);
+  const taxes_original = original_price * (tax_rate / 100);
+  const taxes_new = new_price * (tax_rate / 100);
+
+  const profit_original = original_price - cost_price - taxes_original;
+  const profit_new = new_price - cost_price - taxes_new;
+
+  const margin_original = (profit_original / original_price) * 100;
+  const margin_new = (profit_new / new_price) * 100;
+  const margin_reduction = margin_original - margin_new;
+
+  // Calcular aumento necessário para compensar
+  const break_even_volume_increase = (margin_reduction / margin_new) * 100;
+
+  const is_viable = expected_volume_increase >= break_even_volume_increase || margin_new > 10;
+
+  let recommendation = '';
+  if (!is_viable) {
+    recommendation = `⚠️ Desconto arriscado! Você precisaria aumentar as vendas em ${break_even_volume_increase.toFixed(0)}% para compensar.`;
+  } else if (margin_new < 10) {
+    recommendation = `⚠️ Margem ficará baixa (${margin_new.toFixed(1)}%). Considere desconto menor.`;
+  } else {
+    recommendation = `✅ Promoção viável! Com aumento de ${expected_volume_increase}% nas vendas, vale a pena.`;
+  }
+
+  return {
+    new_price: Math.round(new_price * 100) / 100,
+    new_margin: Math.round(margin_new * 10) / 10,
+    margin_reduction: Math.round(margin_reduction * 10) / 10,
+    break_even_volume_increase: Math.round(break_even_volume_increase),
+    is_viable,
+    recommendation,
+  };
+}
+
+/**
+ * Sugere estratégia de precificação por objetivo
+ */
+export function suggestPricingStrategy(objective: 'volume' | 'profit' | 'competitive'): string {
+  const strategies = {
+    volume: `📊 **Estratégia de Volume:**
+• Reduza a margem para 10-15%
+• Foque em produtos populares
+• Use promoções relâmpago
+• Invista em anúncios`,
+
+    profit: `💰 **Estratégia de Lucro:**
+• Aumente margem para 30-40%
+• Destaque diferenciais do produto
+• Ofereça bundle/kits
+• Foque em qualidade`,
+
+    competitive: `🎯 **Estratégia Competitiva:**
+• Monitore concorrentes diariamente
+• Margem de 15-20%
+• Iguale preço + destaque frete grátis
+• Use cashback para atrair`,
+  };
+
+  return strategies[objective] || strategies.competitive;
+}
