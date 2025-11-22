@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 export interface Documento {
@@ -38,7 +38,11 @@ export function useDocumentos() {
   const queryClient = useQueryClient();
 
   // Buscar todos os documentos do usuário
-  const { data: documentos, isLoading, error } = useQuery({
+  const {
+    data: documentos,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['documentos'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -46,7 +50,9 @@ export function useDocumentos() {
         .select('*')
         .order('data_validade', { ascending: true });
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data as Documento[];
     },
   });
@@ -55,14 +61,18 @@ export function useDocumentos() {
   const uploadFile = useMutation({
     mutationFn: async ({ file, userId }: UploadFileParams) => {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(7)}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from('documentos')
         .upload(filePath, file);
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data.path;
     },
     onError: (error: Error) => {
@@ -78,7 +88,9 @@ export function useDocumentos() {
   const createDocumento = useMutation({
     mutationFn: async (params: CreateDocumentoParams) => {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {throw new Error('Usuário não autenticado');}
+      if (!userData.user) {
+        throw new Error('Usuário não autenticado');
+      }
 
       const { data, error } = await supabase
         .from('documentos')
@@ -91,7 +103,9 @@ export function useDocumentos() {
         .select()
         .single();
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data as Documento;
     },
     onSuccess: () => {
@@ -112,7 +126,10 @@ export function useDocumentos() {
 
   // Atualizar documento
   const updateDocumento = useMutation({
-    mutationFn: async ({ id, ...params }: Partial<Documento> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...params
+    }: Partial<Documento> & { id: string }) => {
       const { data, error } = await supabase
         .from('documentos')
         .update(params)
@@ -120,7 +137,9 @@ export function useDocumentos() {
         .select()
         .single();
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data as Documento;
     },
     onSuccess: () => {
@@ -151,13 +170,17 @@ export function useDocumentos() {
 
       // Deletar arquivo do storage se existir
       if (documento?.arquivo_url) {
-        await supabase.storage.from('documentos').remove([documento.arquivo_url]);
+        await supabase.storage
+          .from('documentos')
+          .remove([documento.arquivo_url]);
       }
 
       // Deletar registro do banco
       const { error } = await supabase.from('documentos').delete().eq('id', id);
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documentos'] });
@@ -182,7 +205,9 @@ export function useDocumentos() {
         .from('documentos')
         .download(filePath);
 
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
 
       // Criar URL temporária e fazer download
       const url = URL.createObjectURL(data);
@@ -209,11 +234,13 @@ export function useDocumentos() {
 
   // Buscar documentos próximos ao vencimento
   const documentosProximosVencimento = documentos?.filter(
-    (doc) => doc.status === 'proximo_vencimento' || doc.status === 'vencido'
+    doc => doc.status === 'proximo_vencimento' || doc.status === 'vencido'
   );
 
   // Buscar documentos vencidos
-  const documentosVencidos = documentos?.filter((doc) => doc.status === 'vencido');
+  const documentosVencidos = documentos?.filter(
+    doc => doc.status === 'vencido'
+  );
 
   return {
     documentos,
@@ -228,4 +255,3 @@ export function useDocumentos() {
     downloadFile,
   };
 }
-

@@ -41,7 +41,7 @@ export function GlobalShortcuts() {
         clearTimeout(gTimeout);
       }
 
-      if (e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.metaKey) {
+      if (e.key && e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.metaKey) {
         gPressed = true;
         gTimeout = setTimeout(() => {
           gPressed = false;

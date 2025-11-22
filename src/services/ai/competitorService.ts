@@ -1,466 +1,238 @@
-import { CompetitorPlatform, CompetitorPricing } from '@/shared/types/ai';
-import { logger } from './logger';
+/**
+ * Competitor Service - Azuria AI
+ * 
+ * Serviço responsável por monitoramento de preços da concorrência
+ * 
+ * ⚠️ VERSÃO INICIAL: Simulação com dados fictícios
+ * 🚀 FUTURO: Integração com APIs de web scraping (ScraperAPI, Bright Data, etc.)
+ */
 
-interface _CompetitorSearchParams {
-  productName: string;
-  category?: string;
-  maxResults?: number;
-  platforms?: CompetitorPlatform[];
+import { CompetitorAlert, CompetitorData } from '@/types/azuriaAI';
+
+/**
+ * Simula busca de preços da concorrência
+ * 
+ * 🎯 No futuro, isso será substituído por chamadas a APIs reais
+ */
+export async function fetchCompetitorPrices(
+  productName: string
+): Promise<CompetitorData[]> {
+  // Simulação de delay de API
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  // Dados simulados - No futuro virão de APIs reais
+  const mockCompetitors: CompetitorData[] = [
+    {
+      competitor_name: 'Concorrente A',
+      product_name: productName,
+      current_price: Math.random() * 100 + 50,
+      last_checked: new Date(),
+      price_trend: Math.random() > 0.5 ? 'rising' : 'falling',
+      source_url: 'https://exemplo.com/produto',
+      confidence_score: 0.85,
+    },
+    {
+      competitor_name: 'Concorrente B',
+      product_name: productName,
+      current_price: Math.random() * 120 + 40,
+      last_checked: new Date(),
+      price_trend: Math.random() > 0.5 ? 'rising' : 'falling',
+      source_url: 'https://exemplo2.com/produto',
+      confidence_score: 0.92,
+    },
+    {
+      competitor_name: 'Concorrente C',
+      product_name: productName,
+      current_price: Math.random() * 90 + 60,
+      last_checked: new Date(),
+      price_trend: 'stable',
+      source_url: 'https://exemplo3.com/produto',
+      confidence_score: 0.78,
+    },
+  ];
+
+  return mockCompetitors;
 }
 
-class CompetitorService {
-  private readonly PLATFORMS = {
-    [CompetitorPlatform.MERCADO_LIVRE]: {
-      name: 'Mercado Livre',
-      baseUrl: 'https://lista.mercadolivre.com.br',
-      enabled: true
-    },
-    [CompetitorPlatform.SHOPEE]: {
-      name: 'Shopee',
-      baseUrl: 'https://shopee.com.br',
-      enabled: true
-    },
-    [CompetitorPlatform.AMAZON]: {
-      name: 'Amazon',
-      baseUrl: 'https://amazon.com.br',
-      enabled: true
-    },
-    [CompetitorPlatform.MAGAZINE_LUIZA]: {
-      name: 'Magazine Luiza',
-      baseUrl: 'https://magazineluiza.com.br',
-      enabled: true
-    },
-    [CompetitorPlatform.AMERICANAS]: {
-      name: 'Americanas',
-      baseUrl: 'https://americanas.com.br',
-      enabled: true
-    },
-    [CompetitorPlatform.CARREFOUR]: {
-      name: 'Carrefour',
-      baseUrl: 'https://mercado.carrefour.com.br',
-      enabled: false
-    },
-    [CompetitorPlatform.CASAS_BAHIA]: {
-      name: 'Casas Bahia',
-      baseUrl: 'https://casasbahia.com.br',
-      enabled: false
-    },
-    [CompetitorPlatform.OUTROS]: {
-      name: 'Outros',
-      baseUrl: 'https://exemplo.com.br',
-      enabled: false
-    }
+/**
+ * Analisa alertas de preços da concorrência
+ */
+export function analyzeCompetitorAlerts(
+  ourPrice: number,
+  competitors: CompetitorData[]
+): CompetitorAlert[] {
+  const alerts: CompetitorAlert[] = [];
+
+  // Encontrar preço mais baixo
+  const lowestCompetitor = competitors.reduce((min, curr) =>
+    curr.current_price < min.current_price ? curr : min
+  );
+
+  // Alerta se estivermos muito acima
+  const priceDifference = ((ourPrice - lowestCompetitor.current_price) / lowestCompetitor.current_price) * 100;
+
+  if (priceDifference > 20) {
+    alerts.push({
+      type: 'price_too_high',
+      message: `⚠️ Seu preço está ${priceDifference.toFixed(1)}% acima do concorrente mais barato (${lowestCompetitor.competitor_name})`,
+      competitor: lowestCompetitor,
+      suggested_action: `Considere reduzir para R$ ${(lowestCompetitor.current_price * 1.05).toFixed(2)} (5% acima do concorrente)`,
+      urgency: priceDifference > 40 ? 'high' : 'medium',
+    });
+  }
+
+  // Alerta para tendências de queda
+  const fallingPrices = competitors.filter((c) => c.price_trend === 'falling');
+  if (fallingPrices.length >= 2) {
+    alerts.push({
+      type: 'market_trend',
+      message: `📉 Tendência de queda de preços no mercado (${fallingPrices.length} concorrentes baixando preços)`,
+      competitor: fallingPrices[0],
+      suggested_action: 'Monitore de perto e prepare estratégia de precificação competitiva',
+      urgency: 'medium',
+    });
+  }
+
+  // Alerta de oportunidade se estivermos abaixo
+  if (ourPrice < lowestCompetitor.current_price * 0.9) {
+    alerts.push({
+      type: 'opportunity',
+      message: `✅ Seu preço está competitivo! ${Math.abs(priceDifference).toFixed(1)}% abaixo do mercado`,
+      competitor: lowestCompetitor,
+      suggested_action: 'Você pode considerar aumentar levemente para maximizar margem',
+      urgency: 'low',
+    });
+  }
+
+  return alerts;
+}
+
+/**
+ * Gera recomendação de preço baseado em concorrência
+ */
+export function suggestCompetitivePrice(
+  ourCost: number,
+  minMargin: number,
+  competitors: CompetitorData[]
+): {
+  suggested_price: number;
+  reasoning: string;
+  market_position: 'leader' | 'competitive' | 'follower';
+} {
+  if (competitors.length === 0) {
+    const price = ourCost * (1 + minMargin);
+    return {
+      suggested_price: price,
+      reasoning: 'Sem dados de concorrência. Preço baseado em custo + margem mínima.',
+      market_position: 'competitive',
+    };
+  }
+
+  const avgPrice =
+    competitors.reduce((sum, c) => sum + c.current_price, 0) / competitors.length;
+  const lowestPrice = Math.min(...competitors.map((c) => c.current_price));
+  const highestPrice = Math.max(...competitors.map((c) => c.current_price));
+
+  // Garantir margem mínima
+  const minAcceptablePrice = ourCost * (1 + minMargin);
+
+  let suggested_price: number;
+  let reasoning: string;
+  let market_position: 'leader' | 'competitive' | 'follower';
+
+  // Estratégia: Competitivo (ligeiramente abaixo da média)
+  const competitivePrice = avgPrice * 0.97;
+
+  if (competitivePrice >= minAcceptablePrice) {
+    suggested_price = competitivePrice;
+    reasoning = `Preço competitivo, 3% abaixo da média do mercado (R$ ${avgPrice.toFixed(2)}), mantendo margem de ${((suggested_price / ourCost - 1) * 100).toFixed(1)}%`;
+    market_position = 'competitive';
+  } else {
+    suggested_price = minAcceptablePrice;
+    reasoning = `Mercado com preços baixos. Manter margem mínima de ${(minMargin * 100).toFixed(0)}% é mais importante que competir por preço`;
+    market_position = 'leader';
+  }
+
+  // Verificar se estamos muito acima
+  if (suggested_price > highestPrice * 1.1) {
+    market_position = 'leader';
+    reasoning += '. ⚠️ Atenção: seu preço ficará acima do mercado - garanta diferenciação!';
+  }
+
+  // Verificar se estamos no range ideal
+  if (suggested_price >= lowestPrice && suggested_price <= avgPrice) {
+    market_position = 'competitive';
+  }
+
+  return {
+    suggested_price: Math.round(suggested_price * 100) / 100,
+    reasoning,
+    market_position,
   };
-
-  /**
-   * Analisa preços dos concorrentes (simulado)
-   */
-  async analyzeCompetitors(productName: string): Promise<CompetitorPricing[]> {
-    try {
-      const startTime = Date.now();
-      
-      // Em uma implementação real, aqui faria web scraping ou chamadas para APIs
-      // Por enquanto, vamos simular dados realistas
-      const mockData = await this.generateMockCompetitorData(productName);
-
-      const duration = Date.now() - startTime;
-      logger.trackAIUsage('competitor_analysis', duration, true, {
-        productName,
-        competitorsFound: mockData.length
-      });
-
-      return mockData;
-
-    } catch (error) {
-      logger.trackAIError('competitor_analysis', error, { productName });
-      return []; // Retorna lista vazia em caso de erro
-    }
-  }
-
-  /**
-   * Monitora mudanças de preços (simulado)
-   */
-  async monitorPriceChanges(
-    productName: string,
-    currentCompetitors: CompetitorPricing[]
-  ): Promise<{
-    changes: Array<{
-      platform: string;
-      seller: string;
-      oldPrice: number;
-      newPrice: number;
-      changePercent: number;
-      changeType: 'increase' | 'decrease';
-    }>;
-    alerts: string[];
-  }> {
-    try {
-      const newPrices = await this.generateMockCompetitorData(productName);
-      const result = this.processPriceChanges(currentCompetitors, newPrices);
-
-      logger.info('Monitoramento de preços concluído', {
-        productName,
-        changesDetected: result.changes.length,
-        alertsGenerated: result.alerts.length
-      });
-
-      return result;
-
-    } catch (error) {
-      logger.trackAIError('price_monitoring', error, { productName });
-      return { changes: [], alerts: [] };
-    }
-  }
-
-  /**
-   * Processa mudanças de preços entre duas listas
-   */
-  private processPriceChanges(
-    currentCompetitors: CompetitorPricing[],
-    newPrices: CompetitorPricing[]
-  ) {
-    const changes: Array<{
-      platform: string;
-      seller: string;
-      oldPrice: number;
-      newPrice: number;
-      changePercent: number;
-      changeType: 'increase' | 'decrease';
-    }> = [];
-    const alerts: string[] = [];
-
-    for (const current of currentCompetitors) {
-      const updated = newPrices.find(
-        p => p.platform === current.platform && p.seller === current.seller
-      );
-
-      if (updated && updated.price !== current.price) {
-        const changePercent = ((updated.price - current.price) / current.price) * 100;
-        
-        changes.push({
-          platform: this.PLATFORMS[current.platform]?.name || current.platform,
-          seller: current.seller || 'Desconhecido',
-          oldPrice: current.price,
-          newPrice: updated.price,
-          changePercent: Math.round(changePercent * 100) / 100,
-          changeType: updated.price > current.price ? 'increase' : 'decrease'
-        });
-
-        // Gera alertas para mudanças significativas
-        if (Math.abs(changePercent) > 5) {
-          const platformName = this.PLATFORMS[current.platform]?.name || current.platform;
-          const changeDirection = updated.price > current.price ? 'aumentou' : 'reduziu';
-          const emoji = updated.price > current.price ? '📈' : '📉';
-          
-          alerts.push(
-            `${emoji} ${platformName}: ${current.seller} ${changeDirection} preço em ${Math.abs(changePercent).toFixed(1)}%`
-          );
-        }
-      }
-    }
-
-    return { changes, alerts };
-  }
-
-  /**
-   * Obtém análise de posicionamento competitivo
-   */
-  async getCompetitivePosition(
-    yourPrice: number,
-    competitors: CompetitorPricing[]
-  ): Promise<{
-    position: 'lowest' | 'below_average' | 'average' | 'above_average' | 'highest';
-    percentile: number;
-    insights: string[];
-    recommendations: string[];
-  }> {
-    if (competitors.length === 0) {
-      return {
-        position: 'average',
-        percentile: 50,
-        insights: ['Não há dados de concorrentes para comparação'],
-        recommendations: ['Busque por produtos similares no mercado para comparar preços']
-      };
-    }
-
-    const prices = competitors.map(c => c.price).sort((a, b) => a - b);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-    const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-
-    // Calcula percentil
-    const lowerPrices = prices.filter(p => p < yourPrice).length;
-    const percentile = (lowerPrices / prices.length) * 100;
-
-    // Determina posição
-    let position: 'lowest' | 'below_average' | 'average' | 'above_average' | 'highest';
-    if (yourPrice <= minPrice) {
-      position = 'lowest';
-    } else if (yourPrice >= maxPrice) {
-      position = 'highest';
-    } else if (yourPrice < avgPrice * 0.9) {
-      position = 'below_average';
-    } else if (yourPrice > avgPrice * 1.1) {
-      position = 'above_average';
-    } else {
-      position = 'average';
-    }
-
-    // Gera insights
-    const insights = [
-      `Seu preço: R$ ${yourPrice.toFixed(2)}`,
-      `Preço médio dos concorrentes: R$ ${avgPrice.toFixed(2)}`,
-      `Menor preço: R$ ${minPrice.toFixed(2)}`,
-      `Maior preço: R$ ${maxPrice.toFixed(2)}`,
-      `Você está no percentil ${percentile.toFixed(0)}% (${percentile > 50 ? 'acima' : 'abaixo'} da mediana)`
-    ];
-
-    // Gera recomendações
-    const recommendations = this.generatePositionRecommendations(position, yourPrice, avgPrice, minPrice, maxPrice);
-
-    return {
-      position,
-      percentile: Math.round(percentile),
-      insights,
-      recommendations
-    };
-  }
-
-  /**
-   * Busca oportunidades de mercado
-   */
-  async findMarketOpportunities(
-    productCategory: string,
-    _targetMargin: number
-  ): Promise<{
-    opportunities: Array<{
-      title: string;
-      description: string;
-      potentialRevenue: number;
-      difficulty: 'low' | 'medium' | 'high';
-      timeToMarket: string;
-    }>;
-    marketInsights: string[];
-  }> {
-    // Simula análise de oportunidades de mercado
-    const opportunities = [
-      {
-        title: 'Nicho Premium',
-        description: 'Produtos com diferenciação e valor agregado podem sustentar preços 20-30% maiores',
-        potentialRevenue: 5000,
-        difficulty: 'medium' as const,
-        timeToMarket: '2-3 meses'
-      },
-      {
-        title: 'Mercado B2B',
-        description: 'Vendas para empresas geralmente têm margens maiores e pedidos recorrentes',
-        potentialRevenue: 8000,
-        difficulty: 'high' as const,
-        timeToMarket: '4-6 meses'
-      },
-      {
-        title: 'Cross-sell',
-        description: 'Produtos complementares podem aumentar o ticket médio em 40%',
-        potentialRevenue: 3000,
-        difficulty: 'low' as const,
-        timeToMarket: '1 mês'
-      }
-    ];
-
-    const marketInsights = [
-      `Categoria ${productCategory} tem crescimento médio de 15% ao ano`,
-      'Sazonalidade forte em novembro/dezembro (+40% nas vendas)',
-      'Consumidores valorizam entrega rápida (+25% disposição a pagar mais)',
-      'Mercado móvel representa 60% das compras online'
-    ];
-
-    return {
-      opportunities,
-      marketInsights
-    };
-  }
-
-  /**
-   * Gera dados simulados de concorrentes (substitui web scraping real)
-   */
-  private async generateMockCompetitorData(productName: string): Promise<CompetitorPricing[]> {
-    // Simula um delay de rede
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
-
-    // Gera preços realistas baseados no nome do produto
-    const basePrice = this.generateBasePriceFromName(productName);
-    const competitors: CompetitorPricing[] = [];
-
-    const platforms = [
-      CompetitorPlatform.MERCADO_LIVRE,
-      CompetitorPlatform.SHOPEE,
-      CompetitorPlatform.AMAZON,
-      CompetitorPlatform.AMERICANAS
-    ];
-
-    for (const platform of platforms) {
-      // 2-4 vendedores por plataforma
-      const sellerCount = 2 + Math.floor(Math.random() * 3);
-      
-      for (let i = 0; i < sellerCount; i++) {
-        const priceVariation = 0.8 + Math.random() * 0.4; // ±20% do preço base
-        const price = Math.round(basePrice * priceVariation * 100) / 100;
-        
-        competitors.push({
-          id: `competitor_${Date.now()}_${i}`,
-          platform,
-          productName,
-          price,
-          seller: this.generateMockSellerName(platform, i),
-          url: `${this.PLATFORMS[platform].baseUrl}/produto-${Date.now()}-${i}`,
-          inStock: Math.random() > 0.1, // 90% em estoque
-          lastUpdated: new Date()
-        });
-      }
-    }
-
-    return competitors.slice(0, 8); // Máximo 8 concorrentes
-  }
-
-  /**
-   * Gera preço base simulado baseado no nome do produto
-   */
-  private generateBasePriceFromName(productName: string): number {
-    // Hash simples do nome para gerar preço consistente
-    let hash = 0;
-    for (let i = 0; i < productName.length; i++) {
-      const char = productName.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    
-    // Converte hash em preço entre R$ 10 e R$ 500
-    const price = 10 + (Math.abs(hash) % 490);
-    return Math.round(price * 100) / 100;
-  }
-
-  /**
-   * Gera nomes simulados de vendedores
-   */
-  private generateMockSellerName(platform: CompetitorPlatform, index: number): string {
-    const sellers: Record<CompetitorPlatform, string[]> = {
-      [CompetitorPlatform.MERCADO_LIVRE]: [
-        'TechStore_BR', 'MegaEletronicos', 'LojaDoFuturo', 'SuperTech2024'
-      ],
-      [CompetitorPlatform.SHOPEE]: [
-        'FashionBrasil', 'TrendyShop', 'StyleCenter', 'ModaExpress'
-      ],
-      [CompetitorPlatform.AMAZON]: [
-        'AmazonBasics', 'TechGlobal', 'PrimeSeller', 'FastDelivery'
-      ],
-      [CompetitorPlatform.MAGAZINE_LUIZA]: [
-        'MagazineSeller', 'LuizaStore', 'MagaShop', 'LuStore'
-      ],
-      [CompetitorPlatform.AMERICANAS]: [
-        'LojaAmerica', 'TechAmerica', 'ExpressShop', 'MegaStore'
-      ],
-      [CompetitorPlatform.CARREFOUR]: [
-        'CarrefourMarket', 'CarrefourExpress', 'SuperCarrefour', 'CarrefourPlus'
-      ],
-      [CompetitorPlatform.CASAS_BAHIA]: [
-        'CasasBahiaStore', 'BahiaShop', 'CasasMega', 'BahiaExpress'
-      ],
-      [CompetitorPlatform.OUTROS]: [
-        'OutrosVendedor', 'LojaGenerica', 'VendedorPadrao', 'OutrosShop'
-      ]
-    };
-
-    const platformSellers = sellers[platform] || ['VendedorPadrao'];
-    return platformSellers[index % platformSellers.length];
-  }
-
-  /**
-   * Gera recomendações baseadas na posição competitiva
-   */
-  private generatePositionRecommendations(
-    position: string,
-    _yourPrice: number,
-    _avgPrice: number,
-    _minPrice: number,
-    _maxPrice: number
-  ): string[] {
-    const recommendations: string[] = [];
-
-    switch (position) {
-      case 'lowest':
-        recommendations.push('💡 Você tem o menor preço do mercado - considere aumentar gradualmente');
-        recommendations.push('🎯 Teste um preço 10% maior para melhorar a margem');
-        recommendations.push('📦 Adicione valor percebido (frete grátis, garantia)');
-        break;
-
-      case 'below_average':
-        recommendations.push('✅ Preço competitivo, mas ainda há espaço para aumentar');
-        recommendations.push('📊 Monitore o volume de vendas antes de ajustar');
-        break;
-
-      case 'average':
-        recommendations.push('⚖️ Preço bem posicionado no mercado');
-        recommendations.push('🔍 Foque em diferenciação para justificar preços maiores');
-        break;
-
-      case 'above_average':
-        recommendations.push('⚠️ Preço acima da média - certifique-se de oferecer valor extra');
-        recommendations.push('🌟 Destaque seus diferenciais competitivos');
-        recommendations.push('📈 Monitore conversão e considere pequenos ajustes');
-        break;
-
-      case 'highest':
-        recommendations.push('🚨 Preço mais alto do mercado - risco de perder vendas');
-        recommendations.push('💰 Considere reduzir para ficar mais competitivo');
-        recommendations.push('🏆 Se mantiver preço alto, garanta qualidade superior');
-        break;
-    }
-
-    // Recomendações gerais
-    recommendations.push(`📊 Acompanhe a variação de preços semanalmente`);
-    
-    return recommendations;
-  }
-
-  /**
-   * Obtém estatísticas de preços por plataforma
-   */
-  async getPlatformStatistics(
-    competitors: CompetitorPricing[]
-  ): Promise<Record<string, {
-    averagePrice: number;
-    lowestPrice: number;
-    highestPrice: number;
-    sellerCount: number;
-    marketShare: number;
-  }>> {
-    const stats: Record<string, {
-      averagePrice: number;
-      lowestPrice: number;
-      highestPrice: number;
-      sellerCount: number;
-      marketShare: number;
-    }> = {};
-    const totalCompetitors = competitors.length;
-
-    for (const platform of Object.values(CompetitorPlatform)) {
-      const platformCompetitors = competitors.filter(c => c.platform === platform);
-      
-      if (platformCompetitors.length > 0) {
-        const prices = platformCompetitors.map(c => c.price);
-        
-        stats[platform] = {
-          averagePrice: Math.round((prices.reduce((sum, p) => sum + p, 0) / prices.length) * 100) / 100,
-          lowestPrice: Math.min(...prices),
-          highestPrice: Math.max(...prices),
-          sellerCount: platformCompetitors.length,
-          marketShare: Math.round((platformCompetitors.length / totalCompetitors) * 100)
-        };
-      }
-    }
-
-    return stats;
-  }
 }
 
-export const competitorService = new CompetitorService();
+/**
+ * Formata dados de concorrência para exibição
+ */
+export function formatCompetitorReport(competitors: CompetitorData[]): string {
+  if (competitors.length === 0) {
+    return '📊 Nenhum dado de concorrência disponível no momento.';
+  }
+
+  const avgPrice =
+    competitors.reduce((sum, c) => sum + c.current_price, 0) / competitors.length;
+  const lowestPrice = Math.min(...competitors.map((c) => c.current_price));
+  const highestPrice = Math.max(...competitors.map((c) => c.current_price));
+
+  let report = `📊 **Análise de Concorrência:**\n\n`;
+  report += `🎯 Preço Médio: R$ ${avgPrice.toFixed(2)}\n`;
+  report += `📉 Menor Preço: R$ ${lowestPrice.toFixed(2)}\n`;
+  report += `📈 Maior Preço: R$ ${highestPrice.toFixed(2)}\n\n`;
+  report += `**Concorrentes Monitorados:**\n\n`;
+
+  competitors.forEach((c, i) => {
+    const trend =
+      c.price_trend === 'rising'
+        ? '📈'
+        : c.price_trend === 'falling'
+        ? '📉'
+        : '➡️';
+    report += `${i + 1}. **${c.competitor_name}**: R$ ${c.current_price.toFixed(2)} ${trend}\n`;
+  });
+
+  return report;
+}
+
+/**
+ * 🚀 ROADMAP FUTURO - Integração Real
+ * 
+ * Para substituir a simulação por dados reais:
+ * 
+ * 1. **ScraperAPI** (https://www.scraperapi.com/)
+ *    - Plano gratuito: 1.000 requisições/mês
+ *    - Bypass de anti-bot automático
+ * 
+ * 2. **Bright Data** (https://brightdata.com/)
+ *    - Web scraping profissional
+ *    - Acesso via API
+ * 
+ * 3. **Custom Scraper**
+ *    - Puppeteer/Playwright em Edge Function
+ *    - Mais controle, mas mais manutenção
+ * 
+ * 4. **Integração com Marketplaces**
+ *    - API Mercado Livre
+ *    - API Amazon (Product Advertising API)
+ *    - API B2W/Americanas
+ * 
+ * Exemplo de implementação futura:
+ * 
+ * ```typescript
+ * async function fetchRealCompetitorPrices(productName: string) {
+ *   const response = await fetch('https://api.scraperapi.com/?api_key=YOUR_KEY&url=...');
+ *   const html = await response.text();
+ *   // Parse HTML com cheerio ou similar
+ *   return parsedCompetitorData;
+ * }
+ * ```
+ */

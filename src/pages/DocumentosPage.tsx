@@ -1,4 +1,4 @@
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, FileText, XCircle } from "lucide-react";
 import { DocumentUploader } from "@/components/documentos/DocumentUploader";
