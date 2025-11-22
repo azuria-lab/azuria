@@ -55,3 +55,11 @@ typedoc-output/
 sbom.json
 sbom.xml
 .vercel
+
+# Build and lint logs (temporary debug files)
+build-*.txt
+lint-*.txt
+*-errors.txt
+*-log.txt
+temp-*.txt
+
