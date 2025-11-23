@@ -35,7 +35,16 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
       };
 
       try {
-        const newSession = await chatService.createSession('dashboard-user', defaultContext);
+        const newSessionResult = await chatService.createSession('dashboard-user', defaultContext);
+        // Converte o resultado para ChatSession
+        const newSession: ChatSession = {
+          id: newSessionResult.id,
+          userId: newSessionResult.userId,
+          messages: [],
+          startedAt: new Date(),
+          status: newSessionResult.status as 'active' | 'closed',
+          context: defaultContext,
+        };
         setSession(newSession);
 
         // Mensagem de boas-vindas personalizada para o dashboard
