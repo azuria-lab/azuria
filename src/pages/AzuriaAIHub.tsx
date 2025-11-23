@@ -12,9 +12,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, Sparkles } from 'lucide-react';
 import MainLayout from '@/components/layout/Layout';
 import { AzuriaAINavigation } from '@/components/ai/AzuriaAINavigation';
+import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 import {
   AssistenteSection,
   CompetitividadeSection,
@@ -124,27 +124,31 @@ export default function AzuriaAIHub() {
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full">
-              <Brain className="h-8 w-8 text-white" />
+          <div className="flex items-center justify-center gap-4 mb-6">
+            {/* Azuria Character Avatar */}
+            <div className="relative">
+              <AzuriaAvatarImage 
+                size="large"
+                className="ring-4 ring-[#00C2FF] ring-opacity-50 shadow-lg shadow-[#00C2FF]/20"
+              />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#00C2FF] rounded-full border-2 border-white"></div>
             </div>
-            <Sparkles className="h-6 w-6 text-yellow-500" />
+            
+            <div className="text-left">
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">
+                Azuria AI
+              </h1>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+                Assistente inteligente de precificação e análise tributária
+              </p>
+            </div>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Azuria IA
-          </h1>
-          
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Central de Inteligência Artificial para precificação, análise de mercado e otimização de negócios
-          </p>
-
-          {/* Beta Badge */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+          <div className="flex items-center justify-center gap-3">
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#0A1930] text-[#00C2FF] border border-[#00C2FF]/30 shadow-[0_0_10px_rgba(0,194,255,0.2)]">
               Beta
             </span>
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#0A1930] text-[#005BFF] border border-[#005BFF]/30">
               Powered by AI
             </span>
           </div>

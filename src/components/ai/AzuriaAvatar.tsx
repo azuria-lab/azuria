@@ -1,15 +1,15 @@
 /**
  * Azuria Avatar Component
  * 
- * Avatar animado da Azuria AI
+ * Avatar com foto da personagem Azuria AI
  */
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Brain, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AzuriaAvatarImage } from './AzuriaAvatarImage';
 
 interface AzuriaAvatarProps {
-  size?: 'small' | 'medium' | 'large';
+  size?: 'tiny' | 'small' | 'medium' | 'large';
   isThinking?: boolean;
   emotion?: 'neutral' | 'happy' | 'excited' | 'analyzing';
   className?: string;
@@ -20,59 +20,27 @@ export function AzuriaAvatar({
   isThinking = false,
   emotion = 'neutral',
   className,
-}: AzuriaAvatarProps) {
+}: Readonly<AzuriaAvatarProps>) {
   const sizeClasses = {
+    tiny: 'w-4 h-4',
     small: 'w-8 h-8',
     medium: 'w-12 h-12',
     large: 'w-16 h-16',
   };
 
-  const iconSizes = {
-    small: 'w-4 h-4',
-    medium: 'w-6 h-6',
-    large: 'w-8 h-8',
-  };
-
-  const getEmotionColor = () => {
-    switch (emotion) {
-      case 'happy':
-        return 'from-green-400 to-emerald-600';
-      case 'excited':
-        return 'from-yellow-400 to-orange-600';
-      case 'analyzing':
-        return 'from-purple-400 to-blue-600';
-      default:
-        return 'from-blue-400 to-indigo-600';
-    }
-  };
-
-  const getEmotionIcon = () => {
-    switch (emotion) {
-      case 'happy':
-        return <Sparkles className={iconSizes[size]} />;
-      case 'excited':
-        return <Zap className={iconSizes[size]} />;
-      case 'analyzing':
-        return <Brain className={iconSizes[size]} />;
-      default:
-        return <TrendingUp className={iconSizes[size]} />;
-    }
-  };
-
   return (
     <div className={cn('relative', className)}>
-      {/* Avatar principal */}
+      {/* Avatar principal com foto da personagem */}
       <motion.div
         className={cn(
-          'rounded-full bg-gradient-to-br shadow-lg flex items-center justify-center text-white',
+          'rounded-full overflow-hidden shadow-lg flex items-center justify-center ring-2',
           sizeClasses[size],
-          getEmotionColor()
+          emotion === 'analyzing' ? 'ring-[#00C2FF]' : 'ring-[#005BFF]'
         )}
         animate={
           isThinking
             ? {
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0],
+                scale: [1, 1.05, 1],
               }
             : {}
         }
@@ -82,7 +50,10 @@ export function AzuriaAvatar({
           ease: 'easeInOut',
         }}
       >
-        {getEmotionIcon()}
+        <AzuriaAvatarImage 
+          size={size}
+          className="ring-0"
+        />
       </motion.div>
 
       {/* Anel de pensamento */}
@@ -91,7 +62,7 @@ export function AzuriaAvatar({
           <>
             <motion.div
               className={cn(
-                'absolute inset-0 rounded-full border-2 border-blue-400',
+                'absolute inset-0 rounded-full border-2 border-[#00C2FF]',
                 sizeClasses[size]
               )}
               initial={{ scale: 1, opacity: 0.8 }}
@@ -105,7 +76,7 @@ export function AzuriaAvatar({
             />
             <motion.div
               className={cn(
-                'absolute inset-0 rounded-full border-2 border-purple-400',
+                'absolute inset-0 rounded-full border-2 border-[#005BFF]',
                 sizeClasses[size]
               )}
               initial={{ scale: 1, opacity: 0.8 }}
@@ -126,10 +97,10 @@ export function AzuriaAvatar({
       <AnimatePresence>
         {emotion === 'excited' && (
           <>
-            {[...Array(3)].map((_, i) => (
+            {Array.from({ length: 3 }, (_, i) => (
               <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                key={`energy-particle-${i}`}
+                className="absolute w-1 h-1 bg-[#00C2FF] rounded-full"
                 initial={{
                   x: 0,
                   y: 0,
@@ -170,7 +141,7 @@ export function AzuriaAvatarWithStatus({
   status = 'Online',
   showStatus = true,
   ...avatarProps
-}: AzuriaAvatarWithStatusProps) {
+}: Readonly<AzuriaAvatarWithStatusProps>) {
   return (
     <div className="flex items-center gap-3">
       <AzuriaAvatar {...avatarProps} />
@@ -179,7 +150,7 @@ export function AzuriaAvatarWithStatus({
           <span className="font-semibold text-sm">Azuria AI</span>
           <span className="text-xs text-muted-foreground flex items-center gap-1">
             <motion.span
-              className="w-2 h-2 bg-green-500 rounded-full"
+              className="w-2 h-2 bg-[#00C2FF] rounded-full"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [1, 0.7, 1],
@@ -196,4 +167,3 @@ export function AzuriaAvatarWithStatus({
     </div>
   );
 }
-
