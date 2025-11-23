@@ -2,7 +2,7 @@
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { HelmetProvider } from "react-helmet-async";
 import PrefetchOnIdle from "@/components/system/PrefetchOnIdle";
@@ -21,10 +21,8 @@ const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
 const AdvancedCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
 const BatchCalculatorPage = lazy(() => import("./pages/BatchCalculatorPage"));
 const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
-const IntelligentBatchCalculatorPage = lazy(() => import("./pages/IntelligentBatchCalculatorPage"));
 const MarketplaceComparatorPage = lazy(() => import("./pages/MarketplaceComparatorPage"));
 const MarketplacePage = lazy(() => import("./pages/MarketplacePage"));
-const CompetitionAnalysisPage = lazy(() => import("./pages/CompetitionAnalysisPage"));
 const SensitivityAnalysisPage = lazy(() => import("./pages/SensitivityAnalysisPage"));
 const ProfitabilityAnalysisPage = lazy(() => import("./pages/ProfitabilityAnalysisPage"));
 const AdvancedAnalyticsDashboard = lazy(() => import("./pages/AdvancedAnalyticsDashboard"));
@@ -46,7 +44,6 @@ const SecurityDashboardPage = lazy(() => import("./pages/SecurityDashboardPage")
 const ScenariosPage = lazy(() => import("./pages/ScenariosPage"));
 const ImportPage = lazy(() => import("./pages/ImportPage"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
-const AIPage = lazy(() => import("./pages/AIPage"));
 const Templates = lazy(() => import("./pages/Templates"));
 const CollaborationPage = lazy(() => import("./pages/CollaborationPage"));
 const AutomationPage = lazy(() => import("./pages/AutomationPage"));
@@ -59,8 +56,8 @@ const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage")
 const BiddingDashboardPage = lazy(() => import("./pages/BiddingDashboardPage"));
 const DocumentosPage = lazy(() => import("./pages/DocumentosPage"));
 
-// AI Module Pages
-const AzuriaPage = lazy(() => import("./pages/AzuriaPage"));
+// AI Module Pages - Unified
+const AzuriaAIHub = lazy(() => import("./pages/AzuriaAIHub"));
 
 // Domain Providers
 import { AuthProvider } from "@/domains/auth";
@@ -115,12 +112,10 @@ const App = () => {
                       
                       {/* Lazy loaded routes */}
                       <Route path="/calculadora-lotes" element={<BatchCalculatorPage />} />
-                      <Route path="/calculadora-lotes-inteligente" element={<IntelligentBatchCalculatorPage />} />
                       <Route path="/cenarios" element={<ScenariosPage />} />
                       <Route path="/importacao" element={<ImportPage />} />
                       <Route path="/comparador-marketplaces" element={<MarketplaceComparatorPage />} />
                       <Route path="/marketplace" element={<MarketplacePage />} />
-                      <Route path="/analise-concorrencia" element={<CompetitionAnalysisPage />} />
                       <Route path="/analise-sensibilidade" element={<SensitivityAnalysisPage />} />
                       <Route path="/analise-rentabilidade" element={<ProfitabilityAnalysisPage />} />
                       <Route path="/analytics" element={<AdvancedAnalyticsDashboard />} />
@@ -143,7 +138,6 @@ const App = () => {
                       <Route path="/monetizacao" element={<MonetizationPage />} />
                       <Route path="/templates" element={<Templates />} />
                       <Route path="/colaboracao" element={<CollaborationPage />} />
-                      <Route path="/ia" element={<AIPage />} />
                       <Route path="/admin" element={<AdminPanel />} />
                       <Route path="/debug-supabase" element={<SupabaseDebug />} />
                       <Route path="/welcome" element={<Welcome />} />
@@ -153,8 +147,14 @@ const App = () => {
                       <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
                       <Route path="/documentos" element={<DocumentosPage />} />
                       
-                      {/* AI Module Routes */}
-                      <Route path="/azuria" element={<AzuriaPage />} />
+                      {/* Unified AI Module */}
+                      <Route path="/azuria-ia" element={<AzuriaAIHub />} />
+                      
+                      {/* Redirects from old AI routes */}
+                      <Route path="/calculadora-lotes-inteligente" element={<Navigate to="/azuria-ia?section=lote" replace />} />
+                      <Route path="/ia" element={<Navigate to="/azuria-ia?section=precos" replace />} />
+                      <Route path="/azuria" element={<Navigate to="/azuria-ia?section=assistente" replace />} />
+                      <Route path="/analise-concorrencia" element={<Navigate to="/azuria-ia?section=competitividade" replace />} />
                       
                       <Route path="*" element={<NotFound />} />
                     </Routes>
