@@ -261,3 +261,13 @@ export function formatCompetitorReport(competitors: CompetitorData[]): string {
  * }
  * ```
  */
+
+/**
+ * Objeto de serviço para compatibilidade com imports existentes
+ */
+export const competitorService = {
+  fetchPrices: fetchCompetitorPrices,
+  analyzeAlerts: analyzeCompetitorAlerts,
+  suggestPrice: suggestCompetitivePrice,
+  formatReport: formatCompetitorReport,
+};

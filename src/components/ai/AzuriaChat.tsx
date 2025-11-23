@@ -175,9 +175,9 @@ export function AzuriaChat({ className, defaultOpen: _defaultOpen = false }: Rea
                   </div>
 
                   {/* Quick Actions */}
-                  {message.metadata?.quick_actions && (
+                  {message.metadata?.quick_actions && Array.isArray(message.metadata.quick_actions) && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {message.metadata.quick_actions.map((action: { label: string; action: string }, i: number) => (
+                      {(message.metadata.quick_actions as Array<{ label: string; action: string }>).map((action: { label: string; action: string }, i: number) => (
                         <Button
                           key={`quick-action-${i}-${action.label}`}
                           variant="outline"
