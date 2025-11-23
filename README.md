@@ -31,18 +31,6 @@ O **Azuria** é uma plataforma SaaS completa de precificação e gestão de vend
 | 📦 **Lote Inteligente + IA** | Precificação em lote com análise competitiva e IA | [Ver seção](#-lote-inteligente--ia) |
 | 🏪 **Multi-Marketplace** | Integração com 30+ marketplaces | [docs/MARKETPLACE.md](#) |
 | 📊 **Análise de Rentabilidade** | Dashboard com gráficos e métricas detalhadas | [Ver seção](#-análise-de-rentabilidade) |
-| 🎯 **Cenários de Precificação** | Simule diferentes margens e condições | [Ver seção](#-cenários-de-precificação) |
-| 📥 **Importação em Massa** | Importe e calcule preços para múltiplos produtos | [Ver seção](#-importação-em-massa) |
-| � **Análise de Concorrência** | Compare seus preços com concorrentes | [Ver seção](#-análise-de-concorrência) |
-| 🌡️ **Análise de Sensibilidade** | Entenda o impacto de variáveis no preço | [Ver seção](#-análise-de-sensibilidade) |
-| �💳 **Pagamentos Stripe** | Sistema de assinaturas completo | [docs/STRIPE_INTEGRATION.md](./docs/STRIPE_INTEGRATION.md) |
-| 🤖 **IA Inteligente** | Otimização de preços com inteligência artificial | [Ver seção](#-ia-para-preços) |
-| � **Analytics** | Dashboard em tempo real com KPIs | [docs/ANALYTICS.md](#) |
-
-## 🧮 Calculadoras do Azuria
-
-O Azuria oferece duas calculadoras otimizadas para diferentes necessidades de precificação:
-
 ### 📱 Calculadora Básica
 
 **Objetivo:** Cálculos rápidos e diretos para precificação do dia a dia.
@@ -112,6 +100,61 @@ O Azuria oferece duas calculadoras otimizadas para diferentes necessidades de pr
 **Acesso:** `/calculadora-avancada`
 
 **Documentação Completa:** [ADVANCED_CALCULATOR_IMPLEMENTATION.md](./ADVANCED_CALCULATOR_IMPLEMENTATION.md)
+
+---
+
+### 🏛️ Módulo de Licitações
+
+**Objetivo:** Centralizar e otimizar a participação em licitações públicas.
+
+**Funcionalidades:**
+- ✅ **Dashboard Completo:** Visão geral de projetos ganhos, perdidos e em andamento.
+- ✅ **Análise de Viabilidade:** Cálculo automático de margem e indicadores de risco (Excelente, Bom, Moderado, Crítico, Inviável).
+- ✅ **Ciclo de Vida:** Acompanhamento de todas as fases do processo licitatório.
+- ✅ **Integração com IA:** Sugestões inteligentes para aumentar a chance de vitória.
+
+**Acesso:** `/dashboard-licitacoes`
+
+---
+
+### 💰 Calculadora Tributária
+
+**Objetivo:** Comparar regimes tributários para identificar a opção mais econômica.
+
+**Funcionalidades:**
+- ✅ **Wizard de 3 Etapas:** Tipo de Negócio -> Faturamento -> Resultados.
+- ✅ **Comparativo:** Simples Nacional vs. Lucro Presumido vs. Lucro Real.
+- ✅ **Análise Detalhada:** Alíquota efetiva, imposto mensal e anual.
+- ✅ **Alertas Inteligentes:** Avisos sobre limites de faturamento e especificidades de cada regime.
+
+**Acesso:** `/calculadora-tributaria`
+
+---
+
+### 📄 Gestão de Documentos
+
+**Objetivo:** Garantir que sua empresa esteja sempre apta a participar de licitações.
+
+**Funcionalidades:**
+- ✅ **Upload Centralizado:** Armazenamento seguro de certidões e documentos.
+- ✅ **Alertas de Vencimento:** Notificações automáticas para renovação.
+- ✅ **Status em Tempo Real:** Visualização clara de documentos válidos, vencendo e vencidos.
+
+**Acesso:** `/documentos`
+
+---
+
+### 📈 Analytics de Marketplace
+
+**Objetivo:** Monitorar a performance de vendas em múltiplos canais com insights de IA.
+
+**Funcionalidades:**
+- ✅ **Métricas Unificadas:** Receita, pedidos, ticket médio e conversão.
+- ✅ **Análise por Categoria:** Performance detalhada por segmento de produto.
+- ✅ **Insights de IA:** Recomendações automáticas para aumentar vendas e margem.
+- ✅ **Tendências:** Identificação de oportunidades de mercado.
+
+**Acesso:** `/analytics-marketplace`
 
 ---
 
