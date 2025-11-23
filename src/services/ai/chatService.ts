@@ -272,7 +272,6 @@ export async function processMessage(
     context: {
       user_id: sessionId,
       session_id: sessionId,
-      conversationHistory: [],
     },
     history: [],
     intent,

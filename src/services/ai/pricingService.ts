@@ -300,21 +300,25 @@ export async function analyzePricing(params: {
   });
   
   // Converte para o tipo esperado
+  // Calcula min e max baseado no suggested_price e alternatives
+  const minPrice = suggestion.alternatives.minimum_price;
+  const maxPrice = suggestion.alternatives.premium_price;
+  
   return {
     suggestedPrice: suggestion.suggested_price,
-    minPrice: suggestion.min_price,
-    maxPrice: suggestion.max_price,
+    minPrice,
+    maxPrice,
     profitMargin: suggestion.profit_margin,
     explanation: suggestion.reasoning,
-    confidence: 0.8, // Valor padrão
+    confidence: suggestion.confidence / 100, // Converte de 0-100 para 0-1
     factors: {
       cost: params.costPrice,
-      taxes: suggestion.tax_amount,
-      fees: suggestion.marketplace_fee || 0,
+      taxes: 0, // Não disponível em PricingSuggestion
+      fees: 0, // Não disponível em PricingSuggestion
       margin: suggestion.profit_margin,
     },
-    recommendations: suggestion.recommendations || [],
-    warnings: suggestion.warnings || [],
+    recommendations: [],
+    warnings: [],
   };
 }
 
