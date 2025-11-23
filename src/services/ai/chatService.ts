@@ -298,7 +298,7 @@ export async function processMessage(
 /**
  * Obtém uma sessão (stub - implementação futura)
  */
-export function getSession(sessionId: string): { id: string; userId: string; status: string; messages: unknown[]; startedAt: Date; context: unknown } | null {
+export function getSession(_sessionId: string): { id: string; userId: string; status: string; messages: unknown[]; startedAt: Date; context: unknown } | null {
   // Stub implementation - retorna null por enquanto
   // No futuro, buscará do localStorage ou banco de dados
   return null;
