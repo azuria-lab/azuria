@@ -29,6 +29,7 @@ const ALLOW_PATH_REGEX = [
   /package-lock\.json$/i,
   /scripts[\\/]+verify-governance\.mjs$/i,
   /THIRD_PARTY_LICENSES\.md$/i,
+  /docs[\\/]+ROADMAP.*\.md$/i, // Roadmap files may mention third-party licenses
 ];
 
 // Directories we never scan (external or generated content where third‑party licenses are expected)
