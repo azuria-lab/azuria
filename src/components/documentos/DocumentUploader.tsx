@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { useDocumentos } from '@/hooks/useDocumentos';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 const TIPOS_DOCUMENTO = [
   { value: 'cnd_federal', label: 'CND Federal' },
@@ -51,7 +52,7 @@ export function DocumentUploader() {
   const { uploadFile, createDocumento } = useDocumentos();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
       
@@ -95,8 +96,8 @@ export function DocumentUploader() {
       // 4. Limpar formulário e fechar
       resetForm();
       setOpen(false);
-    } catch (_error) {
-      // Error handling is managed by the mutation
+    } catch (error) {
+      logger.debug('Erro no upload de documento:', error);
     } finally {
       setUploading(false);
     }

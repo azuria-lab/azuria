@@ -37,7 +37,7 @@ export default function Footer() {
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>Calculadora Básica</li>
                 <li>Calculadora PRO</li>
-                <li>Análise de Rentabilidade</li>
+                <li>Calculadora de Licitação</li>
                 <li>Histórico</li>
               </ul>
             </div>
@@ -129,10 +129,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
-                  to="/analise-rentabilidade" 
+                  to="/calculadora-licitacao" 
                   className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
                 >
-                  Análise de Rentabilidade
+                  Calculadora de Licitação
                 </Link>
               </li>
               <li>

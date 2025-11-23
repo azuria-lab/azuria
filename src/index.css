@@ -34,29 +34,29 @@
     --ring: 210 100% 50%;
     --radius: 0.75rem;
     
-    /* Modern gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(210 100% 65%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(174 100% 42%) 0%, hsl(174 100% 55%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 50%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
+    /* Modern gradients - Refined */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(220 100% 60%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(174 100% 42%) 0%, hsl(180 100% 50%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(150 80% 45%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 30% 98%) 100%);
     --gradient-dark: linear-gradient(180deg, hsl(224 71% 4%) 0%, hsl(223 47% 8%) 100%);
     
-    /* Glass effects */
-    --glass-light: rgba(255, 255, 255, 0.25);
-    --glass-dark: rgba(0, 0, 0, 0.25);
-    --glass-blur: blur(12px);
-    --glass-border: rgba(255, 255, 255, 0.18);
+    /* Glass effects - Premium */
+    --glass-light: rgba(255, 255, 255, 0.7);
+    --glass-dark: rgba(10, 10, 20, 0.7);
+    --glass-blur: blur(16px);
+    --glass-border: rgba(255, 255, 255, 0.5);
     
-    /* Modern shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(210 100% 50% / 0.3);
-    --shadow-glow: 0 0 40px hsl(210 100% 65% / 0.4);
-    --shadow-accent: 0 8px 32px hsl(174 100% 42% / 0.25);
-    --shadow-soft: 0 4px 20px hsl(210 40% 50% / 0.08);
+    /* Modern shadows - Soft & Deep */
+    --shadow-elegant: 0 20px 40px -15px hsl(220 50% 20% / 0.15);
+    --shadow-glow: 0 0 50px hsl(210 100% 60% / 0.2);
+    --shadow-accent: 0 10px 30px -10px hsl(174 100% 42% / 0.3);
+    --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
     
-    /* Animation durations for accessibility */
-    --animation-duration: 0.3s;
-    --transition-duration: 0.2s;
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Animation durations */
+    --animation-duration: 0.4s;
+    --transition-duration: 0.25s;
+    --transition-smooth: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .dark {
@@ -219,6 +219,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Skip links for screen readers */

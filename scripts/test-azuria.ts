@@ -5,7 +5,7 @@
  * Testa os serviços principais sem precisar da UI
  */
 
-import { getIdealSellingPrice } from '../src/services/ai/pricingService';
+import { calculatePricingSuggestion } from '../src/services/ai/pricingService';
 import {
   calculateTaxAnalysis,
   suggestBestTaxRegime,
@@ -14,8 +14,6 @@ import {
   analyzeCompetitorAlerts,
   fetchCompetitorPrices,
 } from '../src/services/ai/competitorService';
-import { BiddingItem } from '../src/types/bidding';
-import Decimal from 'decimal.js';
 
 console.log('🧪 TESTE DA AZURIA AI - INICIANDO\n');
 console.log('='.repeat(50));
@@ -27,55 +25,22 @@ console.log('='.repeat(50));
 console.log('\n📊 TESTE 1: PRECIFICAÇÃO');
 console.log('-'.repeat(50));
 
-const testItem: BiddingItem = {
-  id: 'test-1',
-  description: 'Produto Teste',
-  unitPrice: new Decimal(100),
-  quantity: new Decimal(10),
-  directCosts: {
-    material: new Decimal(50),
-    labor: new Decimal(20),
-    transport: new Decimal(10),
-  },
-  indirectCosts: {
-    administrative: new Decimal(5),
-    marketing: new Decimal(3),
-    depreciation: new Decimal(2),
-  },
-};
-
-const taxConfig = {
-  icms: new Decimal(0.18),
-  pis: new Decimal(0.0165),
-  cofins: new Decimal(0.076),
-  issqn: new Decimal(0.05),
-  irpj: new Decimal(0.15),
-  csll: new Decimal(0.09),
-};
-
 try {
-  const pricingSuggestion = getIdealSellingPrice({
-    item: testItem,
-    desiredProfitMargin: 0.2,
-    taxConfig,
-    strategy: 'max_profit',
+  const pricingSuggestion = calculatePricingSuggestion({
+    cost_price: 100,
+    target_margin: 30,
+    tax_rate: 18,
+    marketplace_fee: 16,
+    shipping_cost: 20,
   });
 
   console.log(
     '✅ Preço Sugerido:',
-    `R$ ${pricingSuggestion.suggestedPrice.toFixed(2)}`
+    `R$ ${pricingSuggestion.suggested_price.toFixed(2)}`
   );
   console.log(
     '✅ Margem de Lucro:',
-    `${(pricingSuggestion.profitMargin * 100).toFixed(1)}%`
-  );
-  console.log(
-    '✅ Ponto de Equilíbrio:',
-    `R$ ${pricingSuggestion.breakEvenPoint.toFixed(2)}`
-  );
-  console.log(
-    '✅ Score de Competitividade:',
-    pricingSuggestion.competitivenessScore
+    `${pricingSuggestion.profit_margin_percentage.toFixed(1)}%`
   );
   console.log('💡 Raciocínio:', pricingSuggestion.reasoning);
 } catch (error: unknown) {
@@ -99,15 +64,15 @@ try {
     `R$ ${taxAnalysis.tax_amount.toFixed(2)}`
   );
   console.log('💰 Breakdown:');
-  taxAnalysis.breakdown.forEach(item => {
+  for (const item of taxAnalysis.breakdown) {
     console.log(
       `   - ${item.label}: ${item.rate}% (R$ ${item.amount.toFixed(2)})`
     );
-  });
+  }
   console.log('💡 Dicas de Otimização:');
-  taxAnalysis.optimization_tips.forEach(tip => {
+  for (const tip of taxAnalysis.optimization_tips) {
     console.log(`   ${tip}`);
-  });
+  }
 } catch (error: unknown) {
   console.error('❌ Erro no teste tributário:', (error as Error).message);
 }
@@ -132,59 +97,58 @@ try {
   );
   console.log('💡 Raciocínio:', regimeSuggestion.reasoning);
   console.log('📊 Comparação:');
-  regimeSuggestion.comparison.forEach(comp => {
+  for (const comp of regimeSuggestion.comparison) {
     console.log(
       `   - ${comp.regime}: ${
         comp.effective_rate
       }% (R$ ${comp.annual_tax.toFixed(2)}/ano)`
     );
-  });
+  }
 } catch (error: unknown) {
   console.error('❌ Erro no teste de regime:', (error as Error).message);
 }
 
+// ============================================
+// 4. TESTE DE MONITORAMENTO DE CONCORRÊNCIA
+// ============================================
+
 console.log('\n📊 TESTE 4: MONITORAMENTO DE CONCORRÊNCIA (SIMULADO)');
 console.log('-'.repeat(50));
 
-(async () => {
-  try {
-    const competitors = await fetchCompetitorPrices('Produto Teste');
+try {
+  const competitors = await fetchCompetitorPrices('Produto Teste');
 
-    console.log('✅ Concorrentes Encontrados:', competitors.length);
-    competitors.forEach((comp, index) => {
-      console.log(
-        `   ${index + 1}. ${
-          comp.competitor_name
-        }: R$ ${comp.current_price.toFixed(2)} (${comp.price_trend})`
-      );
-    });
-
-    // Analisar alertas
-    const ourPrice = 120;
-    const alerts = analyzeCompetitorAlerts(ourPrice, competitors);
-
-    if (alerts.length > 0) {
-      console.log('\n⚠️ Alertas:');
-      alerts.forEach(alert => {
-        console.log(`   ${alert.message}`);
-        console.log(`   ➡️ ${alert.suggested_action}`);
-      });
-    } else {
-      console.log('\n✅ Sem alertas. Seu preço está competitivo!');
-    }
-  } catch (error: unknown) {
-    console.error(
-      '❌ Erro no teste de concorrência:',
-      (error as Error).message
+  console.log('✅ Concorrentes Encontrados:', competitors.length);
+  for (const [index, comp] of competitors.entries()) {
+    console.log(
+      `   ${index + 1}. ${
+        comp.competitor_name
+      }: R$ ${comp.current_price.toFixed(2)} (${comp.price_trend})`
     );
   }
 
-  // ============================================
-  // CONCLUSÃO
-  // ============================================
+  // Analisar alertas
+  const ourPrice = 120;
+  const alerts = analyzeCompetitorAlerts(ourPrice, competitors);
 
-  console.log('\n' + '='.repeat(50));
-  console.log('✅ TODOS OS TESTES CONCLUÍDOS!');
-  console.log('='.repeat(50));
-  console.log('\n🚀 A Azuria AI está pronta para uso!\n');
-})();
+  if (alerts.length > 0) {
+    console.log('\n⚠️ Alertas:');
+    for (const alert of alerts) {
+      console.log(`   ${alert.message}`);
+      console.log(`   ➡️ ${alert.suggested_action}`);
+    }
+  } else {
+    console.log('\n✅ Sem alertas. Seu preço está competitivo!');
+  }
+} catch (error: unknown) {
+  console.error('❌ Erro no teste de concorrência:', (error as Error).message);
+}
+
+// ============================================
+// CONCLUSÃO
+// ============================================
+
+console.log('\n' + '='.repeat(50));
+console.log('✅ TODOS OS TESTES CONCLUÍDOS!');
+console.log('='.repeat(50));
+console.log('\n🚀 A Azuria AI está pronta para uso!\n');
