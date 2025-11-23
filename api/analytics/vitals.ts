@@ -23,8 +23,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // The original commented lines are removed as per instruction.
     // const { metrics } = req.body;
-
     // Here you would typically send this data to your analytics service
     // For now, we'll just return success
 

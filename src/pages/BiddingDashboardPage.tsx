@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useBiddingCenter } from '@/hooks/useBiddingCenter';
 import { BiddingLifecycleStatus, ViabilityLevel } from '@/types/bidding';
 import { Link } from 'react-router-dom';
@@ -18,6 +19,7 @@ import {
   Clock,
   DollarSign,
   FileText,
+  HelpCircle,
   Target,
   TrendingUp,
   Users
@@ -29,6 +31,7 @@ type BadgeVariant = 'default' | 'secondary' | 'destructive';
 
 export default function BiddingDashboardPage() {
   const canonical = 'https://azuria.app.br/dashboard-licitacoes';
+  const [showFeaturesGuide, setShowFeaturesGuide] = useState(false);
   
   const {
     projects = [],
@@ -78,12 +81,106 @@ export default function BiddingDashboardPage() {
               description="Gerencie seus projetos de licitação e acompanhe suas análises"
               icon={<BarChart3 className="h-5 w-5" />}
               actions={(
-                <Link to="/calculadora-licitacao">
-                  <Button size="lg" className="gap-2">
-                    <Calculator className="h-4 w-4" />
-                    Nova Análise
-                  </Button>
-                </Link>
+                <div className="flex gap-3">
+                  <Dialog open={showFeaturesGuide} onOpenChange={setShowFeaturesGuide}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="lg" className="gap-2">
+                        <HelpCircle className="h-4 w-4" />
+                        Guia de Funcionalidades
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <HelpCircle className="h-5 w-5" />
+                          Guia de Funcionalidades do Dashboard
+                        </DialogTitle>
+                        <DialogDescription>
+                          Conheça todas as ferramentas e recursos disponíveis para gerenciar suas licitações
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="space-y-6 py-4">
+                        {/* Estatísticas */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-blue-600" />
+                            Estatísticas em Tempo Real
+                          </h3>
+                          <div className="space-y-2 text-sm text-muted-foreground pl-7">
+                            <p>• <strong>Total de Projetos:</strong> Acompanhe quantos projetos você já analisou</p>
+                            <p>• <strong>Taxa de Viabilidade:</strong> Percentual de projetos considerados viáveis</p>
+                            <p>• <strong>Margem Média:</strong> Margem líquida projetada em suas análises</p>
+                            <p>• <strong>Valor Total:</strong> Soma de todas as propostas analisadas</p>
+                          </div>
+                        </div>
+
+                        {/* Ciclo de Vida */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                            <Target className="h-5 w-5 text-purple-600" />
+                            Ciclo de Vida dos Projetos
+                          </h3>
+                          <div className="space-y-2 text-sm text-muted-foreground pl-7">
+                            <p>• <strong>Em Aberto:</strong> Projetos em análise ou aguardando resultado</p>
+                            <p>• <strong>Vencedores:</strong> Licitações ganhas</p>
+                            <p>• <strong>Perdedores:</strong> Licitações não conquistadas</p>
+                            <p>• <strong>Arquivados:</strong> Projetos arquivados para referência</p>
+                          </div>
+                        </div>
+
+                        {/* Projetos Recentes */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-orange-600" />
+                            Projetos Recentes
+                          </h3>
+                          <div className="space-y-2 text-sm text-muted-foreground pl-7">
+                            <p>• Visualize suas últimas 5 análises de licitação</p>
+                            <p>• Cada projeto mostra: viabilidade, órgão, tipo e margem</p>
+                            <p>• Clique em um projeto para reabrir e editar a análise</p>
+                          </div>
+                        </div>
+
+                        {/* Ações Rápidas */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                            <Calculator className="h-5 w-5 text-green-600" />
+                            Ações Rápidas
+                          </h3>
+                          <div className="space-y-2 text-sm text-muted-foreground pl-7">
+                            <p>• <strong>Nova Análise:</strong> Abrir a calculadora de licitação para avaliar viabilidade</p>
+                            <p>• <strong>Documentação:</strong> Acessar checklist de certidões e documentos necessários</p>
+                            <p>• <strong>Simulador de Cenários:</strong> Compare estratégias diferentes (em breve)</p>
+                            <p>• <strong>Análise de Concorrência:</strong> Benchmark de propostas (em breve)</p>
+                            <p>• <strong>Histórico de Editais:</strong> Consulte editais anteriores (em breve)</p>
+                          </div>
+                        </div>
+
+                        {/* Dicas */}
+                        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                            <Award className="h-5 w-5 text-blue-600" />
+                            Dicas para Aproveitar ao Máximo
+                          </h3>
+                          <div className="space-y-2 text-sm text-muted-foreground">
+                            <p>✓ Use a calculadora para todos os editais antes de enviar propostas</p>
+                            <p>✓ Mantenha seus documentos sempre atualizados no checklist</p>
+                            <p>✓ Revise periodicamente suas estatísticas para identificar padrões</p>
+                            <p>✓ Compare margens de projetos similares para otimizar suas propostas</p>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Link to="/calculadora-licitacao">
+                    <Button size="lg" className="gap-2">
+                      <Calculator className="h-4 w-4" />
+                      Nova Análise
+                    </Button>
+                  </Link>
+                </div>
               )}
             />
 
@@ -296,6 +393,21 @@ export default function BiddingDashboardPage() {
                         <h4 className="font-medium">Nova Análise</h4>
                         <p className="text-sm text-muted-foreground">
                           Calcular viabilidade de proposta
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </Link>
+
+                  <Link to="/documentos">
+                    <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-gray-50 transition-colors">
+                      <div className="p-2 rounded-lg bg-gray-100">
+                        <FileText className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">Documentação</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Checklist de certidões e documentos
                         </p>
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />

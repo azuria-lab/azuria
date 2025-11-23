@@ -31,6 +31,11 @@ export const navLinks = [
         to: "/calculadora-tributaria",
         label: "Calculadora Tributária",
         description: "Simples Nacional, Lucro Presumido e Real"
+      },
+      {
+        to: "/calculadora-licitacao",
+        label: "Calculadora de Licitação",
+        description: "Cálculo de viabilidade para editais"
       }
     ]
   },
@@ -80,24 +85,7 @@ export const navLinks = [
     path: "/dashboard-licitacoes",
     icon: <Gavel className="h-4 w-4" />,
     badge: "Novo",
-    dataOnboarding: "bidding-button",
-    subLinks: [
-      {
-        to: "/dashboard-licitacoes",
-        label: "Dashboard",
-        description: "Visão geral de licitações"
-      },
-      {
-        to: "/calculadora-licitacao",
-        label: "Calculadora",
-        description: "Calcular viabilidade"
-      },
-      {
-        to: "/documentos",
-        label: "Documentos",
-        description: "Checklist de certidões"
-      }
-    ]
+    dataOnboarding: "bidding-button"
   },
   { 
     to: "/marketplace", 

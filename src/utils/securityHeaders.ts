@@ -63,9 +63,9 @@ export class SecurityHeaders {
 }
 
 // Apply to all responses in production
-if (typeof window !== 'undefined' && import.meta.env?.PROD) {
-  const originalFetch = window.fetch;
-  window.fetch = async (...args) => {
+if (globalThis.window !== undefined && import.meta.env?.PROD) {
+  const originalFetch = globalThis.window.fetch;
+  globalThis.window.fetch = async (...args) => {
     const response = await originalFetch(...args);
     return SecurityHeaders.apply(response);
   };
