@@ -8,7 +8,7 @@ import SmartNotificationCenter from "@/components/notifications/SmartNotificatio
 import { useFilteredNavLinks } from "./header/NavLinks";
 import DesktopNavigation from "./header/DesktopNavigation";
 import MobileNavigation from "./header/MobileNavigation";
-import { useProStatus } from "@/hooks/useProStatus";
+import { useProStatus } from "@/shared/hooks/useProStatus";
 import { logger } from "@/services/logger";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 

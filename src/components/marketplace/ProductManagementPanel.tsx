@@ -4,7 +4,7 @@
  * Painel completo de gestão de produtos com CRUD e sincronização
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
@@ -192,17 +192,18 @@ export default function ProductManagementPanel({
     }
   };
 
-  const getStatusBadge = (status: Product['status']) => {
-    const variants = {
-      active: { variant: 'default' as const, label: 'Ativo', color: 'bg-green-100 text-green-700' },
-      draft: { variant: 'secondary' as const, label: 'Rascunho', color: 'bg-gray-100 text-gray-700' },
-      inactive: { variant: 'outline' as const, label: 'Inativo', color: 'bg-yellow-100 text-yellow-700' },
-      archived: { variant: 'destructive' as const, label: 'Arquivado', color: 'bg-red-100 text-red-700' }
-    };
-    return variants[status];
-  };
+  const statusBadgeVariants = useMemo(() => ({
+    active: { variant: 'default' as const, label: 'Ativo', color: 'bg-green-100 text-green-700' },
+    draft: { variant: 'secondary' as const, label: 'Rascunho', color: 'bg-gray-100 text-gray-700' },
+    inactive: { variant: 'outline' as const, label: 'Inativo', color: 'bg-yellow-100 text-yellow-700' },
+    archived: { variant: 'destructive' as const, label: 'Arquivado', color: 'bg-red-100 text-red-700' }
+  }), []);
 
-  const getStockBadge = (product: Product) => {
+  const getStatusBadge = useCallback((status: Product['status']) => {
+    return statusBadgeVariants[status];
+  }, [statusBadgeVariants]);
+
+  const getStockBadge = useCallback((product: Product) => {
     if (product.stock === 0) {
       return { label: 'Sem estoque', color: 'bg-red-100 text-red-700 border-red-200' };
     }
@@ -210,7 +211,7 @@ export default function ProductManagementPanel({
       return { label: 'Estoque baixo', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
     }
     return { label: 'Em estoque', color: 'bg-green-100 text-green-700 border-green-200' };
-  };
+  }, []);
 
   if (loading) {
     return (

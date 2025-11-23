@@ -34,7 +34,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProStatus } from "@/hooks/useProStatus";
+import { useProStatus } from "@/shared/hooks/useProStatus";
 
 interface SidebarItem {
   title: string;
