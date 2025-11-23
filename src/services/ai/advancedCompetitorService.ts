@@ -195,13 +195,23 @@ class AdvancedCompetitorService {
     this.priceHistory.set(historicalKey, history);
 
     // Converte CompetitorData[] para CompetitorPricing[]
-    const competitorPricings: CompetitorPricing[] = currentPrices.map(c => ({
-      platform: platform as CompetitorPlatform,
-      seller: c.competitor_name,
-      price: c.current_price,
-      url: c.source_url,
-      lastChecked: c.last_checked,
-    }));
+    const competitorPricings: CompetitorPricing[] = currentPrices.map((c, idx) => {
+      const platformStr = c.source_url.includes('mercadolivre') ? 'mercado_livre' :
+                          c.source_url.includes('amazon') ? 'amazon' :
+                          c.source_url.includes('shopee') ? 'shopee' : 'outros';
+      const competitorPlatform = platformStr as CompetitorPlatform;
+      
+      return {
+        id: `competitor_${idx}_${Date.now()}`,
+        platform: competitorPlatform,
+        productName: rule.productName,
+        price: c.current_price,
+        url: c.source_url,
+        seller: c.competitor_name,
+        inStock: true,
+        lastUpdated: c.last_checked,
+      };
+    });
     
     // Verifica se há mudanças significativas
     await this.detectPriceChanges(rule, competitorPricings, history);
