@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
-import Layout from '@/components/layout/Layout';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 
 export default function DashboardPage() {
@@ -14,12 +13,7 @@ export default function DashboardPage() {
         url={canonical}
         type="website"
       />
-      
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <UnifiedDashboard />
-        </div>
-      </Layout>
+      <UnifiedDashboard />
     </>
   );
 }

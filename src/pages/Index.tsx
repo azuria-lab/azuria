@@ -2,23 +2,25 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAuthContext } from "@/domains/auth";
 import Layout from "@/components/layout/Layout";
-import HeroSectionModern from "@/components/home/HeroSectionModern";
-import PlansOverviewSection from "@/components/home/PlansOverviewSection";
-import BenefitsShowcaseSection from "@/components/home/BenefitsShowcaseSection";
-import IntelligentBatchBanner from "@/components/home/IntelligentBatchBanner";
 import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner";
-import { DashboardSkeleton, FeatureGridSkeleton } from "@/components/ui/skeleton-loader";
+import { DashboardSkeleton } from "@/components/ui/skeleton-loader";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { LazySection } from "@/components/performance/LazySection";
 
 // Lazy load de componentes não-críticos
-const FeaturesGrid = lazy(() => import("@/components/home/FeaturesGrid"));
-const MarketplaceIntegrations = lazy(() => import("@/components/home/MarketplaceIntegrations"));
-const CompetitiveDifferentials = lazy(() => import("@/components/home/CompetitiveDifferentials"));
-const SocialProof = lazy(() => import("@/components/home/SocialProof"));
 const UnifiedDashboard = lazy(() => import("@/components/dashboard/UnifiedDashboard"));
 
-import { features } from "@/data/features";
+// Lazy load de todas as seções da Home para melhor performance
+const HeroSectionBling = lazy(() => import("@/components/home/HeroSectionBling"));
+const BenefitsSectionBling = lazy(() => import("@/components/home/BenefitsSectionBling"));
+const HowItWorksSection = lazy(() => import("@/components/home/HowItWorksSection"));
+const FeaturesSectionBling = lazy(() => import("@/components/home/FeaturesSectionBling"));
+const MarketplaceCarouselPremium = lazy(() => import("@/components/home/MarketplaceCarouselPremium"));
+const TestimonialsSectionBling = lazy(() => import("@/components/home/TestimonialsSectionBling"));
+const ComparisonSectionBling = lazy(() => import("@/components/home/ComparisonSectionBling"));
+const FinalCTASection = lazy(() => import("@/components/home/FinalCTASection"));
+const PlansOverviewSection = lazy(() => import("@/components/home/PlansOverviewSection"));
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -77,80 +79,95 @@ export default function Index() {
     );
   }
   
-  // Nova landing page modernizada para usuários não logados
+  // Nova landing page estilo Bling ERP para usuários não logados
   return (
       <Layout>
         <SEOHead 
-          title="Azuria+ — Precificação inteligente com IA e automação"
-          description="Precificação inteligente com IA, analytics em tempo real e automação para lojistas. Teste grátis 7 dias."
+          title="Azuria — Precificação Inteligente para Vender com Mais Lucro"
+          description="Precificação inteligente com IA especializada para produtos brasileiros. Aumente seus lucros em até 47% com cálculos automáticos de impostos e análise de concorrência. Teste grátis 30 dias."
           type="website"
           url={typeof window !== "undefined" ? window.location.href : "https://azuria.app/"}
           image="/og-image.png"
-          author="Azuria+"
+          author="Azuria"
         />
         <StructuredData 
           type="product" 
-          data={{ name: "Azuria+", description: "Plataforma de precificação inteligente com IA, analytics e automação.", price: "0", rating: { value: "4.8", count: "120" } }} 
+          data={{ name: "Azuria", description: "Plataforma de precificação inteligente com IA, analytics e automação para o mercado brasileiro.", price: "0", rating: { value: "4.8", count: "120" } }} 
         />
         <StructuredData 
           type="faq" 
           data={[
-            { question: "Quanto custa o Azuria+?", answer: "Planos Free, Pro (R$ 29,90/mês) e Premium (R$ 79,90/mês) com teste grátis de 7 dias." },
-            { question: "A calculadora usa IA?", answer: "Sim, insights de mercado e recomendações automáticas via IA." }
+            { question: "Quanto custa o Azuria?", answer: "Planos Free, Pro e Premium com teste grátis de 30 dias. Sem cartão de crédito." },
+            { question: "A calculadora usa IA?", answer: "Sim, IA especializada para produtos brasileiros com análise de custos, concorrentes e tributos." },
+            { question: "Quais marketplaces são integrados?", answer: "Mercado Livre, Shopee, Amazon, Magalu, Temu, Shein e Americanas." }
           ]} 
         />
         <motion.div
           variants={reduceMotion ? undefined : containerVariants}
           initial={reduceMotion ? false : "hidden"}
           animate={reduceMotion ? undefined : "visible"}
-          className="min-h-screen"
+          className="min-h-screen w-full"
         >
-          {/* Hero Section Modernizado */}
-          <HeroSectionModern />
-          
-          {/* Seção de Benefícios */}
-          <BenefitsShowcaseSection />
-          
-          {/* Inteligent Batch Banner */}
-          <div className="container mx-auto py-8 px-4">
-            <IntelligentBatchBanner />
-          </div>
-          
-          {/* Planos e Preços - Agora modernizado */}
-          <PlansOverviewSection />
-          
-          {/* Lazy loaded components */}
-          <Suspense fallback={
-            <div className="container mx-auto px-4 py-16">
-              <AdvancedLoadingSpinner variant="default" size="md" message="Carregando integrações..." />
-            </div>
-          }>
-            <MarketplaceIntegrations />
+          {/* A. Hero Section - Carregamento prioritário */}
+          <Suspense fallback={<div className="h-screen flex items-center justify-center w-full"><AdvancedLoadingSpinner variant="default" size="md" /></div>}>
+            <HeroSectionBling />
           </Suspense>
           
-          <Suspense fallback={
-            <div className="container mx-auto px-4 py-16">
-              <AdvancedLoadingSpinner variant="minimal" size="md" />
-            </div>
-          }>
-            <SocialProof />
-          </Suspense>
-          
-          {/* Features Grid */}
-          <div className="container mx-auto px-4 py-16" data-feature="calculator">
-            <Suspense fallback={<FeatureGridSkeleton />}>
-              <FeaturesGrid features={features} />
+          {/* B. Seção de Benefícios Principais */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <BenefitsSectionBling />
             </Suspense>
-          </div>
+          </LazySection>
           
-          {/* Diferenciais Competitivos */}
-          <Suspense fallback={
-            <div className="container mx-auto px-4 py-16">
-              <AdvancedLoadingSpinner variant="default" size="md" message="Carregando diferenciais..." />
-            </div>
-          }>
-            <CompetitiveDifferentials />
-          </Suspense>
+          {/* C. Como funciona o Azuria */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <HowItWorksSection />
+            </Suspense>
+          </LazySection>
+          
+          {/* D. Seção de Recursos */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <FeaturesSectionBling />
+            </Suspense>
+          </LazySection>
+          
+          {/* E. Integrações com marketplaces - Carrossel Premium */}
+          <LazySection rootMargin="150px">
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <MarketplaceCarouselPremium />
+            </Suspense>
+          </LazySection>
+          
+          {/* F. Depoimentos reais */}
+          <LazySection rootMargin="150px">
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <TestimonialsSectionBling />
+            </Suspense>
+          </LazySection>
+          
+          {/* G. Comparativo */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <ComparisonSectionBling />
+            </Suspense>
+          </LazySection>
+          
+          {/* Planos e Preços */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <PlansOverviewSection />
+            </Suspense>
+          </LazySection>
+          
+          {/* H. CTA Final */}
+          <LazySection>
+            <Suspense fallback={<div className="h-96 w-full" />}>
+              <FinalCTASection />
+            </Suspense>
+          </LazySection>
         </motion.div>
       </Layout>
   );

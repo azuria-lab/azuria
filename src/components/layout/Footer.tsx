@@ -14,62 +14,63 @@ export default function Footer() {
   // Render basic footer without Link components until router is ready
   if (!mounted) {
     return (
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
-        <div className="container mx-auto py-12 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-white border-t border-gray-200 mt-16">
+        <div className="container mx-auto py-16 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Logo e Descrição */}
             <div className="space-y-4">
               <OptimizedImage 
                 src="/lovable-uploads/f326ff5a-6129-4295-99bd-d185851a20a3.png" 
                 alt="Logo Azuria+" 
-                className="h-7 w-auto" 
-                width={112} 
-                height={32} 
+                className="h-8 w-auto" 
+                width={128} 
+                height={36} 
               />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                A plataforma completa para precificar seus produtos com precisão e aumentar seus lucros.
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Precificação inteligente para vender com mais lucro e menos esforço.
               </p>
+            </div>
+
+            {/* Sobre */}
+            <div>
+              <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Sobre</h4>
+              <ul className="space-y-3 text-sm text-gray-600">
+                <li>Sobre o Azuria</li>
+                <li>Nossa missão</li>
+                <li>Segurança</li>
+                <li>Termos</li>
+                <li>Privacidade</li>
+              </ul>
             </div>
 
             {/* Recursos */}
             <div>
-              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Recursos</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li>Calculadora Básica</li>
-                <li>Calculadora PRO</li>
-                <li>Calculadora de Licitação</li>
-                <li>Histórico</li>
+              <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Recursos</h4>
+              <ul className="space-y-3 text-sm text-gray-600">
+                <li>IA de precificação</li>
+                <li>Marketplace integrado</li>
+                <li>Precificação em lote</li>
+                <li>Analytics</li>
+                <li>Comparação de concorrentes</li>
               </ul>
             </div>
 
-            {/* Empresa */}
+            {/* Contato / Suporte */}
             <div>
-              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Empresa</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li>Sobre</li>
-                <li>Contato</li>
-                <li>Planos</li>
-                <li>Configurações</li>
-              </ul>
-            </div>
-
-            {/* Suporte */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Suporte</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li>Central de Ajuda</li>
-                <li>Tutoriais</li>
+              <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Contato / Suporte</h4>
+              <ul className="space-y-3 text-sm text-gray-600">
+                <li>Central de ajuda</li>
+                <li>Email</li>
                 <li>API</li>
-                <li>Status</li>
               </ul>
             </div>
           </div>
 
-          <Separator className="my-8" />
+          <Separator className="my-12" />
 
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-            <p>© 2024 Azuria. Todos os direitos reservados.</p>
-            <div className="flex space-x-4 mt-4 md:mt-0">
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+            <p>© 2025 Azuria. Todos os direitos reservados.</p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
               <span>Política de Privacidade</span>
               <span>Termos de Uso</span>
             </div>
@@ -80,171 +81,167 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
-      <div className="container mx-auto py-12 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-white border-t border-gray-200 mt-16">
+      <div className="container mx-auto py-16 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo e Descrição */}
           <div className="space-y-4">
             <Link to="/">
               <OptimizedImage 
                 src="/lovable-uploads/f326ff5a-6129-4295-99bd-d185851a20a3.png" 
                 alt="Logo Azuria+" 
-                className="h-7 w-auto hover:opacity-90 transition-opacity" 
-                width={112} 
-                height={32} 
+                className="h-8 w-auto hover:opacity-90 transition-opacity" 
+                width={128} 
+                height={36} 
               />
             </Link>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              A plataforma completa para precificar seus produtos com precisão e aumentar seus lucros.
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Precificação inteligente para vender com mais lucro e menos esforço.
             </p>
           </div>
 
-          {/* Recursos */}
+          {/* Sobre */}
           <div>
-            <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Recursos</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Sobre</h4>
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link 
-                  to="/calculadora-simples" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  to="#sobre" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Calculadora Básica
+                  Sobre o Azuria
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="/calculadora-avancada" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  to="#sobre" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Calculadora Avançada
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/calculadora-tributaria" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                >
-                  Calculadora Tributária
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/calculadora-licitacao" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                >
-                  Calculadora de Licitação
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/historico" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                >
-                  Histórico
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Empresa */}
-          <div>
-            <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Empresa</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link 
-                  to="/welcome" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                >
-                  Sobre
+                  Nossa missão
                 </Link>
               </li>
               <li>
                 <a 
-                  href="mailto:contato@azuria.com.br" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  href="#seguranca" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Contato
+                  Segurança
                 </a>
               </li>
               <li>
-                <Link 
-                  to="/planos" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                <a 
+                  href="/terms" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Planos
+                  Termos
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="/privacy" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
+                >
+                  Privacidade
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Recursos */}
+          <div>
+            <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Recursos</h4>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link 
+                  to="#recursos" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
+                >
+                  IA de precificação
                 </Link>
               </li>
               <li>
                 <Link 
-                  to="/configuracoes" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  to="#recursos" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Configurações
+                  Marketplace integrado
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="#recursos" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
+                >
+                  Precificação em lote
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="#recursos" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
+                >
+                  Analytics
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="#recursos" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
+                >
+                  Comparação de concorrentes
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Suporte */}
+          {/* Contato / Suporte */}
           <div>
-            <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">Suporte</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Contato / Suporte</h4>
+            <ul className="space-y-3 text-sm">
               <li>
                 <a 
                   href="https://docs.lovable.dev" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Central de Ajuda
+                  Central de ajuda
                 </a>
               </li>
               <li>
                 <a 
-                  href="https://youtube.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  href="mailto:contato@azuria.com.br" 
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
-                  Tutoriais
+                  Email
                 </a>
               </li>
               <li>
                 <Link 
                   to="/api" 
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   API
                 </Link>
-              </li>
-              <li>
-                <a 
-                  href="https://status.azuria.com.br" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                >
-                  Status
-                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-12" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-          <p>© 2024 Azuria. Todos os direitos reservados.</p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+          <p>© 2025 Azuria. Todos os direitos reservados.</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
             <a 
               href="/privacy" 
-              className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+              className="hover:text-[#005BFF] transition-colors"
             >
               Política de Privacidade
             </a>
             <a 
               href="/terms" 
-              className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+              className="hover:text-[#005BFF] transition-colors"
             >
               Termos de Uso
             </a>

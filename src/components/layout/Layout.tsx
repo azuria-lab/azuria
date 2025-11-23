@@ -27,11 +27,11 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <ErrorBoundary variant="page">
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col min-h-screen bg-background w-full overflow-x-hidden">
         <Helmet>
           <title>{title}</title>
           <meta name="description" content={description} />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
           <meta property="og:title" content={title} />
           <meta property="og:description" content={description} />
           <meta property="og:type" content="website" />
@@ -56,10 +56,10 @@ const Layout: React.FC<LayoutProps> = ({
           </ErrorBoundary>
         )}
 
-        <main className={`flex-grow ${isScrolling ? 'scroll-smooth' : ''}`}>
+        <main className={`flex-grow w-full ${isScrolling ? 'scroll-smooth' : ''}`}>
           <Suspense 
             fallback={
-              <div className="flex items-center justify-center min-h-screen">
+              <div className="flex items-center justify-center min-h-screen w-full">
                 <AdvancedLoadingSpinner 
                   variant="dashboard" 
                   size="lg" 
@@ -70,7 +70,9 @@ const Layout: React.FC<LayoutProps> = ({
           >
             <PageTransition>
               <ErrorBoundary variant="component">
-                {children}
+                <div className="w-full">
+                  {children}
+                </div>
               </ErrorBoundary>
             </PageTransition>
           </Suspense>

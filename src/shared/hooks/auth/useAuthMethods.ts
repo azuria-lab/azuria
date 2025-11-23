@@ -121,23 +121,63 @@ export const useAuthMethods = (
       setIsLoading(true);
       setError(null);
       
-  logger.info("🔐 Fazendo logout...");
+      logger.info("🔐 Fazendo logout...");
       
+      // Tentar fazer logout no Supabase
       const { error } = await supabase.auth.signOut();
       
-      if (error) {throw error;}
+      // Se houver erro, verificar se é relacionado a sessão ausente
+      // Se a sessão já não existe, não é um problema - o objetivo é fazer logout mesmo assim
+      if (error) {
+        const errorMessage = error.message || '';
+        const isSessionMissing = errorMessage.includes('session') || 
+                                 errorMessage.includes('Auth session missing') ||
+                                 errorMessage.includes('403');
+        
+        if (isSessionMissing) {
+          // Sessão já não existe - isso é ok, continuar com limpeza local
+          logger.info("⚠️ Sessão já não existe, continuando com limpeza local");
+        } else {
+          // Outro tipo de erro - logar mas continuar mesmo assim
+          logger.warn("⚠️ Erro no logout do Supabase (continuando mesmo assim):", error);
+        }
+      }
       
-      // Limpar localStorage
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("isPro");
-      localStorage.removeItem("azuria-theme");
+      // SEMPRE limpar localStorage, independente de erros
+      try {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("isPro");
+        localStorage.removeItem("azuria-theme");
+        // Limpar outros dados de sessão que possam existir
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('supabase.') || key.startsWith('sb-'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+      } catch (storageError) {
+        logger.warn("⚠️ Erro ao limpar localStorage:", storageError);
+      }
       
-      logger.info("✅ Logout realizado com sucesso");
-      return true;
+      logger.info("✅ Logout concluído (limpeza local realizada)");
+      return true; // Sempre retornar true para permitir redirecionamento
     } catch (err: unknown) {
-      logger.error("❌ Erro no logout:", err);
-      setError(err instanceof Error ? err.message : 'Erro no logout');
-      return false;
+      // Em caso de erro inesperado, ainda assim limpar localStorage
+      logger.error("❌ Erro inesperado no logout:", err);
+      
+      try {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("isPro");
+        localStorage.removeItem("azuria-theme");
+      } catch (storageError) {
+        logger.warn("⚠️ Erro ao limpar localStorage após erro:", storageError);
+      }
+      
+      // Não setar erro para não mostrar mensagem ao usuário
+      // O objetivo é sempre fazer logout, mesmo com erros
+      return true; // Retornar true mesmo com erro para permitir redirecionamento
     } finally {
       setIsLoading(false);
     }

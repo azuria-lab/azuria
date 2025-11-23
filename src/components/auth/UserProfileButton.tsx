@@ -27,28 +27,37 @@ const UserProfileButton: React.FC = () => {
   
   const handleLogout = async () => {
     try {
+      // Sempre tentar fazer logout - a função agora sempre retorna true
       const success = await logout();
-      if (success) {
-        toast({
-          title: "Sucesso",
-          description: "Você saiu com sucesso!"
-        });
-        // Redirecionar para home após logout
-        globalThis.location.href = "/";
-      } else {
-        toast({
-          title: "Erro",
-          description: "Erro ao sair. Tente novamente.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      logger.error("Erro ao fazer logout:", error);
+      
+      // Mostrar mensagem de sucesso
       toast({
-        title: "Erro",
-        description: "Erro ao sair. Tente novamente.",
-        variant: "destructive"
+        title: "Sucesso",
+        description: "Você saiu com sucesso!"
       });
+      
+      // Pequeno delay para garantir que o toast seja exibido
+      setTimeout(() => {
+        // Redirecionar para home após logout
+        window.location.href = "/";
+      }, 300);
+    } catch (error) {
+      // Em caso de erro inesperado, ainda assim redirecionar
+      logger.error("Erro ao fazer logout:", error);
+      
+      // Limpar localStorage manualmente em caso de erro
+      try {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("isPro");
+        localStorage.removeItem("azuria-theme");
+      } catch (storageError) {
+        logger.warn("Erro ao limpar localStorage:", storageError);
+      }
+      
+      // Redirecionar mesmo com erro
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 300);
     }
   };
   
