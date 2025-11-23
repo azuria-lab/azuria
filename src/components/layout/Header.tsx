@@ -77,15 +77,15 @@ export default function Header() {
           
           {/* Auth buttons - mostrar APENAS se não tem perfil E não está autenticado E não está carregando */}
           {!userProfile && !isAuthenticated && !isLoadingProfile && (
-            <div className="hidden md:flex items-center space-x-2">
+            <div className="hidden md:flex items-center space-x-3">
               <Link to="/login">
-                <Button variant="ghost" size="sm">
-                  Entrar
+                <Button variant="ghost" size="sm" className="text-[#0A1930] hover:text-[#005BFF]">
+                  Login
                 </Button>
               </Link>
               <Link to="/cadastro">
-                <Button size="sm" className="bg-brand-600 hover:bg-brand-700">
-                  Cadastro Grátis
+                <Button size="sm" className="bg-[#005BFF] hover:bg-[#0048CC] text-white">
+                  Começar grátis
                 </Button>
               </Link>
             </div>

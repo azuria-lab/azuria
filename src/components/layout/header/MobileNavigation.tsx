@@ -44,14 +44,46 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
           <div className="container py-4 space-y-1">
             {filteredLinks.map((link) => {
               const isActive = location?.pathname === link.path;
+              const isAnchor = link.path.startsWith('#');
+              
+              if (isAnchor) {
+                return (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setMobileMenuOpen(false);
+                      const element = document.querySelector(link.path);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className="block"
+                  >
+                    <Button
+                      variant={isActive ? "default" : "ghost"}
+                      className={`w-full justify-start ${
+                        isActive 
+                          ? "bg-[#EAF6FF] text-[#005BFF]" 
+                          : "text-[#0A1930] hover:text-[#005BFF]"
+                      }`}
+                    >
+                      {link.icon}
+                      <span className="ml-2">{link.label}</span>
+                    </Button>
+                  </a>
+                );
+              }
+              
               return (
                 <Link key={link.path} to={link.path} className="block">
                   <Button
                     variant={isActive ? "default" : "ghost"}
                     className={`w-full justify-start ${
                       isActive 
-                        ? "bg-brand-100 text-brand-800 hover:bg-brand-200 dark:bg-brand-900 dark:text-brand-200" 
-                        : "text-gray-700 dark:text-gray-200"
+                        ? "bg-[#EAF6FF] text-[#005BFF]" 
+                        : "text-[#0A1930] hover:text-[#005BFF]"
                     }`}
                   >
                     {link.icon}
@@ -63,11 +95,18 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
             
             {/* Botão de Login para Mobile */}
             {!isAuthenticated && (
-              <Link to="/login" className="block mt-4 pt-2 border-t border-gray-100 dark:border-gray-800">
-                <Button className="w-full bg-brand-600 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-700">
-                  Entrar / Cadastrar
-                </Button>
-              </Link>
+              <div className="mt-4 pt-2 border-t border-gray-100 space-y-2">
+                <Link to="/login" className="block">
+                  <Button variant="outline" className="w-full border-[#005BFF] text-[#005BFF] hover:bg-[#EAF6FF]">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/cadastro" className="block">
+                  <Button className="w-full bg-[#005BFF] hover:bg-[#0048CC] text-white">
+                    Começar grátis
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </motion.div>

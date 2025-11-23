@@ -74,6 +74,45 @@ export default function DesktopNavigation({ isAuthenticated, isPro }: DesktopNav
               }
               
               // Renderiza link normal sem submenu
+              const isAnchor = link.path.startsWith('#');
+              
+              if (isAnchor) {
+                return (
+                  <NavigationMenuItem key={link.path}>
+                    <a
+                      href={link.path}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const element = document.querySelector(link.path);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                    >
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        size="sm"
+                        className={`relative ${
+                          isActive 
+                            ? "bg-[#EAF6FF] text-[#005BFF] hover:bg-[#EAF6FF]" 
+                            : "text-[#0A1930] hover:text-[#005BFF]"
+                        }`}
+                      >
+                        {link.icon}
+                        <span className="ml-1 hidden lg:inline">{link.label}</span>
+                        {isActive && (
+                          <motion.div
+                            className="absolute inset-0 border-b-2 border-[#005BFF] rounded-sm"
+                            layoutId="underline"
+                            style={{ bottom: -1, top: "auto", height: "2px" }}
+                          />
+                        )}
+                      </Button>
+                    </a>
+                  </NavigationMenuItem>
+                );
+              }
+              
               return (
                 <NavigationMenuItem key={link.path}>
                   <Link to={link.path}>
@@ -82,15 +121,15 @@ export default function DesktopNavigation({ isAuthenticated, isPro }: DesktopNav
                       size="sm"
                       className={`relative ${
                         isActive 
-                          ? "bg-brand-100 text-brand-800 hover:bg-brand-200 dark:bg-brand-900 dark:text-brand-200" 
-                          : "text-gray-700 dark:text-gray-200"
+                          ? "bg-[#EAF6FF] text-[#005BFF] hover:bg-[#EAF6FF]" 
+                          : "text-[#0A1930] hover:text-[#005BFF]"
                       }`}
                     >
                       {link.icon}
                       <span className="ml-1 hidden lg:inline">{link.label}</span>
                       {isActive && (
                         <motion.div
-                          className="absolute inset-0 border-b-2 border-brand-500 dark:border-brand-400 rounded-sm"
+                          className="absolute inset-0 border-b-2 border-[#005BFF] rounded-sm"
                           layoutId="underline"
                           style={{ bottom: -1, top: "auto", height: "2px" }}
                         />

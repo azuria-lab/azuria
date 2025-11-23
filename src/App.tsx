@@ -6,6 +6,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { HelmetProvider } from "react-helmet-async";
 import PrefetchOnIdle from "@/components/system/PrefetchOnIdle";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 // Import skeleton loaders for better UX
 import { SkeletonPage } from "@/components/ui/skeleton-loaders";
@@ -102,59 +104,423 @@ const App = () => {
                         <GlobalShortcuts />
                   <Suspense fallback={<SkeletonPage />}>
                     <Routes>
+                      {/* Public Routes */}
                       <Route path="/" element={<Index />} />
-                      <Route path="/dashboard" element={<DashboardPage />} />
-                      <Route path="/calculadora-simples" element={<SimpleCalculatorPage />} />
-                      <Route path="/calculadora-avancada" element={<AdvancedCalculatorPage />} />
-                      <Route path="/calculadora-tributaria" element={<TaxCalculatorPage />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/cadastro" element={<Login />} />
-                      
-                      {/* Lazy loaded routes */}
-                      <Route path="/calculadora-lotes" element={<BatchCalculatorPage />} />
-                      <Route path="/cenarios" element={<ScenariosPage />} />
-                      <Route path="/importacao" element={<ImportPage />} />
-                      <Route path="/comparador-marketplaces" element={<MarketplaceComparatorPage />} />
-                      <Route path="/marketplace" element={<MarketplacePage />} />
-                      <Route path="/analise-sensibilidade" element={<SensitivityAnalysisPage />} />
-                      <Route path="/analise-rentabilidade" element={<ProfitabilityAnalysisPage />} />
-                      <Route path="/analytics" element={<AdvancedAnalyticsDashboard />} />
-                      <Route path="/analytics-basico" element={<AnalyticsDashboardPage />} />
-                      <Route path="/inteligencia-dados" element={<IntelligenceDataPage />} />
-                      <Route path="/metricas-precos" element={<PricingMetricsDashboard />} />
-                      <Route path="/relatorios" element={<ReportsPage />} />
-                      <Route path="/historico" element={<HistoryPage />} />
-                      <Route path="/integracoes" element={<IntegrationsPage />} />
-                      <Route path="/automacoes" element={<AutomationPage />} />
-                      <Route path="/automacoes/regra/:id" element={<RuleDetailsPage />} />
-                      <Route path="/api" element={<ApiPage />} />
-                      <Route path="/enterprise" element={<EnterprisePage />} />
-                      <Route path="/configuracoes" element={<SettingsPage />} />
-                      <Route path="/seguranca" element={<SecurityDashboardPage />} />
                       <Route path="/planos" element={<PricingPage />} />
-                      <Route path="/assinatura" element={<SubscriptionManagementPage />} />
                       <Route path="/pagamento/retorno" element={<PaymentReturnPage />} />
                       <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} />
-                      <Route path="/monetizacao" element={<MonetizationPage />} />
-                      <Route path="/templates" element={<Templates />} />
-                      <Route path="/colaboracao" element={<CollaborationPage />} />
-                      <Route path="/admin" element={<AdminPanel />} />
-                      <Route path="/debug-supabase" element={<SupabaseDebug />} />
-                      <Route path="/welcome" element={<Welcome />} />
                       
-                      {/* Bidding Module Routes */}
-                      <Route path="/calculadora-licitacao" element={<BiddingCalculatorPage />} />
-                      <Route path="/dashboard-licitacoes" element={<BiddingDashboardPage />} />
-                      <Route path="/documentos" element={<DocumentosPage />} />
+                      {/* Protected Dashboard Routes - All tools are now inside the dashboard */}
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <DashboardPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
                       
-                      {/* Unified AI Module */}
-                      <Route path="/azuria-ia" element={<AzuriaAIHub />} />
+                      {/* Calculator Routes - Protected */}
+                      <Route
+                        path="/calculadora-simples"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SimpleCalculatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/calculadora-avancada"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AdvancedCalculatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/calculadora-tributaria"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <TaxCalculatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/calculadora-lotes"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <BatchCalculatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/calculadora-licitacao"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <BiddingCalculatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/analise-sensibilidade"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SensitivityAnalysisPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
                       
-                      {/* Redirects from old AI routes */}
-                      <Route path="/calculadora-lotes-inteligente" element={<Navigate to="/azuria-ia?section=lote" replace />} />
-                      <Route path="/ia" element={<Navigate to="/azuria-ia?section=precos" replace />} />
-                      <Route path="/azuria" element={<Navigate to="/azuria-ia?section=assistente" replace />} />
-                      <Route path="/analise-concorrencia" element={<Navigate to="/azuria-ia?section=competitividade" replace />} />
+                      {/* AI Routes - Protected */}
+                      <Route
+                        path="/azuria-ia"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AzuriaAIHub />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Marketplace Routes - Protected */}
+                      <Route
+                        path="/marketplace"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <MarketplacePage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/comparador-marketplaces"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <MarketplaceComparatorPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Bidding Routes - Protected */}
+                      <Route
+                        path="/dashboard-licitacoes"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <BiddingDashboardPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/documentos"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <DocumentosPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Analytics Routes - Protected */}
+                      <Route
+                        path="/analytics"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AdvancedAnalyticsDashboard />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/analytics-basico"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AnalyticsDashboardPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/inteligencia-dados"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <IntelligenceDataPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/metricas-precos"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <PricingMetricsDashboard />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/analise-rentabilidade"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ProfitabilityAnalysisPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/relatorios"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ReportsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* History - Protected */}
+                      <Route
+                        path="/historico"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <HistoryPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Templates - Protected */}
+                      <Route
+                        path="/templates"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <Templates />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Integrations - Protected */}
+                      <Route
+                        path="/integracoes"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <IntegrationsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/api"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ApiPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Collaboration - Protected (PRO only) */}
+                      <Route
+                        path="/colaboracao"
+                        element={
+                          <ProtectedRoute requirePro={true}>
+                            <DashboardLayout>
+                              <CollaborationPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Settings - Protected */}
+                      <Route
+                        path="/configuracoes"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SettingsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/seguranca"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SecurityDashboardPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/assinatura"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SubscriptionManagementPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Other Protected Routes */}
+                      <Route
+                        path="/cenarios"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ScenariosPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/importacao"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ImportPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/automacoes"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AutomationPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/automacoes/regra/:id"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <RuleDetailsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/enterprise"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <EnterprisePage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/monetizacao"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <MonetizationPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/welcome"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <Welcome />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Admin Routes - Protected */}
+                      <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <AdminPanel />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/debug-supabase"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <SupabaseDebug />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Redirects from old AI routes - Protected */}
+                      <Route
+                        path="/calculadora-lotes-inteligente"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/azuria-ia?section=lote" replace />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/ia"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/azuria-ia?section=precos" replace />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/azuria"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/azuria-ia?section=assistente" replace />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/analise-concorrencia"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/azuria-ia?section=competitividade" replace />
+                          </ProtectedRoute>
+                        }
+                      />
                       
                       <Route path="*" element={<NotFound />} />
                     </Routes>
