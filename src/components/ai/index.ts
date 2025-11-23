@@ -9,6 +9,15 @@ export { default as PersonalizedRecommendations } from './PersonalizedRecommenda
 export { default as PriceOptimizationEngine } from './PriceOptimizationEngine';
 export { default as SeasonalityAnalysis } from './SeasonalityAnalysis';
 
+// Chat Components (different implementations)
+export { AzuriaChat } from './AzuriaChat';
+export { AzuriaAIChat } from './AzuriaAIChat';
+
+// Avatar Components (different implementations)
+export { AzuriaAvatar } from './AzuriaAvatar';
+export { AzuriaAIAvatar } from './AzuriaAIAvatar';
+export { AzuriaAvatarImage } from './AzuriaAvatarImage';
+
 // Chat Components
 export { default as ChatFloatingButton } from './chat/ChatFloatingButton';
 export { default as ChatHeader } from './chat/ChatHeader';

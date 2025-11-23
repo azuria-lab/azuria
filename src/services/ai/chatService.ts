@@ -5,6 +5,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 import {
   AIContext,
   AIRequest,
@@ -32,7 +33,7 @@ export async function sendMessageToAzuria(
 
     return data as AIResponse;
   } catch (error) {
-    console.error('Erro ao comunicar com Azuria AI:', error);
+    logger.error('Erro ao comunicar com Azuria AI:', error);
 
     // Fallback response
     return {
@@ -185,7 +186,7 @@ export async function saveMessageToHistory(
       timestamp: message.timestamp,
     });
   } catch (error) {
-    console.error('Erro ao salvar mensagem:', error);
+    logger.error('Erro ao salvar mensagem:', error);
   }
 }
 
@@ -219,7 +220,7 @@ export async function loadChatHistory(
       timestamp: new Date(row.timestamp),
     }));
   } catch (error) {
-    console.error('Erro ao carregar histórico:', error);
+    logger.error('Erro ao carregar histórico:', error);
     return [];
   }
 }

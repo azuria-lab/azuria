@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -167,7 +167,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
 ];
 
 // Component para número animado
-const AnimatedNumber: React.FC<{ value: number; decimals?: number; prefix?: string }> = ({ 
+const AnimatedNumber: React.FC<{ value: number; decimals?: number; prefix?: string }> = memo(({ 
   value, 
   decimals = 2, 
   prefix = "" 
@@ -201,7 +201,9 @@ const AnimatedNumber: React.FC<{ value: number; decimals?: number; prefix?: stri
       {prefix}{displayValue.toFixed(decimals)}
     </span>
   );
-};
+});
+
+AnimatedNumber.displayName = "AnimatedNumber";
 
 // Animation Variants
 const containerVariants = {

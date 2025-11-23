@@ -63,3 +63,7 @@ lint-*.txt
 *-log.txt
 temp-*.txt
 
+# Temporary notes and documentation
+docs/notes/temp-*.txt
+docs/notes/*-supabase-*.txt
+
