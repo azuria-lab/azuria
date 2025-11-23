@@ -1,6 +1,7 @@
 
 import { useMemo } from 'react';
-import { BarChart3, Brain, Calculator, FileText, Gavel, History, Home, Puzzle, ShoppingBag, Target, Users, Zap } from 'lucide-react';
+import { BarChart3, Brain, Calculator, FileText, Gavel, History, Home, Puzzle, ShoppingBag, Users } from 'lucide-react';
+
 
 export const navLinks = [
   { 
@@ -48,36 +49,12 @@ export const navLinks = [
     dataOnboarding: "templates-button"
   },
   { 
-    to: "/calculadora-lotes-inteligente", 
-    label: "Lote IA", 
-    badge: "Novo",
-    path: "/calculadora-lotes-inteligente",
-    icon: <Zap className="h-4 w-4" />,
-    dataOnboarding: "ai-batch-button"
-  },
-  { 
-    to: "/ia", 
-    label: "IA Preços", 
-    badge: "Pro",
-    path: "/ia",
-    icon: <Brain className="h-4 w-4" />,
-    dataOnboarding: "ai-pricing-button"
-  },
-  { 
-    to: "/azuria", 
-    label: "Azuria AI", 
+    to: "/azuria-ia", 
+    label: "Azuria IA", 
     badge: "Beta",
-    path: "/azuria",
+    path: "/azuria-ia",
     icon: <Brain className="h-4 w-4" />,
-    dataOnboarding: "azuria-button"
-  },
-  { 
-    to: "/analise-concorrencia", 
-    label: "Competitividade",
-    path: "/analise-concorrencia",
-    icon: <Target className="h-4 w-4" />,
-    badge: "Novo",
-    dataOnboarding: "competition-button"
+    dataOnboarding: "azuria-ai-button"
   },
   { 
     to: "/dashboard-licitacoes", 
