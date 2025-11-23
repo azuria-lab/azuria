@@ -44,7 +44,7 @@ export interface ChatMessage {
   content: string;
   type: MessageType;
   context?: AIContext;
-  metadata?: Record<string, string | number | boolean | null>;
+  metadata?: Record<string, unknown>;
   timestamp: Date;
 }
 

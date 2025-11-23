@@ -52,8 +52,9 @@ export function calculateTaxAnalysis(
   let effective_rate = 0;
 
   if (regime === 'simples_nacional') {
-    effective_rate = config.base_rate;
-    breakdown = config.breakdown.map((item) => ({
+    const simplesConfig = config as typeof TAX_RATES.simples_nacional;
+    effective_rate = simplesConfig.base_rate;
+    breakdown = simplesConfig.breakdown.map((item) => ({
       ...item,
       amount: revenue * (item.rate / 100),
     }));
@@ -240,3 +241,12 @@ export function explainTaxRegime(regime: string): string {
 
   return explanations[regime] || 'Regime não reconhecido.';
 }
+
+/**
+ * Objeto de serviço para compatibilidade com imports existentes
+ */
+export const taxService = {
+  calculateAnalysis: calculateTaxAnalysis,
+  suggestRegime: suggestBestTaxRegime,
+  explainRegime: explainTaxRegime,
+};

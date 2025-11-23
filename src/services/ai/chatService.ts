@@ -224,3 +224,16 @@ export async function loadChatHistory(
     return [];
   }
 }
+
+/**
+ * Objeto de serviço para compatibilidade com imports existentes
+ */
+export const chatService = {
+  sendMessage: sendMessageToAzuria,
+  detectIntent,
+  getWelcomeMessage,
+  formatHistory: formatHistoryForAI,
+  extractContext: extractUserContext,
+  saveMessage: saveMessageToHistory,
+  loadHistory: loadChatHistory,
+};

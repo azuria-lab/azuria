@@ -273,3 +273,13 @@ export function suggestPricingStrategy(
 
   return strategies[objective] || strategies.competitive;
 }
+
+/**
+ * Objeto de serviço para compatibilidade com imports existentes
+ */
+export const pricingService = {
+  calculateSuggestion: calculatePricingSuggestion,
+  analyzeMargin,
+  calculatePromotionImpact,
+  suggestStrategy: suggestPricingStrategy,
+};

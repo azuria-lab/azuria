@@ -94,12 +94,10 @@ export function useDocumentos() {
 
       const { data, error } = await supabase
         .from('documentos')
-        .insert([
-          {
-            user_id: userData.user.id,
-            ...params,
-          },
-        ])
+        .insert({
+          user_id: userData.user.id,
+          ...params,
+        } as never)
         .select()
         .single();
 
@@ -169,7 +167,7 @@ export function useDocumentos() {
         .single();
 
       // Deletar arquivo do storage se existir
-      if (documento?.arquivo_url) {
+      if (documento && documento.arquivo_url) {
         await supabase.storage
           .from('documentos')
           .remove([documento.arquivo_url]);
