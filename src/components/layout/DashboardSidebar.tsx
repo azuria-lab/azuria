@@ -150,7 +150,7 @@ export default function DashboardSidebar() {
   const { isPro } = useProStatus();
   
   // Auto-expand items that have active sub-items
-  const getInitialExpandedItems = () => {
+  const getInitialExpandedItems = React.useCallback(() => {
     const expanded: string[] = [];
     dashboardMenuItems.forEach((item) => {
       if (item.items) {
@@ -163,7 +163,7 @@ export default function DashboardSidebar() {
       }
     });
     return expanded;
-  };
+  }, [location.pathname]);
 
   const [expandedItems, setExpandedItems] = React.useState<string[]>(getInitialExpandedItems);
 
@@ -178,7 +178,7 @@ export default function DashboardSidebar() {
       });
       return [...new Set([...manualExpanded, ...newExpanded])];
     });
-  }, [location.pathname]);
+  }, [location.pathname, getInitialExpandedItems]);
 
   const toggleExpanded = (url: string) => {
     setExpandedItems((prev) =>

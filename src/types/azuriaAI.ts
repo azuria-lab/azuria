@@ -44,7 +44,7 @@ export interface ChatMessage {
   content: string;
   type: MessageType;
   context?: AIContext;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null>;
   timestamp: Date;
 }
 
@@ -141,8 +141,20 @@ export interface MarginAnalysis {
 export interface ConversationContext {
   user_id: string;
   session_id: string;
-  recent_products?: any[];
-  recent_calculations?: any[];
+  recent_products?: Array<{
+    id: string;
+    name: string;
+    price?: number;
+    cost?: number;
+  }>;
+  recent_calculations?: Array<{
+    id: string;
+    productName: string;
+    marketplace: string;
+    finalPrice: number;
+    margin: number;
+    createdAt: Date;
+  }>;
   user_preferences?: {
     tax_regime?: string;
     target_margin?: number;

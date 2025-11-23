@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { OptimizedImage } from "@/components/performance/OptimizedImage";
 
 // Logos dos marketplaces com URLs oficiais e confiáveis
 const marketplaces = [

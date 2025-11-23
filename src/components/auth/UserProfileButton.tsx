@@ -28,7 +28,7 @@ const UserProfileButton: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Sempre tentar fazer logout - a função agora sempre retorna true
-      const success = await logout();
+      await logout();
       
       // Mostrar mensagem de sucesso
       toast({
