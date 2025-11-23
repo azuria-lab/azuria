@@ -1,4 +1,4 @@
-import { CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
+import { CompetitorPlatform, CompetitorPricing, PricingAnalysis } from '@/shared/types/ai';
 import { pricingService } from './pricingService';
 import { competitorService } from './competitorService';
 import { logger, LogMetadata } from './logger';
@@ -119,7 +119,26 @@ class SmartPricingService {
    * Análise da concorrência
    */
   private async analyzeCompetition(productName: string): Promise<CompetitorAnalysisResult> {
-    const competitors = await competitorService.analyzeCompetitors(productName);
+    const competitorsData = await competitorService.analyzeCompetitors(productName);
+    
+    // Converte CompetitorData[] para CompetitorPricing[]
+    const competitors: CompetitorPricing[] = competitorsData.map((c, idx) => {
+      const platformStr = c.source_url.includes('mercadolivre') ? 'mercado_livre' :
+                          c.source_url.includes('amazon') ? 'amazon' :
+                          c.source_url.includes('shopee') ? 'shopee' : 'outros';
+      const platform = platformStr as CompetitorPlatform;
+      
+      return {
+        id: `competitor_${idx}_${Date.now()}`,
+        platform,
+        productName,
+        price: c.current_price,
+        url: c.source_url,
+        seller: c.competitor_name,
+        inStock: true,
+        lastUpdated: c.last_checked,
+      };
+    });
     
     if (competitors.length === 0) {
       return {
@@ -130,7 +149,7 @@ class SmartPricingService {
       };
     }
 
-    const prices = competitors.map(c => c.current_price);
+    const prices = competitors.map(c => c.price);
     const averagePrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
