@@ -1732,12 +1732,58 @@ O projeto monitora automaticamente as Core Web Vitals:
 
 ## 🤝 Contribuindo
 
-1. **Fork** o repositório
-2. **Clone** seu fork localmente
-3. **Crie** uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-4. **Commit** suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-5. **Push** para a branch (`git push origin feature/AmazingFeature`)
-6. **Abra** um Pull Request
+O Azuria é um software proprietário. Contribuições externas podem ser limitadas. Para colaboradores autorizados:
+
+### Pré-requisitos
+- Node.js 18+
+- npm
+- Git
+
+### Setup Inicial
+```bash
+# Clone o repositório
+git clone <repository-url>
+cd azuria
+
+# Instale dependências
+npm ci
+
+# Verifique se está tudo OK
+npm run lint
+npm run type-check
+npm run test:smoke
+```
+
+### Fluxo de Trabalho
+1. **Crie uma branch** a partir da `main`:
+   ```bash
+   git checkout -b feat/minha-feature
+   ```
+
+2. **Faça suas alterações** seguindo os padrões do projeto
+
+3. **Teste localmente**:
+   ```bash
+   npm run lint
+   npm run type-check
+   npm run test:smoke
+   npm run build
+   ```
+
+4. **Commit** seguindo Conventional Commits:
+   ```bash
+   git commit -m "feat: adiciona nova funcionalidade"
+   ```
+
+5. **Push** e abra um Pull Request
+
+### Padrões de Código
+- Use TypeScript para tipagem
+- Siga os padrões de lint configurados
+- Adicione testes para novas funcionalidades
+- Documente funções complexas com JSDoc
+
+**Guia completo:** [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## 📜 Licença
 
@@ -1827,9 +1873,40 @@ npm run sbom
 
 Arquivo resultado: `./sbom.json`.
 
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+#### App não carrega / Tela branca
+1. Limpe o cache do navegador (Ctrl+Shift+Del)
+2. Verifique se JavaScript está habilitado
+3. Teste em modo incógnito
+4. Desabilite extensões do navegador temporariamente
+
+#### Erro de Autenticação
+1. Faça logout e login novamente
+2. Limpe cookies do site
+3. Verifique se o token não expirou
+
+#### Erros de Build
+1. Execute `npm ci` para reinstalar dependências
+2. Verifique versão do Node.js (18+)
+3. Limpe cache: `rm -rf node_modules package-lock.json && npm install`
+
+#### Performance Lenta
+1. Verifique conexão de internet
+2. Limpe cache do navegador
+3. Desabilite extensões pesadas
+4. Use navegador atualizado
+
+**Documentação completa:** [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)
+
+---
+
 ## 🆘 Suporte
 
 - **Documentação**: [docs/](./docs/)
+- **Troubleshooting**: [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)
 - **Issues**: [GitHub Issues](./issues)
 - **Discord**: [Comunidade Azuria](https://discord.com/invite/azuria)
 - **Email**: [suporte@azuria.app](mailto:suporte@azuria.app)
