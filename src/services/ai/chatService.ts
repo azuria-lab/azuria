@@ -199,7 +199,6 @@ export async function loadChatHistory(
   sessionId: string
 ): Promise<ChatMessage[]> {
   try {
-    // @ts-expect-error - chat_history table not in generated types yet
     const { data, error } = await supabase
       .from('chat_history')
       .select('*')
