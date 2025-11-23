@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import LoadingState from '@/components/calculators/LoadingState';
 import { AzuriaChat } from '@/components/ai/AzuriaChat';
 import AIPriceSuggestions from '@/components/calculators/AIPriceSuggestions';
+import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 
 // Lazy load heavy components
 const IntelligentBatchCalculator = lazy(() => import('@/components/calculators/IntelligentBatchCalculator'));
@@ -20,7 +21,13 @@ export const AssistenteSection = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Assistente IA</h2>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <AzuriaAvatarImage 
+            size="small"
+            className="ring-2 ring-[#00C2FF]"
+          />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">Assistente IA</h2>
+        </div>
         <p className="text-muted-foreground">
           Converse com a Azuria IA para obter ajuda com precificação, impostos e análise de mercado
         </p>
@@ -34,7 +41,13 @@ export const LoteIASection = ({ isPro }: SectionProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Calculadora em Lote Inteligente</h2>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <AzuriaAvatarImage 
+            size="small"
+            className="ring-2 ring-[#005BFF]"
+          />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">Calculadora em Lote Inteligente</h2>
+        </div>
         <p className="text-muted-foreground">
           Revolucione sua estratégia de precificação com IA avançada e análise competitiva em tempo real
         </p>
@@ -55,7 +68,13 @@ export const IAPrecosSection = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">IA Preços</h2>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <AzuriaAvatarImage 
+            size="small"
+            className="ring-2 ring-[#00C2FF]"
+          />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">IA Preços</h2>
+        </div>
         <p className="text-muted-foreground">
           Análise avançada de preços com inteligência artificial e insights de mercado
         </p>
@@ -95,7 +114,13 @@ export const SugestaoSection = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Sugestão de Preços</h2>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <AzuriaAvatarImage 
+            size="small"
+            className="ring-2 ring-[#005BFF]"
+          />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">Sugestão de Preços</h2>
+        </div>
         <p className="text-muted-foreground">
           Recomendações automáticas de precificação baseadas em IA
         </p>
@@ -109,7 +134,13 @@ export const CompetitividadeSection = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Análise de Competitividade</h2>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <AzuriaAvatarImage 
+            size="small"
+            className="ring-2 ring-[#00C2FF]"
+          />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">Análise de Competitividade</h2>
+        </div>
         <p className="text-muted-foreground">
           Compare seu preço com a concorrência e descubra o melhor posicionamento no mercado
         </p>

@@ -32,7 +32,7 @@ interface AzuriaChatProps {
   defaultOpen?: boolean;
 }
 
-export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) {
+export function AzuriaChat({ className, defaultOpen: _defaultOpen = false }: Readonly<AzuriaChatProps>) {
   const [inputValue, setInputValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const {
@@ -135,7 +135,7 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
           <AnimatePresence>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <motion.div
                 key={message.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -151,20 +151,20 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
                   <AzuriaAvatar size="small" emotion="neutral" />
                 )}
 
-                <div
-                  className={cn(
-                    'max-w-[80%] rounded-lg p-3 shadow-sm',
-                    message.role === MessageRole.USER
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  )}
+                  <div
+                    className={cn(
+                      'max-w-[80%] rounded-lg p-3 shadow-sm',
+                      message.role === MessageRole.USER
+                        ? 'bg-[#005BFF] text-white'
+                        : 'bg-[#EAF6FF] border border-[#112B4A]/10 text-[#0A1930]'
+                    )}
                 >
                   {/* Message Type Badge */}
                   {message.type !== MessageType.TEXT && (
                     <Badge variant="outline" className="mb-2 text-xs">
                       {getMessageTypeIcon(message.type)}
                       <span className="ml-1">
-                        {message.type.replace(/_/g, ' ').toUpperCase()}
+                        {message.type.split('_').join(' ').toUpperCase()}
                       </span>
                     </Badge>
                   )}
@@ -177,9 +177,9 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
                   {/* Quick Actions */}
                   {message.metadata?.quick_actions && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {message.metadata.quick_actions.map((action: any, i: number) => (
+                      {message.metadata.quick_actions.map((action: { label: string; action: string }, i: number) => (
                         <Button
-                          key={i}
+                          key={`quick-action-${i}-${action.label}`}
                           variant="outline"
                           size="sm"
                           onClick={() => sendQuickAction(action.action)}
@@ -215,7 +215,7 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-2 h-2 bg-primary rounded-full"
+                      className="w-2 h-2 bg-[#00C2FF] rounded-full"
                       animate={{
                         scale: [1, 1.5, 1],
                         opacity: [0.5, 1, 0.5],
@@ -243,7 +243,7 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
           <div className="flex flex-wrap gap-2">
             {quickActions.map((action, index) => (
               <Button
-                key={index}
+                key={`quick-action-main-${index}-${action.label}`}
                 variant="outline"
                 size="sm"
                 onClick={() => sendQuickAction(action.action)}
@@ -264,7 +264,7 @@ export function AzuriaChat({ className, defaultOpen = false }: AzuriaChatProps) 
             placeholder="Digite sua mensagem..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             disabled={isSending}
             className="flex-1"
           />
