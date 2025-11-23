@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AIContext, BusinessProfile, ChatSession } from '@/shared/types/ai';
+import { AIContext, BusinessProfile, ChatMessage, ChatSession } from '@/shared/types/ai';
 import { chatService } from '@/services/ai/chatService';
 import { logger } from '@/services/logger';
 

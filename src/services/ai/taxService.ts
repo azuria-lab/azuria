@@ -251,12 +251,24 @@ export async function analyzeTaxOptimization(params: {
   businessType: string;
   employeeCount?: number;
   hasManufacturing?: boolean;
-}): Promise<TaxAnalysis> {
+}): Promise<import('@/shared/types/ai').TaxAnalysis> {
   // Usa a função existente calculateTaxAnalysis
   const regime = params.currentRegime as 'simples_nacional' | 'lucro_presumido' | 'lucro_real';
   const annualRevenue = params.monthlyRevenue * 12;
   
-  return calculateTaxAnalysis(annualRevenue, regime);
+  const analysis = calculateTaxAnalysis(annualRevenue, regime);
+  
+  // Converte para o tipo esperado
+  return {
+    regime: analysis.regime as import('@/shared/types/ai').TaxRegimeType,
+    effectiveRate: analysis.effective_rate,
+    monthlyTax: analysis.tax_amount / 12,
+    annualTax: analysis.tax_amount,
+    breakdown: Object.fromEntries(analysis.breakdown.map(b => [b.label, b.rate])),
+    recommendations: analysis.optimization_tips,
+    potentialSavings: analysis.alternative_regime_comparison?.savings,
+    warnings: [],
+  };
 }
 
 /**

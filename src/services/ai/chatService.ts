@@ -116,7 +116,7 @@ Estou aqui para te ajudar com:
 
 Como posso te ajudar hoje?`,
     type: MessageType.TEXT,
-    context: AIContext.GENERAL,
+    context: AzuriaAIContext.GENERAL,
     timestamp: new Date(),
   };
 }
@@ -270,7 +270,8 @@ export async function processMessage(
   const request: AIRequest = {
     message,
     context: {
-      userId: sessionId,
+      user_id: sessionId,
+      session_id: sessionId,
       conversationHistory: [],
     },
     history: [],
