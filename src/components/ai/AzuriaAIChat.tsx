@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AIAction, AIContext, ChatMessage } from '@/shared/types/ai';
+import { MessageType } from '@/types/azuriaAI';
 import { AzuriaAIMessage } from './AzuriaAIMessage';
 import { AzuriaAIAvatar } from './AzuriaAIAvatar';
 import { chatService } from '@/services/ai/chatService';

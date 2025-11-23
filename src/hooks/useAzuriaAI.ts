@@ -41,6 +41,7 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
         // Mensagem de boas-vindas personalizada para o dashboard
         setTimeout(async () => {
           await chatService.processMessage(newSession.id, 'Olá! Sou a Azuria AI. Como posso ajudar você hoje?');
+          // Não precisa fazer nada com a resposta aqui
         }, 500);
       } catch (error) {
         logger.error('Erro ao inicializar sessão da Azuria AI:', error);
@@ -112,8 +113,17 @@ export const useAzuriaAI = (initialContext?: Partial<AIContext>): UseAzuriaAIRet
     // Aqui você poderia carregar uma sessão salva do localStorage
     const savedSessionId = localStorage.getItem('azuria-ai-session-id');
     if (savedSessionId) {
-      const savedSession = chatService.getSession(savedSessionId);
-      if (savedSession && savedSession.status === 'active') {
+      const savedSessionResult = chatService.getSession(savedSessionId);
+      if (savedSessionResult && savedSessionResult.status === 'active') {
+        // Converte para ChatSession
+        const savedSession: ChatSession = {
+          id: savedSessionResult.id,
+          userId: savedSessionResult.userId,
+          messages: savedSessionResult.messages as ChatMessage[],
+          startedAt: savedSessionResult.startedAt,
+          status: savedSessionResult.status as 'active' | 'closed',
+          context: savedSessionResult.context as AIContext,
+        };
         setSession(savedSession);
       }
     }
