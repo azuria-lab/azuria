@@ -95,8 +95,8 @@ export function DocumentUploader() {
       // 4. Limpar formulário e fechar
       resetForm();
       setOpen(false);
-    } catch (error) {
-      console.error('Erro ao cadastrar documento:', error);
+    } catch (_error) {
+      // Error handling is managed by the mutation
     } finally {
       setUploading(false);
     }

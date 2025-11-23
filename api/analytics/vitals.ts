@@ -23,15 +23,13 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { metrics } = req.body;
+    // const { metrics } = req.body;
 
     // Here you would typically send this data to your analytics service
-    // For now, we'll just log it
-    console.log('Received vitals:', metrics);
+    // For now, we'll just return success
 
     return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Error processing vitals:', error);
+  } catch (_error) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
