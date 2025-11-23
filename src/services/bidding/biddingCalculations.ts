@@ -246,6 +246,53 @@ export function determineViability(margin: number): ViabilityLevel {
 }
 
 /**
+ * Analisa a viabilidade de um preço baseado no custo e impostos
+ * @param price - Preço final
+ * @param cost - Custo total
+ * @param taxes - Valor total dos impostos
+ * @returns Objeto com nível de viabilidade e margem calculada
+ */
+export function analyzeViability(
+  price: number,
+  cost: number,
+  taxes: number
+): { level: ViabilityLevel; margin: number } {
+  const netProfit = price - cost - taxes;
+  const margin = (netProfit / price) * 100;
+  const level = determineViability(margin);
+  
+  return { level, margin };
+}
+
+/**
+ * Calcula o preço sugerido baseado no custo, margem desejada e taxa de imposto
+ * @param totalCost - Custo total
+ * @param targetMargin - Margem líquida desejada (%)
+ * @param taxRate - Taxa de imposto (%)
+ * @returns Preço sugerido
+ */
+export function calculateSuggestedPrice(
+  totalCost: number,
+  targetMargin: number,
+  taxRate: number
+): number {
+  // Validação: margem + imposto não pode ser >= 100%
+  if (targetMargin + taxRate >= 100) {
+    return 0;
+  }
+
+  // Fórmula: Preço = Custo / (1 - MargeLiq% - Imposto%)
+  // Isso garante que após descontar impostos, a margem líquida seja exatamente a desejada
+  const divisor = 1 - targetMargin / 100 - taxRate / 100;
+  
+  if (divisor <= 0) {
+    return 0;
+  }
+
+  return totalCost / divisor;
+}
+
+/**
  * Calcula score de viabilidade (0-100)
  */
 export function calculateViabilityScore(
