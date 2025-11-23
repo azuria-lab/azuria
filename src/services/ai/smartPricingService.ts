@@ -130,7 +130,7 @@ class SmartPricingService {
       };
     }
 
-    const prices = competitors.map(c => c.price);
+    const prices = competitors.map(c => c.current_price);
     const averagePrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);

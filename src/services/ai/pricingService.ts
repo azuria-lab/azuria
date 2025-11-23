@@ -282,7 +282,7 @@ export async function analyzePricing(params: {
   desiredMargin?: number;
   taxRegime: string;
   businessType: string;
-}): Promise<PricingSuggestion> {
+}): Promise<import('@/shared/types/ai').PricingAnalysis> {
   // Usa a função existente calculatePricingSuggestion
   // Estima tax_rate baseado no regime (simplificado)
   const taxRateMap: Record<string, number> = {
@@ -293,11 +293,29 @@ export async function analyzePricing(params: {
   
   const taxRate = taxRateMap[params.taxRegime] || 8.0;
   
-  return calculatePricingSuggestion({
+  const suggestion = calculatePricingSuggestion({
     cost_price: params.costPrice,
     target_margin: params.desiredMargin || 30,
     tax_rate: taxRate,
   });
+  
+  // Converte para o tipo esperado
+  return {
+    suggestedPrice: suggestion.suggested_price,
+    minPrice: suggestion.min_price,
+    maxPrice: suggestion.max_price,
+    profitMargin: suggestion.profit_margin,
+    explanation: suggestion.reasoning,
+    confidence: 0.8, // Valor padrão
+    factors: {
+      cost: params.costPrice,
+      taxes: suggestion.tax_amount,
+      fees: suggestion.marketplace_fee || 0,
+      margin: suggestion.profit_margin,
+    },
+    recommendations: suggestion.recommendations || [],
+    warnings: suggestion.warnings || [],
+  };
 }
 
 /**

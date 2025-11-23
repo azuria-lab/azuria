@@ -127,8 +127,21 @@ Como posso te ajudar hoje? 😊`,
       
       const response = await chatService.processMessage(sessionId, userMessage.content);
       
-      // response já é um ChatMessage completo
-      setMessages(prev => [...prev, response]);
+      // Converte ChatMessage de azuriaAI para ChatMessage de shared/types/ai
+      const assistantMessage: ChatMessage = {
+        id: response.id,
+        content: response.content,
+        role: response.role === 'assistant' ? 'assistant' : 'user',
+        timestamp: response.timestamp,
+        type: response.type === MessageType.TEXT ? 'ai' : 'user',
+        metadata: response.metadata ? {
+          intent: typeof response.metadata.intent === 'string' ? response.metadata.intent : undefined,
+          confidence: typeof response.metadata.confidence === 'number' ? response.metadata.confidence : undefined,
+          suggestedActions: Array.isArray(response.metadata.suggestions) ? response.metadata.suggestions : undefined,
+          data: response.metadata.data,
+        } : undefined,
+      };
+      setMessages(prev => [...prev, assistantMessage]);
 
     } catch (error) {
       logger.error('Erro ao processar mensagem:', error);
