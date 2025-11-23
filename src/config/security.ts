@@ -6,14 +6,16 @@ export const SECURITY_CONFIG = {
   // Content Security Policy
   CSP: {
     DEFAULT_SRC: "'self'",
-    SCRIPT_SRC: "'self' 'unsafe-inline' 'unsafe-eval' https://crpzkppsriranmeumfqs.supabase.co",
+    SCRIPT_SRC:
+      "'self' 'unsafe-inline' 'unsafe-eval' https://crpzkppsriranmeumfqs.supabase.co https://vercel.live https://vercel.com",
     STYLE_SRC: "'self' 'unsafe-inline'",
     IMG_SRC: "'self' data: https:",
     FONT_SRC: "'self' data:",
-    CONNECT_SRC: "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co",
-    FRAME_SRC: "'none'",
+    CONNECT_SRC:
+      "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co https://vercel.live https://vercel.com",
+    FRAME_SRC: "'self' https://vercel.live https://vercel.com",
     OBJECT_SRC: "'none'",
-    BASE_URI: "'self'"
+    BASE_URI: "'self'",
   },
 
   // Security Headers
@@ -23,14 +25,14 @@ export const SECURITY_CONFIG = {
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+    'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
   },
 
   // Rate Limiting
   RATE_LIMITS: {
     API_CALLS: { max: 100, window: 60000 }, // 100 calls per minute
     AUTH_ATTEMPTS: { max: 5, window: 300000 }, // 5 attempts per 5 minutes
-    PASSWORD_RESET: { max: 3, window: 3600000 } // 3 resets per hour
+    PASSWORD_RESET: { max: 3, window: 3600000 }, // 3 resets per hour
   },
 
   // Password Requirements
@@ -40,17 +42,15 @@ export const SECURITY_CONFIG = {
     REQUIRE_LOWERCASE: true,
     REQUIRE_NUMBERS: true,
     REQUIRE_SPECIAL_CHARS: true,
-    FORBIDDEN_PATTERNS: [
-      'password', '123456', 'qwerty', 'admin', 'root'
-    ]
+    FORBIDDEN_PATTERNS: ['password', '123456', 'qwerty', 'admin', 'root'],
   },
 
   // Session Security
   SESSION: {
     MAX_DURATION: 24 * 60 * 60 * 1000, // 24 hours
     IDLE_TIMEOUT: 2 * 60 * 60 * 1000, // 2 hours
-    CONCURRENT_SESSIONS: 3
-  }
+    CONCURRENT_SESSIONS: 3,
+  },
 } as const;
 
 /**
@@ -67,14 +67,16 @@ export const generateCSP = (): string => {
     `connect-src ${csp.CONNECT_SRC}`,
     `frame-src ${csp.FRAME_SRC}`,
     `object-src ${csp.OBJECT_SRC}`,
-    `base-uri ${csp.BASE_URI}`
+    `base-uri ${csp.BASE_URI}`,
   ].join('; ');
 };
 
 /**
  * Validate password against security requirements
  */
-export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+export const validatePassword = (
+  password: string
+): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   const config = SECURITY_CONFIG.PASSWORD;
 
@@ -94,7 +96,10 @@ export const validatePassword = (password: string): { isValid: boolean; errors: 
     errors.push('Senha deve conter pelo menos um número');
   }
 
-  if (config.REQUIRE_SPECIAL_CHARS && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+  if (
+    config.REQUIRE_SPECIAL_CHARS &&
+    !/[!@#$%^&*(),.?":{}|<>]/.test(password)
+  ) {
     errors.push('Senha deve conter pelo menos um caractere especial');
   }
 
@@ -108,6 +113,6 @@ export const validatePassword = (password: string): { isValid: boolean; errors: 
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };

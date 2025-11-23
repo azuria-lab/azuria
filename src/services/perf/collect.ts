@@ -7,8 +7,14 @@ export interface CollectOptions {
   enabled?: boolean;
 }
 
-export async function startCollecting(handler: MetricHandler, opts: CollectOptions = {}): Promise<void> {
-  const shouldReport = opts.enabled ?? (import.meta.env.PROD || localStorage.getItem('azuria-enable-vitals-reporting') === 'true');
+export async function startCollecting(
+  handler: MetricHandler,
+  opts: CollectOptions = {}
+): Promise<void> {
+  const shouldReport =
+    opts.enabled ??
+    (import.meta.env?.PROD ||
+      localStorage.getItem('azuria-enable-vitals-reporting') === 'true');
   if (!shouldReport) {
     logger.debug?.('Web Vitals: reporting disabled');
     return;

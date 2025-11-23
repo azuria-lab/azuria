@@ -38,13 +38,13 @@ export function useAzuriaChat() {
       try {
         const parsed = JSON.parse(savedHistory);
         setMessages(
-          parsed.map((msg: any) => ({
+          parsed.map((msg: ChatMessage) => ({
             ...msg,
             timestamp: new Date(msg.timestamp),
           }))
         );
-      } catch (error) {
-        console.error('Erro ao carregar histórico:', error);
+      } catch {
+        // Ignorar erro ao carregar histórico
       }
     } else {
       // Mensagem de boas-vindas
@@ -162,7 +162,7 @@ Posso te ajudar com:
 
       return aiResponse;
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       setIsTyping(false);
       toast({
         title: 'Erro ao enviar mensagem',
