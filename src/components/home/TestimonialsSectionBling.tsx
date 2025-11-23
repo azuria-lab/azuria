@@ -111,10 +111,6 @@ const TestimonialsSectionBling: React.FC = () => {
     ...testimonials
   ];
 
-  // Calcular a porcentagem exata baseada no número de testimonials
-  // Como temos 3 cópias, mover 1/3 (33.333%) faz o loop perfeito
-  const animationPercentage = 100 / 3; // 33.333%
-
   return (
     <section className="py-20 md:py-32 bg-white w-full">
       <div className="container mx-auto px-4 w-full">

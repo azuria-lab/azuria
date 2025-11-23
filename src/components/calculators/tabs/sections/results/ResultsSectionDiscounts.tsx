@@ -1,6 +1,6 @@
 
 import React from "react";
-import DiscountSimulator from "../../../discount-simulator/DiscountSimulator";
+import DiscountSimulator from "@/components/calculators/discount-simulator/DiscountSimulator";
 
 interface ResultsSectionDiscountsProps {
   discountPercent: number;

@@ -138,8 +138,8 @@ export function formatHistoryForAI(messages: ChatMessage[]): string {
  */
 export function extractUserContext(
   history: ChatMessage[]
-): Record<string, any> {
-  const context: Record<string, any> = {};
+): Record<string, string | number | boolean> {
+  const context: Record<string, string | number | boolean> = {};
 
   // Procurar menções a valores numéricos
   const lastMessages = history.slice(-5);

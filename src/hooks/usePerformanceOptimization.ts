@@ -24,11 +24,18 @@ export const usePerformanceOptimization = (): PerformanceMetrics => {
     // Detectar dispositivo de baixo desempenho
     // Baseado em: número de cores, memória, hardware concurrency
     const hardwareConcurrency = navigator.hardwareConcurrency || 4;
-    const deviceMemory = (navigator as any).deviceMemory || 4; // GB
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4; // GB
     const isLowEndDevice = hardwareConcurrency <= 2 || deviceMemory <= 2;
 
     // Detectar velocidade de conexão
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    interface NetworkInformation {
+      effectiveType?: string;
+    }
+    const connection = (navigator as Navigator & { 
+      connection?: NetworkInformation;
+      mozConnection?: NetworkInformation;
+      webkitConnection?: NetworkInformation;
+    }).connection || (navigator as Navigator & { mozConnection?: NetworkInformation }).mozConnection || (navigator as Navigator & { webkitConnection?: NetworkInformation }).webkitConnection;
     let connectionSpeed: 'slow' | 'fast' | 'unknown' = 'unknown';
     
     if (connection) {
