@@ -28,14 +28,144 @@ Precificação profissional para marketplaces com wizard em 3 etapas, cálculo e
 
 Análise fiscal completa com Simples Nacional, Lucro Presumido e Lucro Real. Comparação automática e recomendação do melhor regime.
 
+### Calculadora de Licitação
+**Documentação:** [LICITACAO_COMPLETA.md](./LICITACAO_COMPLETA.md)  
+**Acesso:** `/calculadora-licitacao`
+
+Calculadora completa para licitações públicas e privadas com análise de viabilidade e ciclo de vida.
+
 ---
 
 ## 🏪 Sistema Multi-Marketplace
 
 **Documentação:** [MARKETPLACE.md](./MARKETPLACE.md)  
+**Documentação de Integrações:** [MARKETPLACE_INTEGRACOES.md](./MARKETPLACE_INTEGRACOES.md)  
 **Acesso:** `/marketplace`
 
 Gestão centralizada de vendas em 30+ marketplaces (3 ativos: Mercado Livre, Amazon, Shopee). Dashboard unificado com métricas consolidadas.
+
+## 🧠 Módulo de IA
+
+**Documentação:** [IA_COMPLETA.md](./IA_COMPLETA.md)  
+**Acesso:** `/azuria-ia`
+
+Sistema completo de Inteligência Artificial com chat, precificação inteligente, análise competitiva, análise tributária e insights de mercado.
+
+## 💳 Planos e Assinatura
+
+**Documentação:** [PLANOS_E_ASSINATURA.md](./PLANOS_E_ASSINATURA.md)  
+**Acesso:** `/planos`, `/assinatura`
+
+Documentação completa dos 4 planos (Free, Essencial, PRO, Enterprise), preços, limites, integrações Stripe e Mercado Pago.
+
+## 👥 Colaboração
+
+**Documentação:** [COLABORACAO.md](./COLABORACAO.md)  
+**Acesso:** `/colaboracao` (Enterprise)
+
+Sistema de colaboração com compartilhamento, aprovações, comentários e permissões granulares.
+
+## ⚙️ Automação
+
+**Documentação:** [AUTOMACAO.md](./AUTOMACAO.md)  
+**Acesso:** `/automacoes` (PRO)
+
+Sistema de automação com construtor de regras, workflow builder e analytics de automação.
+
+## 📊 Analytics Avançado
+
+**Documentação:** [ANALYTICS_AVANCADO.md](./ANALYTICS_AVANCADO.md)  
+**Acesso:** `/analytics` (PRO)
+
+Dashboards avançados, métricas, relatórios, insights, A/B testing e análise de churn.
+
+## 📦 APIs e Integrações
+
+**Documentação:** [APIS_E_ENDPOINTS.md](./APIS_E_ENDPOINTS.md)  
+**Acesso:** `/api` (PRO)
+
+Documentação completa de APIs, endpoints, Edge Functions, autenticação e rate limits.
+
+## 🔒 Segurança
+
+**Documentação:** [SEGURANCA_COMPLETA.md](./SEGURANCA_COMPLETA.md)  
+**Acesso:** `/seguranca`
+
+Documentação completa de segurança: RLS, autenticação, autorização, proteção de dados, logs, auditoria e compliance.
+
+## 🧪 Testes
+
+**Documentação:** [TESTES.md](./TESTES.md)
+
+Estrutura de testes, como rodar, cobertura, mocks, fixtures e boas práticas.
+
+## 🚀 Deploy
+
+**Documentação:** [DEPLOY_COMPLETO.md](./DEPLOY_COMPLETO.md)
+
+Processo completo de deploy, ambientes, CI/CD, Vercel e troubleshooting.
+
+## 📋 Outros Módulos
+
+### Templates
+**Documentação:** [TEMPLATES.md](./TEMPLATES.md)  
+**Acesso:** `/templates`
+
+Sistema de templates para reutilização de configurações de cálculo.
+
+### Importação/Exportação
+**Documentação:** [IMPORTACAO_EXPORTACAO.md](./IMPORTACAO_EXPORTACAO.md)  
+**Acesso:** `/importacao`, `/relatorios`
+
+Importação em massa e exportação de relatórios em múltiplos formatos.
+
+### Cenários
+**Documentação:** [CENARIOS.md](./CENARIOS.md)  
+**Acesso:** `/cenarios`
+
+Sistema de cenários para simulação de estratégias de precificação.
+
+## 🏗️ Arquitetura
+
+### Arquitetura de Domínios
+**Documentação:** [ARQUITETURA_DOMINIOS.md](./ARQUITETURA_DOMINIOS.md)
+
+Explicação completa da arquitetura Domain-Driven Design (DDD) utilizada no projeto.
+
+### Variáveis de Ambiente
+**Documentação:** [VARIAVEIS_AMBIENTE.md](./VARIAVEIS_AMBIENTE.md)
+
+Lista completa de todas as variáveis de ambiente utilizadas no projeto.
+
+## 📊 Diagramas e Visuais
+
+### Diagramas de Arquitetura
+**Documentação:** [DIAGRAMAS.md](./DIAGRAMAS.md)
+
+Diagramas em formato Mermaid incluindo:
+- Arquitetura geral do sistema
+- Fluxos de dados
+- Fluxos de IA
+- Fluxos de marketplace
+- Fluxos de assinatura
+- Estrutura de domínios (DDD)
+- Fluxos de autenticação
+- Fluxos de analytics
+- Fluxos de automação
+- Fluxos de colaboração
+- Estrutura de componentes
+- Fluxo de deploy
+
+### Guia Visual
+**Documentação:** [GUIA_VISUAL.md](./GUIA_VISUAL.md)
+
+Guia completo para adicionar screenshots e GIFs à documentação, incluindo:
+- Checklist de screenshots por página
+- Checklist de GIFs por fluxo
+- Especificações técnicas
+- Ferramentas recomendadas
+- Estrutura de pastas
+- Placeholders atuais
 
 ---
 
