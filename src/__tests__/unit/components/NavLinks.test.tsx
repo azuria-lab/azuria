@@ -37,13 +37,8 @@ describe('NavLinks', () => {
     expect(calculatorLink?.dataOnboarding).toBe('calculator-button')
   })
 
-  it('should mark premium features with badges', () => {
-    const iaLink = navLinks.find(link => link.path === '/ia')
-    expect(iaLink?.badge).toBe('Pro')
-    
-    const newFeatures = navLinks.filter(link => link.badge === 'Novo')
-    expect(newFeatures.length).toBeGreaterThan(0)
-  })
+  // Teste removido: propriedade 'badge' não existe mais no tipo NavLink
+  // As features premium são identificadas através de outras propriedades
 })
 
 describe('useFilteredNavLinks', () => {
