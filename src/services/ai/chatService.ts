@@ -226,6 +226,75 @@ export async function loadChatHistory(
 }
 
 /**
+ * Cria uma nova sessão de chat
+ */
+export async function createSession(
+  userId: string,
+  context: AIContext
+): Promise<{ id: string; userId: string; status: string; context: AIContext }> {
+  const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  return {
+    id: sessionId,
+    userId,
+    status: 'active',
+    context,
+  };
+}
+
+/**
+ * Processa uma mensagem e retorna resposta
+ */
+export async function processMessage(
+  sessionId: string,
+  message: string
+): Promise<ChatMessage> {
+  const intent = detectIntent(message);
+  const request: AIRequest = {
+    message,
+    context: {
+      userId: sessionId,
+      conversationHistory: [],
+    },
+    history: [],
+    intent,
+  };
+
+  const response = await sendMessageToAzuria(request);
+  
+  return {
+    id: `msg_${Date.now()}`,
+    role: MessageRole.ASSISTANT,
+    content: response.message,
+    type: response.type,
+    context: response.context,
+    metadata: {
+      data: response.data,
+      suggestions: response.suggestions,
+      quick_actions: response.quick_actions,
+    },
+    timestamp: new Date(),
+  };
+}
+
+/**
+ * Obtém uma sessão (stub - implementação futura)
+ */
+export function getSession(sessionId: string): { id: string; status: string } | null {
+  // Stub implementation - retorna null por enquanto
+  // No futuro, buscará do localStorage ou banco de dados
+  return null;
+}
+
+/**
+ * Fecha uma sessão (stub - implementação futura)
+ */
+export function closeSession(sessionId: string): void {
+  // Stub implementation - apenas log
+  logger.info('Sessão fechada:', sessionId);
+}
+
+/**
  * Objeto de serviço para compatibilidade com imports existentes
  */
 export const chatService = {
@@ -236,4 +305,8 @@ export const chatService = {
   extractContext: extractUserContext,
   saveMessage: saveMessageToHistory,
   loadHistory: loadChatHistory,
+  createSession,
+  processMessage,
+  getSession,
+  closeSession,
 };
