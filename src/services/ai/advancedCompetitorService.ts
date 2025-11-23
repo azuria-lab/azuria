@@ -155,15 +155,21 @@ class AdvancedCompetitorService {
 
     // Adiciona preços atuais ao histórico
     for (const competitor of currentPrices) {
+      // CompetitorData não tem platform e seller, usa competitor_name e source_url
+      const platform = competitor.source_url.includes('mercadolivre') ? 'mercadolivre' :
+                       competitor.source_url.includes('amazon') ? 'amazon' :
+                       competitor.source_url.includes('shopee') ? 'shopee' : 'other';
+      const seller = competitor.competitor_name;
+      
       let productHistory = history.find(h => 
-        h.platform === competitor.platform && h.seller === competitor.seller
+        h.platform === platform && h.seller === seller
       );
 
       if (!productHistory) {
         productHistory = {
           productName: rule.productName,
-          platform: competitor.platform,
-          seller: competitor.seller || 'Desconhecido',
+          platform,
+          seller: seller || 'Desconhecido',
           prices: []
         };
         if (productHistory) {
@@ -173,7 +179,7 @@ class AdvancedCompetitorService {
 
       if (productHistory) {
         productHistory.prices.push({
-          price: competitor.price,
+          price: competitor.current_price,
           timestamp: new Date(),
           source: 'automated_monitoring'
         });

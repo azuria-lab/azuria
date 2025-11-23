@@ -7,13 +7,14 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
 import {
-  AIContext,
   AIRequest,
   AIResponse,
+  AIContext as AzuriaAIContext,
   ChatMessage,
   MessageRole,
   MessageType,
 } from '@/types/azuriaAI';
+import type { AIContext as SharedAIContext } from '@/shared/types/ai';
 
 /**
  * Envia mensagem para a Azuria AI
@@ -40,7 +41,7 @@ export async function sendMessageToAzuria(
       message:
         'Desculpe, estou com dificuldades técnicas no momento. 😅 Pode tentar novamente em alguns segundos?',
       type: MessageType.TEXT,
-      context: AIContext.GENERAL,
+      context: AzuriaAIContext.GENERAL,
     };
   }
 }
@@ -48,7 +49,7 @@ export async function sendMessageToAzuria(
 /**
  * Detecta a intenção do usuário
  */
-export function detectIntent(message: string): AIContext {
+export function detectIntent(message: string): AzuriaAIContext {
   const lowerMessage = message.toLowerCase();
 
   // Precificação
@@ -59,7 +60,7 @@ export function detectIntent(message: string): AIContext {
     lowerMessage.includes('vender') ||
     lowerMessage.includes('margem')
   ) {
-    return AIContext.PRICING;
+    return AzuriaAIContext.PRICING;
   }
 
   // Impostos
@@ -71,7 +72,7 @@ export function detectIntent(message: string): AIContext {
     lowerMessage.includes('lucro real') ||
     lowerMessage.includes('alíquota')
   ) {
-    return AIContext.TAX;
+    return AzuriaAIContext.TAX;
   }
 
   // Concorrência
@@ -82,7 +83,7 @@ export function detectIntent(message: string): AIContext {
     lowerMessage.includes('shopee') ||
     lowerMessage.includes('amazon')
   ) {
-    return AIContext.COMPETITOR;
+    return AzuriaAIContext.COMPETITOR;
   }
 
   // Marketplace
@@ -92,10 +93,10 @@ export function detectIntent(message: string): AIContext {
     lowerMessage.includes('loja') ||
     lowerMessage.includes('venda online')
   ) {
-    return AIContext.MARKETPLACE;
+    return AzuriaAIContext.MARKETPLACE;
   }
 
-  return AIContext.GENERAL;
+  return AzuriaAIContext.GENERAL;
 }
 
 /**
@@ -230,15 +231,31 @@ export async function loadChatHistory(
  */
 export async function createSession(
   userId: string,
-  context: AIContext
-): Promise<{ id: string; userId: string; status: string; context: AIContext }> {
+  context: AzuriaAIContext | SharedAIContext | { userId: string; businessType?: string; conversationHistory?: unknown[]; preferences?: Record<string, unknown> }
+): Promise<{ id: string; userId: string; status: string; context: AzuriaAIContext }> {
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Se context é um enum AIContext, usa diretamente
+  let contextObj: AzuriaAIContext;
+  if (typeof context === 'string' || typeof context === 'number') {
+    // É um enum, usa diretamente
+    contextObj = context as AzuriaAIContext;
+  } else if ('businessType' in context) {
+    // É um objeto SharedAIContext, extrai o tipo de negócio
+    const businessType = (context as SharedAIContext).businessType;
+    contextObj = businessType === 'comercio' ? AzuriaAIContext.PRICING :
+                 businessType === 'servicos' ? AzuriaAIContext.TAX :
+                 AzuriaAIContext.GENERAL;
+  } else {
+    // Contexto padrão
+    contextObj = AzuriaAIContext.GENERAL;
+  }
   
   return {
     id: sessionId,
     userId,
     status: 'active',
-    context,
+    context: contextObj,
   };
 }
 
@@ -280,7 +297,7 @@ export async function processMessage(
 /**
  * Obtém uma sessão (stub - implementação futura)
  */
-export function getSession(sessionId: string): { id: string; status: string } | null {
+export function getSession(sessionId: string): { id: string; userId: string; status: string; messages: unknown[]; startedAt: Date; context: unknown } | null {
   // Stub implementation - retorna null por enquanto
   // No futuro, buscará do localStorage ou banco de dados
   return null;
