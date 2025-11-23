@@ -263,6 +263,15 @@ export function formatCompetitorReport(competitors: CompetitorData[]): string {
  */
 
 /**
+ * Analisa concorrentes e retorna dados estruturados
+ */
+export async function analyzeCompetitors(
+  productName: string
+): Promise<CompetitorData[]> {
+  return fetchCompetitorPrices(productName);
+}
+
+/**
  * Objeto de serviço para compatibilidade com imports existentes
  */
 export const competitorService = {
@@ -270,4 +279,5 @@ export const competitorService = {
   analyzeAlerts: analyzeCompetitorAlerts,
   suggestPrice: suggestCompetitivePrice,
   formatReport: formatCompetitorReport,
+  analyzeCompetitors,
 };

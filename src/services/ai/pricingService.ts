@@ -275,6 +275,32 @@ export function suggestPricingStrategy(
 }
 
 /**
+ * Análise completa de precificação
+ */
+export async function analyzePricing(params: {
+  costPrice: number;
+  desiredMargin?: number;
+  taxRegime: string;
+  businessType: string;
+}): Promise<PricingSuggestion> {
+  // Usa a função existente calculatePricingSuggestion
+  // Estima tax_rate baseado no regime (simplificado)
+  const taxRateMap: Record<string, number> = {
+    simples_nacional: 8.0,
+    lucro_presumido: 16.0,
+    lucro_real: 20.0,
+  };
+  
+  const taxRate = taxRateMap[params.taxRegime] || 8.0;
+  
+  return calculatePricingSuggestion({
+    cost_price: params.costPrice,
+    target_margin: params.desiredMargin || 30,
+    tax_rate: taxRate,
+  });
+}
+
+/**
  * Objeto de serviço para compatibilidade com imports existentes
  */
 export const pricingService = {
@@ -282,4 +308,5 @@ export const pricingService = {
   analyzeMargin,
   calculatePromotionImpact,
   suggestStrategy: suggestPricingStrategy,
+  analyzePricing,
 };

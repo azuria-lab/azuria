@@ -243,10 +243,28 @@ export function explainTaxRegime(regime: string): string {
 }
 
 /**
+ * Análise de otimização tributária
+ */
+export async function analyzeTaxOptimization(params: {
+  currentRegime: string;
+  monthlyRevenue: number;
+  businessType: string;
+  employeeCount?: number;
+  hasManufacturing?: boolean;
+}): Promise<TaxAnalysis> {
+  // Usa a função existente calculateTaxAnalysis
+  const regime = params.currentRegime as 'simples_nacional' | 'lucro_presumido' | 'lucro_real';
+  const annualRevenue = params.monthlyRevenue * 12;
+  
+  return calculateTaxAnalysis(annualRevenue, regime);
+}
+
+/**
  * Objeto de serviço para compatibilidade com imports existentes
  */
 export const taxService = {
   calculateAnalysis: calculateTaxAnalysis,
   suggestRegime: suggestBestTaxRegime,
   explainRegime: explainTaxRegime,
+  analyzeTaxOptimization,
 };
