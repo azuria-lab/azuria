@@ -37,7 +37,7 @@ const initializeApp = () => {
         </ErrorBoundary>
       </StrictMode>
     );
-  if (import.meta.env.DEV) {
+  if (import.meta.env?.DEV) {
     // route to logger in dev
     import('@/services/logger').then(m => m.logger.info?.('✅ App initialized successfully'));
   }
@@ -46,14 +46,14 @@ const initializeApp = () => {
     registerServiceWorker();
     
     // Initialize Web Vitals reporting and optimization (only in production)
-  if (import.meta.env.PROD) {
+  if (import.meta.env?.PROD) {
       // Lazy-load optimizer so web-vitals stays out of main chunk
       import('@/utils/webVitalsOptimizer')
         .then(mod => mod.webVitalsOptimizer.initialize())
         .catch(() => {/* silent */});
   }
   // New modular web vitals (skip during DEV to lighten startup)
-    if (import.meta.env.PROD) {
+    if (import.meta.env?.PROD) {
       initWebVitals();
     }
     // Legacy reporter (opt-in via localStorage flag)
@@ -69,7 +69,7 @@ const initializeApp = () => {
     }
     
   // Initialize bundle optimization only in PROD
-    if (import.meta.env.PROD) {
+    if (import.meta.env?.PROD) {
       initBundleOptimization();
     }
   } catch (error) {
@@ -93,7 +93,7 @@ const initializeApp = () => {
 // Service Worker registration function
 const registerServiceWorker = async () => {
   // Only register in production and if supported
-  if (!import.meta.env.PROD || !('serviceWorker' in navigator)) {
+  if (!import.meta.env?.PROD || !('serviceWorker' in navigator)) {
     return;
   }
 
@@ -134,9 +134,9 @@ errorTracker.initialize();
 try {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/';
   const onLanding = path === '/' || path === '/index';
-  healthCheck.initialize({ enabled: import.meta.env.PROD && !onLanding });
+  healthCheck.initialize({ enabled: import.meta.env?.PROD && !onLanding });
 } catch {
-  healthCheck.initialize({ enabled: import.meta.env.PROD });
+  healthCheck.initialize({ enabled: import.meta.env?.PROD });
 }
 backupService.initialize();
 featureFlags.initialize();

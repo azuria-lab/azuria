@@ -1,11 +1,11 @@
 /**
  * useAzuriaChat Hook
- * 
+ *
  * Hook personalizado para gerenciar o chat com a Azuria AI
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
   AIContext,
@@ -30,7 +30,6 @@ export function useAzuriaChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId] = useState<string>(() => uuidv4());
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   // Carregar histórico do localStorage
   useEffect(() => {
@@ -86,19 +85,20 @@ Posso te ajudar com:
   /**
    * Obtém contexto da conversa
    */
-  const getConversationContext = useCallback(async (): Promise<ConversationContext> => {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id || 'anonymous';
+  const getConversationContext =
+    useCallback(async (): Promise<ConversationContext> => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id || 'anonymous';
 
-    return {
-      user_id: userId,
-      session_id: sessionId,
-      user_preferences: {
-        tax_regime: 'simples_nacional',
-        target_margin: 0.2,
-      },
-    };
-  }, [sessionId]);
+      return {
+        user_id: userId,
+        session_id: sessionId,
+        user_preferences: {
+          tax_regime: 'simples_nacional',
+          target_margin: 0.2,
+        },
+      };
+    }, [sessionId]);
 
   /**
    * Enviar mensagem para a IA
@@ -116,7 +116,7 @@ Posso te ajudar com:
         context: AIContext.GENERAL,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages(prev => [...prev, userMsg]);
 
       // Preparar contexto
       const context = await getConversationContext();
@@ -129,9 +129,12 @@ Posso te ajudar com:
       };
 
       // Chamar Edge Function
-      const { data, error } = await supabase.functions.invoke(AZURIA_AI_EDGE_FUNCTION, {
-        body: aiRequest,
-      });
+      const { data, error } = await supabase.functions.invoke(
+        AZURIA_AI_EDGE_FUNCTION,
+        {
+          body: aiRequest,
+        }
+      );
 
       if (error) {
         throw new Error(error.message || 'Erro ao se comunicar com a IA');
@@ -154,7 +157,7 @@ Posso te ajudar com:
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMsg]);
+      setMessages(prev => [...prev, assistantMsg]);
       setIsTyping(false);
 
       return aiResponse;
@@ -163,7 +166,8 @@ Posso te ajudar com:
       setIsTyping(false);
       toast({
         title: 'Erro ao enviar mensagem',
-        description: error.message || 'Não foi possível se comunicar com a Azuria AI.',
+        description:
+          error.message || 'Não foi possível se comunicar com a Azuria AI.',
         variant: 'destructive',
       });
 
@@ -176,7 +180,7 @@ Posso te ajudar com:
         context: AIContext.GENERAL,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages(prev => [...prev, errorMsg]);
     },
   });
 
@@ -220,4 +224,3 @@ Posso te ajudar com:
     sendQuickAction,
   };
 }
-

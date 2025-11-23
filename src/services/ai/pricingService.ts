@@ -1,6 +1,6 @@
 /**
  * Pricing Service - Azuria AI
- * 
+ *
  * Serviço responsável por análises e sugestões de precificação
  */
 
@@ -33,7 +33,8 @@ export function calculatePricingSuggestion(params: {
   const total_fee_rate = tax_rate + marketplace_fee;
 
   // Fórmula por divisor (garante margem líquida real)
-  const suggested_price = total_cost / (1 - (target_margin / 100) - (total_fee_rate / 100));
+  const suggested_price =
+    total_cost / (1 - target_margin / 100 - total_fee_rate / 100);
 
   // Cálculos de lucro
   const taxes_and_fees = suggested_price * (total_fee_rate / 100);
@@ -41,31 +42,45 @@ export function calculatePricingSuggestion(params: {
   const profit_percentage = (profit / suggested_price) * 100;
 
   // Preços alternativos
-  const competitive_price = total_cost / (1 - 0.15 - (total_fee_rate / 100)); // 15% margem
-  const premium_price = total_cost / (1 - 0.40 - (total_fee_rate / 100)); // 40% margem
-  const minimum_price = total_cost / (1 - 0.05 - (total_fee_rate / 100)); // 5% margem
+  const competitive_price = total_cost / (1 - 0.15 - total_fee_rate / 100); // 15% margem
+  const premium_price = total_cost / (1 - 0.4 - total_fee_rate / 100); // 40% margem
+  const minimum_price = total_cost / (1 - 0.05 - total_fee_rate / 100); // 5% margem
 
   // Confiança baseada na margem
   let confidence = 80;
-  if (profit_percentage < 10) {confidence = 50;}
-  if (profit_percentage > 20 && profit_percentage < 40) {confidence = 95;}
+  if (profit_percentage < 10) {
+    confidence = 50;
+  }
+  if (profit_percentage > 20 && profit_percentage < 40) {
+    confidence = 95;
+  }
 
   // Reasoning
-  let reasoning = `Baseado no custo de R$ ${total_cost.toFixed(2)}, impostos de ${total_fee_rate.toFixed(1)}% e margem desejada de ${target_margin}%, `;
-  
+  let reasoning = `Baseado no custo de R$ ${total_cost.toFixed(
+    2
+  )}, impostos de ${total_fee_rate.toFixed(
+    1
+  )}% e margem desejada de ${target_margin}%, `;
+
   if (current_price) {
     const difference = suggested_price - current_price;
     const diff_percentage = (difference / current_price) * 100;
-    
+
     if (Math.abs(diff_percentage) < 5) {
       reasoning += `seu preço atual está ótimo! 👍`;
     } else if (difference > 0) {
-      reasoning += `sugiro aumentar em R$ ${difference.toFixed(2)} (${diff_percentage.toFixed(1)}%) para garantir sua margem.`;
+      reasoning += `sugiro aumentar em R$ ${difference.toFixed(
+        2
+      )} (${diff_percentage.toFixed(1)}%) para garantir sua margem.`;
     } else {
-      reasoning += `você pode reduzir em R$ ${Math.abs(difference).toFixed(2)} (${Math.abs(diff_percentage).toFixed(1)}%) e manter lucratividade.`;
+      reasoning += `você pode reduzir em R$ ${Math.abs(difference).toFixed(
+        2
+      )} (${Math.abs(diff_percentage).toFixed(1)}%) e manter lucratividade.`;
     }
   } else {
-    reasoning += `este preço garante ${profit_percentage.toFixed(1)}% de margem líquida real.`;
+    reasoning += `este preço garante ${profit_percentage.toFixed(
+      1
+    )}% de margem líquida real.`;
   }
 
   return {
@@ -119,14 +134,18 @@ export function analyzeMargin(params: {
     suggestions.push('Aumente o preço em pelo menos 10% ou reduza custos');
   } else if (current_margin < 10) {
     issues.push('⚠️ Margem baixa - risco elevado');
-    suggestions.push('Considere aumentar o preço ou negociar custos com fornecedores');
+    suggestions.push(
+      'Considere aumentar o preço ou negociar custos com fornecedores'
+    );
   } else if (current_margin < target_margin) {
     issues.push(`Margem abaixo do alvo de ${target_margin}%`);
   }
 
   if (current_margin > 50) {
     issues.push('Margem muito alta - pode estar perdendo vendas');
-    suggestions.push('Considere reduzir o preço para aumentar volume de vendas');
+    suggestions.push(
+      'Considere reduzir o preço para aumentar volume de vendas'
+    );
   }
 
   // Sugestões de economia
@@ -200,13 +219,18 @@ export function calculatePromotionImpact(params: {
   // Calcular aumento necessário para compensar
   const break_even_volume_increase = (margin_reduction / margin_new) * 100;
 
-  const is_viable = expected_volume_increase >= break_even_volume_increase || margin_new > 10;
+  const is_viable =
+    expected_volume_increase >= break_even_volume_increase || margin_new > 10;
 
   let recommendation = '';
   if (!is_viable) {
-    recommendation = `⚠️ Desconto arriscado! Você precisaria aumentar as vendas em ${break_even_volume_increase.toFixed(0)}% para compensar.`;
+    recommendation = `⚠️ Desconto arriscado! Você precisaria aumentar as vendas em ${break_even_volume_increase.toFixed(
+      0
+    )}% para compensar.`;
   } else if (margin_new < 10) {
-    recommendation = `⚠️ Margem ficará baixa (${margin_new.toFixed(1)}%). Considere desconto menor.`;
+    recommendation = `⚠️ Margem ficará baixa (${margin_new.toFixed(
+      1
+    )}%). Considere desconto menor.`;
   } else {
     recommendation = `✅ Promoção viável! Com aumento de ${expected_volume_increase}% nas vendas, vale a pena.`;
   }
@@ -224,7 +248,9 @@ export function calculatePromotionImpact(params: {
 /**
  * Sugere estratégia de precificação por objetivo
  */
-export function suggestPricingStrategy(objective: 'volume' | 'profit' | 'competitive'): string {
+export function suggestPricingStrategy(
+  objective: 'volume' | 'profit' | 'competitive'
+): string {
   const strategies = {
     volume: `📊 **Estratégia de Volume:**
 • Reduza a margem para 10-15%
