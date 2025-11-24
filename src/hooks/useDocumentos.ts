@@ -97,7 +97,7 @@ export function useDocumentos() {
         .insert({
           user_id: userData.user.id,
           ...params,
-        } as never)
+        })
         .select()
         .single();
 
@@ -167,7 +167,7 @@ export function useDocumentos() {
         .single();
 
       // Deletar arquivo do storage se existir
-      if (documento && documento.arquivo_url) {
+      if (documento?.arquivo_url) {
         await supabase.storage
           .from('documentos')
           .remove([documento.arquivo_url]);
@@ -214,7 +214,7 @@ export function useDocumentos() {
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      a.remove();
       URL.revokeObjectURL(url);
 
       toast({
