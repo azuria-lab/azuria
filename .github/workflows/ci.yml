@@ -60,6 +60,7 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    if: false  # Temporarily disabled due to memory constraints
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4

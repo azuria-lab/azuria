@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react-swc'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react-swc';
+import path from 'node:path';
 
 export default defineConfig({
   plugins: [react()],
@@ -18,7 +18,7 @@ export default defineConfig({
         isolate: true,
         maxForks: 1,
         minForks: 1,
-      }
+      },
     },
     isolate: true,
     maxConcurrency: 1,
@@ -51,14 +51,14 @@ export default defineConfig({
           branches: 40,
           functions: 50,
           lines: 60,
-          statements: 50
-        }
-      }
-  }
+          statements: 50,
+        },
+      },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});
