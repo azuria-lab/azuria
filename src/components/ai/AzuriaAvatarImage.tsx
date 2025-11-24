@@ -8,7 +8,7 @@
 import { ImgHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-interface AzuriaAvatarImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'> {
+interface AzuriaAvatarImageProps extends Readonly<Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'>> {
   size?: 'tiny' | 'small' | 'medium' | 'large';
   className?: string;
 }
@@ -17,7 +17,7 @@ export function AzuriaAvatarImage({
   size = 'medium', 
   className,
   ...props 
-}: AzuriaAvatarImageProps) {
+}: Readonly<AzuriaAvatarImageProps>) {
   const sizeMap = {
     tiny: 'w-4 h-4',    // 16px
     small: 'w-8 h-8',   // 32px

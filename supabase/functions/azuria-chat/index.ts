@@ -1,6 +1,7 @@
 // Azuria Chat Edge Function
 //
 // Processa mensagens do usuário e interage com Gemini 2.0 Flash
+/// <reference types="https://deno.land/x/deno/cli/tsc/dts/lib.deno.d.ts" />
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -77,7 +78,7 @@ interface AIRequest {
   }>;
 }
 
-serve(async req => {
+serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

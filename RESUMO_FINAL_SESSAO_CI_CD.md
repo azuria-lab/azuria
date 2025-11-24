@@ -93,7 +93,7 @@
 
 ### 3. Correções do Workflow de Governance
 
-**Problema:** O scan de governança falhava ao encontrar referências a termos de licenças open-source em arquivos de roadmap.
+**Problema:** O scan de governança falhava ao encontrar referências a termos de licenças de terceiros em arquivos de roadmap.
 
 **Solução aplicada:**
 - Adicionado `docs/ROADMAP*.md` à lista de arquivos permitidos no scan
