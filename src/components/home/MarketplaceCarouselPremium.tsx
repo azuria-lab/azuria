@@ -6,57 +6,52 @@ import { motion, useReducedMotion } from "framer-motion";
 const marketplaces = [
   {
     name: "Shopee",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg",
+    logoUrl: "/images/marketplaces/shopee.png",
     fallback: "Shopee",
     color: "#EE4D2D",
+    scale: 2.8,
   },
   {
     name: "Mercado Livre",
-    logoUrl: "https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/6.6.1/mercadolibre/logo__large_plus@2x.png",
+    logoUrl: "/images/marketplaces/mercadolivre.png",
     fallback: "Mercado Livre",
     color: "#FFE600",
+    scale: 2.6,
   },
   {
     name: "Amazon",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+    logoUrl: "/images/marketplaces/amazon.svg",
     fallback: "Amazon",
     color: "#000000",
+    scale: 0.75,
   },
   {
     name: "Magalu",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Magazine_Luiza_logo.svg",
+    logoUrl: "/images/marketplaces/magalu.png",
     fallback: "Magalu",
     color: "#FF6B00",
+    scale: 2.8,
   },
   {
     name: "Temu",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Temu_logo.svg/2560px-Temu_logo.svg.png",
+    logoUrl: "/images/marketplaces/temu.png",
     fallback: "Temu",
     color: "#FF6B00",
+    scale: 2.5,
   },
   {
     name: "Shein",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/81/Shein_Logo.svg",
+    logoUrl: "/images/marketplaces/shein.png",
     fallback: "SHEIN",
     color: "#000000",
+    scale: 2.8,
   },
   {
     name: "Americanas",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Americanas_logo.svg",
+    logoUrl: "/images/marketplaces/americanas.png",
     fallback: "Americanas",
     color: "#FF0000",
-  },
-  {
-    name: "AliExpress",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AliExpress_logo.svg/2560px-AliExpress_logo.svg.png",
-    fallback: "AliExpress",
-    color: "#FF6B00",
-  },
-  {
-    name: "Wish",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Wish_logo.svg",
-    fallback: "Wish",
-    color: "#000000",
+    scale: 2.8,
   },
 ];
 
@@ -92,45 +87,54 @@ const MarketplaceLogoCard: React.FC<{ marketplace: typeof marketplaces[0] }> = (
   return (
     <div 
       ref={cardRef}
-      className="flex-shrink-0 w-[calc(50%-12px)] md:w-[calc(33.333%-20px)] lg:w-[calc(25%-24px)] px-3 md:px-5"
+      className="flex-shrink-0 w-[200px] px-3"
     >
       <div className="bg-white rounded-xl p-6 md:p-8 border border-black/8 shadow-sm hover:shadow-md transition-shadow duration-200 h-[140px] flex items-center justify-center">
         <div className="w-full h-full flex items-center justify-center relative">
-          {!imageError && isInView ? (
-            <>
-              {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+          {(() => {
+            if (!imageError && isInView) {
+              return (
+                <>
+                  {imageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  )}
+                  <img
+                    src={marketplace.logoUrl}
+                    alt={`Logo ${marketplace.name}`}
+                    className={`max-w-full h-12 w-auto object-contain transition-opacity duration-200 ${
+                      imageLoading ? 'opacity-0' : 'opacity-100'
+                    }`}
+                    style={{ transform: `scale(${marketplace.scale || 1})` }}
+                    onError={() => {
+                      setImageError(true);
+                      setImageLoading(false);
+                    }}
+                    onLoad={() => setImageLoading(false)}
+                    loading="lazy"
+                    decoding="async"
+                    fetchPriority="low"
+                  />
+                </>
+              );
+            }
+            
+            if (imageError) {
+              return (
+                <div className="flex items-center justify-center">
+                  <span 
+                    className="text-xl md:text-2xl font-bold" 
+                    style={{ color: marketplace.color }}
+                  >
+                    {marketplace.fallback}
+                  </span>
                 </div>
-              )}
-              <img
-                src={marketplace.logoUrl}
-                alt={`Logo ${marketplace.name}`}
-                className={`max-w-full max-h-16 w-auto h-auto object-contain transition-opacity duration-200 ${
-                  imageLoading ? 'opacity-0' : 'opacity-100'
-                }`}
-                onError={() => {
-                  setImageError(true);
-                  setImageLoading(false);
-                }}
-                onLoad={() => setImageLoading(false)}
-                loading="lazy"
-                decoding="async"
-                fetchPriority="low"
-              />
-            </>
-          ) : imageError ? (
-            <div className="flex items-center justify-center">
-              <span 
-                className="text-xl md:text-2xl font-bold" 
-                style={{ color: marketplace.color }}
-              >
-                {marketplace.fallback}
-              </span>
-            </div>
-          ) : (
-            <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
-          )}
+              );
+            }
+
+            return <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />;
+          })()}
         </div>
       </div>
     </div>
@@ -172,11 +176,11 @@ const MarketplaceCarouselPremium: React.FC = () => {
           {/* Carrossel Container com movimento contínuo infinito */}
           <div className="relative overflow-hidden">
             <div
-              className="flex"
+              className="flex w-max"
               style={{
                 animation: reduceMotion 
                   ? 'none' 
-                  : 'scroll-marketplaces-infinite 50s linear infinite',
+                  : 'scroll-marketplaces-infinite 15s linear infinite',
                 willChange: reduceMotion ? 'auto' : 'transform',
               }}
             >

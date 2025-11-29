@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ShareCalculationDialog from '@/components/collaboration/ShareCalculationDialog';
@@ -61,8 +60,7 @@ export default function CollaborationPage() {
   };
 
   return (
-    <Layout>
-      <motion.div
+    <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -238,6 +236,5 @@ export default function CollaborationPage() {
           </TabsContent>
         </Tabs>
       </motion.div>
-    </Layout>
   );
 }

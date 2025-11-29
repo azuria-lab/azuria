@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
-import { OptimizedImage } from "@/components/performance/OptimizedImage";
 
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
@@ -19,12 +18,12 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Logo e Descrição */}
             <div className="space-y-4">
-              <OptimizedImage 
-                src="/lovable-uploads/f326ff5a-6129-4295-99bd-d185851a20a3.png" 
+              <img 
+                src="/images/azuria-logo-official.png" 
                 alt="Logo Azuria+" 
-                className="h-8 w-auto" 
-                width={128} 
-                height={36} 
+                className="h-24 w-auto mb-2" 
+                width={384} 
+                height={108} 
               />
               <p className="text-sm text-gray-600 leading-relaxed">
                 Precificação inteligente para vender com mais lucro e menos esforço.
@@ -87,12 +86,12 @@ export default function Footer() {
           {/* Logo e Descrição */}
           <div className="space-y-4">
             <Link to="/">
-              <OptimizedImage 
-                src="/lovable-uploads/f326ff5a-6129-4295-99bd-d185851a20a3.png" 
+              <img 
+                src="/images/azuria-logo-official.png" 
                 alt="Logo Azuria+" 
-                className="h-8 w-auto hover:opacity-90 transition-opacity" 
-                width={128} 
-                height={36} 
+                className="h-24 w-auto hover:opacity-90 transition-opacity mb-2" 
+                width={384} 
+                height={108} 
               />
             </Link>
             <p className="text-sm text-gray-600 leading-relaxed">

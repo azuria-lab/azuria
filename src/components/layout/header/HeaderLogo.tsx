@@ -8,11 +8,11 @@ export default function HeaderLogo() {
   return (
     <Link to="/" className="flex items-center space-x-3">
       <img 
-        src={`/lovable-uploads/1b60dc50-10b8-4a67-8b97-a83c4cb83ba6.png${cacheBuster}`}
+        src={`/images/azuria-logo-official.png${cacheBuster}`}
         alt="Logo Azuria+"
-        className="h-8 w-auto object-contain"
-        width={112}
-        height={32}
+        className="h-24 w-auto object-contain"
+        width={336}
+        height={96}
         loading="eager"
         decoding="async"
         fetchPriority="high"
@@ -22,7 +22,7 @@ export default function HeaderLogo() {
           target.style.display = 'none';
           const parent = target.parentElement;
           if (parent) {
-            parent.innerHTML = '<div class="h-8 px-3 bg-gradient-to-r from-brand-500 to-brand-700 rounded-lg flex items-center"><span class="text-white font-bold text-sm">Azuria</span></div>';
+            parent.innerHTML = '<div class="h-24 px-6 bg-gradient-to-r from-brand-500 to-brand-700 rounded-lg flex items-center"><span class="text-white font-bold text-xl">Azuria</span></div>';
           }
         }}
       />

@@ -11,6 +11,7 @@ import MobileNavigation from "./header/MobileNavigation";
 import { useProStatus } from "@/shared/hooks/useProStatus";
 import { logger } from "@/services/logger";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import HeaderLogo from "./header/HeaderLogo";
 
 
 export default function Header() {
@@ -43,8 +44,13 @@ export default function Header() {
   if (!mounted) {
     return (
       <header className="sticky top-0 z-40 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="container flex h-16 items-center justify-center">
-          <div className="animate-pulse h-8 w-24 bg-gray-200 rounded" />
+        <div className="container flex h-16 items-center">
+          <div className="flex-shrink-0 mr-6">
+            <HeaderLogo />
+          </div>
+          <div className="flex-1 flex justify-center">
+            <div className="animate-pulse h-8 w-24 bg-gray-200 rounded" />
+          </div>
         </div>
       </header>
     );
@@ -52,8 +58,13 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="container flex h-16 items-center justify-center">
-        {/* Desktop Navigation - Centralizado */}
+      <div className="container flex h-16 items-center">
+        {/* Logo - Left side */}
+        <div className="flex-shrink-0 mr-6">
+          <HeaderLogo />
+        </div>
+
+        {/* Desktop Navigation - Centered */}
         <div data-testid="desktop-navigation" className="flex-1 flex justify-center">
           <DesktopNavigation isAuthenticated={isAuthenticated} isPro={isPro} />
         </div>

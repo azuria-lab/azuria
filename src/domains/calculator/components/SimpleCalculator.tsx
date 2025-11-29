@@ -11,7 +11,6 @@ import HistoryDisplay from "@/components/calculators/HistoryDisplay";
 import ResultAnalysis from "@/components/calculators/ResultAnalysis";
 import TemplateSelector from "@/components/templates/TemplateSelector";
 import type { CalculationTemplate } from "@/types/templates";
-import OfflineIndicator from "@/components/offline/OfflineIndicator";
 import {
   SubscriptionAuthError,
   UsageLimitError,
@@ -130,7 +129,6 @@ export default function SimpleCalculator({ isPro = false, userId }: SimpleCalcul
 
   return (
     <>
-      <OfflineIndicator showDetails className="mb-4" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -47,14 +47,28 @@ export const PricingCard = ({
   return (
     <Card
       className={cn(
-        'relative flex flex-col transition-all hover:shadow-lg',
-        plan.recommended && 'border-primary shadow-md scale-105',
-        isCurrentPlan && 'border-green-500'
+        'relative flex flex-col transition-all duration-200',
+        'bg-white border rounded-lg',
+        'hover:shadow-lg hover:border-primary/30',
+        plan.recommended && 'border-primary shadow-lg ring-1 ring-primary/20',
+        !plan.recommended && 'border-gray-200',
+        isCurrentPlan && 'border-green-500 ring-1 ring-green-500/20'
       )}
     >
+      {/* Subtle accent for recommended plan */}
+      {plan.recommended && (
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
+      )}
+      
       {plan.tagline && (
         <div className="absolute -top-4 left-0 right-0 flex justify-center">
-          <Badge variant={plan.recommended ? 'default' : 'secondary'} className="text-sm px-4 py-1">
+          <Badge 
+            className={cn(
+              "text-xs font-semibold px-4 py-1.5 shadow-sm",
+              plan.recommended && "bg-primary text-primary-foreground",
+              !plan.recommended && "bg-muted text-muted-foreground"
+            )}
+          >
             {plan.tagline}
           </Badge>
         </div>
@@ -63,9 +77,9 @@ export const PricingCard = ({
       <CardHeader className="text-center pb-4">
         <div className="flex items-center justify-center gap-2 mb-2">
           {getIcon()}
-          <CardTitle className="text-2xl">{plan.name}</CardTitle>
+          <CardTitle className="text-2xl font-bold text-slate-900">{plan.name}</CardTitle>
         </div>
-        <CardDescription className="text-sm">
+        <CardDescription className="text-sm text-slate-600">
           {plan.description}
         </CardDescription>
       </CardHeader>
@@ -81,18 +95,20 @@ export const PricingCard = ({
           ) : (
             <div>
               <div className="flex items-baseline justify-center gap-1">
-                <span className="text-4xl font-bold">{formatPrice(price)}</span>
-                <span className="text-muted-foreground">
+                <span className="text-4xl font-bold text-slate-900">
+                  {formatPrice(price)}
+                </span>
+                <span className="text-slate-500">
                   /{billingInterval === 'monthly' ? 'mês' : 'ano'}
                 </span>
               </div>
               
               {billingInterval === 'annual' && plan.pricing.annualDiscount > 0 && (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-slate-500">
                     {formatPrice(monthlyEquivalent)}/mês
                   </p>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="text-xs bg-green-50 text-success border border-green-200">
                     Economize {plan.pricing.annualDiscount}%
                   </Badge>
                 </div>
@@ -101,18 +117,22 @@ export const PricingCard = ({
           )}
           
           {plan.pricing.trialDays && !isCurrentPlan && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-slate-500 mt-2">
               {plan.pricing.trialDays} dias de teste grátis
             </p>
           )}
         </div>
 
         {/* Features */}
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {highlights.map((feature, index) => (
-            <div key={index} className="flex items-start gap-2">
-              <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-              <span className="text-sm">{feature}</span>
+            <div key={index} className="flex items-start gap-2.5">
+              <Check className={cn(
+                "h-4 w-4 mt-0.5 flex-shrink-0",
+                plan.recommended && "text-primary",
+                !plan.recommended && "text-slate-700"
+              )} />
+              <span className="text-sm text-slate-700">{feature}</span>
             </div>
           ))}
         </div>
@@ -122,11 +142,16 @@ export const PricingCard = ({
         <Button
           onClick={onSelect}
           disabled={isCurrentPlan || isLoading}
-          className="w-full"
-          variant={plan.recommended ? 'default' : 'outline'}
+          className={cn(
+            "w-full font-semibold transition-all duration-200",
+            plan.recommended && "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg",
+            !plan.recommended && plan.id !== 'free' && "bg-slate-900 text-white hover:bg-slate-800",
+            plan.id === 'free' && "border-2 border-slate-900 text-slate-900 hover:bg-slate-50"
+          )}
+          variant={plan.id === 'free' ? 'outline' : 'default'}
           size="lg"
         >
-          {isCurrentPlan ? 'Plano Atual' : isLoading ? 'Carregando...' : 'Selecionar Plano'}
+          {isCurrentPlan ? 'Plano Atual' : isLoading ? 'Carregando...' : plan.id === 'free' ? 'Começar grátis' : 'Começar agora'}
         </Button>
       </CardFooter>
     </Card>

@@ -1,8 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import AdvancedCalculator from "@/components/calculators/AdvancedCalculator";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +70,6 @@ export default function AdvancedProCalculatorPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
       
       <main className="flex-grow py-12 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -102,7 +99,6 @@ export default function AdvancedProCalculatorPage() {
         </div>
       </main>
       
-      <Footer />
     </motion.div>
   );
 }

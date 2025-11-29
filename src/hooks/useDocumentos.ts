@@ -96,8 +96,14 @@ export function useDocumentos() {
         .from('documentos')
         .insert({
           user_id: userData.user.id,
-          ...params,
-        })
+          tipo: params.tipo,
+          nome: params.nome,
+          numero: params.numero ?? null,
+          data_emissao: params.data_emissao,
+          data_validade: params.data_validade,
+          arquivo_url: params.arquivo_url ?? null,
+          observacoes: params.observacoes ?? null,
+        } as any)
         .select()
         .single();
 
@@ -122,15 +128,44 @@ export function useDocumentos() {
     },
   });
 
-  // Atualizar documento
   const updateDocumento = useMutation({
     mutationFn: async ({
       id,
       ...params
     }: Partial<Documento> & { id: string }) => {
+      const updateData: Partial<Omit<Documento, 'id' | 'created_at'>> = {};
+
+      if (params.tipo !== undefined) {
+        updateData.tipo = params.tipo;
+      }
+      if (params.nome !== undefined) {
+        updateData.nome = params.nome;
+      }
+      if (params.numero !== undefined) {
+        updateData.numero = params.numero;
+      }
+      if (params.data_emissao !== undefined) {
+        updateData.data_emissao = params.data_emissao;
+      }
+      if (params.data_validade !== undefined) {
+        updateData.data_validade = params.data_validade;
+      }
+      if (params.arquivo_url !== undefined) {
+        updateData.arquivo_url = params.arquivo_url;
+      }
+      if (params.status !== undefined) {
+        updateData.status = params.status;
+      }
+      if (params.dias_para_vencer !== undefined) {
+        updateData.dias_para_vencer = params.dias_para_vencer;
+      }
+      if (params.observacoes !== undefined) {
+        updateData.observacoes = params.observacoes;
+      }
+
       const { data, error } = await supabase
         .from('documentos')
-        .update(params)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();
@@ -160,14 +195,21 @@ export function useDocumentos() {
   const deleteDocumento = useMutation({
     mutationFn: async (id: string) => {
       // Buscar documento para pegar arquivo_url
-      const { data: documento } = await supabase
+      const { data: documento, error: fetchError } = (await supabase
         .from('documentos')
         .select('arquivo_url')
         .eq('id', id)
-        .single();
+        .single()) as {
+        data: { arquivo_url: string | null } | null;
+        error: any;
+      };
+
+      if (fetchError) {
+        throw fetchError;
+      }
 
       // Deletar arquivo do storage se existir
-      if (documento?.arquivo_url) {
+      if (documento && documento.arquivo_url) {
         await supabase.storage
           .from('documentos')
           .remove([documento.arquivo_url]);

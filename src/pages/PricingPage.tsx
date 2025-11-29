@@ -6,8 +6,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { Check, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import {
   Accordion,
   AccordionContent,
@@ -17,7 +16,7 @@ import {
 import { PricingCard } from '@/components/subscription/PricingCard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PLANS_ARRAY } from '@/config/plans';
-import { useStripe } from '@/hooks/useStripe';
+import { useAbacatePay } from '@/hooks/useAbacatePay';
 import { toast } from '@/components/ui/use-toast';
 
 const containerVariants = {
@@ -38,7 +37,7 @@ const containerVariants = {
 export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
   const { subscription } = useSubscription();
-  const { createCheckoutSession, isLoading } = useStripe();
+  const { createBilling, isLoading } = useAbacatePay();
 
   const handleSelectPlan = async (planId: string) => {
     // Se for plano FREE, não precisa de pagamento
@@ -60,14 +59,11 @@ export default function PricingPage() {
       return;
     }
 
-    // Mapear planId para formato do Stripe
-    const stripePlanId = planId === 'essencial' ? 'essencial' : 'pro';
-    const stripeBillingInterval = billingInterval === 'monthly' ? 'month' : 'year';
-
-    // Criar sessão de checkout no Stripe
-    await createCheckoutSession({
-      planId: stripePlanId as 'essencial' | 'pro',
-      billingInterval: stripeBillingInterval as 'month' | 'year'
+    // Criar cobrança no Abacatepay
+    await createBilling({
+      planId: planId as 'essencial' | 'pro',
+      billingInterval: billingInterval,
+      methods: ['PIX', 'CARD']
     });
   };
 
@@ -81,7 +77,7 @@ export default function PricingPage() {
       />
       
       <motion.div 
-        className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800"
+        className="flex flex-col min-h-screen bg-white"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -93,27 +89,40 @@ export default function PricingPage() {
           <div className="container mx-auto max-w-7xl">
             {/* Header */}
             <div className="text-center mb-12 space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
                 Planos e Preços
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Escolha o plano ideal para seu negócio e comece a calcular com inteligência
+              <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                Escolha o plano ideal para seu negócio e comece a precificar com inteligência
               </p>
 
-              {/* Toggle Mensal/Anual */}
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <Label htmlFor="billing-toggle" className={billingInterval === 'monthly' ? 'font-semibold' : ''}>
+              {/* Toggle Mensal/Anual - Limpo e Elegante */}
+              <div className="inline-flex items-center bg-muted rounded-lg p-1">
+                <button
+                  onClick={() => setBillingInterval('monthly')}
+                  className={cn(
+                    "px-6 py-2.5 text-sm font-medium rounded-md transition-all",
+                    billingInterval === 'monthly'
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
                   Mensal
-                </Label>
-                <Switch
-                  id="billing-toggle"
-                  checked={billingInterval === 'annual'}
-                  onCheckedChange={(checked) => setBillingInterval(checked ? 'annual' : 'monthly')}
-                />
-                <Label htmlFor="billing-toggle" className={billingInterval === 'annual' ? 'font-semibold' : ''}>
+                </button>
+                <button
+                  onClick={() => setBillingInterval('annual')}
+                  className={cn(
+                    "px-6 py-2.5 text-sm font-medium rounded-md transition-all",
+                    billingInterval === 'annual'
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
                   Anual
-                  <span className="ml-2 text-xs text-primary">(Economize 17%)</span>
-                </Label>
+                  <span className="ml-2 text-xs font-semibold text-success">
+                    -17%
+                  </span>
+                </button>
               </div>
             </div>
 
@@ -133,7 +142,7 @@ export default function PricingPage() {
 
             {/* Tabela de Comparação */}
             <div className="mb-16">
-              <h2 className="text-3xl font-bold text-center mb-8">
+              <h2 className="text-3xl font-bold text-center mb-8 text-slate-900">
                 Compare todos os planos
               </h2>
               
@@ -142,10 +151,10 @@ export default function PricingPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-4 px-4">Funcionalidade</th>
+                      <tr className="border-b bg-muted/50">
+                          <th className="text-left py-4 px-4 text-slate-900 font-semibold">Funcionalidade</th>
                           {PLANS_ARRAY.map((plan) => (
-                            <th key={plan.id} className="text-center py-4 px-4 font-semibold">
+                            <th key={plan.id} className="text-center py-4 px-4 font-semibold text-slate-900">
                               {plan.name}
                             </th>
                           ))}
@@ -173,7 +182,7 @@ export default function PricingPage() {
 
             {/* FAQ */}
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold text-center mb-8">
+              <h2 className="text-3xl font-bold text-center mb-8 text-slate-900">
                 Perguntas Frequentes
               </h2>
               
@@ -214,7 +223,7 @@ export default function PricingPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    Aceitamos pagamentos via Stripe, incluindo cartão de crédito e débito. 
+                    Aceitamos pagamentos via PIX e Cartão de Crédito através do Abacatepay. 
                     Para o plano Enterprise, também oferecemos faturamento empresarial.
                   </AccordionContent>
                 </AccordionItem>
@@ -267,10 +276,10 @@ export default function PricingPage() {
 
             {/* CTA Final */}
             <div className="mt-16 text-center space-y-4">
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold text-slate-900">
                 Ainda tem dúvidas?
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-slate-600">
                 Nossa equipe está pronta para ajudar você a escolher o plano ideal
               </p>
               <Button size="lg" variant="outline" asChild>
@@ -296,18 +305,18 @@ interface ComparisonRowProps {
 
 function ComparisonRow({ feature, values }: ComparisonRowProps) {
   return (
-    <tr className="border-b hover:bg-muted/50">
-      <td className="py-4 px-4 font-medium">{feature}</td>
+    <tr className="border-b hover:bg-muted/50 transition-colors">
+      <td className="py-4 px-4 font-medium text-slate-900">{feature}</td>
       {values.map((value, index) => (
         <td key={index} className="text-center py-4 px-4">
           {typeof value === 'boolean' ? (
             value ? (
               <Check className="h-5 w-5 text-primary mx-auto" />
             ) : (
-              <span className="text-muted-foreground">-</span>
+              <span className="text-slate-400">—</span>
             )
           ) : (
-            <span className="text-sm">{value}</span>
+            <span className="text-sm text-slate-600 font-medium">{value}</span>
           )}
         </td>
       ))}

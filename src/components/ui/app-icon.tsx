@@ -8,7 +8,7 @@ interface AppIconProps {
   variant?: 'default' | 'minimal';
 }
 
-export function AppIcon({ className, size = 40, withShadow = false, variant = 'default' }: AppIconProps) {
+export function AppIcon({ className, size = 40, withShadow = false, variant = 'default' }: Readonly<AppIconProps>) {
   // Cache-busting para forçar carregamento da imagem
   const cacheBuster = `?v=${Date.now()}`;
   
@@ -26,7 +26,7 @@ export function AppIcon({ className, size = 40, withShadow = false, variant = 'd
         }}
       >
         <img 
-          src={`/lovable-uploads/1b60dc50-10b8-4a67-8b97-a83c4cb83ba6.png${cacheBuster}`}
+          src={`/images/azuria-logo-official.png${cacheBuster}`}
           alt="Azuria"
           className="w-full h-full object-contain"
           style={{ 
@@ -60,7 +60,7 @@ export function AppIcon({ className, size = 40, withShadow = false, variant = 'd
       }}
     >
       <img 
-        src={`/lovable-uploads/1b60dc50-10b8-4a67-8b97-a83c4cb83ba6.png${cacheBuster}`}
+        src={`/images/azuria-logo-official.png${cacheBuster}`}
         alt="Azuria"
         className="w-full h-full object-contain"
         style={{ 

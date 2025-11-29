@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
 import { AppIcon } from '@/components/ui/app-icon';
-import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
 import { BiddingCalculator } from '@/components/bidding/BiddingCalculator';
 
 const containerVariants = {
@@ -33,8 +31,6 @@ export default function BiddingCalculatorPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
-
       <main className="flex-grow py-12 px-4 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container mx-auto max-w-7xl">
           <motion.div variants={itemVariants} className="text-center mb-12">
@@ -56,8 +52,6 @@ export default function BiddingCalculatorPage() {
           </motion.div>
         </div>
       </main>
-
-      <Footer />
     </motion.div>
   );
 }

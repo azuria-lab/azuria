@@ -1,7 +1,6 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MetricsSummary from "@/components/metrics/MetricsSummary";
 import PricingChart from "@/components/metrics/PricingChart";
@@ -10,8 +9,7 @@ import { ChartBar, DollarSign, TrendingUp } from "lucide-react";
 
 export default function PricingMetricsDashboard() {
   return (
-    <Layout>
-      <div className="container mx-auto py-6 px-4 max-w-7xl">
+    <div className="container mx-auto py-6 px-4 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -50,6 +48,5 @@ export default function PricingMetricsDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 }

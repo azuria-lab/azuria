@@ -1,6 +1,4 @@
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import { LazyComponentLoader } from "@/components/performance/LazyComponentLoader";
 import { Thermometer } from "lucide-react";
@@ -34,7 +32,6 @@ export default function SensitivityAnalysisPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
       
       <main className="flex-grow py-12 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -55,7 +52,6 @@ export default function SensitivityAnalysisPage() {
         </div>
       </main>
       
-      <Footer />
     </motion.div>
   );
 }

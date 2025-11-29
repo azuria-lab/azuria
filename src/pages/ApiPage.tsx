@@ -1,6 +1,5 @@
 
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import ApiDocumentation from "@/components/api/ApiDocumentation";
 
 const containerVariants = {
@@ -16,8 +15,7 @@ const containerVariants = {
 
 export default function ApiPage() {
   return (
-    <Layout>
-      <motion.div
+    <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -25,6 +23,5 @@ export default function ApiPage() {
       >
         <ApiDocumentation />
       </motion.div>
-    </Layout>
   );
 }

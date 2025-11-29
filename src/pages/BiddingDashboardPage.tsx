@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
-import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,13 +52,11 @@ export default function BiddingDashboardPage() {
 
   if (error) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-red-600">
-            Erro ao carregar dados: {error}
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">
+          Erro ao carregar dados: {error}
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -72,8 +69,7 @@ export default function BiddingDashboardPage() {
         type="website"
       />
       
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
           <div className="space-y-6">
             {/* Cabeçalho */}
             <SectionHeader
@@ -496,7 +492,6 @@ export default function BiddingDashboardPage() {
             </Card>
           </div>
         </div>
-      </Layout>
-    </>
-  );
-}
+      </>
+    );
+  }

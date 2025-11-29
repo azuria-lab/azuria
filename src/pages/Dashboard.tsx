@@ -37,7 +37,7 @@ export default function Dashboard() {
           animate={reduceMotion ? undefined : "visible"}
           className="min-h-screen"
         >
-          <div className="container mx-auto py-8 px-4">
+          <div className="container mx-auto py-6 px-4">
             <Suspense fallback={<DashboardSkeleton />}>
               <UnifiedDashboard />
             </Suspense>
