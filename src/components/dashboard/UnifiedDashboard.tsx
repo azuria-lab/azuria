@@ -107,14 +107,6 @@ export default function UnifiedDashboard() {
     <div className="space-y-6">
       {/* Saudação Personalizada */}
       <DashboardGreeting />
-      
-      {/* Badge de Crescimento */}
-      <div className="flex items-center justify-end">
-        <Badge variant="outline" className="text-green-600 border-green-200">
-          <TrendingUp className="h-3 w-3 mr-1" />
-          +{stats.weeklyGrowth}% esta semana
-        </Badge>
-      </div>
 
       {/* Métricas Principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

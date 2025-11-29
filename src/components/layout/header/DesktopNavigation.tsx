@@ -1,15 +1,12 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { LayoutGroup, motion } from 'framer-motion';
 import { useFilteredNavLinks } from './NavLinks';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
 interface DesktopNavigationProps {

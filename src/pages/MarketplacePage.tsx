@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Layout from "@/components/layout/Layout";
 import MultiMarketplaceDashboard from "@/components/marketplace/MultiMarketplaceDashboard";
 import ConnectMarketplaceDialog from "@/components/marketplace/ConnectMarketplaceDialog";
 import { TourButton } from "@/components/tour";
@@ -23,8 +22,7 @@ export default function MarketplacePage() {
   };
 
   return (
-    <Layout>
-      <div className="relative">
+    <div className="relative">
         {/* Tour Button - Fixed position */}
         <div className="fixed bottom-8 right-8 z-50">
           <TourButton 
@@ -46,6 +44,5 @@ export default function MarketplacePage() {
           onSuccess={handleConnectionSuccess}
         />
       </div>
-    </Layout>
   );
 }

@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,8 +94,7 @@ export default function ScenariosPage() {
   );
 
   return (
-    <Layout>
-      <motion.div 
+    <motion.div 
         className="container mx-auto py-8 px-4"
         variants={containerVariants}
         initial="hidden"
@@ -296,6 +294,5 @@ export default function ScenariosPage() {
           </motion.div>
         )}
       </motion.div>
-    </Layout>
   );
 }

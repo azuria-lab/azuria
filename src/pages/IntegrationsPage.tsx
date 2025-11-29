@@ -1,8 +1,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useEcommerceIntegrations } from "@/hooks/useEcommerceIntegrations";
 import IntegrationsStats from "@/components/integrations/IntegrationsStats";
@@ -47,7 +45,6 @@ export default function IntegrationsPage() {
       />
       
       <div className="flex flex-col min-h-screen">
-        <Header />
       
       <main className="flex-grow py-12 px-4">
         <motion.div 
@@ -105,7 +102,6 @@ export default function IntegrationsPage() {
         </motion.div>
       </main>
         
-        <Footer />
       </div>
     </>
   );

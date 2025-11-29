@@ -12,7 +12,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import MainLayout from '@/components/layout/Layout';
 import { AzuriaAINavigation } from '@/components/ai/AzuriaAINavigation';
 import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 import {
@@ -106,18 +105,15 @@ export default function AzuriaAIHub() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <LoadingState />
-        </div>
-      </MainLayout>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <LoadingState />
+      </div>
     );
   }
 
   return (
-    <MainLayout>
-      <motion.div
-        className="container mx-auto px-4 py-8 max-w-7xl"
+    <motion.div
+      className="container mx-auto px-4 py-8 max-w-7xl"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -183,6 +179,5 @@ export default function AzuriaAIHub() {
           </p>
         </motion.div>
       </motion.div>
-    </MainLayout>
   );
 }

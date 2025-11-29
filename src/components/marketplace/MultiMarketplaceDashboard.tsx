@@ -34,9 +34,22 @@ export default function MultiMarketplaceDashboard({
   // Marketplaces conectados (mock - em produção, viria do backend)
   const [marketplaces] = useState<MarketplaceCard[]>([
     {
+      id: 'shopee',
+      name: 'Shopee',
+      logoUrl: '/images/marketplaces/shopee.png',
+      status: {
+        isConnected: true,
+        lastSync: new Date(Date.now() - 15 * 60 * 1000), // 15 min atrás
+        syncStatus: 'syncing',
+      },
+      color: '#EE4D2D',
+      category: 'internacional',
+      region: 'Sudeste Asiático',
+    },
+    {
       id: 'mercado-livre',
       name: 'Mercado Livre',
-      logoUrl: 'https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/5.21.22/mercadolibre/logo__large_plus.png',
+      logoUrl: '/images/marketplaces/mercadolivre.png',
       status: {
         isConnected: true,
         lastSync: new Date(Date.now() - 30 * 60 * 1000), // 30 min atrás
@@ -49,7 +62,7 @@ export default function MultiMarketplaceDashboard({
     {
       id: 'amazon',
       name: 'Amazon',
-      logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
+      logoUrl: '/images/marketplaces/amazon.svg',
       status: {
         isConnected: true,
         lastSync: new Date(Date.now() - 60 * 60 * 1000), // 1h atrás
@@ -60,22 +73,9 @@ export default function MultiMarketplaceDashboard({
       region: 'Global',
     },
     {
-      id: 'shopee',
-      name: 'Shopee',
-      logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg',
-      status: {
-        isConnected: true,
-        lastSync: new Date(Date.now() - 15 * 60 * 1000), // 15 min atrás
-        syncStatus: 'syncing',
-      },
-      color: '#EE4D2D',
-      category: 'internacional',
-      region: 'Sudeste Asiático',
-    },
-    {
       id: 'magalu',
       name: 'Magazine Luiza',
-      logoUrl: 'https://logodownload.org/wp-content/uploads/2014/05/magazine-luiza-logo-0.png',
+      logoUrl: '/images/marketplaces/magalu.png',
       status: {
         isConnected: false,
         syncStatus: 'idle',
@@ -86,9 +86,33 @@ export default function MultiMarketplaceDashboard({
       region: 'Brasil',
     },
     {
+      id: 'temu',
+      name: 'Temu',
+      logoUrl: '/images/marketplaces/temu.png',
+      status: {
+        isConnected: false,
+        syncStatus: 'idle',
+      },
+      color: '#FF6F00',
+      category: 'internacional',
+      region: 'Global',
+    },
+    {
+      id: 'shein',
+      name: 'Shein',
+      logoUrl: '/images/marketplaces/shein.png',
+      status: {
+        isConnected: false,
+        syncStatus: 'idle',
+      },
+      color: '#000000',
+      category: 'internacional',
+      region: 'Global',
+    },
+    {
       id: 'americanas',
       name: 'Americanas',
-      logoUrl: 'https://logodownload.org/wp-content/uploads/2014/04/americanas-logo-0.png',
+      logoUrl: '/images/marketplaces/americanas.png',
       status: {
         isConnected: true,
         lastSync: new Date(Date.now() - 45 * 60 * 1000), // 45 min atrás
@@ -97,18 +121,6 @@ export default function MultiMarketplaceDashboard({
       color: '#E31F26',
       category: 'nacional',
       region: 'Brasil',
-    },
-    {
-      id: 'temu',
-      name: 'Temu',
-      logoUrl: 'https://asset.brandfetch.io/idKjPl3Yqp/idZzLmqejx.svg',
-      status: {
-        isConnected: false,
-        syncStatus: 'idle',
-      },
-      color: '#FF6F00',
-      category: 'internacional',
-      region: 'Global',
     },
   ]);
 

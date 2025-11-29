@@ -11,8 +11,9 @@ import { Plan, PlanId } from '@/types/subscription';
  */
 const freePlan: Plan = {
   id: 'free',
-  name: 'Free',
-  description: 'Para começar a calcular seus custos e descobrir o Azuria',
+  name: 'Iniciante',
+  description:
+    'Ideal para testar a plataforma e validar suas primeiras precificações',
   pricing: {
     monthly: 0,
     annual: 0,
@@ -23,36 +24,36 @@ const freePlan: Plan = {
     // Calculadoras
     basicCalculator: true,
     advancedCalculator: false,
-    
+
     // Limites
     dailyCalculations: 10,
     aiQueriesPerMonth: 0,
     apiRequestsPerMonth: 0,
     maxStores: 0,
     teamMembers: 1,
-    
+
     // Funcionalidades
     saveHistory: false,
     exportReports: false,
     exportFormats: [],
-    
+
     // IA
     aiAssistant: false,
     aiModel: null,
-    
+
     // Analytics
     basicAnalytics: false,
     advancedAnalytics: false,
     competitorAnalysis: false,
-    
+
     // Integrações
     marketplaceIntegration: false,
     marketplaces: [],
     priceAlerts: false,
-    
+
     // API
     apiAccess: false,
-    
+
     // Colaboração
     teamCollaboration: false,
     permissionsSystem: false,
@@ -60,14 +61,14 @@ const freePlan: Plan = {
     commentsOnCalculations: false,
     approvalWorkflow: false,
     consolidatedDashboard: false,
-    
+
     // Suporte
     supportType: 'none',
     supportResponseTime: '-',
     accountManager: false,
     personalizedOnboarding: false,
     slaGuarantee: false,
-    
+
     // Branding
     watermark: true,
     whiteLabel: false,
@@ -81,12 +82,13 @@ const freePlan: Plan = {
 const essencialPlan: Plan = {
   id: 'essencial',
   name: 'Essencial',
-  description: 'Perfeito para pequenos negócios que precisam de controle total sobre custos',
-  tagline: '⭐ POPULAR',
+  description:
+    'Para empreendedores individuais que precisam de controle profissional',
+  tagline: 'Mais Popular',
   popular: true,
   pricing: {
-    monthly: 59.00,
-    annual: 590.00,
+    monthly: 59.0,
+    annual: 590.0,
     annualDiscount: 17,
     currency: 'BRL',
     trialDays: 7,
@@ -95,36 +97,36 @@ const essencialPlan: Plan = {
     // Calculadoras
     basicCalculator: true,
     advancedCalculator: true,
-    
+
     // Limites
     dailyCalculations: 'unlimited',
     aiQueriesPerMonth: 50,
     apiRequestsPerMonth: 0,
     maxStores: 1,
     teamMembers: 1,
-    
+
     // Funcionalidades
     saveHistory: true,
     exportReports: true,
     exportFormats: ['pdf'],
-    
+
     // IA
     aiAssistant: true,
     aiModel: 'gpt-3.5',
-    
+
     // Analytics
     basicAnalytics: true,
     advancedAnalytics: false,
     competitorAnalysis: false,
-    
+
     // Integrações
     marketplaceIntegration: false,
     marketplaces: [],
     priceAlerts: false,
-    
+
     // API
     apiAccess: false,
-    
+
     // Colaboração
     teamCollaboration: false,
     permissionsSystem: false,
@@ -132,14 +134,14 @@ const essencialPlan: Plan = {
     commentsOnCalculations: false,
     approvalWorkflow: false,
     consolidatedDashboard: false,
-    
+
     // Suporte
     supportType: 'email',
     supportResponseTime: '48h',
     accountManager: false,
     personalizedOnboarding: false,
     slaGuarantee: false,
-    
+
     // Branding
     watermark: false,
     whiteLabel: false,
@@ -153,12 +155,12 @@ const essencialPlan: Plan = {
 const proPlan: Plan = {
   id: 'pro',
   name: 'Pro',
-  description: 'Para negócios sérios que vendem em múltiplos marketplaces e precisam de IA avançada',
-  tagline: '🚀 RECOMENDADO',
+  description: 'Para negócios em expansão com múltiplos canais de venda',
+  tagline: 'Recomendado',
   recommended: true,
   pricing: {
-    monthly: 119.00,
-    annual: 1190.00,
+    monthly: 119.0,
+    annual: 1190.0,
     annualDiscount: 17,
     currency: 'BRL',
     trialDays: 14,
@@ -167,36 +169,36 @@ const proPlan: Plan = {
     // Calculadoras
     basicCalculator: true,
     advancedCalculator: true,
-    
+
     // Limites
     dailyCalculations: 'unlimited',
     aiQueriesPerMonth: 'unlimited',
     apiRequestsPerMonth: 1000,
     maxStores: 3,
     teamMembers: 1,
-    
+
     // Funcionalidades
     saveHistory: true,
     exportReports: true,
     exportFormats: ['pdf', 'excel', 'csv'],
-    
+
     // IA
     aiAssistant: true,
     aiModel: 'gpt-4',
-    
+
     // Analytics
     basicAnalytics: true,
     advancedAnalytics: true,
     competitorAnalysis: true,
-    
+
     // Integrações
     marketplaceIntegration: true,
     marketplaces: ['mercadolivre', 'shopee', 'amazon'],
     priceAlerts: true,
-    
+
     // API
     apiAccess: true,
-    
+
     // Colaboração
     teamCollaboration: false,
     permissionsSystem: false,
@@ -204,14 +206,14 @@ const proPlan: Plan = {
     commentsOnCalculations: false,
     approvalWorkflow: false,
     consolidatedDashboard: false,
-    
+
     // Suporte
     supportType: 'priority',
     supportResponseTime: '24h',
     accountManager: false,
     personalizedOnboarding: false,
     slaGuarantee: false,
-    
+
     // Branding
     watermark: false,
     whiteLabel: false,
@@ -225,11 +227,11 @@ const proPlan: Plan = {
 const enterprisePlan: Plan = {
   id: 'enterprise',
   name: 'Enterprise',
-  description: 'Solução completa para empresas com equipes, white label e suporte dedicado',
-  tagline: '💼 EMPRESARIAL',
+  description: 'Solução corporativa com recursos avançados e suporte dedicado',
+  tagline: 'Enterprise',
   customPricing: true,
   pricing: {
-    monthly: 299.00,
+    monthly: 299.0,
     annual: 0, // Negociável
     annualDiscount: 0,
     currency: 'BRL',
@@ -239,36 +241,36 @@ const enterprisePlan: Plan = {
     // Calculadoras
     basicCalculator: true,
     advancedCalculator: true,
-    
+
     // Limites
     dailyCalculations: 'unlimited',
     aiQueriesPerMonth: 'unlimited',
     apiRequestsPerMonth: 'unlimited',
     maxStores: 'unlimited',
     teamMembers: 'unlimited',
-    
+
     // Funcionalidades
     saveHistory: true,
     exportReports: true,
     exportFormats: ['pdf', 'excel', 'csv'],
-    
+
     // IA
     aiAssistant: true,
     aiModel: 'gpt-4',
-    
+
     // Analytics
     basicAnalytics: true,
     advancedAnalytics: true,
     competitorAnalysis: true,
-    
+
     // Integrações
     marketplaceIntegration: true,
     marketplaces: ['mercadolivre', 'shopee', 'amazon'],
     priceAlerts: true,
-    
+
     // API
     apiAccess: true,
-    
+
     // Colaboração (Exclusivo Enterprise)
     teamCollaboration: true,
     permissionsSystem: true,
@@ -276,14 +278,14 @@ const enterprisePlan: Plan = {
     commentsOnCalculations: true,
     approvalWorkflow: true,
     consolidatedDashboard: true,
-    
+
     // Suporte Premium
     supportType: '24/7',
     supportResponseTime: 'immediate',
     accountManager: true,
     personalizedOnboarding: true,
     slaGuarantee: true,
-    
+
     // Branding
     watermark: false,
     whiteLabel: true,
@@ -320,26 +322,29 @@ export const getPlanById = (planId: PlanId): Plan => {
 /**
  * Verifica se um plano tem uma feature específica
  */
-export const planHasFeature = (planId: PlanId, feature: keyof Plan['features']): boolean => {
+export const planHasFeature = (
+  planId: PlanId,
+  feature: keyof Plan['features']
+): boolean => {
   const plan = PLANS[planId];
   const featureValue = plan.features[feature];
-  
+
   if (typeof featureValue === 'boolean') {
     return featureValue;
   }
-  
+
   if (typeof featureValue === 'number') {
     return featureValue > 0;
   }
-  
+
   if (featureValue === 'unlimited') {
     return true;
   }
-  
+
   if (Array.isArray(featureValue)) {
     return featureValue.length > 0;
   }
-  
+
   return false;
 };
 
@@ -354,7 +359,10 @@ export const comparePlans = (planId1: PlanId, planId2: PlanId): number => {
 /**
  * Verifica se um plano é superior a outro
  */
-export const isPlanHigher = (planId: PlanId, comparedToPlanId: PlanId): boolean => {
+export const isPlanHigher = (
+  planId: PlanId,
+  comparedToPlanId: PlanId
+): boolean => {
   return comparePlans(planId, comparedToPlanId) > 0;
 };
 
@@ -382,7 +390,7 @@ export const formatPrice = (price: number): string => {
   if (price === 0) {
     return 'Grátis';
   }
-  
+
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -395,11 +403,11 @@ export const formatPrice = (price: number): string => {
 export const getRecommendedUpgrade = (currentPlanId: PlanId): PlanId | null => {
   const planOrder: PlanId[] = ['free', 'essencial', 'pro', 'enterprise'];
   const currentIndex = planOrder.indexOf(currentPlanId);
-  
+
   if (currentIndex < planOrder.length - 1) {
     return planOrder[currentIndex + 1];
   }
-  
+
   return null;
 };
 
@@ -408,17 +416,17 @@ export const getRecommendedUpgrade = (currentPlanId: PlanId): PlanId | null => {
  */
 export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
   free: [
-    '10 cálculos por dia',
+    'Até 10 cálculos/dia',
     'Calculadora básica',
-    'Marca d\'água',
+    'Funcionalidades limitadas',
   ],
   essencial: [
     'Cálculos ilimitados',
-    'Histórico ilimitado',
-    '50 consultas IA/mês',
+    'Histórico completo',
+    '50 consultas IA/mês (GPT-3.5)',
     'Analytics básico',
-    'Exportar PDF',
-    'Sem marca d\'água',
+    'Exportação em PDF',
+    "Sem marca d'água",
   ],
   pro: [
     'Tudo do Essencial',
@@ -426,19 +434,19 @@ export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
     'Integração com marketplaces',
     'Análise de concorrência',
     'Alertas de preço',
-    'Dashboard avançado',
-    'Até 3 lojas',
-    'API básica',
+    'Analytics avançado',
+    'Até 3 lojas conectadas',
+    'API (1.000 requisições/mês)',
   ],
   enterprise: [
-    'Tudo do PRO',
+    'Tudo do Pro',
     'API ilimitada',
     'Lojas ilimitadas',
-    'Sistema de equipes',
+    'Colaboração em equipe',
     'Usuários ilimitados',
-    'Permissões por função',
+    'Controle de permissões',
     'White label',
-    'Suporte 24/7',
+    'Suporte prioritário 24/7',
     'Account manager dedicado',
   ],
 };

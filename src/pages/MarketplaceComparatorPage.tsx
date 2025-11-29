@@ -1,7 +1,6 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import MarketplaceComparator from "@/components/calculators/MarketplaceComparator";
 import ProUpgradeBanner from "@/components/calculators/ProUpgradeBanner";
 import { useAuth } from "@/hooks/auth";
@@ -10,7 +9,7 @@ export default function MarketplaceComparatorPage() {
   const { user: _user, isPro } = useAuth();
   
   return (
-    <Layout>
+    <>
       {/* Removemos o componente Helmet que estava causando problemas */}
       
       <motion.div
@@ -54,6 +53,6 @@ export default function MarketplaceComparatorPage() {
           </div>
         )}
       </motion.div>
-    </Layout>
+    </>
   );
 }

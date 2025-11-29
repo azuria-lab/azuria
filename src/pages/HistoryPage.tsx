@@ -2,8 +2,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/domains/auth";
 import { useRealTimeHistory } from "@/hooks/useRealTimeHistory";
@@ -77,7 +75,6 @@ export default function HistoryPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
       
       <main className="flex-grow py-12 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -131,7 +128,6 @@ export default function HistoryPage() {
         </div>
       </main>
       
-      <Footer />
     </motion.div>
   );
 }

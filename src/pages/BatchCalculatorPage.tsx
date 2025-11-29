@@ -1,6 +1,4 @@
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import BatchCalculator from "@/components/calculators/BatchCalculator";
 import { Package2 } from "lucide-react";
@@ -34,7 +32,6 @@ export default function BatchCalculatorPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
       
       <main className="flex-grow py-12 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -55,7 +52,6 @@ export default function BatchCalculatorPage() {
         </div>
       </main>
       
-      <Footer />
     </motion.div>
   );
 }

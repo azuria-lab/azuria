@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +27,14 @@ export default function Login() {
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
+    logger.info("🔍 Login - useEffect de redirecionamento disparado", {
+      isAuthenticated,
+      locationState: location.state
+    });
+    
     if (isAuthenticated) {
       const from = location.state?.from?.pathname || "/dashboard";
+      logger.info("🚀 Redirecionando para:", from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location.state]);
@@ -52,17 +58,19 @@ export default function Login() {
       const session = await login(email, password);
       
       if (session) {
-        logger.info("✅ Login realizado com sucesso");
+        logger.info("✅ Login realizado com sucesso", { 
+          sessionId: session.user.id,
+          email: session.user.email 
+        });
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta ao Azuria",
         });
         
-        // Aguardar um pouco para garantir que o estado foi atualizado
-        setTimeout(() => {
-          const from = location.state?.from?.pathname || "/dashboard";
-          navigate(from, { replace: true });
-        }, 500);
+        // O redirecionamento será feito pelo useEffect quando isAuthenticated mudar
+        // Não fazer navigate aqui para evitar conflito
+        // Manter isLoading=true até o redirect acontecer
+        logger.info("⏳ Aguardando atualização do estado isAuthenticated para redirecionar...");
       } else {
         throw new Error("Falha no login - sessão não criada");
       }
@@ -85,7 +93,8 @@ export default function Login() {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
+      
+      // Só desligar loading em caso de erro
       setIsLoading(false);
     }
   };
@@ -118,17 +127,18 @@ export default function Login() {
       const result = await register(email, password, name);
       
       if (result) {
-        logger.info("✅ Conta criada com sucesso");
+        logger.info("✅ Conta criada com sucesso", {
+          userId: result.user?.id,
+          email: result.user?.email
+        });
         toast({
           title: "Conta criada com sucesso!",
           description: "Você já pode usar o Azuria. Bem-vindo!",
         });
         
-        // Aguardar um pouco para garantir que o estado foi atualizado
-        setTimeout(() => {
-          const from = location.state?.from?.pathname || "/dashboard";
-          navigate(from, { replace: true });
-        }, 500);
+        // O redirecionamento será feito pelo useEffect quando isAuthenticated mudar
+        // Manter isLoading=true até o redirect acontecer
+        logger.info("⏳ Aguardando atualização do estado isAuthenticated para redirecionar...");
       } else {
         throw new Error("Falha no cadastro");
       }
@@ -153,7 +163,8 @@ export default function Login() {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
+      
+      // Só desligar loading em caso de erro
       setIsLoading(false);
     }
   };
@@ -171,8 +182,12 @@ export default function Login() {
           
           <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl">
             <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center">
-                <div className="text-2xl font-bold text-white">A</div>
+              <div className="w-auto h-24 mx-auto mb-4 flex items-center justify-center">
+                <img 
+                  src="/images/azuria-logo-official.png" 
+                  alt="Azuria Logo" 
+                  className="h-full w-auto object-contain"
+                />
               </div>
               <CardTitle className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
                 Entrar no Azuria
@@ -355,13 +370,13 @@ export default function Login() {
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Ao criar uma conta, você concorda com nossos{" "}
-                  <a href="#" className="text-brand-600 hover:text-brand-700">
+                  <Link to="/terms" className="text-brand-600 hover:text-brand-700">
                     Termos de Uso
-                  </a>{" "}
+                  </Link>{" "}
                   e{" "}
-                  <a href="#" className="text-brand-600 hover:text-brand-700">
+                  <Link to="/privacy" className="text-brand-600 hover:text-brand-700">
                     Política de Privacidade
-                  </a>
+                  </Link>
                 </p>
               </div>
             </CardContent>

@@ -1,7 +1,5 @@
 // Aqui ativamos o modo PRO true para todos os recursos, conforme solicitado para testes internos no componente SimpleCalculator.
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import SimpleCalculator from "@/domains/calculator/components/SimpleCalculator";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -45,7 +43,6 @@ export default function SimpleCalculatorPage() {
       animate="visible"
       exit="exit"
     >
-      <Header />
       
       <main className="flex-grow py-12 px-4 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container mx-auto max-w-6xl">
@@ -101,7 +98,6 @@ export default function SimpleCalculatorPage() {
         </div>
       </main>
       
-      <Footer />
     </motion.div>
   );
 }

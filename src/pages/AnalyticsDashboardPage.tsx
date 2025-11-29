@@ -1,6 +1,5 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import { LazyComponentLoader } from "@/components/performance/LazyComponentLoader";
 
 const containerVariants = {
@@ -29,9 +28,8 @@ export default function AnalyticsDashboardPage() {
         <link rel="canonical" href={canonical} />
       </Helmet>
 
-      <Layout>
-        <h1 className="sr-only">Analytics em Tempo Real da Azuria+</h1>
-        <motion.div
+      <h1 className="sr-only">Analytics em Tempo Real da Azuria+</h1>
+      <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -39,7 +37,6 @@ export default function AnalyticsDashboardPage() {
         >
           <LazyComponentLoader importFunc={() => import("@/components/analytics/AnalyticsDashboard")} />
         </motion.div>
-      </Layout>
     </>
   );
 }

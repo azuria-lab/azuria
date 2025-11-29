@@ -2,7 +2,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +63,6 @@ export default function AdvancedAnalyticsDashboard() {
         />
         <link rel="canonical" href={canonical} />
       </Helmet>
-      <Layout>
       <div className="container mx-auto py-6 px-4 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -184,7 +182,6 @@ export default function AdvancedAnalyticsDashboard() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
-  </>
+    </>
   );
 }

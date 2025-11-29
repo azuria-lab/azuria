@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, Filter, Search, Star } from "lucide-react";
 import { useSimpleCalculator } from "@/hooks/useSimpleCalculator";
-import Header from "@/components/layout/Header";
-import MobileNavigationBar from "@/components/mobile/MobileNavigationBar";
 import { logger } from "@/services/logger";
 import type { Database } from "@/types/supabase";
 
@@ -148,7 +146,6 @@ const Templates = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-primary/5">
-        <Header />
         <div className="container mx-auto px-4 pt-24 pb-20">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -157,15 +154,14 @@ const Templates = () => {
             </div>
           </div>
         </div>
-        <MobileNavigationBar />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-primary/5">
-      <Header />
-      <div className="container mx-auto px-4 pt-24 pb-20">
+    <div className="min-h-screen bg-background">
+      
+      <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
         {/* Header da página */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-4">
@@ -254,8 +250,7 @@ const Templates = () => {
             </p>
           </div>
         )}
-      </div>
-      <MobileNavigationBar />
+      </main>
     </div>
   );
 };

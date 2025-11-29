@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import Layout from "@/components/layout/Layout";
 import IntelligenceHeader from "@/components/intelligence/IntelligenceHeader";
 import IntelligenceConfig from "@/components/intelligence/IntelligenceConfig";
 import IntelligenceTabs from "@/components/intelligence/IntelligenceTabs";
@@ -18,8 +17,7 @@ export default function IntelligenceDataPage() {
   const [timeframe, setTimeframe] = useState<'7d' | '30d' | '90d'>('30d');
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <IntelligenceHeader />
         
         <IntelligenceConfig
@@ -36,6 +34,5 @@ export default function IntelligenceDataPage() {
 
         <IntelligenceFooter />
       </div>
-    </Layout>
   );
 }
