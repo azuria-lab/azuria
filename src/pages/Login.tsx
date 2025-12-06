@@ -29,15 +29,21 @@ export default function Login() {
   useEffect(() => {
     logger.info("🔍 Login - useEffect de redirecionamento disparado", {
       isAuthenticated,
-      locationState: location.state
+      locationState: location.state,
+      locationPathname: location.pathname,
+      timestamp: new Date().toISOString()
     });
     
     if (isAuthenticated) {
       const from = location.state?.from?.pathname || "/dashboard";
-      logger.info("🚀 Redirecionando para:", from);
+      logger.info("🚀 isAuthenticated é TRUE! Redirecionando para:", from);
+      
+      // Redirecionar imediatamente
       navigate(from, { replace: true });
+    } else {
+      logger.info("⏸️ isAuthenticated é FALSE, não redirecionando");
     }
-  }, [isAuthenticated, navigate, location.state]);
+  }, [isAuthenticated, navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,10 +73,11 @@ export default function Login() {
           description: "Bem-vindo de volta ao Azuria",
         });
         
-        // O redirecionamento será feito pelo useEffect quando isAuthenticated mudar
-        // Não fazer navigate aqui para evitar conflito
-        // Manter isLoading=true até o redirect acontecer
-        logger.info("⏳ Aguardando atualização do estado isAuthenticated para redirecionar...");
+        // NÃO navegar aqui - deixar o useEffect fazer isso
+        // O useEffect que observa isAuthenticated fará o redirect
+        // quando o listener onAuthStateChange atualizar o estado
+        logger.info("⏳ Aguardando useEffect detectar isAuthenticated=true...");
+        setIsLoading(false);
       } else {
         throw new Error("Falha no login - sessão não criada");
       }
@@ -94,7 +101,7 @@ export default function Login() {
         variant: "destructive",
       });
       
-      // Só desligar loading em caso de erro
+      // Desligar loading em caso de erro
       setIsLoading(false);
     }
   };
@@ -136,9 +143,9 @@ export default function Login() {
           description: "Você já pode usar o Azuria. Bem-vindo!",
         });
         
-        // O redirecionamento será feito pelo useEffect quando isAuthenticated mudar
-        // Manter isLoading=true até o redirect acontecer
-        logger.info("⏳ Aguardando atualização do estado isAuthenticated para redirecionar...");
+        // NÃO navegar aqui - deixar o useEffect fazer isso
+        logger.info("⏳ Aguardando useEffect detectar isAuthenticated=true...");
+        setIsLoading(false);
       } else {
         throw new Error("Falha no cadastro");
       }
@@ -164,7 +171,7 @@ export default function Login() {
         variant: "destructive",
       });
       
-      // Só desligar loading em caso de erro
+      // Desligar loading em caso de erro
       setIsLoading(false);
     }
   };

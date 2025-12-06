@@ -1,26 +1,15 @@
-// Azuria Chat Edge Function
-//
-// Processa mensagens do usuário e interage com Gemini 2.0 Flash
 /// <reference types="https://deno.land/x/deno/cli/tsc/dts/lib.deno.d.ts" />
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { withSecurityMiddleware } from '../_shared/security-config.ts';
 
 const GEMINI_API_KEY = (Deno.env.get('GEMINI_API_KEY') || '').trim();
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 if (!GEMINI_API_KEY) {
-  // eslint-disable-next-line no-console
   console.error('GEMINI_API_KEY is missing');
 }
-
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-};
 
 // Prompt System da Azuria
 const AZURIA_SYSTEM_PROMPT = `Você é a **Azuria**, uma assistente virtual especializada em precificação, análise tributária e gestão de licitações para empresas brasileiras.
@@ -78,222 +67,197 @@ interface AIRequest {
   }>;
 }
 
-serve(async (req: Request) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  // eslint-disable-next-line no-console
+// Main handler function
+async function handleAzuriaChat(req: Request): Promise<Response> {
   console.log('Azuria Chat Function v2.0 (Flash) - Starting');
 
-  try {
-    // Verificar autenticação
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Não autorizado');
-    }
+  // Verificar autenticação
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    throw new Error('Não autorizado');
+  }
 
-    // Parse request
-    const aiRequest: AIRequest = await req.json();
-    const { message, context, history } = aiRequest;
+  // Parse request
+  const aiRequest: AIRequest = await req.json();
+  const { message, context, history } = aiRequest;
 
-    // Preparar histórico de conversa para Gemini
-    const conversationHistory = [
-      {
-        role: 'user',
-        parts: [{ text: AZURIA_SYSTEM_PROMPT }],
+  // Preparar histórico de conversa para Gemini
+  const conversationHistory = [
+    {
+      role: 'user',
+      parts: [{ text: AZURIA_SYSTEM_PROMPT }],
+    },
+    {
+      role: 'model',
+      parts: [
+        {
+          text: 'Entendido! Sou a Azuria, sua assistente inteligente. Como posso te ajudar hoje?',
+        },
+      ],
+    },
+    ...history.slice(-10).map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    })),
+    {
+      role: 'user',
+      parts: [{ text: message }],
+    },
+  ];
+
+  // Adicionar contexto do usuário se disponível
+  let contextMessage = '';
+  if (context.user_preferences) {
+    contextMessage = `\n\n**Contexto do usuário:**\n- Regime tributário preferido: ${
+      context.user_preferences.tax_regime || 'Não definido'
+    }\n- Margem alvo: ${
+      context.user_preferences.target_margin
+        ? context.user_preferences.target_margin * 100 + '%'
+        : 'Não definida'
+    }`;
+
+    conversationHistory[conversationHistory.length - 1].parts[0].text +=
+      contextMessage;
+  }
+
+  // Chamar Gemini API
+  console.log(`Calling Gemini API with key length: ${GEMINI_API_KEY.length}`);
+  const geminiResponse = await fetch(
+    `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      {
-        role: 'model',
-        parts: [
+      body: JSON.stringify({
+        contents: conversationHistory,
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+        safetySettings: [
           {
-            text: 'Entendido! Sou a Azuria, sua assistente inteligente. Como posso te ajudar hoje?',
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+          },
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
           },
         ],
-      },
-      ...history.slice(-10).map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }],
-      })),
-      {
-        role: 'user',
-        parts: [{ text: message }],
-      },
-    ];
-
-    // Adicionar contexto do usuário se disponível
-    let contextMessage = '';
-    if (context.user_preferences) {
-      contextMessage = `\n\n**Contexto do usuário:**\n- Regime tributário preferido: ${
-        context.user_preferences.tax_regime || 'Não definido'
-      }\n- Margem alvo: ${
-        context.user_preferences.target_margin
-          ? context.user_preferences.target_margin * 100 + '%'
-          : 'Não definida'
-      }`;
-
-      conversationHistory[conversationHistory.length - 1].parts[0].text +=
-        contextMessage;
-    }
-
-    // Chamar Gemini API
-    // eslint-disable-next-line no-console
-    console.log(`Calling Gemini API with key length: ${GEMINI_API_KEY.length}`);
-    const geminiResponse = await fetch(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: conversationHistory,
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          },
-          safetySettings: [
-            {
-              category: 'HARM_CATEGORY_HARASSMENT',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-            },
-            {
-              category: 'HARM_CATEGORY_HATE_SPEECH',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-            },
-          ],
-        }),
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      const errorData = await geminiResponse.text();
-      // eslint-disable-next-line no-console
-      console.error('Gemini API Error:', errorData);
-      throw new Error(
-        `Erro na API Gemini (${geminiResponse.status}): ${errorData}`
-      );
-    }
-
-    const geminiData = await geminiResponse.json();
-    const aiMessage = geminiData.candidates[0].content.parts[0].text;
-
-    // Detectar tipo de mensagem e contexto
-    let messageType = 'text';
-    let aiContext = 'general';
-    const suggestions: string[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let quickActions: any[] = [];
-
-    // Análise de intenção (simples)
-    const lowerMessage = message.toLowerCase();
-
-    if (lowerMessage.includes('preço') || lowerMessage.includes('precif')) {
-      messageType = 'pricing_suggestion';
-      aiContext = 'pricing';
-      quickActions = [
-        {
-          label: 'Ver análise detalhada',
-          action: 'Detalhe os cálculos de precificação',
-          icon: 'calculator',
-        },
-        {
-          label: 'Comparar com mercado',
-          action: 'Compare com preços da concorrência',
-          icon: 'trending-up',
-        },
-      ];
-    }
-
-    if (
-      lowerMessage.includes('imposto') ||
-      lowerMessage.includes('tribut') ||
-      lowerMessage.includes('regime')
-    ) {
-      messageType = 'tax_analysis';
-      aiContext = 'tax';
-      quickActions = [
-        {
-          label: 'Comparar regimes',
-          action: 'Compare todos os regimes tributários',
-          icon: 'bar-chart',
-        },
-        {
-          label: 'Dicas de otimização',
-          action: 'Sugira otimizações tributárias',
-          icon: 'lightbulb',
-        },
-      ];
-    }
-
-    if (lowerMessage.includes('concorr') || lowerMessage.includes('mercado')) {
-      messageType = 'competitor_alert';
-      aiContext = 'competitor';
-      quickActions = [
-        {
-          label: 'Monitorar preços',
-          action: 'Monitore preços da concorrência',
-          icon: 'eye',
-        },
-      ];
-    }
-
-    // Log da interação (opcional)
-    try {
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      );
-
-      await supabaseClient.from('ai_logs').insert({
-        user_id: context.user_id,
-        session_id: context.session_id,
-        user_message: message,
-        ai_response: aiMessage,
-        message_type: messageType,
-        context: aiContext,
-        created_at: new Date().toISOString(),
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (logError: any) {
-      // eslint-disable-next-line no-console
-      console.error('Erro ao salvar log:', logError);
-      // Não falhar se log falhar
-    }
-
-    // Retornar resposta
-    const response = {
-      message: aiMessage,
-      type: messageType,
-      context: aiContext,
-      suggestions,
-      quick_actions: quickActions,
-    };
-
-    return new Response(JSON.stringify(response), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    // eslint-disable-next-line no-console
-    console.error('Error:', error);
-
-    return new Response(
-      JSON.stringify({
-        message: `Desculpe, ocorreu um erro ao processar sua mensagem: ${error.message}`,
-        type: 'text',
-        context: 'general',
-        error: error.message,
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      }
+    }
+  );
+
+  if (!geminiResponse.ok) {
+    const errorData = await geminiResponse.text();
+    console.error('Gemini API Error:', errorData);
+    throw new Error(
+      `Erro na API Gemini (${geminiResponse.status}): ${errorData}`
     );
   }
-});
+
+  const geminiData = await geminiResponse.json();
+  const aiMessage = geminiData.candidates[0].content.parts[0].text;
+
+  // Detectar tipo de mensagem e contexto
+  let messageType = 'text';
+  let aiContext = 'general';
+  const suggestions: string[] = [];
+  let quickActions: any[] = [];
+
+  // Análise de intenção (simples)
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes('preço') || lowerMessage.includes('precif')) {
+    messageType = 'pricing_suggestion';
+    aiContext = 'pricing';
+    quickActions = [
+      {
+        label: 'Ver análise detalhada',
+        action: 'Detalhe os cálculos de precificação',
+        icon: 'calculator',
+      },
+      {
+        label: 'Comparar com mercado',
+        action: 'Compare com preços da concorrência',
+        icon: 'trending-up',
+      },
+    ];
+  }
+
+  if (
+    lowerMessage.includes('imposto') ||
+    lowerMessage.includes('tribut') ||
+    lowerMessage.includes('regime')
+  ) {
+    messageType = 'tax_analysis';
+    aiContext = 'tax';
+    quickActions = [
+      {
+        label: 'Comparar regimes',
+        action: 'Compare todos os regimes tributários',
+        icon: 'bar-chart',
+      },
+      {
+        label: 'Dicas de otimização',
+        action: 'Sugira otimizações tributárias',
+        icon: 'lightbulb',
+      },
+    ];
+  }
+
+  if (lowerMessage.includes('concorr') || lowerMessage.includes('mercado')) {
+    messageType = 'competitor_alert';
+    aiContext = 'competitor';
+    quickActions = [
+      {
+        label: 'Monitorar preços',
+        action: 'Monitore preços da concorrência',
+        icon: 'eye',
+      },
+    ];
+  }
+
+  // Log da interação (opcional)
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    await supabaseClient.from('ai_logs').insert({
+      user_id: context.user_id,
+      session_id: context.session_id,
+      user_message: message,
+      ai_response: aiMessage,
+      message_type: messageType,
+      context: aiContext,
+      created_at: new Date().toISOString(),
+    });
+  } catch (logError: any) {
+    console.error('Erro ao salvar log:', logError);
+    // Não falhar se log falhar
+  }
+
+  // Retornar resposta
+  const response = {
+    message: aiMessage,
+    type: messageType,
+    context: aiContext,
+    suggestions,
+    quick_actions: quickActions,
+  };
+
+  return new Response(JSON.stringify(response), {
+    headers: { 'Content-Type': 'application/json' },
+    status: 200,
+  });
+}
+
+// Wrap handler with security middleware and serve
+Deno.serve(
+  withSecurityMiddleware(handleAzuriaChat, { allowCredentials: true })
+);

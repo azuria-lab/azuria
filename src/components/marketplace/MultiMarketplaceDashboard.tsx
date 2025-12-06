@@ -13,7 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AnimatedNumber from '@/components/ui/animated-number';
 import Sparkline from '@/components/ui/sparkline';
-import MarketplaceCarousel, { type MarketplaceCard } from './MarketplaceCarousel';
+import { type MarketplaceCard } from './MarketplaceCarousel'; // Import type from original file
+import ModernMarketplaceCarousel from './ModernMarketplaceCarousel'; // Import new Modern Carousel
 import MarketplaceDashboard from './MarketplaceDashboard';
 import { createMarketplaceHandler } from '@/services/marketplace';
 import type { MarketplaceDashboardData } from '@/types/marketplace-api';
@@ -121,6 +122,18 @@ export default function MultiMarketplaceDashboard({
       color: '#E31F26',
       category: 'nacional',
       region: 'Brasil',
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok Shop',
+      logoUrl: '/images/marketplaces/3d/tiktok.png',
+      status: {
+        isConnected: false,
+        syncStatus: 'idle',
+      },
+      color: '#000000',
+      category: 'internacional',
+      region: 'Global',
     },
   ]);
 
@@ -470,23 +483,14 @@ export default function MultiMarketplaceDashboard({
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="border-2 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="text-center pb-2">
-                <CardTitle className="text-2xl font-bold">Seus Marketplaces Conectados</CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Navegue pelos marketplaces e selecione um para visualizar métricas detalhadas e gerenciar produtos
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div data-tour="marketplace-select">
-                  <MarketplaceCarousel
-                    marketplaces={marketplaces}
-                    onSelectMarketplace={handleSelectMarketplace}
-                    selectedMarketplaceId={selectedMarketplaceId ?? undefined}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            {/* 3D Modern Carousel */}
+            <div data-tour="marketplace-select" className="py-8">
+              <ModernMarketplaceCarousel
+                marketplaces={marketplaces}
+                onSelectMarketplace={handleSelectMarketplace}
+                selectedMarketplaceId={selectedMarketplaceId ?? undefined}
+              />
+            </div>
 
             {/* Recursos Premium - Card Melhorado */}
             {!isPremium && (
@@ -494,6 +498,7 @@ export default function MultiMarketplaceDashboard({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
+                className="mt-8"
               >
                 <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 overflow-hidden relative">
                   {/* Efeito de brilho animado */}

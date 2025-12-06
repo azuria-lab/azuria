@@ -1,0 +1,250 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2025-12-05T21:07:00-03:00",
+  "modules": [
+    {
+      "id": "aiOrderschestrator",
+      "name": "AI Orchestrator",
+      "path": "src/azuria_ai/core/aiOrchestrator.ts",
+      "type": "CORE",
+      "summary": "Central brain that routes events and manages AI logic.",
+      "exports": ["initializeOrchestrator", "processRequest"],
+      "todoCount": 14,
+      "lastModifiedLines": [1, 606],
+      "tags": ["core", "routing", "logic"]
+    },
+    {
+      "id": "eventBus",
+      "name": "Event Bus",
+      "path": "src/azuria_ai/core/eventBus.ts",
+      "type": "CORE",
+      "summary": "Typed Pub/Sub event system.",
+      "exports": ["emitEvent", "on", "getEventHistory"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 265],
+      "tags": ["events", "infrastructure"]
+    },
+    {
+      "id": "proactiveEngine",
+      "name": "Proactive Engine",
+      "path": "src/azuria_ai/core/proactiveEngine.ts",
+      "type": "CORE",
+      "summary": "Autonomous loop for background analysis and insight generation.",
+      "exports": ["start", "stop", "isActive", "getProactiveStats"],
+      "todoCount": 2,
+      "lastModifiedLines": [1, 405],
+      "tags": ["autonomous", "insights"]
+    },
+    {
+      "id": "contextStore",
+      "name": "Context Store",
+      "path": "src/azuria_ai/core/contextStore.ts",
+      "type": "STATE",
+      "summary": "In-memory store for current user context and screen data.",
+      "exports": ["setCurrentScreen", "getContext", "updateContext"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 74],
+      "tags": ["state", "memory"]
+    },
+    {
+      "id": "functionRegistry",
+      "name": "Function Registry",
+      "path": "src/azuria_ai/core/functionRegistry.ts",
+      "type": "CORE",
+      "summary": "Registry for tool definitions usable by LLM agents.",
+      "exports": ["registerFunction", "getFunction", "listAvailableFunctions"],
+      "todoCount": 4,
+      "lastModifiedLines": [1, 74],
+      "tags": ["tools", "registry"]
+    },
+    {
+      "id": "screenContextWatcher",
+      "name": "Screen Context Watcher",
+      "path": "src/azuria_ai/context/screenContextWatcher.ts",
+      "type": "WATCHER",
+      "summary": "React hook to monitor route changes and update context.",
+      "exports": ["useScreenContextWatcher", "emitScreenDataUpdate"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 98],
+      "tags": ["navigation", "context"]
+    }
+  ],
+  "events": [
+    {
+      "name": "calc:updated",
+      "pathDefined": "src/azuria_ai/core/eventBus.ts",
+      "payloadSchema": "{ data: CalcData, changedField: string }",
+      "emittedBy": ["useCalcWatcher"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "screen:changed",
+      "pathDefined": "src/azuria_ai/core/eventBus.ts",
+      "payloadSchema": "{ screen: string, path: string, metadata: object }",
+      "emittedBy": ["screenContextWatcher"],
+      "consumedBy": ["aiOrchestrator", "screenContextHandlers"]
+    },
+    {
+      "name": "insight:generated",
+      "pathDefined": "src/azuria_ai/core/eventBus.ts",
+      "payloadSchema": "{ id, severity, title, message, suggestion, values, sourceModule }",
+      "emittedBy": ["proactiveEngine", "aiOrchestrator"],
+      "consumedBy": ["InsightToast", "MiniDashboard"]
+    },
+    {
+      "name": "ui:displayInsight",
+      "pathDefined": "src/azuria_ai/core/eventBus.ts",
+      "payloadSchema": "{ insightId: string }",
+      "emittedBy": ["proactiveEngine"],
+      "consumedBy": ["AzuriaAIProvider"]
+    }
+  ],
+  "functions": [
+    {
+      "name": "calcularPrecoIdeal",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [{"name": "custoProduto", "type": "number"}, {"name": "margemDesejada", "type": "number"}],
+      "returns": "Preço sugerido e breakdown de custos",
+      "agentMapped": "calculo",
+      "description": "Calcula preço ideal de venda basedo em margem alvo."
+    },
+    {
+      "name": "calcularICMS",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [{"name": "preco", "type": "number"}, {"name": "aliquota", "type": "number"}],
+      "returns": "Valor do ICMS",
+      "agentMapped": "fiscal",
+      "description": "Cálculo de imposto ICMS interestadual ou interno."
+    },
+    {
+      "name": "setInputValue",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [{"name": "campoId", "type": "string"}, {"name": "valor", "type": "string"}],
+      "returns": "void",
+      "agentMapped": "ui",
+      "description": "Preenche um campo na tela do usuário."
+    }
+  ],
+  "watchers": [
+    {
+      "name": "useCalcWatcher",
+      "path": "src/azuria_ai/hooks/useCalcWatcher.ts",
+      "triggers": "Input change in Basic Calculator",
+      "debouncingMs": 500,
+      "emits": ["calc:updated", "calc:completed", "calc:started"]
+    },
+    {
+      "name": "useAdvancedCalcWatcher",
+      "path": "src/azuria_ai/hooks/useAdvancedCalcWatcher.ts",
+      "triggers": "Scenario or Fee changes",
+      "debouncingMs": 500,
+      "emits": ["scenario:updated", "fees:updated"]
+    },
+    {
+      "name": "screenContextWatcher",
+      "path": "src/azuria_ai/context/screenContextWatcher.ts",
+      "triggers": "React Router location change",
+      "debouncingMs": 0,
+      "emits": ["screen:changed"]
+    }
+  ],
+  "uiComponents": [
+    {
+      "name": "AzuriaBubble",
+      "path": "src/azuria_ai/ui/AzuriaBubble.tsx",
+      "props": ["onOpen", "status"],
+      "eventsConsumed": ["insight:generated"],
+      "eventsEmitted": []
+    },
+    {
+      "name": "MiniDashboard",
+      "path": "src/azuria_ai/ui/MiniDashboard.tsx",
+      "props": ["isOpen", "onClose", "userId"],
+      "eventsConsumed": ["insight:generated", "calc:completed"],
+      "eventsEmitted": ["user:action"]
+    },
+    {
+      "name": "AzuriaAIProvider",
+      "path": "src/azuria_ai/ui/AzuriaAIProvider.tsx",
+      "props": ["children", "enabled"],
+      "eventsConsumed": ["ui:displayInsight"],
+      "eventsEmitted": []
+    }
+  ],
+  "proactiveRules": [
+    {
+      "id": "dashboard_profit_decline",
+      "name": "Dashboard - Queda de lucro",
+      "description": "Verifica queda de lucro consecutiva.",
+      "cooldownSeconds": 600,
+      "severity": "high"
+    },
+    {
+      "id": "history_repeated_low_margin",
+      "name": "Histórico - Margem baixa repetida",
+      "description": "Detecta padrão de erro recorrente em cálculos.",
+      "cooldownSeconds": 1800,
+      "severity": "medium"
+    },
+    {
+      "id": "lot_high_low_margin_products",
+      "name": "Lote - Produtos críticos",
+      "description": "Alerta se > 40% do lote tem margem crítica.",
+      "cooldownSeconds": 900,
+      "severity": "high"
+    }
+  ],
+  "tests": [
+    {
+      "id": "test_watchers",
+      "description": "Validate reactivity of calculators.",
+      "manualSteps": "Open Basic Calculator, type cost 100, wait 500ms.",
+      "expectedOutcome": "Console logs 'calc:updated' event."
+    },
+    {
+      "id": "test_proactive",
+      "description": "Simulate proactive insight generation.",
+      "manualSteps": "Modify proactiveAnalysis.ts logic to always force insight, wait 30s.",
+      "expectedOutcome": "Toast notification appears on screen."
+    }
+  ],
+  "todos": [
+    {
+      "file": "src/azuria_ai/core/screenContextHandlers.ts",
+      "line": 36,
+      "text": "TODO: Implementar análise contextual baseada na tela"
+    },
+    {
+      "file": "src/azuria_ai/core/screenContextHandlers.ts",
+      "line": 49,
+      "text": "TODO: Obter tela atual do contextStore"
+    },
+    {
+      "file": "src/azuria_ai/core/proactiveEngine.ts",
+      "line": 120,
+      "text": "TODO: Implementar verificação de queda consecutiva"
+    },
+    {
+      "file": "src/azuria_ai/core/functionRegistry.ts",
+      "line": 37,
+      "text": "TODO: Implementar lógica de registro"
+    }
+  ],
+  "recommendedNextSteps": [
+    "Migrate Function Registry to real implementation (remove placeholders).",
+    "Implement real handlers for proactive rules currently returning null.",
+    "Refactor aiOrchestrator to reduce complexity of evaluateCalculation.",
+    "Add more granular types replacing 'any' in event payloads.",
+    "Connect 'calculatorHandlers' to real analysis logic (currently stubs).",
+    "Add persistence to Context Store (localStorage/Supabase) if session recall is needed.",
+    "Implement 'history' context extraction logic.",
+    "Create unit tests for Proactive Engine rules."
+  ],
+  "vsCodeSetup": {
+    "recommendedExtensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
+    "settingsSnippet": {
+      "editor.formatOnSave": true,
+      "typescript.tsdk": "node_modules/typescript/lib"
+    }
+  }
+}

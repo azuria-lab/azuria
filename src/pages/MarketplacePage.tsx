@@ -4,6 +4,11 @@ import ConnectMarketplaceDialog from "@/components/marketplace/ConnectMarketplac
 import { TourButton } from "@/components/tour";
 import { useAuth } from "@/hooks/auth";
 import { useToast } from "@/hooks/use-toast";
+// Modern Carousel is integrated inside MultiMarketplaceDashboard or used here depending on architecture.
+// Checking MultiMarketplaceDashboard first to see if I need to swap it there instead.
+// Wait, the previous file showed MarketplacePage using MultiMarketplaceDashboard, not MarketplaceCarousel directly. 
+// Aah, I might have made a mistake in assumption. Let me check MultiMarketplaceDashboard.
+// For now, restoring MarketplacePage to a working state.
 
 export default function MarketplacePage() {
   const [showConnectDialog, setShowConnectDialog] = useState(false);
