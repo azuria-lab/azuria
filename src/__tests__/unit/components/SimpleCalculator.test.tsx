@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, renderWithProviders, screen } from '@/utils/testing/testUtils'
-import SimpleCalculator from '@/domains/calculator/components/SimpleCalculatorModern'
+import SimpleCalculator from '@/domains/calculator/components/SimpleCalculator'
 
 // Mock do hook
 const mockCalculatorHook = {
@@ -95,7 +95,7 @@ describe('SimpleCalculator', () => {
 
   vi.resetModules()
   vi.doMock('@/hooks/useSimpleCalculator', () => ({ useSimpleCalculator: () => hookWithResult }))
-  const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculatorModern')
+  const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculator')
   renderWithProviders(<SimpleCalculatorLocal />)
 
   expect(screen.getByText(/preço de venda/i)).toBeInTheDocument()
@@ -112,7 +112,7 @@ describe('SimpleCalculator', () => {
 
     vi.resetModules()
     vi.doMock('@/hooks/useSimpleCalculator', () => ({ useSimpleCalculator: () => hookWithLoading }))
-    const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculatorModern')
+    const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculator')
     renderWithProviders(<SimpleCalculatorLocal />)
 
   // Button becomes disabled and shows "Calculando..."; assert that text is present

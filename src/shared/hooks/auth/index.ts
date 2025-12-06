@@ -1,8 +1,7 @@
-
-import { useCallback, useEffect } from "react";
-import { useAuthState } from "./useAuthState";
-import { useAuthMethods } from "./useAuthMethods";
-import { useUserProfile } from "./useUserProfile";
+import { useCallback, useEffect } from 'react';
+import { useAuthState } from './useAuthState';
+import { useAuthMethods } from './useAuthMethods';
+import { useUserProfile } from './useUserProfile';
 
 /**
  * Main authentication hook that combines all auth-related functionality
@@ -17,22 +16,18 @@ export const useAuth = () => {
     setIsLoading,
     error,
     setError,
-    isAuthenticated
+    isAuthenticated,
   } = useAuthState();
 
-  const {
-    login,
-    register,
-    logout,
-    resetPassword,
-    updatePassword
-  } = useAuthMethods(setIsLoading, setError);
+  const { login, register, logout, resetPassword, updatePassword } =
+    useAuthMethods(setIsLoading, setError);
 
-  const {
-    fetchUserProfile,
-    updateProfile,
-    updateProStatus
-  } = useUserProfile(user, setUserProfile, setIsLoading, setError);
+  const { fetchUserProfile, updateProfile, updateProStatus } = useUserProfile(
+    user,
+    setUserProfile,
+    setIsLoading,
+    setError
+  );
 
   // Fetch user profile when user changes
   useEffect(() => {
@@ -42,27 +37,20 @@ export const useAuth = () => {
   }, [user?.id, fetchUserProfile]);
 
   // Wrapper para login que carrega o perfil imediatamente
-  const loginWithProfile = useCallback(async (email: string, password: string) => {
-    // Setar loading antes de iniciar
-    setIsLoading(true);
-    
-    const sessionResult = await login(email, password);
-    
-    if (sessionResult?.user?.id) {
-      // Aguardar que o listener onAuthStateChange processe a mudança
-      // Isso é necessário porque o login retorna a sessão, mas o estado local
-      // só é atualizado quando o listener dispara
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Forçar carregamento imediato do perfil (fetchUserProfile já gerencia isLoading)
-      await fetchUserProfile(sessionResult.user.id);
-    } else {
-      // Se não há sessão, desligar loading
-      setIsLoading(false);
-    }
-    
-    return sessionResult;
-  }, [login, fetchUserProfile, setIsLoading]);
+  const loginWithProfile = useCallback(
+    async (email: string, password: string) => {
+      const sessionResult = await login(email, password);
+
+      if (sessionResult?.user?.id) {
+        // Carregar perfil do usuário imediatamente
+        // O listener onAuthStateChange já atualizou o estado de session/user
+        await fetchUserProfile(sessionResult.user.id);
+      }
+
+      return sessionResult;
+    },
+    [login, fetchUserProfile]
+  );
 
   return {
     // Auth state
@@ -73,19 +61,19 @@ export const useAuth = () => {
     error,
     isAuthenticated,
     isPro: userProfile?.isPro || false,
-    
+
     // Auth methods
     login: loginWithProfile, // Usar login com carregamento de perfil
     register,
     logout,
     resetPassword,
     updatePassword,
-    
+
     // User profile methods
     updateProfile,
-    updateProStatus
+    updateProStatus,
   };
 };
 
 // Export types from @/types/auth
-export type { UserProfileWithDisplayData } from "@/types/auth";
+export type { UserProfileWithDisplayData } from '@/types/auth';

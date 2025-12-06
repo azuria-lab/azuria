@@ -1,5 +1,5 @@
 // Calculator components
-export { default as SimpleCalculator } from './SimpleCalculatorModern';
+export { default as SimpleCalculator } from './SimpleCalculator';
 export { default as CalculationResultComponent } from './CalculationResult';
 export { default as CalculatorContent } from './CalculatorContent';
 export { default as ActionButtons } from './ActionButtons';

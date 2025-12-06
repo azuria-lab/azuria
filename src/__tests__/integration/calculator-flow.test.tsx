@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/utils/testing/testUtils'
 import userEvent from '@testing-library/user-event'
-import SimpleCalculator from '@/domains/calculator/components/SimpleCalculatorModern'
+import SimpleCalculator from '@/domains/calculator/components/SimpleCalculator'
 
 describe('Calculator Integration Flow', () => {
   it('should complete full calculation flow', async () => {

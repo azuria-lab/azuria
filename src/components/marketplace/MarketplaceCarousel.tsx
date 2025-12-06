@@ -41,6 +41,7 @@ export default function MarketplaceCarousel({
       'temu': '/images/marketplaces/bg/temu.png',
       'shein': '/images/marketplaces/bg/shein.png',
       'americanas': '/images/marketplaces/bg/americanas.png',
+      'tiktok': '/images/marketplaces/bg/tiktok.png',
     };
     return map[id] || '/images/marketplaces/bg/amazon.png'; // Fallback
   };
@@ -55,6 +56,7 @@ export default function MarketplaceCarousel({
       'temu': '/images/marketplaces/3d/temu.png',
       'shein': '/images/marketplaces/3d/shein.png',
       'americanas': '/images/marketplaces/3d/americanas.png',
+      'tiktok': '/images/marketplaces/3d/tiktok.png',
     };
     return map[id] || fallbackUrl;
   };
@@ -66,7 +68,7 @@ export default function MarketplaceCarousel({
   };
 
   return (
-    <div className={cn("w-full h-[600px] flex gap-2 p-4 bg-gray-900 rounded-3xl overflow-hidden", className)}>
+    <div className={cn("w-full h-[600px] flex gap-2 p-4 bg-[#F3FAFF] dark:bg-gray-900 rounded-3xl overflow-hidden transition-colors duration-300", className)}>
       {marketplaces.map((marketplace) => {
         const isHovered = hoveredId === marketplace.id;
         const isSelected = selectedMarketplaceId === marketplace.id;
@@ -105,31 +107,19 @@ export default function MarketplaceCarousel({
             <div className="absolute inset-0 flex flex-col justify-end p-6">
               {/* Logo & Title Section */}
               <div className="flex flex-col items-center text-center transition-all duration-300">
-                {/* Logo Circle with Premium Glassmorphism */}
+                {/* Logo container - transparent for all marketplaces (backgrounds contain logos) */}
                 <motion.div 
                   layoutId={`logo-${marketplace.id}`}
-                  className={cn(
-                    "relative flex items-center justify-center transition-all duration-500",
-                    "bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]",
-                    "group-hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]",
-                    isActive ? "w-32 h-32 mb-6 rounded-2xl" : "w-20 h-20 mb-8 rounded-xl"
-                  )}
+                  className="relative flex items-center justify-center transition-all duration-500 bg-transparent border-none shadow-none"
                   style={{
                     transformStyle: 'preserve-3d',
-                    transform: isActive ? 'translateZ(20px)' : 'translateZ(0px)'
+                    transform: isActive ? 'translateZ(20px)' : 'translateZ(0px)',
+                    background: 'transparent',
+                    boxShadow: 'none',
+                    border: 'none'
                   }}
                 >
-                  {/* Glossy Reflection Overlay */}
-                  <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/40 to-transparent opacity-50 pointer-events-none" />
-                  
-                  <img 
-                    src={get3DLogo(marketplace.id, marketplace.logoUrl)} 
-                    alt={marketplace.name}
-                    className={cn(
-                      "object-contain transition-all duration-300 drop-shadow-2xl",
-                      isActive ? "w-24 h-24" : "w-14 h-14"
-                    )}
-                  />
+                  {/* Logo rendering removed - backgrounds contain integrated logos */}
                 </motion.div>
 
                 {/* Text Content - Only visible/expanded when active */}
