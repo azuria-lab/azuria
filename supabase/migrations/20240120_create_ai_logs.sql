@@ -16,7 +16,6 @@ CREATE INDEX IF NOT EXISTS idx_ai_logs_user_id ON ai_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_logs_session_id ON ai_logs(session_id);
 CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ai_logs_message_type ON ai_logs(message_type);
-
 -- RLS (Row Level Security)
 ALTER TABLE ai_logs ENABLE ROW LEVEL SECURITY;
 
