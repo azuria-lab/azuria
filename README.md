@@ -4,7 +4,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-security-blue)](https://github.com/azuria-lab/azuria/security/dependabot)
 [![Changelog](https://img.shields.io/badge/changes-tracked-success)](./CHANGELOG.md)
 [![SBOM](https://img.shields.io/badge/SBOM-pending-lightgrey)](#-sbom--compliance)
-[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](#cobertura-de-testes)
+[![Coverage](https://img.shields.io/badge/coverage-lcov-informational)](#cobertura-de-testes)
 [![JSDoc Coverage](https://img.shields.io/badge/JSDoc-100%25-brightgreen)](#-documenta%C3%A7%C3%A3o)
 [![Documentation](https://img.shields.io/badge/docs-enterprise--grade-success)](./SERVICES_USAGE_GUIDE.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](./tsconfig.json)
@@ -27,6 +27,23 @@
 - [Documentação Adicional](#-documentação)
 
 ---
+
+## 🧪 Testes e Qualidade
+
+- Rodar suíte completa (CI-like):  
+  `NODE_OPTIONS=--max-old-space-size=8192 npm run test:ci`
+
+- Cobertura (report text/lcov/html em `coverage/`):  
+  `NODE_OPTIONS=--max-old-space-size=8192 npm run test:coverage -- --pool=forks --maxWorkers=1`
+
+- Smoke tests:  
+  `npm run test:smoke`
+
+- E2E (Playwright):  
+  `npm run test:e2e`  
+  (dev server: `npm run dev -- --host --port 8080`; cache de browsers no CI)
+
+- Notas: suíte configurada para pool=forks e 1 worker por estabilidade de memória.
 
 ## 🚀 Visão Geral
 

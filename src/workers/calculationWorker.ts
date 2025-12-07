@@ -172,3 +172,6 @@ const generateRecommendations = (data: { ourPrice: number; averageMarketPrice?: 
   
   return recommendations;
 };
+
+// Exporta funções para testes unitários
+export { calculateBatch, calculateScenarios, calculateMarketPosition, generateRecommendations };

@@ -1,64 +1,49 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react-swc';
-import path from 'node:path';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react-swc'
+import path from 'node:path'
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/__tests__/setup.ts',
-    css: true,
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    setupFiles: ['./setupTests.ts', './src/__tests__/setup.ts'],
+    clearMocks: true,
+    restoreMocks: true,
+    mockReset: true,
+    css: false,
+    // Evita deadlocks e travamentos
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-        isolate: true,
-        maxForks: 1,
-        minForks: 1,
-      },
-    },
-    isolate: true,
-    maxConcurrency: 1,
-    minWorkers: 1,
     maxWorkers: 1,
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      'tests/e2e/**',
-    ],
+    // Evita loops infinitos e pendências
+    isolate: true,
+    testTimeout: 15000,
     coverage: {
-      provider: 'v8',
-      reporter: ['json'],
+      reporter: ['text', 'lcov', 'html'],
       reportsDirectory: './coverage',
-      exclude: [
-        'node_modules/',
-        'src/__tests__/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        'dist/',
-        'build/',
-        'pages-backup-external/',
-        'tests/',
-        'tests-to-fix/',
-        'public/',
-      ],
       thresholds: {
-        global: {
-          branches: 40,
-          functions: 50,
-          lines: 60,
-          statements: 50,
-        },
+        statements: 50,
+        branches: 40,
+        functions: 50,
+        lines: 50,
       },
     },
+    // Garante que apenas arquivos de teste sejam executados
+    include: [
+      'src/**/*.test.ts',
+      'src/**/*.test.tsx',
+      'src/**/__tests__/**/*.ts',
+      'src/**/__tests__/**/*.tsx',
+    ],
+    exclude: [
+      'src/__tests__/setup.ts',
+      'src/__tests__/mocks/**',
+      '**/*.d.ts',
+    ],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})

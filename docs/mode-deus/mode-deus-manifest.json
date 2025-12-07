@@ -1,250 +1,1924 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2025-12-05T21:07:00-03:00",
+  "generatedAt": "2025-12-05T00:00:00.000Z",
+  "generatedBy": "Azuria Documentation Agent (based on conversation)",
+  "validation": {
+    "fileSystemAccessible": false,
+    "note": "Manifest gerado a partir do histórico de implementação descrito na conversa. Não foi possível verificar diretamente a existência física dos arquivos/paths. Execute uma verificação local (script ou inspeção) no VS Code para validar e ajustar o campo 'missing' quando necessário."
+  },
   "modules": [
     {
-      "id": "aiOrderschestrator",
-      "name": "AI Orchestrator",
-      "path": "src/azuria_ai/core/aiOrchestrator.ts",
-      "type": "CORE",
-      "summary": "Central brain that routes events and manages AI logic.",
-      "exports": ["initializeOrchestrator", "processRequest"],
-      "todoCount": 14,
-      "lastModifiedLines": [1, 606],
-      "tags": ["core", "routing", "logic"]
-    },
-    {
-      "id": "eventBus",
-      "name": "Event Bus",
-      "path": "src/azuria_ai/core/eventBus.ts",
-      "type": "CORE",
-      "summary": "Typed Pub/Sub event system.",
-      "exports": ["emitEvent", "on", "getEventHistory"],
+      "id": "core_agents",
+      "name": "core agents",
+      "path": "src/azuria_ai/core/agents.ts",
+      "type": "core",
+      "summary": "Registro e entrada para agentes (calculo, fiscal, marketplace, licitacao, ui).",
+      "exports": ["calculoAgent", "fiscalAgent", "marketplaceAgent", "licitacaoAgent", "uiAgent"],
       "todoCount": 0,
-      "lastModifiedLines": [1, 265],
-      "tags": ["events", "infrastructure"]
+      "lastModifiedLines": [1, 400],
+      "tags": ["agents","core"]
     },
     {
-      "id": "proactiveEngine",
-      "name": "Proactive Engine",
-      "path": "src/azuria_ai/core/proactiveEngine.ts",
-      "type": "CORE",
-      "summary": "Autonomous loop for background analysis and insight generation.",
-      "exports": ["start", "stop", "isActive", "getProactiveStats"],
-      "todoCount": 2,
-      "lastModifiedLines": [1, 405],
-      "tags": ["autonomous", "insights"]
-    },
-    {
-      "id": "contextStore",
-      "name": "Context Store",
-      "path": "src/azuria_ai/core/contextStore.ts",
-      "type": "STATE",
-      "summary": "In-memory store for current user context and screen data.",
-      "exports": ["setCurrentScreen", "getContext", "updateContext"],
-      "todoCount": 0,
-      "lastModifiedLines": [1, 74],
-      "tags": ["state", "memory"]
-    },
-    {
-      "id": "functionRegistry",
-      "name": "Function Registry",
+      "id": "function_registry",
+      "name": "functionRegistry",
       "path": "src/azuria_ai/core/functionRegistry.ts",
-      "type": "CORE",
-      "summary": "Registry for tool definitions usable by LLM agents.",
-      "exports": ["registerFunction", "getFunction", "listAvailableFunctions"],
-      "todoCount": 4,
-      "lastModifiedLines": [1, 74],
-      "tags": ["tools", "registry"]
+      "type": "core",
+      "summary": "Registro, consulta e execução de funções expostas à IA (function calling).",
+      "exports": ["registerFunction","getFunction","listFunctions","callFunction","getFunctionsSchema","getFunctionStats"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 420],
+      "tags": ["function-calling"]
     },
     {
-      "id": "screenContextWatcher",
-      "name": "Screen Context Watcher",
-      "path": "src/azuria_ai/context/screenContextWatcher.ts",
-      "type": "WATCHER",
-      "summary": "React hook to monitor route changes and update context.",
-      "exports": ["useScreenContextWatcher", "emitScreenDataUpdate"],
+      "id": "event_bus",
+      "name": "eventBus",
+      "path": "src/azuria_ai/core/eventBus.ts",
+      "type": "core",
+      "summary": "Sistema de eventos global usado por watchers, orchestrator e UI.",
+      "exports": ["registerEvent","emitEvent","on","once","unsubscribeFromEvent","getHistory"],
       "todoCount": 0,
-      "lastModifiedLines": [1, 98],
-      "tags": ["navigation", "context"]
+      "lastModifiedLines": [1, 520],
+      "tags": ["events","pubsub"]
+    },
+    {
+      "id": "ai_orchestrator",
+      "name": "aiOrchestrator",
+      "path": "src/azuria_ai/core/aiOrchestrator.ts",
+      "type": "core",
+      "summary": "Orquestrador reativo: recebe eventos, avalia regras analíticas e emite insights (insight:generated).",
+      "exports": ["initializeOrchestrator","evaluateEvent","evaluateProactiveRules","getContextSnapshot"],
+      "todoCount": 3,
+      "lastModifiedLines": [1, 800],
+      "tags": ["orchestrator","analysis"]
+    },
+    {
+      "id": "proactive_engine",
+      "name": "proactiveEngine",
+      "path": "src/azuria_ai/core/proactiveEngine.ts",
+      "type": "core",
+      "summary": "Motor proativo que executa verificações periódicas e dispara regras autônomas.",
+      "exports": ["start","stop","evaluateCycle"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 360],
+      "tags": ["proactive","engine"]
+    },
+    {
+      "id": "context_store",
+      "name": "contextStore",
+      "path": "src/azuria_ai/core/contextStore.ts",
+      "type": "core",
+      "summary": "Armazena contexto de tela e últimos contextos por módulo.",
+      "exports": ["setCurrentScreen","getCurrentScreen","updateContext","getContext"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["context"]
+    },
+    {
+      "id": "function_definitions",
+      "name": "functionDefinitions",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "type": "core",
+      "summary": "Definições e mapeamento das funções expostas ao registry (cálculo, fiscal, marketplace, licitação, UI).",
+      "exports": ["calcularPrecoIdeal","calcularMargem","calcularPrecoMinimo","calcularICMS","calcularST","calcularMVA","getTaxasMarketplace","calcularComissao","calcularLance","avaliarRisco","setInputValue","aplicarSugestaoNaTela"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 360],
+      "tags": ["functions"]
+    },
+    {
+      "id": "watchers",
+      "name": "watchers",
+      "path": "src/azuria_ai/core/watchers/index.ts",
+      "type": "feature",
+      "summary": "Agrupamento dos watchers: useCalcWatcher, useAdvancedCalcWatcher, useTaxCalcWatcher, useBidCalcWatcher, screenContextWatcher.",
+      "exports": ["useCalcWatcher","useAdvancedCalcWatcher","useTaxCalcWatcher","useBidCalcWatcher","screenContextWatcher"],
+      "todoCount": 5,
+      "lastModifiedLines": [1, 420],
+      "tags": ["watchers","ui-integration"]
+    },
+    {
+      "id": "ui_components",
+      "name": "uiComponents",
+      "path": "src/azuria_ai/ui",
+      "type": "ui",
+      "summary": "Componentes UI do Modo Deus: AzuriaBubble, MiniDashboard, InsightToast, AzuriaAIProvider.",
+      "exports": ["AzuriaBubble","MiniDashboard","InsightToast","AzuriaAIProvider"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 700],
+      "tags": ["ui","react","tailwind"]
+    },
+    {
+      "id": "cognitive_engine",
+      "name": "cognitiveEngine",
+      "path": "src/azuria_ai/engines/cognitiveEngine.ts",
+      "type": "core",
+      "summary": "Memória leve, detecção de padrões, previsões e anomalias (Nível 5).",
+      "exports": ["updateMemory","detectPatterns","generateForecast","detectAnomalies","getMemorySnapshot"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 220],
+      "tags": ["cognition","memory","patterns"]
+    },
+    {
+      "id": "social_engine",
+      "name": "socialEngine",
+      "path": "src/azuria_ai/engines/socialEngine.ts",
+      "type": "core",
+      "summary": "Inteligência social, perfil adaptativo, emoção e intenção do usuário (Nível 6).",
+      "exports": ["updateUserModel","inferEmotion","inferIntent","classifyUserProfile","adaptInterface"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 240],
+      "tags": ["social","user-model","adaptation"]
+    },
+    {
+      "id": "meta_planner_engine",
+      "name": "metaPlannerEngine",
+      "path": "src/azuria_ai/engines/metaPlannerEngine.ts",
+      "type": "core",
+      "summary": "Meta-planner de objetivos internos, geração e ajuste de planos (Nível 7).",
+      "exports": ["setGoal","generatePlan","executePlan","adjustPlan","getCurrentPlan"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["meta","planner"]
+    },
+    {
+      "id": "operational_state_engine",
+      "name": "operationalStateEngine",
+      "path": "src/azuria_ai/engines/operationalStateEngine.ts",
+      "type": "core",
+      "summary": "Estado operacional contínuo: carga, qualidade de sinal, confiança e drift.",
+      "exports": ["updateState","registerError","setUserMood","getOperationalState"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["state","drift","quality"]
+    },
+    {
+      "id": "continuous_improvement_engine",
+      "name": "continuousImprovementEngine",
+      "path": "src/azuria_ai/engines/continuousImprovementEngine.ts",
+      "type": "core",
+      "summary": "Auto-melhoria controlada via parâmetros, evolução contínua e propostas de patch.",
+      "exports": ["analyzeAndAdjust","proposeImprovements","getCurrentParams","runEvolutionCycle"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["improvement","parameters"]
+    },
+    {
+      "id": "continuous_evolution_engine",
+      "name": "ContinuousImprovementEngine",
+      "path": "src/azuria_ai/engines/continuousImprovementEngine.ts",
+      "type": "core",
+      "summary": "Auto-evolução, aprendizado contínuo, detecção de fraquezas e sugestão de patches internos.",
+      "exports": ["runEvolutionCycle","analyzeAndAdjust","proposeImprovements","getCurrentParams"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 240],
+      "tags": ["evolution","auto-improvement"]
+    },
+    {
+      "id": "consistency_engine",
+      "name": "consistencyEngine",
+      "path": "src/azuria_ai/engines/consistencyEngine.ts",
+      "type": "core",
+      "summary": "Auditoria de consistência global e detecção de gaps ou drift.",
+      "exports": ["runConsistencyCheck"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["consistency","audit"]
+    },
+    {
+      "id": "temporal_engine",
+      "name": "TemporalEngine",
+      "path": "src/azuria_ai/engines/temporalEngine.ts",
+      "type": "core",
+      "summary": "Consciência temporal, tendências e previsão futura",
+      "exports": ["recordTemporalEvent","getTimeline","computeTrends","predictFutureState","detectTemporalAnomaly"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["temporal","forecast","timeline"]
+    },
+    {
+      "id": "integrated_core_engine",
+      "name": "integratedCoreEngine",
+      "path": "src/azuria_ai/engines/integratedCoreEngine.ts",
+      "type": "core",
+      "summary": "Núcleo unificado do Modo Deus, consolida estados e inferências.",
+      "exports": ["getGlobalState","updateGlobalState","routeEvent","computeUnifiedInference","generateUnifiedRecommendation","synchronizeTemporalConsistency","harmonizeConflicts","runSelfEvolutionStep"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 220],
+      "tags": ["core","unified","brain"]
+    },
+    {
+      "id": "conscious_orchestrator",
+      "name": "consciousOrchestrator",
+      "path": "src/azuria_ai/engines/consciousOrchestrator.ts",
+      "type": "core",
+      "summary": "Camada consciente de governança, coerência e validação de decisões.",
+      "exports": ["assessGlobalState","detectContradictions","generateCoherenceScore","predictSystemRisk","justifyDecision","harmonizeEngines","validateRecommendation","getGlobalReasoningTrace"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 260],
+      "tags": ["conscious","governance","coherence"]
+    },
+    {
+      "id": "safe_action_engine",
+      "name": "safeActionEngine",
+      "path": "src/azuria_ai/engines/safeActionEngine.ts",
+      "type": "core",
+      "summary": "Executa ações reais com validação de risco e política.",
+      "exports": ["executeActionSafely","applyAction"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["action","safety","governance"]
+    },
+    {
+      "id": "policy_engine",
+      "name": "policyEngine",
+      "path": "src/azuria_ai/engines/policyEngine.ts",
+      "type": "core",
+      "summary": "Gerencia limites e regras de autonomia.",
+      "exports": ["getActivePolicy","validateActionAgainstPolicy"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["policy","governance"]
+    },
+    {
+      "id": "governance_engine",
+      "name": "governanceEngine",
+      "path": "src/azuria_ai/engines/governanceEngine.ts",
+      "type": "core",
+      "summary": "Auditoria, validação e governança de decisões.",
+      "exports": ["registerDecision","auditLastDecisions","detectGovernanceViolations"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["governance","audit"]
+    },
+    {
+      "id": "coherence_engine",
+      "name": "coherenceEngine",
+      "path": "src/azuria_ai/engines/coherenceEngine.ts",
+      "type": "core",
+      "summary": "Validação lógica, detecção de contradições e explicações XAI.",
+      "exports": ["validateLogic","detectContradictions","generateRationale","stabilizeIntentFlow","explainDecision"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["coherence","xai","introspection"]
+    },
+    {
+      "id": "perception_engine",
+      "name": "perceptionEngine",
+      "path": "src/azuria_ai/engines/perceptionEngine.ts",
+      "type": "core",
+      "summary": "Percepção virtual de sinais, reconstrução e detecção de falhas silenciosas.",
+      "exports": ["sampleSignals","reconstructState","estimateMissingData","detectSilentFailures","predictBehaviorFromNoise"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["perception","signals","context"]
+    },
+    {
+      "id": "context_rebuilder",
+      "name": "contextRebuilder",
+      "path": "src/azuria_ai/engines/contextRebuilder.ts",
+      "type": "core",
+      "summary": "Reconstrução de contexto com confiança e anomalias.",
+      "exports": ["rebuildContext"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["context","reconstruction"]
+    },
+    {
+      "id": "strategic_engine",
+      "name": "strategicEngine",
+      "path": "src/azuria_ai/engines/strategicEngine.ts",
+      "type": "core",
+      "summary": "Consciência estratégica, metas de longo prazo e planos globais.",
+      "exports": ["analyzeGlobalState","identifyStructuralRisks","defineLongTermGoals","generateStrategicPlan","recommendGlobalAdjustments","detectStrategicConflicts"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["strategy","long-term","plan"]
+    },
+    {
+      "id": "holistic_state_engine",
+      "name": "holisticStateEngine",
+      "path": "src/azuria_ai/engines/holisticStateEngine.ts",
+      "type": "core",
+      "summary": "Visão holística do sistema, saúde e interdependências.",
+      "exports": ["scanWholeSystem","computeSystemHealth","detectWeakSpots","mapInterdependencies","generateHolisticSnapshot"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["holistic","health","mapping"]
+    },
+    {
+      "id": "context_rebuilder",
+      "name": "contextRebuilder",
+      "path": "src/azuria_ai/engines/contextRebuilder.ts",
+      "type": "core",
+      "summary": "Reconstrução de contexto com confiança e anomalias.",
+      "exports": ["rebuildContext"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["context","reconstruction"]
+    },
+    {
+      "id": "tax_agent",
+      "name": "TaxAgent",
+      "path": "src/azuria_ai/agents/TaxAgent.ts",
+      "type": "feature",
+      "summary": "Valida impostos, detecta inconsistências e sugere correções.",
+      "exports": ["analyze","emitEvents","getRecommendations"],
+      "todoCount": 0,
+      "tags": ["agent","tax"]
+    },
+    {
+      "id": "pricing_agent",
+      "name": "PricingAgent",
+      "path": "src/azuria_ai/agents/PricingAgent.ts",
+      "type": "feature",
+      "summary": "Revisa precificação, margens e preços ótimos.",
+      "exports": ["analyze","emitEvents","getRecommendations"],
+      "todoCount": 0,
+      "tags": ["agent","pricing"]
+    },
+    {
+      "id": "marketplace_agent",
+      "name": "MarketplaceAgent",
+      "path": "src/azuria_ai/agents/MarketplaceAgent.ts",
+      "type": "feature",
+      "summary": "Verifica tarifas e conformidade em marketplaces.",
+      "exports": ["analyze","emitEvents","getRecommendations"],
+      "todoCount": 0,
+      "tags": ["agent","marketplace"]
+    },
+    {
+      "id": "risk_agent",
+      "name": "RiskAgent",
+      "path": "src/azuria_ai/agents/RiskAgent.ts",
+      "type": "feature",
+      "summary": "Detecta riscos operacionais e financeiros.",
+      "exports": ["analyze","emitEvents","getRecommendations"],
+      "todoCount": 0,
+      "tags": ["agent","risk"]
+    },
+    {
+      "id": "opportunity_agent",
+      "name": "OpportunityAgent",
+      "path": "src/azuria_ai/agents/OpportunityAgent.ts",
+      "type": "feature",
+      "summary": "Identifica oportunidades de venda e otimização.",
+      "exports": ["analyze","emitEvents","getRecommendations"],
+      "todoCount": 0,
+      "tags": ["agent","opportunity"]
+    },
+    {
+      "id": "integrated_orchestrator",
+      "name": "integratedOrchestrator",
+      "path": "src/azuria_ai/core/integratedOrchestrator.ts",
+      "type": "core",
+      "summary": "Orquestrador global que distribui eventos e consolida inferências do núcleo integrado.",
+      "exports": ["initializeIntegratedOrchestrator"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["orchestrator","unified"]
+    },
+    {
+      "id": "system_governance_watcher",
+      "name": "systemGovernanceWatcher",
+      "path": "src/azuria_ai/core/systemGovernanceWatcher.ts",
+      "type": "feature",
+      "summary": "Watcher de eventos críticos com filtragem e política de conflito zero.",
+      "exports": ["initializeSystemGovernanceWatcher"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["governance","watcher"]
+    },
+    {
+      "id": "social_presence_engine",
+      "name": "socialPresenceEngine",
+      "path": "src/azuria_ai/engines/socialPresenceEngine.ts",
+      "type": "core",
+      "summary": "Detecta sinais emocionais e adapta feedback textual/visual.",
+      "exports": ["processSocialPresence","getPresenceStatus"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["social","presence","emotion"]
+    },
+    {
+      "id": "adaptive_ux_engine",
+      "name": "adaptiveUXEngine",
+      "path": "src/azuria_ai/engines/adaptiveUXEngine.ts",
+      "type": "core",
+      "summary": "Personalização de layout e sugestões proativas conforme comportamento.",
+      "exports": ["proposeAdaptiveUX","adaptLayoutFromBehavior"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["ux","adaptive","layout"]
+    },
+    {
+      "id": "safety_reliability_engine",
+      "name": "safetyAndReliabilityEngine",
+      "path": "src/azuria_ai/engines/safetyAndReliabilityEngine.ts",
+      "type": "core",
+      "summary": "Hardening, proteção contra loops, fallback seguro e isolamento.",
+      "exports": ["guardEventLoop","safePropagate","emitFallback","isolateEngine","resetCounts"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["safety","reliability"]
+    },
+    {
+      "id": "performance_monitor_engine",
+      "name": "performanceMonitorEngine",
+      "path": "src/azuria_ai/engines/performanceMonitorEngine.ts",
+      "type": "core",
+      "summary": "Mede execução por engine, detecta gargalos e alerta performance.",
+      "exports": ["perfStart","perfEnd","getPerfStats"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 200],
+      "tags": ["performance","monitoring"]
+    },
+    {
+      "id": "user_model",
+      "name": "userModel",
+      "path": "src/azuria_ai/core/userModel.ts",
+      "type": "core",
+      "summary": "Modelo dinâmico do usuário (estado emocional, risco, ritmo, habilidade).",
+      "exports": ["userModel","updateUsagePattern"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 120],
+      "tags": ["user","model"]
+    },
+    {
+      "id": "scripts_tests",
+      "name": "mode-deus-tests",
+      "path": "tests/mode-deus",
+      "type": "tooling",
+      "summary": "Scripts de automação de testes: run-reactive-test.js, run-proactive-test.js, check-logs.sh, run-all.sh",
+      "exports": ["run-reactive-test.js","run-proactive-test.js","check-logs.sh","run-all.sh"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 240],
+      "tags": ["tests","automation"]
+    },
+    {
+      "id": "scripts_social_tests",
+      "name": "mode-deus-social-tests",
+      "path": "scripts/mode-deus-tests/run-social-tests.js",
+      "type": "tooling",
+      "summary": "Teste leve para inteligência social, emoção e adaptação.",
+      "exports": ["run-social-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","social"]
+    },
+    {
+      "id": "scripts_meta_tests",
+      "name": "mode-deus-meta-tests",
+      "path": "scripts/mode-deus-tests/run-meta-tests.js",
+      "type": "tooling",
+      "summary": "Testes de meta-inteligência, drift e consistência.",
+      "exports": ["run-meta-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","meta"]
+    },
+    {
+      "id": "scripts_temporal_tests",
+      "name": "mode-deus-temporal-tests",
+      "path": "scripts/mode-deus-tests/run-temporal-tests.js",
+      "type": "tooling",
+      "summary": "Testes de linha do tempo, previsão e anomalias temporais.",
+      "exports": ["run-temporal-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","temporal"]
+    },
+    {
+      "id": "scripts_evolution_tests",
+      "name": "mode-deus-evolution-tests",
+      "path": "scripts/mode-deus-tests/run-evolution-tests.js",
+      "type": "tooling",
+      "summary": "Testes de evolução contínua, fraquezas e score.",
+      "exports": ["run-evolution-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","evolution"]
+    },
+    {
+      "id": "scripts_integrated_tests",
+      "name": "mode-deus-integrated-tests",
+      "path": "scripts/mode-deus-tests/run-integrated-tests.js",
+      "type": "tooling",
+      "summary": "Testes de arquitetura unificada e orquestração global.",
+      "exports": ["run-integrated-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","integration"]
+    },
+    {
+      "id": "scripts_prod_hardening_tests",
+      "name": "mode-deus-prod-hardening-tests",
+      "path": "scripts/mode-deus-tests/run-prod-hardening-tests.js",
+      "type": "tooling",
+      "summary": "Testes de hardening, fallback e performance.",
+      "exports": ["run-prod-hardening-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","reliability"]
+    },
+    {
+      "id": "scripts_autonomy_tests",
+      "name": "mode-deus-autonomy-tests",
+      "path": "scripts/mode-deus-tests/run-autonomy-tests.js",
+      "type": "tooling",
+      "summary": "Testes de autonomia segura e política.",
+      "exports": ["run-autonomy-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","autonomy"]
+    },
+    {
+      "id": "scripts_agents_tests",
+      "name": "mode-deus-agents-tests",
+      "path": "scripts/mode-deus-tests/run-agents-tests.js",
+      "type": "tooling",
+      "summary": "Testes de agentes multi-especializados.",
+      "exports": ["run-agents-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 160],
+      "tags": ["tests","agents"]
+    },
+    {
+      "id": "scripts_cognitive_tests",
+      "name": "mode-deus-cognitive-tests",
+      "path": "scripts/mode-deus-tests/run-cognitive-tests.js",
+      "type": "tooling",
+      "summary": "Teste leve para memória, padrões, previsões e anomalias do CognitiveEngine.",
+      "exports": ["run-cognitive-tests.js"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 120],
+      "tags": ["tests","cognition"]
+    },
+    {
+      "id": "storytelling_engine",
+      "name": "StorytellingEngine",
+      "path": "src/azuria_ai/engines/storytellingEngine.ts",
+      "type": "augmentation",
+      "summary": "Gera narrativas comerciais, educacionais e contextuais com base no estado da IA.",
+      "tags": ["story","narrative","education","communication"]
+    },
+    {
+      "id": "brand_voice_engine",
+      "name": "BrandVoiceEngine",
+      "path": "src/azuria_ai/engines/brandVoiceEngine.ts",
+      "type": "augmentation",
+      "summary": "Define a voz de marca adaptativa do Azuria e garante consistência comunicacional global.",
+      "tags": ["brand-voice","communication","consistency"]
+    },
+    {
+      "id": "affective_engine",
+      "name": "AffectiveEngine",
+      "path": "src/azuria_ai/engines/affectiveEngine.ts",
+      "type": "augmentation",
+      "summary": "Detecta estados emocionais do usuário e adapta respostas afetivas profissionais.",
+      "tags": ["affective","emotion","ux"]
+    },
+    {
+      "id": "behavior_engine",
+      "name": "BehaviorEngine",
+      "path": "src/azuria_ai/engines/behaviorEngine.ts",
+      "type": "intelligence",
+      "summary": "Detecta padrões comportamentais e sugere correções de UX.",
+      "tags": ["behavior","ux","optimization"]
+    },
+    {
+      "id": "auto_optimizer_engine",
+      "name": "AutoOptimizerEngine",
+      "path": "src/azuria_ai/engines/autoOptimizerEngine.ts",
+      "type": "intelligence",
+      "summary": "Aplica otimizações de UX baseadas em comportamento real.",
+      "tags": ["ux","optimization","automation"]
+    },
+    {
+      "id": "cognitive_governance_engine",
+      "name": "CognitiveGovernanceEngine",
+      "path": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "type": "governance",
+      "summary": "Supervisiona decisões da IA, valida recomendações e mantém o Modo Deus dentro de limites seguros."
+    },
+    {
+      "id": "decision_audit_engine",
+      "name": "DecisionAuditEngine",
+      "path": "src/azuria_ai/engines/decisionAuditEngine.ts",
+      "type": "audit",
+      "summary": "Audita decisões, rastreia recomendações e gera histórico seguro de ações da IA."
+    },
+    {
+      "id": "ethical_guard_engine",
+      "name": "EthicalGuardEngine",
+      "path": "src/azuria_ai/engines/ethicalGuardEngine.ts",
+      "type": "governance",
+      "summary": "Camada ética e alinhamento de intenções do Modo Deus."
+    },
+    {
+      "id": "safety_limits_engine",
+      "name": "SafetyLimitsEngine",
+      "path": "src/azuria_ai/engines/safetyLimitsEngine.ts",
+      "type": "governance",
+      "summary": "Limites de segurança, contenção e prevenção de comportamento descontrolado."
+    },
+    {
+      "id": "system_mind_engine",
+      "name": "SystemMindEngine",
+      "path": "src/azuria_ai/engines/systemMindEngine.ts",
+      "type": "core",
+      "summary": "Consciência sistêmica global, integração total das engines e harmonia cognitiva."
+    },
+    {
+      "id": "reality_engine",
+      "name": "RealityEngine",
+      "path": "src/azuria_ai/engines/realityEngine.ts",
+      "type": "core",
+      "summary": "Modelo de realidade do Azuria. Reconstrói contexto, entende intenções, fatores externos e estado global."
+    },
+    {
+      "id": "truth_engine",
+      "name": "TruthEngine",
+      "path": "src/azuria_ai/engines/truthEngine.ts",
+      "type": "core",
+      "summary": "Sistema de Verdade do Modo Deus. Valida coerência, detecta contradições, confirma realidade e impede decisões baseadas em estados falsos."
+    },
+    {
+      "id": "stability_engine",
+      "name": "StabilityEngine",
+      "path": "src/azuria_ai/engines/stabilityEngine.ts",
+      "type": "governance",
+      "summary": "Motor de previsibilidade de erro, estabilidade cognitiva e anti-colapso do Modo Deus."
+    },
+    {
+      "id": "market_intelligence_engine",
+      "name": "MarketIntelligenceEngine",
+      "path": "src/azuria_ai/engines/marketIntelligenceEngine.ts",
+      "type": "core",
+      "summary": "Motor de consciência de mercado, inteligência competitiva e posicionamento estratégico autônomo."
+    },
+    {
+      "id": "meta_layer_engine",
+      "name": "MetaLayerEngine",
+      "path": "src/azuria_ai/engines/metaLayerEngine.ts",
+      "type": "core",
+      "summary": "Cérebro multi-camadas responsável pela percepção, raciocínio, consciência, simulação e decisão estratégica do Azuria."
+    },
+    {
+      "id": "personality_engine",
+      "name": "PersonalityEngine",
+      "path": "src/azuria_ai/engines/personalityEngine.ts",
+      "type": "behavior",
+      "summary": "Define características cognitivas, heurísticas de decisão e a identidade sistêmica do Azuria."
+    },
+    {
+      "id": "creator_engine",
+      "name": "CreatorEngine",
+      "path": "src/azuria_ai/engines/creatorEngine.ts",
+      "type": "governance",
+      "summary": "Painel do Criador: analisa o ecossistema, gera insights, detecta riscos estruturais e orienta o desenvolvimento."
+    },
+    {
+      "id": "nim_engine",
+      "name": "NimEngine",
+      "path": "src/azuria_ai/engines/nimAdapter.ts",
+      "type": "core",
+      "summary": "Interface de acesso aos modelos NVIDIA NIM"
+    },
+    {
+      "id": "creator_dashboard",
+      "name": "CreatorDashboard",
+      "path": "src/pages/admin/creator.tsx",
+      "type": "ui",
+      "summary": "Painel exclusivo do Admin para alertas do CreatorEngine."
+    },
+    {
+      "id": "docs",
+      "name": "mode-deus docs",
+      "path": "docs/mode-deus",
+      "type": "docs",
+      "summary": "Documentação gerada (overview, architecture, components, events, watchers, proactive, ui-integration, testing, troubleshooting, migration_vscode, changelog).",
+      "exports": ["README.md","overview.md","architecture.md","components.md","events.md","watchers.md","proactive.md","ui-integration.md","testing.md","troubleshooting.md","migration_vscode.md","changelog_mode_deus.md"],
+      "todoCount": 0,
+      "lastModifiedLines": [1, 1200],
+      "tags": ["documentation"]
     }
   ],
   "events": [
     {
-      "name": "calc:updated",
-      "pathDefined": "src/azuria_ai/core/eventBus.ts",
-      "payloadSchema": "{ data: CalcData, changedField: string }",
-      "emittedBy": ["useCalcWatcher"],
+      "name": "calc:started",
+      "pathDefined": "src/azuria_ai/core/watchers/useCalcWatcher.ts",
+      "payloadSchema": {
+        "tipo": "string",
+        "payload": "object",
+        "timestamp": "number",
+        "source": "string"
+      },
+      "emittedBy": ["useCalcWatcher","useAdvancedCalcWatcher","useTaxCalcWatcher","useBidCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine","ui"]
+    },
+    {
+      "name": "ai:story-generated",
+      "pathDefined": "src/azuria_ai/engines/storytellingEngine.ts",
+      "payloadSchema": {
+        "story": "string",
+        "profile": "string"
+      },
+      "emittedBy": ["storytellingEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:story-clarified",
+      "pathDefined": "src/azuria_ai/engines/storytellingEngine.ts",
+      "payloadSchema": {
+        "story": "string"
+      },
+      "emittedBy": ["storytellingEngine"],
+      "consumedBy": ["MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:story-educational",
+      "pathDefined": "src/azuria_ai/engines/storytellingEngine.ts",
+      "payloadSchema": {
+        "story": "string",
+        "level": "string"
+      },
+      "emittedBy": ["storytellingEngine"],
+      "consumedBy": ["MiniDashboard","InsightToast","onboardingEngine"]
+    },
+    {
+      "name": "ai:story-commercial",
+      "pathDefined": "src/azuria_ai/engines/storytellingEngine.ts",
+      "payloadSchema": {
+        "story": "string"
+      },
+      "emittedBy": ["storytellingEngine"],
+      "consumedBy": ["commercialEngine","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:brand-voice-applied",
+      "pathDefined": "src/azuria_ai/engines/brandVoiceEngine.ts",
+      "payloadSchema": {
+        "refined": "string",
+        "tone": "string"
+      },
+      "emittedBy": ["brandVoiceEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:persona-adapted",
+      "pathDefined": "src/azuria_ai/engines/brandVoiceEngine.ts",
+      "payloadSchema": {
+        "persona": "string"
+      },
+      "emittedBy": ["brandVoiceEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:tone-shift",
+      "pathDefined": "src/azuria_ai/engines/brandVoiceEngine.ts",
+      "payloadSchema": {
+        "tone": "string",
+        "refined": "string"
+      },
+      "emittedBy": ["brandVoiceEngine"],
+      "consumedBy": ["MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:communication-optimized",
+      "pathDefined": "src/azuria_ai/engines/brandVoiceEngine.ts",
+      "payloadSchema": {
+        "text": "string"
+      },
+      "emittedBy": ["brandVoiceEngine"],
       "consumedBy": ["aiOrchestrator"]
     },
     {
-      "name": "screen:changed",
-      "pathDefined": "src/azuria_ai/core/eventBus.ts",
-      "payloadSchema": "{ screen: string, path: string, metadata: object }",
-      "emittedBy": ["screenContextWatcher"],
-      "consumedBy": ["aiOrchestrator", "screenContextHandlers"]
+      "name": "ai:emotion-detected",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {
+        "emotion": "string",
+        "confidence": "number"
+      },
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:affective-response",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {
+        "message": "string",
+        "tone": "string",
+        "persona": "string"
+      },
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:user-frustrated",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "ai:user-confident",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "ai:user-confused",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "ai:user-hesitant",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "ai:user-encouraged",
+      "pathDefined": "src/azuria_ai/engines/affectiveEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["affectiveEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:behavior-pattern-detected",
+      "pathDefined": "src/azuria_ai/engines/behaviorEngine.ts",
+      "payloadSchema": {"pattern":"string","count":"number"},
+      "emittedBy": ["behaviorEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:ux-friction-detected",
+      "pathDefined": "src/azuria_ai/engines/behaviorEngine.ts",
+      "payloadSchema": {"abandon":"array","frictionScore":"number"},
+      "emittedBy": ["behaviorEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:autofix-suggested",
+      "pathDefined": "src/azuria_ai/engines/behaviorEngine.ts",
+      "payloadSchema": {"fixes":"array"},
+      "emittedBy": ["behaviorEngine","autoOptimizerEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:autofix-applied",
+      "pathDefined": "src/azuria_ai/engines/autoOptimizerEngine.ts",
+      "payloadSchema": {"fixes":"array"},
+      "emittedBy": ["autoOptimizerEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:positive-pattern-detected",
+      "pathDefined": "src/azuria_ai/engines/behaviorEngine.ts",
+      "payloadSchema": {"pattern":"string","count":"number"},
+      "emittedBy": ["behaviorEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:flow-abandon-point",
+      "pathDefined": "src/azuria_ai/engines/behaviorEngine.ts",
+      "payloadSchema": {"steps":"array"},
+      "emittedBy": ["behaviorEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:ux-optimized",
+      "pathDefined": "src/azuria_ai/engines/autoOptimizerEngine.ts",
+      "payloadSchema": {"combined":"array","fixes":"array"},
+      "emittedBy": ["autoOptimizerEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:decision-valid",
+      "pathDefined": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "payloadSchema": {"message":"string"},
+      "emittedBy": ["cognitiveGovernanceEngine","aiOrchestrator"],
+      "consumedBy": ["decisionAuditEngine","MiniDashboard"]
+    },
+    {
+      "name": "ai:decision-invalid",
+      "pathDefined": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "payloadSchema": {"reason":"string"},
+      "emittedBy": ["cognitiveGovernanceEngine","aiOrchestrator"],
+      "consumedBy": ["decisionAuditEngine"]
+    },
+    {
+      "name": "ai:decision-corrected",
+      "pathDefined": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "payloadSchema": {"text":"string","reason":"string"},
+      "emittedBy": ["cognitiveGovernanceEngine","aiOrchestrator"],
+      "consumedBy": ["decisionAuditEngine","MiniDashboard"]
+    },
+    {
+      "name": "ai:unsafe-output-blocked",
+      "pathDefined": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "payloadSchema": {"reason":"string","insight":"object"},
+      "emittedBy": ["cognitiveGovernanceEngine","aiOrchestrator"],
+      "consumedBy": ["decisionAuditEngine"]
+    },
+    {
+      "name": "ai:governance-alert",
+      "pathDefined": "src/azuria_ai/engines/cognitiveGovernanceEngine.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["cognitiveGovernanceEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard"]
+    },
+    {
+      "name": "ai:audited-decision",
+      "pathDefined": "src/azuria_ai/engines/decisionAuditEngine.ts",
+      "payloadSchema": {"type":"string","payload":"object","timestamp":"number"},
+      "emittedBy": ["decisionAuditEngine"],
+      "consumedBy": ["aiOrchestrator"]
+    },
+    {
+      "name": "ai:ethical-warning",
+      "pathDefined": "src/azuria_ai/engines/ethicalGuardEngine.ts",
+      "payloadSchema": {"message":"string","risk":"number"},
+      "emittedBy": ["EthicalGuardEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:alignment-corrected",
+      "pathDefined": "src/azuria_ai/engines/ethicalGuardEngine.ts",
+      "payloadSchema": {"message":"string"},
+      "emittedBy": ["EthicalGuardEngine"],
+      "consumedBy": ["aiOrchestrator","InsightToast"]
+    },
+    {
+      "name": "ai:safety-break",
+      "pathDefined": "src/azuria_ai/engines/safetyLimitsEngine.ts",
+      "payloadSchema": {"reason":"string","state":"object"},
+      "emittedBy": ["SafetyLimitsEngine"],
+      "consumedBy": ["integratedCoreEngine","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:mind-snapshot",
+      "pathDefined": "src/azuria_ai/engines/systemMindEngine.ts",
+      "payloadSchema": {
+        "state": "object",
+        "confidenceMap": "object",
+        "anomalies": "array"
+      },
+      "emittedBy": ["SystemMindEngine"],
+      "consumedBy": ["integratedCoreEngine","aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:mind-warning",
+      "pathDefined": "src/azuria_ai/engines/systemMindEngine.ts",
+      "payloadSchema": {"anomalies":"array"},
+      "emittedBy": ["SystemMindEngine","aiOrchestrator"],
+      "consumedBy": ["MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:reality-updated",
+      "pathDefined": "src/azuria_ai/engines/realityEngine.ts",
+      "payloadSchema": {
+        "context": "object",
+        "forces": "object",
+        "confidence": "number"
+      },
+      "emittedBy": ["RealityEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:truth-alert",
+      "pathDefined": "src/azuria_ai/engines/truthEngine.ts",
+      "payloadSchema": { "severity": "string", "details": "object" },
+      "emittedBy": ["TruthEngine"],
+      "consumedBy": ["aiOrchestrator", "MiniDashboard", "InsightToast"]
+    },
+    {
+      "name": "ai:stability-alert",
+      "pathDefined": "src/azuria_ai/engines/stabilityEngine.ts",
+      "payloadSchema": {
+        "severity": "string",
+        "riskLevel": "number",
+        "details": "object"
+      },
+      "emittedBy": ["StabilityEngine"],
+      "consumedBy": ["aiOrchestrator", "MiniDashboard", "InsightToast"]
+    },
+    {
+      "name": "ai:market-insight",
+      "pathDefined": "src/azuria_ai/engines/marketIntelligenceEngine.ts",
+      "payloadSchema": {
+        "topic": "string",
+        "confidence": "number",
+        "details": "object",
+        "impactScore": "number"
+      },
+      "emittedBy": ["MarketIntelligenceEngine"],
+      "consumedBy": ["MiniDashboard", "InsightToast", "EvolutionEngine", "aiOrchestrator"]
+    },
+    {
+      "name": "ai:meta-layer-updated",
+      "pathDefined": "src/azuria_ai/engines/metaLayerEngine.ts",
+      "payloadSchema": {
+        "snapshot": "object"
+      },
+      "emittedBy": ["MetaLayerEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:personality-escalation",
+      "pathDefined": "src/azuria_ai/engines/personalityEngine.ts",
+      "payloadSchema": { "details": "object", "severity": "string" },
+      "emittedBy": ["PersonalityEngine"],
+      "consumedBy": ["aiOrchestrator","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "ai:nim-response",
+      "pathDefined": "src/azuria_ai/events/nimEvents.ts",
+      "payloadSchema": {
+        "model": "string",
+        "latency": "number",
+        "tokens": "number"
+      },
+      "emittedBy": ["NimEngine"],
+      "consumedBy": ["MiniDashboard", "integratedOrchestrator"]
+    },
+    {
+      "name": "ai.creator-alert",
+      "pathDefined": "src/azuria_ai/events/creatorEvents.ts",
+      "payloadSchema": {
+        "severity": "string",
+        "area": "string",
+        "details": "object",
+        "recommendation": "string"
+      },
+      "emittedBy": ["CreatorEngine"],
+      "consumedBy": ["MiniDashboard", "InsightToast","CreatorDashboard"]
+    },
+    {
+      "name": "ai.creator-insight",
+      "pathDefined": "src/azuria_ai/events/creatorEvents.ts",
+      "payloadSchema": {
+        "area": "string",
+        "details": "object",
+        "message": "string"
+      },
+      "emittedBy": ["CreatorEngine"],
+      "consumedBy": ["CreatorDashboard"]
+    },
+    {
+      "name": "ai.creator-recommendation",
+      "pathDefined": "src/azuria_ai/events/creatorEvents.ts",
+      "payloadSchema": {
+        "area": "string",
+        "details": "object",
+        "recommendation": "string",
+        "impact": "number",
+        "originEngine": "string",
+        "confidence": "number",
+        "suggestedAction": "string",
+        "timestamp": "number"
+      },
+      "emittedBy": ["CreatorEngine"],
+      "consumedBy": ["CreatorDashboard"]
+    },
+    {
+      "name": "ai.creator-roadmap",
+      "pathDefined": "src/azuria_ai/events/creatorEvents.ts",
+      "payloadSchema": {
+        "items": "array"
+      },
+      "emittedBy": ["CreatorEngine"],
+      "consumedBy": ["CreatorDashboard"]
+    },
+    {
+      "name": "calc:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useCalcWatcher.ts",
+      "payloadSchema": {
+        "tipo": "string",
+        "dados": {
+          "custo": "number",
+          "preco": "number",
+          "margem": "number",
+          "frete": "number",
+          "taxas": "number"
+        },
+        "timestamp": "number",
+        "sourceModule": "string"
+      },
+      "emittedBy": ["useCalcWatcher","useAdvancedCalcWatcher","useTaxCalcWatcher","useBidCalcWatcher","screenContextWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine","functionRegistry"]
+    },
+    {
+      "name": "calc:completed",
+      "pathDefined": "src/azuria_ai/core/watchers/useCalcWatcher.ts",
+      "payloadSchema": {
+        "tipo": "string",
+        "dados": "object",
+        "timestamp": "number"
+      },
+      "emittedBy": ["useCalcWatcher","useAdvancedCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "tax:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useTaxCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":{"icms":"number","st":"number","mva":"number"},"timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useTaxCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "bid:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useBidCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":{"lance":"number","desconto":"number","risco":"number"},"timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useBidCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "scenario:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useAdvancedCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":"object","timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useAdvancedCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "fees:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useAdvancedCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":"object","timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useAdvancedCalcWatcher","marketplaceAgent"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "icms:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useTaxCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":{"icms":"number"},"timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useTaxCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "st:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useTaxCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":{"st":"number"},"timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useTaxCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "risk:updated",
+      "pathDefined": "src/azuria_ai/core/watchers/useBidCalcWatcher.ts",
+      "payloadSchema": {"tipo":"string","dados":{"riskScore":"number"},"timestamp":"number","sourceModule":"string"},
+      "emittedBy": ["useBidCalcWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
     },
     {
       "name": "insight:generated",
-      "pathDefined": "src/azuria_ai/core/eventBus.ts",
-      "payloadSchema": "{ id, severity, title, message, suggestion, values, sourceModule }",
-      "emittedBy": ["proactiveEngine", "aiOrchestrator"],
-      "consumedBy": ["InsightToast", "MiniDashboard"]
+      "pathDefined": "src/azuria_ai/core/aiOrchestrator.ts",
+      "payloadSchema": {
+        "id": "string",
+        "severity": "string",
+        "title": "string",
+        "message": "string",
+        "suggestion": "string",
+        "values": "object",
+        "sourceModule": "string",
+        "eventReference": "object",
+        "timestamp": "number"
+      },
+      "emittedBy": ["aiOrchestrator","proactiveEngine"],
+      "consumedBy": ["InsightToast","MiniDashboard","AzuriaBubble","auditLog"]
     },
     {
       "name": "ui:displayInsight",
       "pathDefined": "src/azuria_ai/core/eventBus.ts",
-      "payloadSchema": "{ insightId: string }",
-      "emittedBy": ["proactiveEngine"],
-      "consumedBy": ["AzuriaAIProvider"]
+      "payloadSchema": {"insightId":"string"},
+      "emittedBy": ["aiOrchestrator","proactiveEngine"],
+      "consumedBy": ["AzuriaAIProvider","MiniDashboard","InsightToast"]
+    },
+    {
+      "name": "screen:changed",
+      "pathDefined": "src/azuria_ai/context/screenContextWatcher.ts",
+      "payloadSchema": {"screen":"string","metadata":"object","timestamp":"number"},
+      "emittedBy": ["screenContextWatcher"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine","contextStore"]
+    },
+    {
+      "name": "screen:dataUpdated",
+      "pathDefined": "src/azuria_ai/context/screenContextWatcher.ts",
+      "payloadSchema": {"screen":"string","data":"object","timestamp":"number"},
+      "emittedBy": ["screenContextWatcher","contextExtractors"],
+      "consumedBy": ["aiOrchestrator","proactiveEngine"]
+    },
+    {
+      "name": "ai:memory-updated",
+      "pathDefined": "src/azuria_ai/engines/cognitiveEngine.ts",
+      "payloadSchema": {"entry":"object"},
+      "emittedBy": ["cognitiveEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:pattern-detected",
+      "pathDefined": "src/azuria_ai/engines/cognitiveEngine.ts",
+      "payloadSchema": {"patterns":"array"},
+      "emittedBy": ["cognitiveEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:forecast-generated",
+      "pathDefined": "src/azuria_ai/engines/cognitiveEngine.ts",
+      "payloadSchema": {"message":"string","nextIntent":"string","nextRiskLevel":"string"},
+      "emittedBy": ["cognitiveEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:anomaly-detected",
+      "pathDefined": "src/azuria_ai/engines/cognitiveEngine.ts",
+      "payloadSchema": {"message":"string","from":"number","to":"number"},
+      "emittedBy": ["cognitiveEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:user-intent-inferred",
+      "pathDefined": "src/azuria_ai/engines/socialEngine.ts",
+      "payloadSchema": {"intent":"string","context":"object"},
+      "emittedBy": ["socialEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:emotion-inferred",
+      "pathDefined": "src/azuria_ai/engines/socialEngine.ts",
+      "payloadSchema": {"emotionalState":"string","score":"number"},
+      "emittedBy": ["socialEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:user-profile-updated",
+      "pathDefined": "src/azuria_ai/engines/socialEngine.ts",
+      "payloadSchema": {"userModel":"object"},
+      "emittedBy": ["socialEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ui:adaptive-interface-changed",
+      "pathDefined": "src/azuria_ai/engines/socialEngine.ts",
+      "payloadSchema": {"adaptation":"object","userModel":"object"},
+      "emittedBy": ["socialEngine","aiOrchestrator"],
+      "consumedBy": ["ui"]
+    },
+    {
+      "name": "ai:internal-drift",
+      "pathDefined": "src/azuria_ai/engines/operationalStateEngine.ts",
+      "payloadSchema": {"state":"object"},
+      "emittedBy": ["operationalStateEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:state-changed",
+      "pathDefined": "src/azuria_ai/engines/operationalStateEngine.ts",
+      "payloadSchema": {"state":"object"},
+      "emittedBy": ["operationalStateEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:model-confidence",
+      "pathDefined": "src/azuria_ai/engines/operationalStateEngine.ts",
+      "payloadSchema": {"confidence":"number"},
+      "emittedBy": ["operationalStateEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:signal-quality",
+      "pathDefined": "src/azuria_ai/engines/operationalStateEngine.ts",
+      "payloadSchema": {"signalQuality":"number"},
+      "emittedBy": ["operationalStateEngine","continuousImprovementEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:consistency-warning",
+      "pathDefined": "src/azuria_ai/engines/consistencyEngine.ts",
+      "payloadSchema": {"message":"string"},
+      "emittedBy": ["consistencyEngine","continuousImprovementEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:system-drift",
+      "pathDefined": "src/azuria_ai/engines/consistencyEngine.ts",
+      "payloadSchema": {"driftDetected":"boolean"},
+      "emittedBy": ["consistencyEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:dependency-gap",
+      "pathDefined": "src/azuria_ai/engines/consistencyEngine.ts",
+      "payloadSchema": {"missingHandlers":"array"},
+      "emittedBy": ["consistencyEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:stability-restored",
+      "pathDefined": "src/azuria_ai/engines/consistencyEngine.ts",
+      "payloadSchema": {"status":"string"},
+      "emittedBy": ["consistencyEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:planner-goal-evaluated",
+      "pathDefined": "src/azuria_ai/engines/metaPlannerEngine.ts",
+      "payloadSchema": {"goal":"object"},
+      "emittedBy": ["metaPlannerEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:planner-plan-generated",
+      "pathDefined": "src/azuria_ai/engines/metaPlannerEngine.ts",
+      "payloadSchema": {"plan":"object"},
+      "emittedBy": ["metaPlannerEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:planner-plan-executed",
+      "pathDefined": "src/azuria_ai/engines/metaPlannerEngine.ts",
+      "payloadSchema": {"plan":"object"},
+      "emittedBy": ["metaPlannerEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:planner-plan-adjusted",
+      "pathDefined": "src/azuria_ai/engines/metaPlannerEngine.ts",
+      "payloadSchema": {"plan":"object","feedbackScore":"number"},
+      "emittedBy": ["metaPlannerEngine","continuousImprovementEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:temporal-event",
+      "pathDefined": "src/azuria_ai/engines/temporalEngine.ts",
+      "payloadSchema": {"scope":"string","entry":"object"},
+      "emittedBy": ["temporalEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:trend-detected",
+      "pathDefined": "src/azuria_ai/engines/temporalEngine.ts",
+      "payloadSchema": {"scope":"string","trend":"string","repetitions":"array"},
+      "emittedBy": ["temporalEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:future-state-predicted",
+      "pathDefined": "src/azuria_ai/engines/temporalEngine.ts",
+      "payloadSchema": {"scope":"string","expected":"string","repetitions":"array"},
+      "emittedBy": ["temporalEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:temporal-anomaly",
+      "pathDefined": "src/azuria_ai/engines/temporalEngine.ts",
+      "payloadSchema": {"scope":"string","message":"string"},
+      "emittedBy": ["temporalEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:core-sync",
+      "pathDefined": "src/azuria_ai/engines/integratedCoreEngine.ts",
+      "payloadSchema": {"state":"object"},
+      "emittedBy": ["integratedCoreEngine","integratedOrchestrator"],
+      "consumedBy": ["ui","aiOrchestrator"]
+    },
+    {
+      "name": "ui:emotion-updated",
+      "pathDefined": "src/azuria_ai/engines/socialPresenceEngine.ts",
+      "payloadSchema": {"emotionalState":"string","tone":"string","message":"string"},
+      "emittedBy": ["socialPresenceEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ui:adaptive-layout",
+      "pathDefined": "src/azuria_ai/engines/adaptiveUXEngine.ts",
+      "payloadSchema": {"layout":"object"},
+      "emittedBy": ["adaptiveUXEngine"],
+      "consumedBy": ["ui","aiOrchestrator"]
+    },
+    {
+      "name": "ai:perf-alert",
+      "pathDefined": "src/azuria_ai/engines/performanceMonitorEngine.ts",
+      "payloadSchema": {"label":"string","duration":"number"},
+      "emittedBy": ["performanceMonitorEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:fallback-engaged",
+      "pathDefined": "src/azuria_ai/engines/safetyAndReliabilityEngine.ts",
+      "payloadSchema": {"reason":"string","timestamp":"number"},
+      "emittedBy": ["safetyAndReliabilityEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:governance-alert",
+      "pathDefined": "src/azuria_ai/engines/consciousOrchestrator.ts",
+      "payloadSchema": {"risk":"number","message":"string"},
+      "emittedBy": ["consciousOrchestrator","systemGovernanceWatcher"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:coherence-warning",
+      "pathDefined": "src/azuria_ai/engines/consciousOrchestrator.ts",
+      "payloadSchema": {"issues":"array"},
+      "emittedBy": ["consciousOrchestrator"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:decision-validated",
+      "pathDefined": "src/azuria_ai/engines/consciousOrchestrator.ts",
+      "payloadSchema": {"coherenceScore":"number","trustLevel":"string","reasoning":"string"},
+      "emittedBy": ["consciousOrchestrator"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:action-executed",
+      "pathDefined": "src/azuria_ai/engines/safeActionEngine.ts",
+      "payloadSchema": {"success":"boolean","details":"object"},
+      "emittedBy": ["safeActionEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "ai:governance-violation",
+      "pathDefined": "src/azuria_ai/engines/governanceEngine.ts",
+      "payloadSchema": {"action":"object","reason":"string"},
+      "emittedBy": ["governanceEngine"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:tax-warning",
+      "pathDefined": "src/azuria_ai/agents/TaxAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["TaxAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:tax-correction-suggested",
+      "pathDefined": "src/azuria_ai/agents/TaxAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["TaxAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:optimal-price",
+      "pathDefined": "src/azuria_ai/agents/PricingAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["PricingAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:margin-risk",
+      "pathDefined": "src/azuria_ai/agents/PricingAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["PricingAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:competitive-price",
+      "pathDefined": "src/azuria_ai/agents/MarketplaceAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["MarketplaceAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:listing-issue",
+      "pathDefined": "src/azuria_ai/agents/MarketplaceAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["MarketplaceAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:risk-detected",
+      "pathDefined": "src/azuria_ai/agents/RiskAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["RiskAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:loss-predicted",
+      "pathDefined": "src/azuria_ai/agents/RiskAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["RiskAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:opportunity-found",
+      "pathDefined": "src/azuria_ai/agents/OpportunityAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["OpportunityAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
+    },
+    {
+      "name": "agent:boost-suggested",
+      "pathDefined": "src/azuria_ai/agents/OpportunityAgent.ts",
+      "payloadSchema": {"message":"string","severity":"string"},
+      "emittedBy": ["OpportunityAgent"],
+      "consumedBy": ["aiOrchestrator","ui"]
     }
   ],
   "functions": [
     {
       "name": "calcularPrecoIdeal",
       "path": "src/azuria_ai/core/functionDefinitions.ts",
-      "parameters": [{"name": "custoProduto", "type": "number"}, {"name": "margemDesejada", "type": "number"}],
-      "returns": "Preço sugerido e breakdown de custos",
-      "agentMapped": "calculo",
-      "description": "Calcula preço ideal de venda basedo em margem alvo."
+      "parameters": [
+        {"name":"custo","type":"number"},
+        {"name":"margemDesejada","type":"number"},
+        {"name":"taxas","type":"number"}
+      ],
+      "returns": {"precoIdeal":"number","detalhes":"object"},
+      "agentMapped": "calculoAgent",
+      "description": "Calcula o preço ideal com base em custo, margem desejada e taxas."
+    },
+    {
+      "name": "calcularMargem",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"preco","type":"number"},
+        {"name":"custo","type":"number"}
+      ],
+      "returns": {"margem":"number"},
+      "agentMapped": "calculoAgent",
+      "description": "Calcula margem de lucro real."
+    },
+    {
+      "name": "calcularPrecoMinimo",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"custoTotal","type":"number"}
+      ],
+      "returns": {"precoMinimo":"number"},
+      "agentMapped": "calculoAgent",
+      "description": "Retorna o preço mínimo sem prejuízo."
+    },
+    {
+      "name": "simularCenarios",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"produtoId","type":"string"},
+        {"name":"cenarios","type":"array"}
+      ],
+      "returns": {"resultados":"array"},
+      "agentMapped": "calculoAgent",
+      "description": "Simula múltiplos cenários de precificação."
     },
     {
       "name": "calcularICMS",
       "path": "src/azuria_ai/core/functionDefinitions.ts",
-      "parameters": [{"name": "preco", "type": "number"}, {"name": "aliquota", "type": "number"}],
-      "returns": "Valor do ICMS",
-      "agentMapped": "fiscal",
-      "description": "Cálculo de imposto ICMS interestadual ou interno."
+      "parameters": [
+        {"name":"base","type":"number"},
+        {"name":"aliquota","type":"number"}
+      ],
+      "returns": {"icms":"number"},
+      "agentMapped": "fiscalAgent",
+      "description": "Calcula ICMS baseado em base e alíquota."
+    },
+    {
+      "name": "calcularST",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"base","type":"number"},
+        {"name":"mva","type":"number"}
+      ],
+      "returns": {"st":"number"},
+      "agentMapped": "fiscalAgent",
+      "description": "Calcula substituição tributária (ST)."
+    },
+    {
+      "name": "calcularMVA",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"valor","type":"number"}
+      ],
+      "returns": {"mva":"number"},
+      "agentMapped": "fiscalAgent",
+      "description": "Calcula Margem de Valor Agregado (MVA)."
+    },
+    {
+      "name": "getTaxasMarketplace",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"marketplace","type":"string"}
+      ],
+      "returns": {"taxas":"object"},
+      "agentMapped": "marketplaceAgent",
+      "description": "Retorna taxas de um marketplace especificado."
+    },
+    {
+      "name": "calcularComissao",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"preco","type":"number"},
+        {"name":"porcentagem","type":"number"}
+      ],
+      "returns": {"comissao":"number"},
+      "agentMapped": "marketplaceAgent",
+      "description": "Calcula comissão sobre a venda."
+    },
+    {
+      "name": "calcularLance",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"valorEstimado","type":"number"},
+        {"name":"margemDesejada","type":"number"}
+      ],
+      "returns": {"lanceSugerido":"number"},
+      "agentMapped": "licitacaoAgent",
+      "description": "Calcula um lance competitivo para licitações."
+    },
+    {
+      "name": "avaliarRisco",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"dadosLote","type":"object"}
+      ],
+      "returns": {"risco":"number","detalhes":"object"},
+      "agentMapped": "licitacaoAgent",
+      "description": "Avalia risco de propostas e lotes."
     },
     {
       "name": "setInputValue",
       "path": "src/azuria_ai/core/functionDefinitions.ts",
-      "parameters": [{"name": "campoId", "type": "string"}, {"name": "valor", "type": "string"}],
-      "returns": "void",
-      "agentMapped": "ui",
-      "description": "Preenche um campo na tela do usuário."
+      "parameters": [
+        {"name":"fieldPath","type":"string"},
+        {"name":"value","type":"any"}
+      ],
+      "returns": {"sucesso":"boolean"},
+      "agentMapped": "uiAgent",
+      "description": "Define valor de campo na UI (usado pelo uiAgent)."
+    },
+    {
+      "name": "aplicarSugestaoNaTela",
+      "path": "src/azuria_ai/core/functionDefinitions.ts",
+      "parameters": [
+        {"name":"sugestaoId","type":"string"}
+      ],
+      "returns": {"sucesso":"boolean"},
+      "agentMapped": "uiAgent",
+      "description": "Aplica sugestão gerada pela IA diretamente na interface."
     }
   ],
   "watchers": [
     {
       "name": "useCalcWatcher",
-      "path": "src/azuria_ai/hooks/useCalcWatcher.ts",
-      "triggers": "Input change in Basic Calculator",
+      "path": "src/azuria_ai/core/watchers/useCalcWatcher.ts",
+      "triggers": ["inputChange","userAction"],
       "debouncingMs": 500,
-      "emits": ["calc:updated", "calc:completed", "calc:started"]
+      "emits": ["calc:started","calc:updated","calc:completed"]
     },
     {
       "name": "useAdvancedCalcWatcher",
-      "path": "src/azuria_ai/hooks/useAdvancedCalcWatcher.ts",
-      "triggers": "Scenario or Fee changes",
+      "path": "src/azuria_ai/core/watchers/useAdvancedCalcWatcher.ts",
+      "triggers": ["scenarioChange","inputChange"],
       "debouncingMs": 500,
-      "emits": ["scenario:updated", "fees:updated"]
+      "emits": ["scenario:updated","calc:updated","fees:updated"]
+    },
+    {
+      "name": "useTaxCalcWatcher",
+      "path": "src/azuria_ai/core/watchers/useTaxCalcWatcher.ts",
+      "triggers": ["taxInputChange","configChange"],
+      "debouncingMs": 500,
+      "emits": ["tax:updated","icms:updated","st:updated"]
+    },
+    {
+      "name": "useBidCalcWatcher",
+      "path": "src/azuria_ai/core/watchers/useBidCalcWatcher.ts",
+      "triggers": ["bidInputChange","loteChange"],
+      "debouncingMs": 500,
+      "emits": ["bid:updated","risk:updated","discount:updated"]
     },
     {
       "name": "screenContextWatcher",
       "path": "src/azuria_ai/context/screenContextWatcher.ts",
-      "triggers": "React Router location change",
-      "debouncingMs": 0,
-      "emits": ["screen:changed"]
+      "triggers": ["routeChange","dataRefresh"],
+      "debouncingMs": 200,
+      "emits": ["screen:changed","screen:dataUpdated"]
     }
   ],
   "uiComponents": [
     {
       "name": "AzuriaBubble",
       "path": "src/azuria_ai/ui/AzuriaBubble.tsx",
-      "props": ["onOpen", "status"],
-      "eventsConsumed": ["insight:generated"],
-      "eventsEmitted": []
+      "props": ["status","unreadCount"],
+      "eventsConsumed": ["insight:generated","ui:displayInsight"],
+      "eventsEmitted": ["ui:openMiniDashboard","ui:requestAction"]
     },
     {
       "name": "MiniDashboard",
       "path": "src/azuria_ai/ui/MiniDashboard.tsx",
-      "props": ["isOpen", "onClose", "userId"],
-      "eventsConsumed": ["insight:generated", "calc:completed"],
-      "eventsEmitted": ["user:action"]
+      "props": ["initialState","onAction"],
+      "eventsConsumed": ["insight:generated","ui:displayInsight"],
+      "eventsEmitted": ["ui:applySuggestion","ui:openInsight"]
+    },
+    {
+      "name": "InsightToast",
+      "path": "src/azuria_ai/ui/InsightToast.tsx",
+      "props": ["insight","autoDismissMs"],
+      "eventsConsumed": ["insight:generated","ui:displayInsight"],
+      "eventsEmitted": ["ui:actionClicked","ui:toastDismissed"]
     },
     {
       "name": "AzuriaAIProvider",
       "path": "src/azuria_ai/ui/AzuriaAIProvider.tsx",
-      "props": ["children", "enabled"],
-      "eventsConsumed": ["ui:displayInsight"],
-      "eventsEmitted": []
+      "props": ["children"],
+      "eventsConsumed": ["screen:changed","screen:dataUpdated","insight:generated"],
+      "eventsEmitted": ["ui:displayInsight"]
     }
   ],
   "proactiveRules": [
     {
-      "id": "dashboard_profit_decline",
-      "name": "Dashboard - Queda de lucro",
-      "description": "Verifica queda de lucro consecutiva.",
+      "id": "dashboard_trend_decline_3",
+      "name": "Decline in profit for 3 consecutive periods",
+      "description": "Detecta queda de lucro por 3 períodos consecutivos e gera insight crítico.",
+      "cooldownSeconds": 600,
+      "severity": "critical"
+    },
+    {
+      "id": "margin_week_drop",
+      "name": "Margin drop >10% in a week",
+      "description": "Margem média caiu mais de 10% em uma semana.",
       "cooldownSeconds": 600,
       "severity": "high"
     },
     {
-      "id": "history_repeated_low_margin",
-      "name": "Histórico - Margem baixa repetida",
-      "description": "Detecta padrão de erro recorrente em cálculos.",
+      "id": "time_saved_growth",
+      "name": "Time saved growth",
+      "description": "Detecta aumento de tempo economizado e sugere automação.",
+      "cooldownSeconds": 1800,
+      "severity": "low"
+    },
+    {
+      "id": "repeat_margin_error",
+      "name": "Repeat margin low error",
+      "description": "Mesmo erro de margem baixa em 3+ dias.",
+      "cooldownSeconds": 1200,
+      "severity": "critical"
+    },
+    {
+      "id": "lot_margin_40pct",
+      "name": "Lot with >40% low-margin products",
+      "description": "Detecta lotes com mais de 40% de produtos com margem baixa.",
+      "cooldownSeconds": 600,
+      "severity": "high"
+    },
+    {
+      "id": "pricing_suggestions_ignored",
+      "name": "Pricing suggestions ignored",
+      "description": "Sugestões de preço ignoradas por muito tempo.",
       "cooldownSeconds": 1800,
       "severity": "medium"
     },
     {
-      "id": "lot_high_low_margin_products",
-      "name": "Lote - Produtos críticos",
-      "description": "Alerta se > 40% do lote tem margem crítica.",
-      "cooldownSeconds": 900,
+      "id": "analytics_abrupt_margin_drop",
+      "name": "Abrupt daily margin drop > 15%",
+      "description": "Queda abrupta de margem diária superior a 15%.",
+      "cooldownSeconds": 600,
+      "severity": "critical"
+    },
+    {
+      "id": "marketplace_fee_spike",
+      "name": "Marketplace fee increase detection",
+      "description": "Detecta aumento inesperado de comissão/taxa do marketplace.",
+      "cooldownSeconds": 600,
       "severity": "high"
     }
   ],
   "tests": [
     {
-      "id": "test_watchers",
-      "description": "Validate reactivity of calculators.",
-      "manualSteps": "Open Basic Calculator, type cost 100, wait 500ms.",
-      "expectedOutcome": "Console logs 'calc:updated' event."
+      "id": "reactive_calc_test",
+      "description": "Valida que alterações na Calculadora Básica geram insight reativo (margem baixa).",
+      "manualSteps": [
+        "Abrir /calculadora/basica",
+        "Preencher custo=100 e preco=105",
+        "Observar InsightToast e MiniDashboard"
+      ],
+      "expectedOutcome": "Insight sobre margem baixa gerado e UI notifica o usuário."
     },
     {
-      "id": "test_proactive",
-      "description": "Simulate proactive insight generation.",
-      "manualSteps": "Modify proactiveAnalysis.ts logic to always force insight, wait 30s.",
-      "expectedOutcome": "Toast notification appears on screen."
+      "id": "watchers_all_calculators",
+      "description": "Validar watchers em todas as calculadoras (Básica, Avançada, Regime Tributário, Licitações).",
+      "manualSteps": [
+        "Abrir cada calculadora",
+        "Inserir dados extremos (ex: custo>preco, ICMS alto, lance < custo)",
+        "Verificar geração de insights específicos"
+      ],
+      "expectedOutcome": "Insights específicos por módulo gerados."
+    },
+    {
+      "id": "contextual_screen_test",
+      "description": "Validar que o screenContextWatcher publica contexto correto.",
+      "manualSteps": [
+        "Navegar Dashboard -> Histórico -> Marketplace",
+        "Observar eventos screen:changed e screen:dataUpdated",
+        "Verificar sourceModule nos insights"
+      ],
+      "expectedOutcome": "Contexto correto anexado aos insights."
+    },
+    {
+      "id": "proactive_engine_test",
+      "description": "Validar que o proactiveEngine gera insights sem input do usuário.",
+      "manualSteps": [
+        "Manter Dashboard aberto",
+        "Aguardar 30-40s",
+        "Verificar que pelo menos 1 insight proativo foi emitido"
+      ],
+      "expectedOutcome": "Insight proativo emitido."
+    },
+    {
+      "id": "cooldown_test",
+      "description": "Validar mecanismo anti-spam para insights.",
+      "manualSteps": [
+        "Disparar condição que gera insight (margem baixa)",
+        "Repetir mesma condição rapidamente",
+        "Observar que novo insight NÃO é emitido dentro do cooldown"
+      ],
+      "expectedOutcome": "Cooldown impede spam de insights."
+    },
+    {
+      "id": "run_scripts_all",
+      "description": "Executar scripts de teste automatizados (run-all.sh) e verificar relatório.",
+      "manualSteps": [
+        "npm i (instalar dependências)",
+        "sh tests/mode-deus/run-all.sh",
+        "Verificar /reports/mode-deus-test-report-<timestamp>.json"
+      ],
+      "expectedOutcome": "Todos os testes rodaram e relatório foi gerado."
     }
   ],
   "todos": [
     {
-      "file": "src/azuria_ai/core/screenContextHandlers.ts",
-      "line": 36,
-      "text": "TODO: Implementar análise contextual baseada na tela"
+      "file": "src/azuria_ai/core/aiOrchestrator.ts",
+      "line": null,
+      "text": "Finalize formula details for advanced analytical scoring (TODO)."
     },
     {
-      "file": "src/azuria_ai/core/screenContextHandlers.ts",
-      "line": 49,
-      "text": "TODO: Obter tela atual do contextStore"
+      "file": "src/azuria_ai/core/functionDefinitions.ts",
+      "line": null,
+      "text": "Implement precise fiscal formulas and edge-case handling (TODO)."
     },
     {
-      "file": "src/azuria_ai/core/proactiveEngine.ts",
-      "line": 120,
-      "text": "TODO: Implementar verificação de queda consecutiva"
+      "file": "src/azuria_ai/core/contextExtractors.ts",
+      "line": null,
+      "text": "Refine extractors to pull exact metrics from Dashboard and Analytics (TODO)."
     },
     {
-      "file": "src/azuria_ai/core/functionRegistry.ts",
-      "line": 37,
-      "text": "TODO: Implementar lógica de registro"
+      "file": "src/azuria_ai/core/watchers/useCalcWatcher.ts",
+      "line": null,
+      "text": "Replace any types with strict TypeScript definitions."
+    },
+    {
+      "file": "src/azuria_ai/core/proactiveAnalysis.ts",
+      "line": null,
+      "text": "Polish rule evaluation functions and unit tests."
+    },
+    {
+      "file": "src/azuria_ai/ui/InsightToast.tsx",
+      "line": null,
+      "text": "Tune messages and accessibility attributes."
     }
   ],
   "recommendedNextSteps": [
-    "Migrate Function Registry to real implementation (remove placeholders).",
-    "Implement real handlers for proactive rules currently returning null.",
-    "Refactor aiOrchestrator to reduce complexity of evaluateCalculation.",
-    "Add more granular types replacing 'any' in event payloads.",
-    "Connect 'calculatorHandlers' to real analysis logic (currently stubs).",
-    "Add persistence to Context Store (localStorage/Supabase) if session recall is needed.",
-    "Implement 'history' context extraction logic.",
-    "Create unit tests for Proactive Engine rules."
+    "Rodar scripts de teste automatizados (tests/mode-deus/run-all.sh) e validar relatório",
+    "Abrir o projeto no VS Code, carregar mode-deus-manifest.json e executar verificação de paths/missing",
+    "Usar Sonnet 4.5 no VS Code para refatorar 'any' types e resolver lint warnings prioritários",
+    "Preencher fórmulas fiscais e cenários na calculadora avançada (aiOrchestrator / functionDefinitions)",
+    "Adicionar logging estruturado (arquivo de audit) e integração com sistema de observability (ex: Sentry/Datadog)",
+    "Criar um CI minimal (GitHub Actions) que execute lint + build + testes automatizados",
+    "Aprimorar extratores de contexto para incluir métricas por produto e marketplace",
+    "Planejar e implementar testes unitários para funções críticas (calculo, fiscal, marketplace)",
+    "Executar testes cognitivos e sociais (scripts/mode-deus-tests/run-cognitive-tests.js e run-social-tests.js)",
+    "Afinar socialEngine para personalizar tom e complexidade com base no userModel"
   ],
   "vsCodeSetup": {
-    "recommendedExtensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
+    "recommendedExtensions": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "SonarSource.sonarlint-vscode",
+      "eamodio.gitlens",
+      "ms-vscode.js-debug",
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss",
+      "GitHub.remotehub",
+      "openai-plugins.sonnet-or-gpt (placeholder for Sonnet/GPT tooling)"
+    ],
     "settingsSnippet": {
+      "editor.tabSize": 2,
       "editor.formatOnSave": true,
-      "typescript.tsdk": "node_modules/typescript/lib"
-    }
+      "files.exclude": {
+        "node_modules": true,
+        "dist": true
+      },
+      "eslint.validate": ["javascript","typescript","typescriptreact"],
+      "editor.codeActionsOnSave": {
+        "source.fixAll": true
+      }
+    },
+    "notes": "Configure Sonnet 4.5 integration token in a secure workspace secret. Configure GPT-5.1 if available for advanced code generation; use Gemini for docs/large text tasks."
+  },
+  "commitInstruction": {
+    "path": "docs/mode-deus/mode-deus-manifest.json",
+    "message": "chore(docs): mode-deus manifest",
+    "author": "azuria-docs-agent"
   }
 }

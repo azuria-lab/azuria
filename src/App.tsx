@@ -52,6 +52,7 @@ const AutomationPage = lazy(() => import("./pages/AutomationPage"));
 const RuleDetailsPage = lazy(() => import("./pages/RuleDetailsPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const SupabaseDebug = lazy(() => import("./pages/SupabaseDebug"));
+const CreatorAdminPage = lazy(() => import("./pages/admin/creator"));
 
 // Bidding Module Pages
 const BiddingCalculatorPage = lazy(() => import("./pages/BiddingCalculatorPage"));
@@ -467,6 +468,14 @@ const App = () => {
                       />
                       
                       {/* Admin Routes - Protected */}
+                      <Route
+                        path="/admin/creator"
+                        element={
+                          <ProtectedRoute>
+                            <CreatorAdminPage />
+                          </ProtectedRoute>
+                        }
+                      />
                       <Route
                         path="/admin"
                         element={

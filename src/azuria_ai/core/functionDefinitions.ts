@@ -18,7 +18,7 @@ export function initializeFunctions(): void {
     description:
       'Calcula o preço ideal de venda baseado em custos, margem desejada e impostos',
     category: 'calculation',
-    agentId: 'calculo',
+    agentId: 'calculoAgent',
     parameters: [
       {
         name: 'custoProduto',
@@ -66,7 +66,7 @@ export function initializeFunctions(): void {
     description:
       'Calcula a margem de lucro real baseado no preço de venda e custos',
     category: 'calculation',
-    agentId: 'calculo',
+    agentId: 'calculoAgent',
     parameters: [
       {
         name: 'precoVenda',
@@ -105,7 +105,7 @@ export function initializeFunctions(): void {
     name: 'calcularPrecoMinimo',
     description: 'Calcula o preço mínimo de venda para não ter prejuízo',
     category: 'calculation',
-    agentId: 'calculo',
+    agentId: 'calculoAgent',
     parameters: [
       {
         name: 'custoProduto',
@@ -147,7 +147,7 @@ export function initializeFunctions(): void {
     name: 'calcularICMS',
     description: 'Calcula o valor do ICMS baseado no preço e alíquota',
     category: 'fiscal',
-    agentId: 'fiscal',
+    agentId: 'fiscalAgent',
     parameters: [
       {
         name: 'preco',
@@ -191,7 +191,7 @@ export function initializeFunctions(): void {
     name: 'calcularST',
     description: 'Calcula a Substituição Tributária (ICMS-ST)',
     category: 'fiscal',
-    agentId: 'fiscal',
+    agentId: 'fiscalAgent',
     parameters: [
       {
         name: 'preco',
@@ -229,7 +229,7 @@ export function initializeFunctions(): void {
     name: 'calcularMVA',
     description: 'Calcula a MVA (Margem de Valor Agregado) para um produto',
     category: 'fiscal',
-    agentId: 'fiscal',
+    agentId: 'fiscalAgent',
     parameters: [
       {
         name: 'ncm',
@@ -263,7 +263,7 @@ export function initializeFunctions(): void {
     name: 'getTaxasMarketplace',
     description: 'Obtém as taxas de um marketplace específico',
     category: 'marketplace',
-    agentId: 'marketplace',
+    agentId: 'marketplaceAgent',
     parameters: [
       {
         name: 'marketplace',
@@ -295,7 +295,7 @@ export function initializeFunctions(): void {
     name: 'calcularComissao',
     description: 'Calcula a comissão do marketplace sobre uma venda',
     category: 'marketplace',
-    agentId: 'marketplace',
+    agentId: 'marketplaceAgent',
     parameters: [
       {
         name: 'marketplace',
@@ -335,7 +335,7 @@ export function initializeFunctions(): void {
     name: 'calcularLance',
     description: 'Calcula um lance competitivo para licitação',
     category: 'bidding',
-    agentId: 'licitacao',
+    agentId: 'licitacaoAgent',
     parameters: [
       {
         name: 'precoReferencia',
@@ -374,7 +374,7 @@ export function initializeFunctions(): void {
     name: 'avaliarRisco',
     description: 'Avalia o risco de participar de uma licitação',
     category: 'bidding',
-    agentId: 'licitacao',
+    agentId: 'licitacaoAgent',
     parameters: [
       {
         name: 'precoReferencia',
@@ -414,7 +414,7 @@ export function initializeFunctions(): void {
     name: 'setInputValue',
     description: 'Define o valor de um campo de input na interface',
     category: 'ui',
-    agentId: 'ui',
+    agentId: 'uiAgent',
     parameters: [
       {
         name: 'campoId',
@@ -453,7 +453,7 @@ export function initializeFunctions(): void {
     name: 'aplicarSugestaoNaTela',
     description: 'Aplica uma sugestão da IA diretamente na tela',
     category: 'ui',
-    agentId: 'ui',
+    agentId: 'uiAgent',
     parameters: [
       {
         name: 'tipo',

@@ -6,7 +6,7 @@
  */
 
 import type { AzuriaEvent } from './eventBus';
-import { setCurrentScreen, updateContext } from './contextStore';
+import { setCurrentScreen, updateContext, getCurrentScreen } from './contextStore';
 import { extractContextForScreen } from '../context/contextExtractors';
 
 /**
@@ -45,16 +45,14 @@ export async function handleScreenDataUpdatedEvent(
 ): Promise<void> {
   const { data, metadata } = event.payload;
 
-  // Atualizar contexto da tela atual com novos dados
-  // TODO: Obter tela atual do contextStore
-  // TODO: Atualizar dados específicos
+  const activeScreen = metadata?.screen || getCurrentScreen();
+  if (activeScreen && data) {
+    updateContext(activeScreen, data);
+  }
 
-  // Log interno
   console.log('Screen data updated:', {
+    screen: activeScreen,
     dataKeys: Object.keys(data || {}),
     timestamp: event.timestamp,
   });
-
-  // TODO: Implementar análise de mudanças de dados
-  // TODO: Detectar padrões e anomalias
 }

@@ -615,10 +615,12 @@ export function calculateMaxDiscount(
  * Formata valor em Real brasileiro
  */
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
+  const formatted = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(value);
+  // Normaliza espaço não-quebrável para espaço comum (compatibilidade de testes/UI)
+  return formatted.replace(/\u00A0/g, ' ');
 }
 
 /**

@@ -8,6 +8,76 @@
 import type { Agent } from './agents';
 import { type AzuriaEvent, emitEvent, on } from './eventBus';
 import type { CalcData } from '../hooks/useCalcWatcher';
+import { detectIntent, predictNextStep } from '../engines/userIntentEngine';
+import { generatePredictiveInsight } from '../engines/predictiveInsightEngine';
+import { dispatchAction } from '../engines/autonomousActionsEngine';
+import {
+  updateMemory as updateCognitiveMemory,
+  detectPatterns,
+  generateForecast,
+  detectAnomalies,
+} from '../engines/cognitiveEngine';
+import {
+  updateUserModel,
+  inferEmotion,
+  inferIntent as inferSocialIntent,
+  adaptInterface,
+} from '../engines/socialEngine';
+import { setGoal, generatePlan, executePlan, adjustPlan } from '../engines/metaPlannerEngine';
+import { updateState, registerError as registerOperationalError } from '../engines/operationalStateEngine';
+import { analyzeAndAdjust, runEvolutionCycle } from '../engines/continuousImprovementEngine';
+import { runConsistencyCheck } from '../engines/consistencyEngine';
+import {
+  recordTemporalEvent,
+  computeTrends,
+  predictFutureState,
+  detectTemporalAnomaly,
+} from '../engines/temporalEngine';
+import { processSocialPresence } from '../engines/socialPresenceEngine';
+import { proposeAdaptiveUX } from '../engines/adaptiveUXEngine';
+import { analyzeRevenueOpportunity } from '../engines/revenueIntelligenceEngine';
+import { runPaywallExperiment } from '../engines/smartPaywallEngine';
+import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
+import {
+  inferUserEmotion,
+  getEmotionState,
+  respondWithEncouragement,
+  respondWithSimplification,
+  respondWithReassurance,
+  respondWithConfidenceBoost,
+  respondWithEmpathy,
+} from '../engines/affectiveEngine';
+import { analyzeBehavior } from '../engines/behaviorEngine';
+import { applySafeOptimizations, prioritizeFixes } from '../engines/autoOptimizerEngine';
+import {
+  validateInsight,
+  validateRecommendation,
+  validatePricingSuggestion,
+  validateFiscalAdvice,
+  validateUXAdjustment,
+  correctIfUnsafe,
+  rewriteToSafeFormat,
+  downgradeSeverityIfNeeded,
+  blockIfOutsideScope,
+} from '../engines/cognitiveGovernanceEngine';
+import { recordDecision, recordInsightHistory } from '../engines/decisionAuditEngine';
+import { enforceEthics } from '../engines/ethicalGuardEngine';
+import { checkCriticalBoundaries, detectRunawayBehavior, applySafetyBreak } from '../engines/safetyLimitsEngine';
+import { updateCognitiveMap } from '../engines/integratedCoreEngine';
+import {
+  ensureTruthBeforeAction,
+  ensureTruthAfterAction,
+  emitTruthAlert,
+} from '../engines/truthEngine';
+import {
+  predictFailure as predictStabilityFailure,
+  detectCascadingErrors,
+  stabilizeCognitiveLoad,
+  getStabilityState,
+} from '../engines/stabilityEngine';
+import { processMetaLayers } from '../engines/metaLayerEngine';
+import { CreatorEngine } from '../engines/creatorEngine';
+import { initCreatorListener } from '../../server/creatorListener';
 import {
   handleBidEvent,
   handleDiscountEvent,
@@ -66,6 +136,7 @@ let insightConfig: InsightConfig = {
   minPrice: 0,
   enableAutoInsights: true,
 };
+const creator = new CreatorEngine();
 
 /**
  * Inicializa o orchestrator e registra listeners de eventos
@@ -73,6 +144,12 @@ let insightConfig: InsightConfig = {
 export function initializeOrchestrator(config?: InsightConfig): void {
   if (config) {
     insightConfig = { ...insightConfig, ...config };
+  }
+
+  try {
+    initCreatorListener();
+  } catch (err) {
+    console.warn('Creator listener init failed (ignored in client env):', err);
   }
 
   // Registrar listener para eventos de cálculo básico
@@ -97,6 +174,37 @@ export function initializeOrchestrator(config?: InsightConfig): void {
   // Registrar listeners para contexto de tela
   on('screen:changed', handleScreenChangedEvent);
   on('screen:dataUpdated', handleScreenDataUpdatedEvent);
+
+  // Eventos da inteligência expandida
+  on('ai:predictive-insight', handlePredictiveInsightEvent);
+  on('AI:detectedRisk', handleIntentSignalEvent);
+  on('AI:detectedOpportunity', handleIntentSignalEvent);
+  on('ai:behavior-pattern-detected', handleBehavioralEvent);
+  on('ai:ux-friction-detected', handleBehavioralEvent);
+  on('ai:flow-abandon-point', handleBehavioralEvent);
+  on('ai:positive-pattern-detected', handleBehavioralEvent);
+  on('ai:mind-snapshot', handleMindSnapshot);
+  on('ai:reality-updated', handleRealityEvent);
+  on('ai:truth-alert', handleTruthAlert);
+  on('ai:stability-alert', handleStabilityAlert);
+  on('system:tick', () => creator.runSystemScan());
+
+  // Meta-planner: iniciar objetivo default
+  const defaultGoal = {
+    id: 'meta-improve-precision',
+    objective: 'melhorar precisão e reduzir falsos positivos',
+    targetMetric: 'false_positive_rate',
+    targetValue: 0.1,
+  };
+  setGoal(defaultGoal);
+  generatePlan(defaultGoal);
+  executePlan();
+
+  // Loop temporal (polling leve)
+  setInterval(() => {
+    runTemporalAnalysis('global', { heartbeat: true });
+    runEvolutionCycle();
+  }, 30000);
 }
 
 /**
@@ -128,6 +236,20 @@ async function handleCalculationUpdateEvent(event: AzuriaEvent): Promise<void> {
       action: 'adjust_margin',
     });
   }
+
+  handleIntentAndPrediction(event, calcData);
+  updateCognitiveMemory('calc', calcData, event.source);
+  detectPatterns();
+  detectAnomalies();
+  updateUserModel({ tipo: event.tipo, payload: calcData, metadata: event.metadata, context: event.payload });
+  updateState({ load: Math.min(1, Math.random() * 0.6 + 0.2) });
+  runConsistencyCheck();
+  analyzeAndAdjust();
+  runTemporalAnalysis('calculation', event.payload);
+  processSocialPresence(event);
+  proposeAdaptiveUX({ intent: 'pricing', frequentPaths: ['calculadora', 'dashboard'] });
+  analyzeRevenueOpportunity({ sessions: 5, clicks: 50, errors: 1, timeSpent: 600, paywallViews: 2, plan: 'free' });
+  runPaywallExperiment('free', Math.floor(Math.random() * 3));
 }
 
 /**
@@ -139,7 +261,28 @@ async function handleCalculationEvent(event: AzuriaEvent): Promise<void> {
     return;
   }
 
+  analyzeBehavior({
+    eventLog: event.payload?.events,
+    flowData: event.payload?.flow,
+    userState: event.payload?.userState,
+    userHistory: event.payload?.history,
+  });
+
   const calcData = event.payload as CalcData;
+
+  handleIntentAndPrediction(event, calcData);
+  updateCognitiveMemory('calc', calcData, event.source);
+  detectPatterns();
+  detectAnomalies();
+  updateUserModel({ tipo: event.tipo, payload: calcData, metadata: event.metadata, context: event.payload });
+  updateState({ load: Math.min(1, Math.random() * 0.6 + 0.2) });
+  runConsistencyCheck();
+  analyzeAndAdjust();
+  runTemporalAnalysis('calculation', event.payload);
+  processSocialPresence(event);
+  proposeAdaptiveUX({ intent: 'pricing', frequentPaths: ['calculadora', 'dashboard'] });
+  analyzeRevenueOpportunity({ sessions: 8, clicks: 80, errors: 0, timeSpent: 800, paywallViews: 3, plan: 'free' });
+  runPaywallExperiment('free', Math.floor(Math.random() * 3));
 
   // Avaliar o cálculo e decidir se deve gerar insight
   const shouldGenerateInsight = await evaluateCalculation(calcData);
@@ -147,6 +290,101 @@ async function handleCalculationEvent(event: AzuriaEvent): Promise<void> {
   if (shouldGenerateInsight.generate) {
     generateInsight(shouldGenerateInsight.insight);
   }
+}
+
+function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
+  const intent = detectIntent(event, calcData);
+  const prediction = generatePredictiveInsight({ ...calcData, event });
+  const socialIntent = inferSocialIntent({ tipo: event.tipo, payload: calcData, context: event.payload });
+  const emotion = inferEmotion({ tipo: event.tipo, payload: calcData, metadata: event.metadata });
+  analyzeBehavior({
+    eventLog: [event.payload],
+    flowData: event.payload?.flow,
+    userState: event.payload?.userState,
+    userHistory: event.payload?.history,
+  });
+
+  if (prediction) {
+    emitEvent(
+      'ui:displayInsight',
+      { insightId: prediction.id, type: 'forecast' },
+      { source: 'aiOrchestrator', priority: 6 }
+    );
+    updateCognitiveMemory('prediction', prediction, 'predictiveInsightEngine');
+  }
+
+  if (intent.intentConfidence >= 0.4) {
+    const nextStep = predictNextStep(calcData);
+    updateCognitiveMemory('intent', intent, 'userIntentEngine');
+    emitEvent(
+      'AI:recommended-action',
+      {
+        intentCategory: intent.category,
+        intentConfidence: intent.intentConfidence,
+        nextStep: nextStep.nextStep,
+        context: calcData,
+        socialIntent,
+        emotion,
+      },
+      { source: 'aiOrchestrator', priority: 5 }
+    );
+
+    // Disparar ações autônomas seguras (apenas sugestão)
+    dispatchAction(emitEvent, calcData);
+  }
+
+  // Gerar previsões cognitivas adicionais
+  generateForecast();
+
+  // Adaptar interface conforme modelo social
+  const adaptation = adaptInterface();
+  emitEvent(
+    'ui:adaptive-interface-changed',
+    { adaptation },
+    { source: 'aiOrchestrator', priority: 4 }
+  );
+
+  // Meta-planner feedback loop baseado em confiança global
+  const feedbackScore = Math.max(0, Math.min(1, intent.intentConfidence || 0.5));
+  adjustPlan(feedbackScore);
+}
+
+function runTemporalAnalysis(scope: 'user' | 'calculation' | 'session' | 'global', payload: any) {
+  recordTemporalEvent(scope, 'event', payload);
+  const trend = computeTrends(scope);
+  const prediction = predictFutureState(scope);
+  const anomaly = detectTemporalAnomaly(scope);
+
+  if (anomaly) {
+    emitEvent(
+      'insight:generated',
+      {
+        type: 'warning',
+        severity: 'critical',
+        message: 'Padrão quebrado detectado — risco de inconsistência futura.',
+        sourceModule: 'temporalEngine',
+      },
+      { source: 'aiOrchestrator', priority: 9 }
+    );
+  }
+}
+
+function handlePredictiveInsightEvent(event: AzuriaEvent) {
+  // Bridge para UI já ocorre via emit no engine; aqui apenas garante prioridade
+  emitEvent(
+    'ui:displayInsight',
+    { insightId: event.payload?.id, type: 'forecast' },
+    { source: 'aiOrchestrator', priority: 7 }
+  );
+}
+
+function handleIntentSignalEvent(event: AzuriaEvent) {
+  // Apenas registrar/intensificar prioridade se necessário
+  emitEvent(
+    'ui:displayInsight',
+    { insightId: event.payload?.id, alert: event.payload?.alert },
+    { source: 'aiOrchestrator', priority: 4 }
+  );
 }
 
 /**
@@ -478,17 +716,110 @@ async function evaluateCalculation(calcData: CalcData): Promise<{
  * Inclui recomendações e ações sugeridas
  */
 function generateInsight(insight: any): void {
+  const metaSnapshot = processMetaLayers({
+    signals: insight?.signals,
+    metrics: insight?.metrics,
+    context: insight?.context,
+    goals: insight?.goals,
+    risks: insight?.risks,
+    scenarios: insight?.scenarios,
+    intent: insight?.intent,
+    target: 'insight',
+  });
   // Preparar dados completos do insight
+  const tone = insight.brandTone || 'padrao';
+  const refinedMessage = rewriteWithBrandVoice(insight.message, tone);
+  inferUserEmotion(insight.userState || insight.data?.userState, { payload: insight });
+  const preStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
+  if (preStability.risk >= 0.8) {
+    emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: preStability.risk, details: { stage: 'pre-insight' } }, { source: 'aiOrchestrator', priority: 10 });
+    return;
+  }
+  if (!ensureTruthBeforeAction({ context: insight, state: insight.data })) {
+    emitTruthAlert('critical', { reason: 'pre-check-failed', insight });
+    return;
+  }
+  const emotionState = getEmotionState();
+  // Governance validation
+  const scopeCheck = blockIfOutsideScope(insight);
+  if (scopeCheck.blocked === true || scopeCheck.valid === false) {
+    emitEvent('ai:unsafe-output-blocked', { insight, reason: scopeCheck.reason }, { source: 'aiOrchestrator', priority: 10 });
+    recordDecision({ insight, status: 'blocked', reason: scopeCheck.reason });
+    return;
+  }
+  const ethics = enforceEthics(insight);
+  if (ethics.blocked) {
+    return;
+  }
+  checkCriticalBoundaries({ load: insight?.state?.load, actionsPerMinute: insight?.state?.actionsPerMinute });
+  if (detectRunawayBehavior(insight?.actions || [])) {
+    applySafetyBreak({ reason: 'runaway_behavior', state: insight?.state });
+    return;
+  }
+  const postStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
+  if (postStability.risk >= 0.8) {
+    emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: postStability.risk, details: { stage: 'post-insight' } }, { source: 'aiOrchestrator', priority: 10 });
+    return;
+  }
+  const validated = validateInsight(insight);
+  let safeMessage = refinedMessage;
+  if (!validated.valid) {
+    safeMessage = correctIfUnsafe(refinedMessage);
+  }
+  const postTruthOk = ensureTruthAfterAction({ reality: insight?.reality, perceived: insight?.data });
+  if (!postTruthOk) {
+    emitTruthAlert('warning', { reason: 'post-check-failed', insight });
+  }
+  const downgraded = downgradeSeverityIfNeeded(insight);
+  if (validated.corrected) {
+    emitEvent('ai:decision-corrected', { insight }, { source: 'aiOrchestrator', priority: 7 });
+  }
+  if (insight?.eventLog || insight?.flowData || insight?.userHistory) {
+    analyzeBehavior({
+      eventLog: insight.eventLog,
+      flowData: insight.flowData,
+      userState: insight.userState,
+      userHistory: insight.userHistory,
+    });
+  }
+  let affectiveMessage: string | undefined;
+  switch (emotionState.type) {
+    case 'frustration':
+      affectiveMessage = respondWithSimplification({ persona: insight.persona });
+      break;
+    case 'hesitation':
+      affectiveMessage = respondWithEncouragement({ persona: insight.persona });
+      break;
+    case 'confidence':
+      affectiveMessage = respondWithConfidenceBoost({ persona: insight.persona });
+      break;
+    case 'confusion':
+      affectiveMessage = respondWithReassurance({ persona: insight.persona });
+      break;
+    case 'achievement':
+      affectiveMessage = respondWithEmpathy({ persona: insight.persona });
+      break;
+    default:
+      break;
+  }
   const insightData = {
     type: insight.type,
-    severity: insight.severity || 'medium',
-    message: insight.message,
+    severity: downgraded.severity || insight.severity || 'medium',
+    message: safeMessage,
+    refinedMessage: safeMessage,
+    brandTone: tone,
+    persona: insight.persona,
+    emotion: emotionState.type,
+    emotionConfidence: emotionState.confidence,
+    affectiveMessage,
     action: insight.action,
     priority: insight.priority || 'medium',
     recommendations: insight.recommendations || [],
     data: insight.data,
     timestamp: Date.now(),
   };
+
+  recordInsightHistory(insightData);
 
   // Emitir evento de insight gerado para toasts
   emitEvent('insight:generated', insightData, {
@@ -508,6 +839,49 @@ function generateInsight(insight: any): void {
     message: insight.message,
     recommendations: insight.recommendations?.length || 0,
   });
+}
+
+function handleMindSnapshot(event: AzuriaEvent) {
+  updateCognitiveMap(event.payload);
+  resolveGlobalConflict(event.payload?.anomalies || []);
+  assignDecisionAuthority(event.payload?.confidenceMap);
+  broadcastUnifiedContext(event.payload);
+}
+
+function resolveGlobalConflict(conflicts: any[]) {
+  if (conflicts && conflicts.length > 0) {
+    emitEvent('ai:mind-warning', { conflicts }, { source: 'aiOrchestrator', priority: 7 });
+  }
+}
+
+function assignDecisionAuthority(confidenceMap?: Record<string, number>) {
+  if (!confidenceMap) return;
+  const sorted = Object.entries(confidenceMap).sort((a, b) => (b[1] || 0) - (a[1] || 0));
+  const leader = sorted[0]?.[0];
+  if (leader) {
+    emitEvent('ai:governance-alert', { message: `Prioridade dada a ${leader}`, severity: 'info' }, { source: 'aiOrchestrator', priority: 4 });
+  }
+}
+
+function broadcastUnifiedContext(snapshot: any) {
+  emitEvent('ai:core-sync', { snapshot }, { source: 'aiOrchestrator', priority: 4 });
+}
+
+function handleRealityEvent(event: AzuriaEvent) {
+  updateRealityModel(event.payload);
+}
+
+function handleTruthAlert(event: AzuriaEvent) {
+  recordDecision({ tipo: 'truth-alert', payload: event.payload });
+}
+
+function handleStabilityAlert(event: AzuriaEvent) {
+  recordDecision({ tipo: 'stability-alert', payload: event.payload });
+}
+
+// Exposição da pipeline meta-layer em chamadas críticas
+export function runMetaPipeline(input: any) {
+  return processMetaLayers(input);
 }
 
 /**
