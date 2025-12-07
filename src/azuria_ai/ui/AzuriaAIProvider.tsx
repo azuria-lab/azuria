@@ -10,6 +10,7 @@ import { AzuriaBubble } from './AzuriaBubble';
 import { MiniDashboard } from './MiniDashboard';
 import { InsightToastContainer } from './InsightToast';
 import * as proactiveEngine from '../core/proactiveEngine';
+import { initializeOrchestrator } from '../core/aiOrchestrator';
 
 export interface AzuriaAIProviderProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export const AzuriaAIProvider: React.FC<AzuriaAIProviderProps> = ({
   // Inicializar e limpar proactive engine
   useEffect(() => {
     if (enabled) {
+      initializeOrchestrator();
       // Iniciar motor proativo
       proactiveEngine.start();
 

@@ -60,8 +60,8 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: false  # Temporarily disabled due to memory constraints
-    continue-on-error: true
+    needs: [lint, typecheck]
+    continue-on-error: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -71,23 +71,76 @@ jobs:
       - run: npm ci
       - name: Run coverage tests
         run: |
-          echo "Starting coverage tests with memory monitoring..."
-          echo "Available memory: $(free -h)"
-          npm run test:coverage:ci || echo "Coverage failed but continuing..."
-        continue-on-error: true
-      - name: Upload coverage
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          npm run test:coverage:ci -- --pool=forks --maxWorkers=1
+      - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: coverage
           path: coverage
           if-no-files-found: warn
+      - name: Upload lcov.info for badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: warn
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  tests-full:
+    name: Tests (full)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [lint, typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run full test suite
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          npm run test:ci
+
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [lint, typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('playwright.config.ts') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        env:
+          CI: true
+        run: npm run test:e2e
 
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint, typecheck, tests]
+    needs: [lint, typecheck, tests, tests-full]
     # Coverage não é obrigatório para build
     steps:
       - uses: actions/checkout@v4

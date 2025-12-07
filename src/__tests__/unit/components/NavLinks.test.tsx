@@ -4,14 +4,13 @@ import { navLinks, useFilteredNavLinks } from '@/components/layout/header/NavLin
 
 describe('NavLinks', () => {
   it('should contain all expected navigation links', () => {
-    expect(navLinks).toHaveLength(11)
+    expect(navLinks).toHaveLength(4)
     
     const linkPaths = navLinks.map(link => link.path)
     expect(linkPaths).toContain('/')
-    expect(linkPaths).toContain('/calculadora-simples')
-    expect(linkPaths).toContain('/templates')
-    expect(linkPaths).toContain('/ia')
-    expect(linkPaths).toContain('/analytics')
+    expect(linkPaths).toContain('#recursos')
+    expect(linkPaths).toContain('/planos')
+    expect(linkPaths).toContain('#sobre')
   })
 
   it('should have proper link structure', () => {
@@ -33,8 +32,7 @@ describe('NavLinks', () => {
     const homeLink = navLinks.find(link => link.path === '/')
     expect(homeLink?.dataOnboarding).toBe('home-button')
     
-    const calculatorLink = navLinks.find(link => link.path === '/calculadora-simples')
-    expect(calculatorLink?.dataOnboarding).toBe('calculator-button')
+    // Não há mais link direto de calculadora na navbar pública
   })
 
   // Teste removido: propriedade 'badge' não existe mais no tipo NavLink
@@ -42,19 +40,21 @@ describe('NavLinks', () => {
 })
 
 describe('useFilteredNavLinks', () => {
-  it('should return all links for authenticated users', () => {
+  it('should return all links for authenticated users (dashboard only)', () => {
     const { result } = renderHook(() => useFilteredNavLinks(true, false))
-    expect(result.current).toHaveLength(navLinks.length)
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0].path).toBe('/dashboard')
   })
 
   it('should return all links for unauthenticated users', () => {
     const { result } = renderHook(() => useFilteredNavLinks(false, false))
-    expect(result.current).toHaveLength(navLinks.length)
+    expect(result.current).toEqual(navLinks)
   })
 
-  it('should return all links for pro users', () => {
+  it('should return all links for pro users (dashboard only)', () => {
     const { result } = renderHook(() => useFilteredNavLinks(true, true))
-    expect(result.current).toHaveLength(navLinks.length)
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0].path).toBe('/dashboard')
   })
 
   it('should maintain link structure after filtering', () => {

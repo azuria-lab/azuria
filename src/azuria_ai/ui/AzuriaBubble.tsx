@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { on } from '../core/eventBus';
+import { on, unsubscribeFromEvent } from '../core/eventBus';
 
 export interface AzuriaBubbleProps {
   onOpen?: () => void;
@@ -37,7 +37,7 @@ export const AzuriaBubble: React.FC<AzuriaBubbleProps> = ({
     });
 
     return () => {
-      // Cleanup subscription
+      unsubscribeFromEvent(subscriptionId);
     };
   }, []);
 

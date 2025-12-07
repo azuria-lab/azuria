@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, renderWithProviders, screen } from '@/utils/testing/testUtils'
+// Importa o componente (framer-motion já mockado em setup)
 import SimpleCalculator from '@/domains/calculator/components/SimpleCalculator'
 
 // Mock do hook

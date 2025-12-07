@@ -1,0 +1,132 @@
+import { emitEvent } from '../core/eventBus';
+import { logRisk, logOpportunity, logConflict } from '../logs/modeDeus_internal.log';
+
+export type IntentCategory =
+  | 'pricing'
+  | 'risk'
+  | 'freight'
+  | 'tax'
+  | 'opportunity'
+  | 'error'
+  | 'request_action';
+
+export interface IntentResult {
+  category: IntentCategory;
+  intentConfidence: number;
+  signals: string[];
+}
+
+function clampConfidence(value: number) {
+  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+}
+
+function detectRiskOrOpportunity(payload: any) {
+  const alerts: { risk?: string; opportunity?: string } = {};
+
+  if (payload?.margemLucro !== undefined) {
+    if (payload.margemLucro < 0) {
+      alerts.risk = 'lucro_negativo';
+    } else if (payload.margemLucro < 10) {
+      alerts.risk = 'margem_critica';
+    } else if (payload.margemLucro >= 25) {
+      alerts.opportunity = 'margem_otima';
+    }
+  }
+
+  if (payload?.custoOperacional && payload?.precoVenda) {
+    const impactoFrete =
+      ((payload.custoOperacional || 0) / (payload.precoVenda || 1)) * 100;
+    if (impactoFrete > 35) {
+      alerts.risk = alerts.risk || 'frete_excessivo';
+    }
+  }
+
+  if (payload?.taxasMarketplace && payload.taxasMarketplace > 20) {
+    alerts.risk = alerts.risk || 'taxa_marketplace_alta';
+  }
+
+  return alerts;
+}
+
+export function detectIntent(event: any, context: any = {}): IntentResult {
+  const payload = event?.payload || event || {};
+  const signals: string[] = [];
+  let category: IntentCategory = 'pricing';
+
+  const alerts = detectRiskOrOpportunity(payload);
+
+  if (alerts.risk) {
+    category = 'risk';
+    signals.push(alerts.risk);
+    emitEvent('AI:detectedRisk', { alert: alerts.risk, payload }, { source: 'userIntentEngine' });
+    logRisk({ alert: alerts.risk, payload, context });
+  } else if (alerts.opportunity) {
+    category = 'opportunity';
+    signals.push(alerts.opportunity);
+    emitEvent('AI:detectedOpportunity', { alert: alerts.opportunity, payload }, { source: 'userIntentEngine' });
+    logOpportunity({ alert: alerts.opportunity, payload, context });
+  }
+
+  if (payload?.impostos || payload?.aliquotaICMS) {
+    category = 'tax';
+    signals.push('tax_context');
+  }
+
+  if (payload?.frete || payload?.custoOperacional) {
+    signals.push('freight_context');
+  }
+
+  if (payload?.erro || payload?.error) {
+    category = 'error';
+    signals.push('error_signal');
+  }
+
+  if (payload?.acaoSolicitada || payload?.requestAction) {
+    category = 'request_action';
+    signals.push('user_requested_action');
+  }
+
+  const confidenceBase = signals.length / 5;
+  const intentConfidence = clampConfidence(confidenceBase + (alerts.risk || alerts.opportunity ? 0.2 : 0));
+
+  return { category, intentConfidence, signals };
+}
+
+export function predictNextStep(context: any = {}): { nextStep: string; intentConfidence: number } {
+  // Heurística simples baseada em margem e custo
+  const margem = context?.margemLucro ?? context?.payload?.margemLucro;
+  const preco = context?.precoVenda ?? context?.payload?.precoVenda;
+  const custo = context?.custoProduto ?? context?.payload?.custoProduto;
+
+  let nextStep = 'monitor';
+  const signals: string[] = [];
+
+  if (margem !== undefined && margem < 10) {
+    nextStep = 'ajustar_preco';
+    signals.push('margem_baixa');
+  } else if (custo !== undefined && preco !== undefined && custo >= preco) {
+    nextStep = 'rever_custos';
+    signals.push('prejuizo');
+  } else if (margem !== undefined && margem >= 25) {
+    nextStep = 'explorar_oferta';
+    signals.push('alta_margem');
+  }
+
+  const confidence = clampConfidence(0.4 + signals.length * 0.2);
+  return { nextStep, intentConfidence: confidence };
+}
+
+export const intentCategories: IntentCategory[] = [
+  'pricing',
+  'risk',
+  'freight',
+  'tax',
+  'opportunity',
+  'error',
+  'request_action',
+];
+
+export function logConflictSignal(details: any) {
+  logConflict(details);
+}
+

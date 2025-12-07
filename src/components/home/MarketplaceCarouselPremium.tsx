@@ -124,7 +124,7 @@ const MarketplaceLogoCard: React.FC<{ marketplace: typeof marketplaces[0] }> = (
                     onLoad={() => setImageLoading(false)}
                     loading="lazy"
                     decoding="async"
-                    fetchPriority="low"
+                    fetchpriority="low"
                   />
                 </>
               );

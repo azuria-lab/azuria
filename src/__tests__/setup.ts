@@ -60,19 +60,26 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
-// Mock do IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+// Mock do IntersectionObserver (somente se não existir)
+if (typeof global.IntersectionObserver === 'undefined') {
+  // @ts-expect-error - Polyfill para ambiente de teste
+  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }))
+}
 
-// Mock do ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+// Mock do ResizeObserver (somente se não existir)
+if (typeof global.ResizeObserver === 'undefined') {
+  class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  // @ts-expect-error - Polyfill para ambiente de teste
+  global.ResizeObserver = ResizeObserver
+}
 
 // Cleanup após cada teste
 afterEach(() => {
