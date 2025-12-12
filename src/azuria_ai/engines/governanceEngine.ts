@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logGovernance } from '../logs/modeDeus_conscious.log.ts';
+import { logGovernance } from '../logs/modeDeus_conscious';
 
 interface DecisionEntry {
   intent?: any;

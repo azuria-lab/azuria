@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { getConsciousLogs, logCoherence, logContradiction, logGovernance, logJustification } from '../logs/modeDeus_conscious.log.ts';
+import { getConsciousLogs, logCoherence, logContradiction, logGovernance, logJustification } from '../logs/modeDeus_conscious';
 import { getGlobalState } from './integratedCoreEngine';
 
 interface AssessmentResult {

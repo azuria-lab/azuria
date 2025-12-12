@@ -1,7 +1,7 @@
 import { emitEvent } from '../core/eventBus';
 import { validateActionAgainstPolicy } from './policyEngine';
-import { logGovernance } from '../logs/modeDeus_conscious.log.ts';
-import { logSafeAction } from '../logs/ai.safeAction-log';
+import { logGovernance } from '../logs/modeDeus_conscious';
+import { logSafeAction } from '../logs/ai.safeAction';
 
 interface SafeResult {
   approved: boolean;

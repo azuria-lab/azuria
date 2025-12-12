@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logOpportunity, logRisk } from '../logs/modeDeus_internal.log.ts';
+import { logOpportunity, logRisk } from '../logs/modeDeus_internal';
 
 export type RecommendedAction =
   | 'recomendar_preco'

@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logConflict, logOpportunity, logPredictive, logRisk } from '../logs/modeDeus_internal.log.ts';
+import { logConflict, logOpportunity, logPredictive, logRisk } from '../logs/modeDeus_internal';
 
 type MemoryCategory = 'calc' | 'intent' | 'prediction' | 'action' | 'pattern' | 'anomaly';
 
