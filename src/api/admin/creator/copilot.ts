@@ -16,7 +16,7 @@ const cannedAnswer = {
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!requireAdmin(req, res)) return;
+  if (!requireAdmin(req, res)) {return;}
 
   const question = (req.body && typeof req.body === 'string' ? req.body : '') || '';
   const answer =

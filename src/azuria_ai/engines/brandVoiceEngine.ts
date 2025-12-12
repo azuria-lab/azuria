@@ -6,26 +6,26 @@ export type ToneProfileKey = keyof typeof brandToneProfiles;
 export type PersonaKey = keyof typeof personaProfiles;
 
 function sanitize(text: string, forbidEmojis?: boolean) {
-  if (!forbidEmojis) return text;
+  if (!forbidEmojis) {return text;}
   // remove caracteres fora do básico para evitar emoji
   return text.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
 }
 
 export function getToneProfileForUser(userState?: any): ToneProfileKey {
-  if (!userState) return 'padrao';
-  if (userState?.motivationLevel && userState.motivationLevel < 0.4) return 'motivador';
-  if (userState?.persona === 'operador-analitico') return 'estrategico';
-  if (userState?.persona === 'comercial-agressivo') return 'comercial';
-  if (userState?.skillLevel === 'beginner') return 'educativo';
+  if (!userState) {return 'padrao';}
+  if (userState?.motivationLevel && userState.motivationLevel < 0.4) {return 'motivador';}
+  if (userState?.persona === 'operador-analitico') {return 'estrategico';}
+  if (userState?.persona === 'comercial-agressivo') {return 'comercial';}
+  if (userState?.skillLevel === 'beginner') {return 'educativo';}
   return 'padrao';
 }
 
 export function adaptPersona(userSignals?: any): PersonaKey {
-  if (!userSignals) return 'iniciante-inseguro';
-  if (userSignals?.advancedUsage) return 'avancado-lucro';
-  if (userSignals?.commercialFocus) return 'comercial-agressivo';
-  if (userSignals?.analyticBehavior) return 'operador-analitico';
-  if (userSignals?.improving) return 'intermediario-crescimento';
+  if (!userSignals) {return 'iniciante-inseguro';}
+  if (userSignals?.advancedUsage) {return 'avancado-lucro';}
+  if (userSignals?.commercialFocus) {return 'comercial-agressivo';}
+  if (userSignals?.analyticBehavior) {return 'operador-analitico';}
+  if (userSignals?.improving) {return 'intermediario-crescimento';}
   return 'iniciante-inseguro';
 }
 

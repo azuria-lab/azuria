@@ -18,7 +18,7 @@ export class NimAdapter {
     try {
       const res = await fetch(`${this.config.baseUrl}/health`, {
         headers: { Authorization: `Bearer ${this.config.apiKey}` },
-        // @ts-ignore node-fetch timeout
+        // @ts-expect-error node-fetch timeout
         timeout: 5000,
       });
       return res.ok;
@@ -50,7 +50,7 @@ export class NimAdapter {
         Authorization: `Bearer ${this.config.apiKey}`,
       },
       body: JSON.stringify(body),
-      // @ts-ignore node-fetch timeout
+      // @ts-expect-error node-fetch timeout
       timeout: this.config.timeoutMs ?? 30000,
     });
 

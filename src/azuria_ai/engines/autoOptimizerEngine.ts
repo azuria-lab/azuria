@@ -1,10 +1,10 @@
 import { emitEvent } from '../core/eventBus';
 import {
-  recommendUXFixes,
+  highlightConfusingElements,
   recommendUIAdjustments,
+  recommendUXFixes,
   suggestFlowReordering,
   suggestSimplification,
-  highlightConfusingElements,
 } from './behaviorEngine';
 
 function emit(type: any, payload: any, priority = 5) {

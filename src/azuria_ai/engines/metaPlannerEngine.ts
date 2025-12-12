@@ -47,7 +47,7 @@ export function generatePlan(goal: PlannerGoal): PlannerPlan {
 }
 
 export function executePlan() {
-  if (!currentPlan) return;
+  if (!currentPlan) {return;}
   currentPlan.status = 'executing';
   emitEvent(
     'ai:planner-plan-executed',
@@ -57,7 +57,7 @@ export function executePlan() {
 }
 
 export function adjustPlan(feedbackScore: number) {
-  if (!currentPlan) return;
+  if (!currentPlan) {return;}
   currentPlan.status = 'adjusted';
   currentPlan.parameters.sensibilidade = Math.min(
     1,

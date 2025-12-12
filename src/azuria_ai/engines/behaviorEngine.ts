@@ -117,13 +117,13 @@ export function analyzeBehavior(signals: BehaviorSignals): BehaviorFindings {
   const negative: string[] = [];
   const positive: string[] = [];
   const abandonPoints = detectAbandonPoints(signals.flowData);
-  if (detectRepeatingErrors(signals.eventLog) > 0) negative.push('errors');
-  if (detectIncompleteFlows(signals.flowData).length > 0) negative.push('incomplete-flows');
-  if (detectUserStruggle(signals.userState) > 0.5) negative.push('struggle');
-  if (detectUXFriction({ score: signals.userState?.frictionScore }) > 0.5) negative.push('friction');
-  if (detectSuccessfulPatterns(signals.eventLog) > 0) positive.push('success-sequence');
-  if (detectFastPaths(signals.flowData?.flows || []).length > 0) positive.push('fast-path');
-  if (detectHighRetentionSteps(signals.userHistory || []).length > 0) positive.push('high-retention');
+  if (detectRepeatingErrors(signals.eventLog) > 0) {negative.push('errors');}
+  if (detectIncompleteFlows(signals.flowData).length > 0) {negative.push('incomplete-flows');}
+  if (detectUserStruggle(signals.userState) > 0.5) {negative.push('struggle');}
+  if (detectUXFriction({ score: signals.userState?.frictionScore }) > 0.5) {negative.push('friction');}
+  if (detectSuccessfulPatterns(signals.eventLog) > 0) {positive.push('success-sequence');}
+  if (detectFastPaths(signals.flowData?.flows || []).length > 0) {positive.push('fast-path');}
+  if (detectHighRetentionSteps(signals.userHistory || []).length > 0) {positive.push('high-retention');}
   return {
     negative,
     positive,

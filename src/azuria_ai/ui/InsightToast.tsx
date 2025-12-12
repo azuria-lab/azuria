@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { type AzuriaEvent, on, unsubscribeFromEvent, emitEvent } from '../core/eventBus';
+import { type AzuriaEvent, emitEvent, on, unsubscribeFromEvent } from '../core/eventBus';
 import { AlertTriangle, Info, Lightbulb, Sparkles, X } from 'lucide-react';
 import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
 
@@ -168,7 +168,7 @@ export function useInsightToasts() {
   useEffect(() => {
     let changed = false;
     const updated = toasts.map((toast) => {
-      if (processed.current.has(toast.id)) return toast;
+      if (processed.current.has(toast.id)) {return toast;}
       const tone = toast.brandTone || 'padrao';
       const refined = rewriteWithBrandVoice(toast.message, tone as any);
       processed.current.add(toast.id);
@@ -178,7 +178,7 @@ export function useInsightToasts() {
       }
       return toast;
     });
-    if (changed) setToasts(updated);
+    if (changed) {setToasts(updated);}
   }, [toasts]);
 
   useEffect(() => {

@@ -5,9 +5,8 @@
  * e gera insights de forma autônoma.
  */
 
-import { emitEvent } from './eventBus';
-import { getCurrentScreen, getContext, getContextStats } from './contextStore';
-import { getEventHistory } from './eventBus';
+import { emitEvent, getEventHistory } from './eventBus';
+import { getContext, getContextStats, getCurrentScreen } from './contextStore';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ProactiveRule {
@@ -115,7 +114,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 600000, // 10 minutos
     check: async () => {
       const context = getContext('dashboard');
-      if (!context?.data?.lucroOtimizado) return null;
+      if (!context?.data?.lucroOtimizado) {return null;}
 
       // TODO: Implementar verificação de queda consecutiva
       // Verificar se lucro caiu por 3 períodos consecutivos
@@ -130,7 +129,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 600000,
     check: async () => {
       const context = getContext('dashboard');
-      if (!context?.data?.variacaoMargem) return null;
+      if (!context?.data?.variacaoMargem) {return null;}
 
       const variacaoMargem = context.data.variacaoMargem;
 
@@ -158,7 +157,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 1800000, // 30 minutos
     check: async () => {
       const context = getContext('history');
-      if (!context?.data?.padroesRepetidos) return null;
+      if (!context?.data?.padroesRepetidos) {return null;}
 
       // TODO: Implementar detecção de padrões repetidos
       // Verificar se mesmo erro de margem baixa em 3+ dias
@@ -174,7 +173,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 900000, // 15 minutos
     check: async () => {
       const context = getContext('smart_lot');
-      if (!context?.data?.produtosCriticos) return null;
+      if (!context?.data?.produtosCriticos) {return null;}
 
       const totalProdutos = context.data.totalProdutos || 0;
       const produtosCriticos = context.data.produtosCriticos || 0;
@@ -206,7 +205,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 900000,
     check: async () => {
       const context = getContext('smart_lot');
-      if (!context?.data?.markupMedio) return null;
+      if (!context?.data?.markupMedio) {return null;}
 
       const markupMedio = context.data.markupMedio;
 
@@ -234,7 +233,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 1800000,
     check: async () => {
       const context = getContext('pricing_ai');
-      if (!context?.data?.sugestoesPendentes) return null;
+      if (!context?.data?.sugestoesPendentes) {return null;}
 
       const sugestoesPendentes = context.data.sugestoesPendentes || 0;
       const diasPendentes = context.data.diasPendentes || 0;
@@ -261,7 +260,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 600000,
     check: async () => {
       const context = getContext('analytics');
-      if (!context?.data?.quedaDiaria) return null;
+      if (!context?.data?.quedaDiaria) {return null;}
 
       const quedaDiaria = context.data.quedaDiaria;
 
@@ -289,7 +288,7 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 1800000,
     check: async () => {
       const context = getContext('marketplace');
-      if (!context?.data?.taxaAtual) return null;
+      if (!context?.data?.taxaAtual) {return null;}
 
       const taxaAtual = context.data.taxaAtual;
       const taxaAnterior = context.data.taxaAnterior || taxaAtual;

@@ -1,14 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { updateAlertStatus, logAdminAction } from '../../../server/creatorStore';
+import { logAdminAction, updateAlertStatus } from '../../../server/creatorStore';
 import { requireAdmin } from '../../../azuria_ai/core/adminGuard';
 import { notifySSE } from '../../../server/sseManager';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
-  if (!requireAdmin(req, res)) return;
+  if (req.method !== 'POST') {return res.status(405).end();}
+  if (!requireAdmin(req, res)) {return;}
 
   const { id, action, adminId } = JSON.parse(req.body || '{}');
-  if (!id || !action) return res.status(400).end('missing id/action');
+  if (!id || !action) {return res.status(400).end('missing id/action');}
 
   const status =
     action === 'ack'

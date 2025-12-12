@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import assert from 'node:assert';
 
 export function run() {

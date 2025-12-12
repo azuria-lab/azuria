@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logPredictive, logRisk, logOpportunity, logConflict } from '../logs/modeDeus_internal.log';
+import { logConflict, logOpportunity, logPredictive, logRisk } from '../logs/modeDeus_internal.log';
 
 type MemoryCategory = 'calc' | 'intent' | 'prediction' | 'action' | 'pattern' | 'anomaly';
 
@@ -14,7 +14,7 @@ const MEMORY_LIMIT = 50;
 const memoryBuffer: MemoryEntry[] = [];
 
 function sanitizePayload(payload: any) {
-  if (!payload || typeof payload !== 'object') return {};
+  if (!payload || typeof payload !== 'object') {return {};}
   const allowedKeys = [
     'margemLucro',
     'custoProduto',
@@ -31,7 +31,7 @@ function sanitizePayload(payload: any) {
   ];
   const sanitized: Record<string, any> = {};
   allowedKeys.forEach(key => {
-    if (payload[key] !== undefined) sanitized[key] = payload[key];
+    if (payload[key] !== undefined) {sanitized[key] = payload[key];}
   });
   return sanitized;
 }
@@ -62,8 +62,8 @@ export function detectPatterns() {
   const frequentIntent = findRepeated(intents.map(e => e.payload?.category || 'unknown'));
 
   const patterns: string[] = [];
-  if (repeatedCalcType) patterns.push(`Repetição de cálculos: ${repeatedCalcType}`);
-  if (frequentIntent) patterns.push(`Intenções frequentes: ${frequentIntent}`);
+  if (repeatedCalcType) {patterns.push(`Repetição de cálculos: ${repeatedCalcType}`);}
+  if (frequentIntent) {patterns.push(`Intenções frequentes: ${frequentIntent}`);}
 
   if (patterns.length > 0) {
     emitEvent(
@@ -95,7 +95,7 @@ export function generateForecast() {
 
 export function detectAnomalies() {
   const lastTwo = memoryBuffer.slice(-2);
-  if (lastTwo.length < 2) return;
+  if (lastTwo.length < 2) {return;}
 
   const [prev, curr] = lastTwo;
   const prevMargin = prev.payload?.margemLucro;
@@ -124,18 +124,18 @@ export function getMemorySnapshot(): MemoryEntry[] {
 function findRepeated(list: (string | undefined)[]) {
   const counts: Record<string, number> = {};
   list.forEach(item => {
-    if (!item) return;
+    if (!item) {return;}
     counts[item] = (counts[item] || 0) + 1;
   });
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-  if (top && top[1] >= 3) return top[0];
+  if (top && top[1] >= 3) {return top[0];}
   return null;
 }
 
 function mostLikely(list: (string | undefined)[]) {
   const counts: Record<string, number> = {};
   list.forEach(item => {
-    if (!item) return;
+    if (!item) {return;}
     counts[item] = (counts[item] || 0) + 1;
   });
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];

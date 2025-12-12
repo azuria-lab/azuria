@@ -5,7 +5,7 @@
  * Includes the floating bubble, mini dashboard, and toast notifications.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AzuriaBubble } from './AzuriaBubble';
 import { MiniDashboard } from './MiniDashboard';
 import { InsightToastContainer } from './InsightToast';

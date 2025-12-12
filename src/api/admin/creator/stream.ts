@@ -3,7 +3,7 @@ import { registerClient, unregisterClient } from '../../../server/sseManager';
 import { requireAdmin } from '../../../azuria_ai/core/adminGuard';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!requireAdmin(req, res)) return;
+  if (!requireAdmin(req, res)) {return;}
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',

@@ -54,7 +54,7 @@ function getAllowedOrigins(): Set<string> {
 
 // Validate origin against whitelist
 export function isOriginAllowed(origin: string | null): boolean {
-  if (!origin) return false;
+  if (!origin) {return false;}
 
   const allowedOrigins = getAllowedOrigins();
   return allowedOrigins.has(origin);

@@ -22,7 +22,7 @@ function emitValid(message?: string): ValidationResult {
 }
 
 export function validateInsight(insight: any): ValidationResult {
-  if (!insight?.message) return flagInvalid('missing_message');
+  if (!insight?.message) {return flagInvalid('missing_message');}
   if (insight?.data?.price && insight?.data?.cost && insight.data.price < insight.data.cost) {
     return flagInvalid('price_below_cost_without_justification');
   }
@@ -30,8 +30,8 @@ export function validateInsight(insight: any): ValidationResult {
 }
 
 export function validateRecommendation(rec: any): ValidationResult {
-  if (!rec?.action) return flagInvalid('missing_action');
-  if (rec?.action === 'fraud' || rec?.action === 'bypass_rules') return flagInvalid('illegal_recommendation');
+  if (!rec?.action) {return flagInvalid('missing_action');}
+  if (rec?.action === 'fraud' || rec?.action === 'bypass_rules') {return flagInvalid('illegal_recommendation');}
   return emitValid();
 }
 

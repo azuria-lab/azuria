@@ -21,6 +21,7 @@ export interface Agent {
 
 export interface AgentRegistry {
   // Lógica de registro será implementada na próxima fase
+  agents?: Agent[];
 }
 
 // Placeholder para registro de agentes

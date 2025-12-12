@@ -17,7 +17,7 @@ export function resetCounts() {
 }
 
 export function safePropagate(eventType: string, payload: any, options?: any) {
-  if (!guardEventLoop(eventType)) return;
+  if (!guardEventLoop(eventType)) {return;}
   emitEvent(eventType as any, payload, options);
 }
 

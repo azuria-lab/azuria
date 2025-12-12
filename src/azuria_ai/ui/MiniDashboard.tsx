@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { type AzuriaEvent, on, unsubscribeFromEvent } from '../core/eventBus';
-import { BarChart3, Calculator, FileText, Sparkles, TrendingUp, X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, BarChart3, Calculator, FileText, Sparkles, TrendingUp, X } from 'lucide-react';
 import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
 
 export interface MiniDashboardProps {
@@ -382,7 +382,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
 
     const coreSyncSub = on('ai:core-sync', (event: AzuriaEvent) => {
       const st = event.payload?.state;
-      if (!st) return;
+      if (!st) {return;}
       setSystemMind(prev => ({
         ...prev,
         personalityRiskAttitude: st.personalityRiskAttitude ?? prev.personalityRiskAttitude,
@@ -764,6 +764,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 )}
               </div>
             </div>
+          )}
 
           {/* Monetização Inteligente */}
           <div className="space-y-2">
@@ -777,7 +778,6 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               <div>Upgrade prob.: {diagnostics.upgradeProbability !== undefined ? `${(diagnostics.upgradeProbability * 100).toFixed(0)}%` : 'n/d'}</div>
             </div>
           </div>
-          )}
 
           {/* Quick Actions */}
           <div className="space-y-2">

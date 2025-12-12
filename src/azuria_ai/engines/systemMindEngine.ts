@@ -35,7 +35,7 @@ export function harmonizeSignals(signals: Record<string, any> = {}) {
 export function detectInternalAnomalies(inputs: Record<string, any> = {}) {
   const anomalies: string[] = [];
   Object.entries(inputs).forEach(([k, v]) => {
-    if (v && v.health && v.health < 0.3) anomalies.push(`low-health:${k}`);
+    if (v && v.health && v.health < 0.3) {anomalies.push(`low-health:${k}`);}
   });
   mindState.anomalies = anomalies;
   if (anomalies.length > 0) {

@@ -2,7 +2,7 @@ import { emitEvent } from '../core/eventBus';
 
 let stabilityScore = 0.8;
 let safeMode = false;
-let recoveryEvents: string[] = [];
+const recoveryEvents: string[] = [];
 
 function emitStabilityAlert(event: { severity: 'info' | 'warning' | 'critical'; riskLevel: number; details?: any }) {
   emitEvent('ai:stability-alert', event, { source: 'stabilityEngine', priority: event.severity === 'critical' ? 9 : 6 });
@@ -26,7 +26,7 @@ export function predictFailure(signals: any): { risk: number } {
 
 export function detectCascadingErrors(history: any[] = []) {
   const cascades = history.filter((h) => h.type === 'error').length > 3;
-  if (cascades) emitStabilityAlert({ severity: 'warning', riskLevel: 0.7, details: { cascades: true } });
+  if (cascades) {emitStabilityAlert({ severity: 'warning', riskLevel: 0.7, details: { cascades: true } });}
   return cascades;
 }
 
@@ -47,7 +47,7 @@ export function limitProcessingIfNecessary() {
 export function autoPauseAndRecover(reason: string) {
   safeMode = true;
   recoveryEvents.unshift(reason);
-  if (recoveryEvents.length > 10) recoveryEvents.pop();
+  if (recoveryEvents.length > 10) {recoveryEvents.pop();}
   emitStabilityAlert({ severity: 'critical', riskLevel: 0.9, details: { reason } });
   safeMode = false;
   return { recovered: true };

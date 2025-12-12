@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { recordAgentEvent, updateHeuristic, updatePerformance, getAgentMemory } from '../core/agentMemory';
+import { getAgentMemory, recordAgentEvent, updateHeuristic, updatePerformance } from '../core/agentMemory';
 
 function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));

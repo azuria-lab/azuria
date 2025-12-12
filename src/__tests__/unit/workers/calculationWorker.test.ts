@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { calculateBatch, calculateScenarios, calculateMarketPosition, generateRecommendations } from '@/workers/calculationWorker'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { calculateBatch, calculateMarketPosition, calculateScenarios, generateRecommendations } from '@/workers/calculationWorker'
 
 const postMessage = vi.fn()
 

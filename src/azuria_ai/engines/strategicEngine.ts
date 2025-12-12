@@ -15,8 +15,8 @@ export function analyzeGlobalState(state: any) {
 
 export function identifyStructuralRisks(state: any): string[] {
   const risks: string[] = [];
-  if (state?.operational?.load > 0.8) risks.push('Carga operacional alta');
-  if (state?.consistency?.drift) risks.push('Drift de consistência');
+  if (state?.operational?.load > 0.8) {risks.push('Carga operacional alta');}
+  if (state?.consistency?.drift) {risks.push('Drift de consistência');}
   return risks;
 }
 

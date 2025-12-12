@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 
 import ackHandler from '../src/api/admin/creator/ack';
@@ -18,7 +19,7 @@ function enhanceRes(res: ServerResponse) {
     return r;
   };
   r.json = (payload: any) => {
-    if (!res.headersSent) res.setHeader('Content-Type', 'application/json');
+    if (!res.headersSent) { res.setHeader('Content-Type', 'application/json'); }
     res.end(JSON.stringify(payload));
     return r;
   };
@@ -118,7 +119,7 @@ const server = http.createServer(async (req, res) => {
 
     res.writeHead(404).end('not found');
   } catch (err: any) {
-    if (!res.headersSent) res.writeHead(500, { 'Content-Type': 'application/json' });
+    if (!res.headersSent) { res.writeHead(500, { 'Content-Type': 'application/json' }); }
     res.end(JSON.stringify({ error: err?.message || 'server error' }));
     console.error(err);
   }
@@ -128,4 +129,3 @@ const PORT = process.env.ADMIN_API_PORT ? Number(process.env.ADMIN_API_PORT) : 8
 server.listen(PORT, () => {
   console.log(`Admin dev API listening on http://localhost:${PORT}`);
 });
-

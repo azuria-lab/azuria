@@ -16,9 +16,9 @@ function clampScore(value: number) {
 }
 
 function evaluateRiskLevel(margem?: number, custo?: number, preco?: number): RiskLevel {
-  if (margem !== undefined && margem < 0) return 'critical';
-  if (margem !== undefined && margem < 10) return 'alert';
-  if (custo !== undefined && preco !== undefined && custo >= preco) return 'critical';
+  if (margem !== undefined && margem < 0) {return 'critical';}
+  if (margem !== undefined && margem < 10) {return 'alert';}
+  if (custo !== undefined && preco !== undefined && custo >= preco) {return 'critical';}
   return 'safe';
 }
 
@@ -33,12 +33,12 @@ export function generatePredictiveInsight(context: any = {}): (PredictiveInsight
 
   const signals: string[] = [];
   if (margem !== undefined) {
-    if (margem < 10) signals.push('queda_margem_prevista');
-    if (margem >= 25) signals.push('margem_otima');
+    if (margem < 10) {signals.push('queda_margem_prevista');}
+    if (margem >= 25) {signals.push('margem_otima');}
   }
   if (custosOper && preco) {
     const impacto = (custosOper / preco) * 100;
-    if (impacto > 30) signals.push('aumento_custo_operacional');
+    if (impacto > 30) {signals.push('aumento_custo_operacional');}
   }
   if (taxasMarketplace && taxasMarketplace > 20) {
     signals.push('impacto_marketplace');

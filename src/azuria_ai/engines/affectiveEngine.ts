@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import { emotionProfiles } from './emotionProfiles';
-import { speak, adaptToneProfileFromPersona, rewriteWithBrandVoice } from './brandVoiceEngine';
+import { adaptToneProfileFromPersona, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
 import { createMicroStory } from './storytellingEngine';
 
 export type EmotionType = 'frustration' | 'confidence' | 'confusion' | 'achievement' | 'hesitation' | 'encouraged';
@@ -42,7 +42,7 @@ function setEmotion(type: EmotionType, confidence: number, meta?: any) {
 }
 
 function patternConfidence(pattern?: any) {
-  if (!pattern) return 0.35;
+  if (!pattern) {return 0.35;}
   const score =
     (pattern.repetitions ? Math.min(pattern.repetitions / 5, 0.4) : 0) +
     (pattern.abandonments ? Math.min(pattern.abandonments / 3, 0.3) : 0) +
@@ -52,13 +52,13 @@ function patternConfidence(pattern?: any) {
 
 export function inferUserEmotion(userState: any, event: any) {
   const pattern = event?.payload?.pattern || event?.payload;
-  if (pattern?.frustrationSignals) return detectFrustration(pattern);
-  if (pattern?.confusionSignals) return detectConfusion(pattern);
-  if (pattern?.confidenceSignals) return detectConfidence(pattern);
-  if (pattern?.hesitationSignals) return detectHesitation(pattern);
-  if (pattern?.achievementSignals) return detectAchievement(pattern);
+  if (pattern?.frustrationSignals) {return detectFrustration(pattern);}
+  if (pattern?.confusionSignals) {return detectConfusion(pattern);}
+  if (pattern?.confidenceSignals) {return detectConfidence(pattern);}
+  if (pattern?.hesitationSignals) {return detectHesitation(pattern);}
+  if (pattern?.achievementSignals) {return detectAchievement(pattern);}
   // fallback: based on usage speed or pauses
-  if (pattern?.pausesMs > 15000) return detectHesitation({ pauses: pattern.pausesMs });
+  if (pattern?.pausesMs > 15000) {return detectHesitation({ pauses: pattern.pausesMs });}
   return { emotion: state.type, confidence: state.confidence };
 }
 

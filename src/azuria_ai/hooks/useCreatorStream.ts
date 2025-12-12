@@ -29,7 +29,7 @@ export function useCreatorStream(onEvent: (ev: any) => void) {
 
     return () => {
       closed = true;
-      if (retryTimer) clearTimeout(retryTimer);
+      if (retryTimer) {clearTimeout(retryTimer);}
       esRef.current?.close();
       esRef.current = null;
     };

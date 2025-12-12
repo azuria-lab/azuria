@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 const { NimAdapter } = require('../src/azuria_ai/engines/nimAdapter');
 
 (async () => {

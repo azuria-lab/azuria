@@ -6,7 +6,7 @@
  */
 
 import type { AzuriaEvent } from './eventBus';
-import { setCurrentScreen, updateContext, getCurrentScreen } from './contextStore';
+import { getCurrentScreen, setCurrentScreen, updateContext } from './contextStore';
 import { extractContextForScreen } from '../context/contextExtractors';
 
 /**

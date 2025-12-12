@@ -5,18 +5,18 @@ type EmotionalSignal = 'frustrated' | 'confused' | 'rushed' | 'discovering' | 'n
 
 function detectSignal(payload: any): EmotionalSignal {
   const meta = payload?.metadata || {};
-  if (meta.errors || meta.repeatClicks || meta.undo) return 'frustrated';
-  if (meta.longHover || meta.helpRequested) return 'confused';
-  if (meta.fastInputs || meta.shortSessions) return 'rushed';
-  if (meta.exploring || meta.newFeature) return 'discovering';
+  if (meta.errors || meta.repeatClicks || meta.undo) {return 'frustrated';}
+  if (meta.longHover || meta.helpRequested) {return 'confused';}
+  if (meta.fastInputs || meta.shortSessions) {return 'rushed';}
+  if (meta.exploring || meta.newFeature) {return 'discovering';}
   return 'neutral';
 }
 
 function adaptTone(state: EmotionalSignal) {
-  if (state === 'frustrated') return 'calm';
-  if (state === 'confused') return 'clear';
-  if (state === 'rushed') return 'concise';
-  if (state === 'discovering') return 'enthusiastic';
+  if (state === 'frustrated') {return 'calm';}
+  if (state === 'confused') {return 'clear';}
+  if (state === 'rushed') {return 'concise';}
+  if (state === 'discovering') {return 'enthusiastic';}
   return 'neutral';
 }
 

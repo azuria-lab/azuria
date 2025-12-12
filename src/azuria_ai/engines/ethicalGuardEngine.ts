@@ -21,7 +21,7 @@ export function evaluateEthicalRisk(state: EthicalState) {
 }
 
 export function detectUnsafeIntent(context: any) {
-  if (!context) return false;
+  if (!context) {return false;}
   const unsafe =
     context.intent === 'fraud' ||
     context.action === 'bypass_rules' ||
@@ -39,10 +39,10 @@ export function correctiveIntent(state: EthicalState) {
 }
 
 export function scoreAlignment(userGoal?: string, aiPlan?: string) {
-  if (!userGoal || !aiPlan) return 0.5;
+  if (!userGoal || !aiPlan) {return 0.5;}
   const aligned = aiPlan.toLowerCase().includes(userGoal.toLowerCase());
   const score = aligned ? 0.9 : 0.3;
-  if (!aligned) emitWarning('Plano desalinhado com objetivo do usuário.', 0.7);
+  if (!aligned) {emitWarning('Plano desalinhado com objetivo do usuário.', 0.7);}
   return score;
 }
 
