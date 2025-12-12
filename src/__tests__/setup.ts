@@ -68,7 +68,6 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock do IntersectionObserver (somente se não existir)
 if (typeof global.IntersectionObserver === 'undefined') {
-  // @ts-expect-error - Polyfill para ambiente de teste
   global.IntersectionObserver = vi.fn().mockImplementation(() => ({
     observe: vi.fn(),
     unobserve: vi.fn(),
@@ -83,7 +82,6 @@ if (typeof global.ResizeObserver === 'undefined') {
     unobserve() {}
     disconnect() {}
   }
-  // @ts-expect-error - Polyfill para ambiente de teste
   global.ResizeObserver = ResizeObserver
 }
 

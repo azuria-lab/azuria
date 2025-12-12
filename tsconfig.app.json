@@ -28,6 +28,7 @@
   },
   "include": ["src"],
   "exclude": [
+    "src/api/**/*",
     "src/hooks/useDashboardStats.ts",
     "src/lib/usage-tracking.ts",
     "src/services/advancedCalculatorHistory.ts",
