@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logRisk, logOpportunity, logConflict } from '../logs/modeDeus_internal.log';
+import { logConflict, logOpportunity, logRisk } from '../logs/modeDeus_internal.log';
 
 export type IntentCategory =
   | 'pricing'
@@ -58,12 +58,12 @@ export function detectIntent(event: any, context: any = {}): IntentResult {
   if (alerts.risk) {
     category = 'risk';
     signals.push(alerts.risk);
-    emitEvent('AI:detectedRisk', { alert: alerts.risk, payload }, { source: 'userIntentEngine' });
+    emitEvent('ai:detected-risk', { alert: alerts.risk, payload }, { source: 'userIntentEngine' });
     logRisk({ alert: alerts.risk, payload, context });
   } else if (alerts.opportunity) {
     category = 'opportunity';
     signals.push(alerts.opportunity);
-    emitEvent('AI:detectedOpportunity', { alert: alerts.opportunity, payload }, { source: 'userIntentEngine' });
+    emitEvent('ai:detected-opportunity', { alert: alerts.opportunity, payload }, { source: 'userIntentEngine' });
     logOpportunity({ alert: alerts.opportunity, payload, context });
   }
 

@@ -21,11 +21,11 @@ function chooseAction(context: any): RecommendedAction | null {
   const frete = context?.custoOperacional ?? context?.payload?.custoOperacional;
   const taxasMarketplace = context?.taxasMarketplace ?? context?.payload?.taxasMarketplace;
 
-  if (margem !== undefined && margem < 10) return 'recomendar_preco';
-  if (custo !== undefined && preco !== undefined && custo >= preco) return 'propor_margem';
-  if (frete && preco && (frete / preco) * 100 > 30) return 'sugerir_frete';
-  if (taxasMarketplace && taxasMarketplace > 20) return 'trocar_marketplace';
-  if (context?.impostos || context?.aliquotaICMS) return 'analisar_impostos';
+  if (margem !== undefined && margem < 10) {return 'recomendar_preco';}
+  if (custo !== undefined && preco !== undefined && custo >= preco) {return 'propor_margem';}
+  if (frete && preco && (frete / preco) * 100 > 30) {return 'sugerir_frete';}
+  if (taxasMarketplace && taxasMarketplace > 20) {return 'trocar_marketplace';}
+  if (context?.impostos || context?.aliquotaICMS) {return 'analisar_impostos';}
 
   return null;
 }
@@ -58,7 +58,7 @@ export function getRecommendedAction(context: any): { action: RecommendedAction 
 
 export function dispatchAction(eventBus: typeof emitEvent, context: any) {
   const recommendation = getRecommendedAction(context);
-  if (!recommendation.action) return;
+  if (!recommendation.action) {return;}
 
   const payload = {
     action: recommendation.action,
@@ -67,7 +67,7 @@ export function dispatchAction(eventBus: typeof emitEvent, context: any) {
   };
 
   // Emitir evento não intrusivo para UI consumir
-  eventBus('AI:recommended-action', payload, { source: 'autonomousActionsEngine', priority: 5 });
+  eventBus('ai:recommended-action', payload, { source: 'autonomousActionsEngine', priority: 5 });
 
   // Registrar internamente
   if (recommendation.action === 'recomendar_preco' || recommendation.action === 'propor_margem') {

@@ -1,3 +1,54 @@
+# CHANGELOG
+
+Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
+
+---
+
+## 🧠 [3.0.0] - 2025-12-11 - MODO DEUS v1.0
+
+### ✨ Modo Deus - O Cérebro Central Inteligente
+
+O **Modo Deus v1.0** é a camada de inteligência artificial autônoma do Azuria, operando como um "cérebro central" que observa, entende, analisa e age proativamente.
+
+#### 🏗️ Infraestrutura Core
+- **ModeDeusOrchestrator** - Orquestrador central unificando todos os engines
+- **ModeDeusProvider** - Provider React para inicialização automática
+- **EventBus** com canais separados (`admin:*`, `user:*`, `system:*`)
+- **AdminGuard** com proteção de APIs e rate limiting (100 req/15min)
+
+#### 🤖 65 Engines de IA
+- **Estratégicos:** Creator, Governance, Strategic, Truth, Coherence, Perception
+- **Operacionais:** OperationalAI, UserContext, UIWatcher, Explanation, Tutorial
+- **Auto-Evolução:** FeedbackLoop, PatternLearning, Personalization, Adaptive
+- **Avançados:** NLPProcessor, Predictive, ProactiveAssistant, Cognitive
+- **Personalidade:** Personality, BrandVoice, Storytelling, Affective
+- **Segurança:** SafetyLimits, SafeAction, EthicalGuard, Stability
+
+#### 🎨 UI Components
+- `<CoPilot />` - Widget flutuante do Co-Piloto
+- `<AzuriaBubble />` - Indicador de status da IA
+- `<InsightToast />` - Notificações contextuais
+
+#### 🪝 React Hooks
+- `useCoPilot` - Hook principal do Co-Piloto
+- `useAIContext` - Contexto de IA
+- `useCalcWatcher` - Observador de cálculos
+
+#### 🗄️ Persistência (8 tabelas Supabase)
+- `user_suggestions`, `suggestion_feedback`, `user_copilot_preferences`
+- `user_behavior_patterns`, `user_skill_metrics`, `user_tutorial_progress`
+- `user_achievements`, `user_personalization`
+
+#### 🧪 Testes
+- **219 testes passando** ✅
+- Cobertura completa dos engines críticos
+
+#### 📚 Documentação
+- **[MASTER_BOOK_V1.md](docs/mode-deus/MASTER_BOOK_V1.md)** - O Livro Mestre (800+ linhas)
+- README e Changelog atualizados
+
+---
+
 ## <small>2.0.1 (2025-11-18)</small>
 
 * fix: adicionar timeouts aos comandos do health-check para evitar travamentos ([fd7dc29](https://github.com/azuria-lab/azuria/commit/fd7dc29))

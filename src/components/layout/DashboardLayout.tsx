@@ -6,6 +6,8 @@ import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner
 import DashboardSidebar from "@/components/layout/DashboardSidebar";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import ErrorBoundary from "./ErrorBoundary";
+import { ModeDeusProvider } from "@/azuria_ai";
+import CoPilot from "@/azuria_ai/ui/CoPilot";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,32 +36,36 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <meta property="og:type" content="website" />
       </Helmet>
 
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <DashboardSidebar />
-          <SidebarInset className="flex flex-col flex-1">
-            <DashboardHeader />
-            <Separator />
-            <main className="flex-1 overflow-auto">
-              <Suspense
-                fallback={
-                  <div className="flex items-center justify-center min-h-[400px]">
-                    <AdvancedLoadingSpinner
-                      variant="dashboard"
-                      size="lg"
-                      message="Carregando..."
-                    />
+      <ModeDeusProvider autoInitialize>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <DashboardSidebar />
+            <SidebarInset className="flex flex-col flex-1">
+              <DashboardHeader />
+              <Separator />
+              <main className="flex-1 overflow-auto">
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center min-h-[400px]">
+                      <AdvancedLoadingSpinner
+                        variant="dashboard"
+                        size="lg"
+                        message="Carregando..."
+                      />
+                    </div>
+                  }
+                >
+                  <div className="container mx-auto px-4 py-6">
+                    {children}
                   </div>
-                }
-              >
-                <div className="container mx-auto px-4 py-6">
-                  {children}
-                </div>
-              </Suspense>
-            </main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
+                </Suspense>
+              </main>
+            </SidebarInset>
+          </div>
+          {/* CoPilot - Assistente IA flutuante */}
+          <CoPilot position="bottom-right" />
+        </SidebarProvider>
+      </ModeDeusProvider>
     </ErrorBoundary>
   );
 };

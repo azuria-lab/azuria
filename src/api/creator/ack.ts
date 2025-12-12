@@ -1,26 +1,76 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { updateAlertStatus, logAdminAction } from '../../server/creatorStore';
+import { logAdminAction, updateAlertStatus } from '../../server/creatorStore';
+import { requireAdmin } from '../../azuria_ai/core/adminGuard';
+import { notifySSE } from '../../server/sseManager';
+import { validateEnum, validateRequestBody, validateUUID } from '../validation';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
-  if (req.headers['x-admin'] !== 'true') {
-    res.status(401).end('unauthorized');
-    return;
+// Ações permitidas
+const ALLOWED_ACTIONS = ['ack', 'resolve', 'ignore'] as const;
+type AllowedAction = (typeof ALLOWED_ACTIONS)[number];
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+  if (!requireAdmin(req, res)) {return;}
 
-  const { id, action, adminId } = JSON.parse(req.body || '{}');
-  if (!id || !action) return res.status(400).end('missing id/action');
+  try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+    
+    // Validação robusta dos inputs
+    const validation = validateRequestBody(body, [
+      { field: 'id', type: 'string', options: { minLength: 1, maxLength: 100 } },
+      { field: 'action', type: 'string', options: { minLength: 1, maxLength: 20 } },
+      { field: 'adminId', type: 'string', options: { required: false, maxLength: 100 } },
+    ]);
 
-  const status =
-    action === 'ack'
-      ? 'acknowledged'
-      : action === 'resolve'
-      ? 'resolved'
-      : action === 'ignore'
-      ? 'ignored'
-      : 'new';
-  const updated = updateAlertStatus(id, status as any);
-  logAdminAction({ adminId: adminId || 'admin', action, details: { id } });
-  res.status(200).json({ ok: true, alert: updated });
+    if (!validation.valid) {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: validation.errors 
+      });
+    }
+
+    const { id, action, adminId } = validation.data as { id: string; action: string; adminId?: string };
+    
+    // Validar ID como string não-vazia (pode ser UUID ou outro formato)
+    const idValidation = validateUUID(id, { required: false });
+    if (!idValidation.valid && (!id || id.length < 1)) {
+      return res.status(400).json({ error: 'Invalid alert ID format' });
+    }
+    
+    // Validar action como enum
+    const actionValidation = validateEnum(action, [...ALLOWED_ACTIONS]);
+    if (!actionValidation.valid) {
+      return res.status(400).json({ 
+        error: `Invalid action. Must be one of: ${ALLOWED_ACTIONS.join(', ')}` 
+      });
+    }
+
+    const status =
+      action === 'ack'
+        ? 'acknowledged'
+        : action === 'resolve'
+        ? 'resolved'
+        : action === 'ignore'
+        ? 'ignored'
+        : 'new';
+        
+    const sanitizedAdminId = adminId || 'admin';
+    const updated = await updateAlertStatus(id, status as any);
+    await logAdminAction({ adminId: sanitizedAdminId, action: action as AllowedAction, details: { id, status } });
+    
+    // Notificar outros clientes SSE
+    notifySSE({
+      channel: 'admin.creator',
+      event: 'alert_ack',
+      data: { id, status, action, adminId: sanitizedAdminId },
+    });
+    
+    res.status(200).json({ ok: true, alert: updated });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to update alert';
+    res.status(500).json({ error: errorMessage });
+  }
 }
 

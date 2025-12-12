@@ -27,9 +27,9 @@ export type EventType =
   | 'error:occurred'
   | 'insight:generated'
   | 'ai:predictive-insight'
-  | 'AI:detectedRisk'
-  | 'AI:detectedOpportunity'
-  | 'AI:recommended-action'
+  | 'ai:detected-risk'
+  | 'ai:detected-opportunity'
+  | 'ai:recommended-action'
   | 'ai:memory-updated'
   | 'ai:pattern-detected'
   | 'ai:forecast-generated'
@@ -124,10 +124,14 @@ export type EventType =
   | 'ai:meta-layer-updated'
   | 'ai:nim-response'
   | 'ai:creator-alert'
-  | 'ai.creator-alert'
-  | 'ai.creator-insight'
-  | 'ai.creator-recommendation'
-  | 'ai.creator-roadmap'
+  | 'ai:creator-insight'
+  | 'ai:creator-recommendation'
+  | 'ai:creator-roadmap'
+  | 'ai:evolution-learning'
+  | 'ai:evolution-pattern'
+  | 'ai:evolution-insight'
+  | 'ai:evolution-memory'
+  | 'ai:evolution-query'
   | 'system:tick'
   | 'ai:behavior-pattern-detected'
   | 'ai:ux-friction-detected'
@@ -148,7 +152,22 @@ export type EventType =
   | 'agent:boost-suggested'
   | 'ui:emotion-updated'
   | 'ui:adaptive-layout'
-  | 'agent:called';
+  | 'agent:called'
+  // User Channel Events (Co-Piloto Operacional)
+  | 'user:navigation'
+  | 'user:calculation'
+  | 'user:error'
+  | 'user:input'
+  | 'user:copilot-ready'
+  | 'user:context-updated'
+  | 'user:suggestion'
+  | 'user:suggestion-accepted'
+  | 'user:suggestion-dismissed'
+  | 'user:suggestion-expired'
+  | 'user:feedback-given'
+  | 'user:config-changed'
+  | 'user:copilot-enabled'
+  | 'user:copilot-disabled';
 
 /**
  * Formato padronizado de evento
@@ -386,3 +405,18 @@ export function getEventBusStats() {
     maxHistorySize: MAX_HISTORY_SIZE,
   };
 }
+
+/**
+ * Objeto eventBus para compatibilidade com imports nomeados
+ */
+export const eventBus = {
+  emit: emitEvent,
+  on,
+  off: unsubscribeFromEvent,
+  once,
+  register: registerEvent,
+  getHistory: getEventHistory,
+  clearHistory: clearEventHistory,
+  getStats: getEventBusStats,
+  removeAllListeners,
+};

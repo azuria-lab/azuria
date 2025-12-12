@@ -16,6 +16,7 @@ const mockSupabase = {
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
     delete: vi.fn().mockReturnThis(),
+    upsert: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
@@ -26,6 +27,11 @@ const mockSupabase = {
 
 // Mock do cliente Supabase
 vi.mock('@/integrations/supabase/client', () => ({
+  supabase: mockSupabase
+}))
+
+// Mock para @/lib/supabase (usado pelos engines do Azuria AI)
+vi.mock('@/lib/supabase', () => ({
   supabase: mockSupabase
 }))
 
