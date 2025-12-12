@@ -5,7 +5,7 @@
  * Detecta mudanças em lances, riscos e descontos.
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { emitEvent } from '../core/eventBus';
 
 export interface BidCalcWatcherOptions {
@@ -78,7 +78,7 @@ export function useBidCalcWatcher(
       data: BidCalcData,
       type: BidCalcEvent['type'] = 'calculation_completed'
     ) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       const bidEvent: BidCalcEvent = {
         type,
@@ -125,7 +125,7 @@ export function useBidCalcWatcher(
    */
   const handleDataChange = useCallback(
     (newData: BidCalcData, changedField?: string) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);

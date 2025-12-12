@@ -32,7 +32,7 @@ export function recordAgentEvent(agentId: string, entry: AgentMemoryEntry) {
   const state = ensure(agentId);
   state.history.push(entry);
   state.lastDecision = entry;
-  if (state.history.length > MEMORY_LIMIT) state.history.shift();
+  if (state.history.length > MEMORY_LIMIT) {state.history.shift();}
 }
 
 export function updateHeuristic(agentId: string, key: string, value: number) {

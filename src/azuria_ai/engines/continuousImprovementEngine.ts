@@ -32,9 +32,9 @@ function computeEvolutionScore(): number {
 function scanForWeaknesses() {
   const logs = getInternalLogs();
   const weaknesses: string[] = [];
-  if (logs.risk.length > params.maxAlerts!) weaknesses.push('Muitos alerts de risco');
-  if (logs.conflict.length > 0) weaknesses.push('Conflitos recorrentes em decisões');
-  if (logs.predictive.length < 2) weaknesses.push('Baixo volume de insights preditivos');
+  if (logs.risk.length > params.maxAlerts!) {weaknesses.push('Muitos alerts de risco');}
+  if (logs.conflict.length > 0) {weaknesses.push('Conflitos recorrentes em decisões');}
+  if (logs.predictive.length < 2) {weaknesses.push('Baixo volume de insights preditivos');}
 
   emitEvent(
     'ai:evolution-weakness-found',

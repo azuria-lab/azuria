@@ -1,15 +1,15 @@
-import { on, emitEvent, type AzuriaEvent } from './eventBus';
+import { type AzuriaEvent, emitEvent, on } from './eventBus';
 import {
-  getGlobalState,
-  updateGlobalState,
-  routeEvent,
   computeUnifiedInference,
   generateUnifiedRecommendation,
-  synchronizeTemporalConsistency,
+  getGlobalState,
   harmonizeConflicts,
-  runSelfEvolutionStep,
-  runSafeActionPipeline,
+  routeEvent,
   runCoherenceCheck,
+  runSafeActionPipeline,
+  runSelfEvolutionStep,
+  synchronizeTemporalConsistency,
+  updateGlobalState,
 } from '../engines/integratedCoreEngine';
 import { validateRecommendation } from '../engines/consciousOrchestrator';
 

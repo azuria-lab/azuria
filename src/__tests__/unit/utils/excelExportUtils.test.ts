@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { generateSummarySheet, generateCalculationsSheet, generateMetricsSheet, generateChartsDataSheet } from '@/utils/export/excelExportUtils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { generateCalculationsSheet, generateChartsDataSheet, generateMetricsSheet, generateSummarySheet } from '@/utils/export/excelExportUtils'
 
 const baseData = {
   summary: {

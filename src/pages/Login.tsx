@@ -73,11 +73,12 @@ export default function Login() {
           description: "Bem-vindo de volta ao Azuria",
         });
         
-        // NÃO navegar aqui - deixar o useEffect fazer isso
-        // O useEffect que observa isAuthenticated fará o redirect
-        // quando o listener onAuthStateChange atualizar o estado
-        logger.info("⏳ Aguardando useEffect detectar isAuthenticated=true...");
+        // Navegar diretamente após login bem-sucedido
+        // Não esperar o useEffect pois pode haver delay na propagação do estado
+        const from = location.state?.from?.pathname || "/dashboard";
+        logger.info("🚀 Redirecionando para:", from);
         setIsLoading(false);
+        navigate(from, { replace: true });
       } else {
         throw new Error("Falha no login - sessão não criada");
       }
@@ -143,9 +144,11 @@ export default function Login() {
           description: "Você já pode usar o Azuria. Bem-vindo!",
         });
         
-        // NÃO navegar aqui - deixar o useEffect fazer isso
-        logger.info("⏳ Aguardando useEffect detectar isAuthenticated=true...");
+        // Navegar diretamente após cadastro bem-sucedido
+        const from = location.state?.from?.pathname || "/dashboard";
+        logger.info("🚀 Redirecionando para:", from);
         setIsLoading(false);
+        navigate(from, { replace: true });
       } else {
         throw new Error("Falha no cadastro");
       }

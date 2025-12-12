@@ -1,9 +1,9 @@
 import { emitEvent } from '../core/eventBus';
 import {
-  EvolutionLearning,
-  EvolutionPattern,
   EvolutionInsight,
+  EvolutionLearning,
   EvolutionMemory,
+  EvolutionPattern,
   EvolutionQuery,
 } from '../events/evolutionEvents';
 import { addEvolutionEvent, addEvolutionSnapshot } from '../../server/evolutionStore';
@@ -14,7 +14,7 @@ let historyBuffer: HistoryEvent[] = [];
 
 function recordHistory(ev: HistoryEvent) {
   historyBuffer.push(ev);
-  if (historyBuffer.length > 200) historyBuffer.shift();
+  if (historyBuffer.length > 200) {historyBuffer.shift();}
 }
 
 export function registerPattern(pattern: EvolutionPattern) {

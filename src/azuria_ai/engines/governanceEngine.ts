@@ -21,7 +21,7 @@ export function registerDecision(entry: DecisionEntry) {
     signature: 'ConsciousLayer',
   };
   decisions.push(enriched);
-  if (decisions.length > LIMIT) decisions.shift();
+  if (decisions.length > LIMIT) {decisions.shift();}
   logGovernance({ decision: enriched });
 }
 

@@ -5,7 +5,7 @@
  * Detecta mudanças em ICMS, ST, MVA e outros cálculos fiscais.
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { emitEvent } from '../core/eventBus';
 
 export interface TaxCalcWatcherOptions {
@@ -79,7 +79,7 @@ export function useTaxCalcWatcher(
       data: TaxCalcData,
       type: TaxCalcEvent['type'] = 'calculation_completed'
     ) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       const taxEvent: TaxCalcEvent = {
         type,
@@ -126,7 +126,7 @@ export function useTaxCalcWatcher(
    */
   const handleDataChange = useCallback(
     (newData: TaxCalcData, changedField?: string) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);

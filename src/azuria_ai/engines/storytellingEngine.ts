@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import { storyProfiles } from './storyProfiles';
-import { speak, rewriteWithBrandVoice, getToneProfileForUser, adaptToneProfileFromPersona } from './brandVoiceEngine';
+import { adaptToneProfileFromPersona, getToneProfileForUser, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
 
 function pickProfile(userLevel: string) {
   return storyProfiles[userLevel as keyof typeof storyProfiles] || storyProfiles.iniciante;

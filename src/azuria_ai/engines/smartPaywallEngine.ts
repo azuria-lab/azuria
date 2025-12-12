@@ -18,8 +18,8 @@ export function selectPaywallVariant(userType: 'free' | 'pro' | 'enterprise', ab
   const idx = abSlot % variants.length;
   const base = variants[idx];
 
-  if (userType === 'free') return base;
-  if (userType === 'pro') return { ...base, friction: 'medium', message: 'Faça upgrade para Enterprise com onboarding dedicado.' };
+  if (userType === 'free') {return base;}
+  if (userType === 'pro') {return { ...base, friction: 'medium', message: 'Faça upgrade para Enterprise com onboarding dedicado.' };}
   return { ...base, friction: 'low', message: 'Fale com nosso time para planos customizados.' };
 }
 

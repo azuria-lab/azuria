@@ -5,7 +5,7 @@
  * Mapeia cada função para seu respectivo agente interno.
  */
 
-import { registerFunction, type FunctionDefinition } from './functionRegistry';
+import { type FunctionDefinition, registerFunction } from './functionRegistry';
 
 /**
  * Inicializa e registra todas as funções disponíveis

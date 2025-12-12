@@ -5,7 +5,7 @@
  * Avaliam contexto e geram insights de forma autônoma.
  */
 
-import { getCurrentScreen, getContext } from './contextStore';
+import { getContext, getCurrentScreen } from './contextStore';
 import { getEventHistory } from './eventBus';
 
 export interface ProactiveAnalysisResult {
@@ -56,7 +56,7 @@ export async function evaluateProactiveRules(): Promise<ProactiveAnalysisResult>
  */
 async function evaluateDashboardProactive(): Promise<any[]> {
   const context = getContext('dashboard');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 
@@ -98,7 +98,7 @@ async function evaluateDashboardProactive(): Promise<any[]> {
  */
 async function evaluateHistoryProactive(): Promise<any[]> {
   const context = getContext('history');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 
@@ -113,7 +113,7 @@ async function evaluateHistoryProactive(): Promise<any[]> {
  */
 async function evaluateLotProactive(): Promise<any[]> {
   const context = getContext('smart_lot');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 
@@ -142,7 +142,7 @@ async function evaluateLotProactive(): Promise<any[]> {
  */
 async function evaluatePricingAIProactive(): Promise<any[]> {
   const context = getContext('pricing_ai');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 
@@ -164,7 +164,7 @@ async function evaluatePricingAIProactive(): Promise<any[]> {
  */
 async function evaluateAnalyticsProactive(): Promise<any[]> {
   const context = getContext('analytics');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 
@@ -191,7 +191,7 @@ async function evaluateAnalyticsProactive(): Promise<any[]> {
  */
 async function evaluateMarketplaceProactive(): Promise<any[]> {
   const context = getContext('marketplace');
-  if (!context) return [];
+  if (!context) {return [];}
 
   const insights: any[] = [];
 

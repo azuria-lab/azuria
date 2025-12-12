@@ -3,7 +3,7 @@
  * Tests CORS, Security Headers, and Edge Function security
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mocks controlados para evitar chamadas reais
 type MockResponseInit = { status: number; headers?: Record<string, string>; json?: any };
@@ -240,7 +240,7 @@ describe('Security Configuration', () => {
 
     it('should allow all configured methods', async () => {
       const methods = ['GET', 'POST', 'PUT', 'DELETE'];
-      methods.forEach((method) =>
+      methods.forEach((_method) =>
         mockFetch.mockResolvedValueOnce(
           makeResponse({
             status: 204,

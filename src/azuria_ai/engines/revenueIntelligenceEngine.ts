@@ -70,8 +70,8 @@ export function analyzeRevenueOpportunity(profile: BehaviorProfile) {
 }
 
 export function getUpgradeMessage(prob: number) {
-  if (prob > 0.75) return 'Usuário quente para upgrade — ofereça plano PRO com desconto.';
-  if (prob > 0.55) return 'Boa chance de upgrade — destaque benefícios avançados.';
+  if (prob > 0.75) {return 'Usuário quente para upgrade — ofereça plano PRO com desconto.';}
+  if (prob > 0.55) {return 'Boa chance de upgrade — destaque benefícios avançados.';}
   return 'Mantenha engajamento antes de propor upgrade.';
 }
 

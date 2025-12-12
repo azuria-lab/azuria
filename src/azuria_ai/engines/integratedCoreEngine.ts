@@ -1,9 +1,9 @@
 import { emitEvent } from '../core/eventBus';
-import { executeActionSafely, applyAction } from './safeActionEngine';
+import { applyAction, executeActionSafely } from './safeActionEngine';
 import { validateActionAgainstPolicy } from './policyEngine';
-import { registerDecision, detectGovernanceViolations } from './governanceEngine';
+import { detectGovernanceViolations, registerDecision } from './governanceEngine';
 import { validateRecommendation } from './consciousOrchestrator';
-import { validateLogic, detectContradictions, generateRationale, explainDecision } from './coherenceEngine';
+import { detectContradictions, explainDecision, generateRationale, validateLogic } from './coherenceEngine';
 import { getPersonalityProfile } from './personalityEngine';
 
 type AnyState = Record<string, any>;
@@ -60,7 +60,7 @@ export function updateGlobalState(delta: Partial<UnifiedState>) {
 
 export function routeEvent(event: { tipo: string; payload: any; timestamp: number }) {
   unifiedState.lastEvents.push({ tipo: event.tipo, timestamp: event.timestamp });
-  if (unifiedState.lastEvents.length > 50) unifiedState.lastEvents.shift();
+  if (unifiedState.lastEvents.length > 50) {unifiedState.lastEvents.shift();}
   emitEvent('ai:core-sync', { state: getGlobalState() }, { source: 'integratedCoreEngine', priority: 6 });
 }
 

@@ -17,8 +17,8 @@ export function computeSystemHealth(state: any) {
 
 export function detectWeakSpots(state: any): string[] {
   const weak: string[] = [];
-  if (state?.temporal?.trend === 'decline') weak.push('Tendência de queda detectada');
-  if ((state?.operational?.load || 0) > 0.8) weak.push('Sobrecarga operacional');
+  if (state?.temporal?.trend === 'decline') {weak.push('Tendência de queda detectada');}
+  if ((state?.operational?.load || 0) > 0.8) {weak.push('Sobrecarga operacional');}
   return weak;
 }
 

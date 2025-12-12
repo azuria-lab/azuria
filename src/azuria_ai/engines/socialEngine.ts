@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { userModel, updateUsagePattern, type UserModel } from '../core/userModel';
+import { updateUsagePattern, type UserModel, userModel } from '../core/userModel';
 
 interface SocialEventPayload {
   tipo?: string;
@@ -17,37 +17,37 @@ function inferEmotionScore(event: SocialEventPayload) {
   const meta = event.metadata || {};
   let score = 0.5;
 
-  if (meta.hesitation || meta.delays) score -= 0.2;
-  if (meta.repeatClicks || meta.undo) score -= 0.15;
-  if (meta.fastInputs) score += 0.1;
-  if (meta.abandon) score -= 0.25;
-  if (meta.successiveActions) score += 0.1;
+  if (meta.hesitation || meta.delays) {score -= 0.2;}
+  if (meta.repeatClicks || meta.undo) {score -= 0.15;}
+  if (meta.fastInputs) {score += 0.1;}
+  if (meta.abandon) {score -= 0.25;}
+  if (meta.successiveActions) {score += 0.1;}
 
   return clamp(score);
 }
 
 function mapEmotion(score: number): UserModel['emotionalState'] {
-  if (score <= 0.25) return 'frustrated';
-  if (score <= 0.4) return 'confused';
-  if (score >= 0.75) return 'engaged';
-  if (score >= 0.6) return 'focused';
-  if (score >= 0.45) return 'rushed';
+  if (score <= 0.25) {return 'frustrated';}
+  if (score <= 0.4) {return 'confused';}
+  if (score >= 0.75) {return 'engaged';}
+  if (score >= 0.6) {return 'focused';}
+  if (score >= 0.45) {return 'rushed';}
   return 'neutral';
 }
 
 function adjustSkill(meta: Record<string, any>) {
-  if (meta.advancedFlows) userModel.skillLevel = 'advanced';
-  if (meta.requiresHelp) userModel.skillLevel = 'beginner';
+  if (meta.advancedFlows) {userModel.skillLevel = 'advanced';}
+  if (meta.requiresHelp) {userModel.skillLevel = 'beginner';}
 }
 
 function adjustRisk(meta: Record<string, any>) {
-  if (meta.riskAverse) userModel.riskTolerance = 'low';
-  if (meta.aggressivePricing) userModel.riskTolerance = 'high';
+  if (meta.riskAverse) {userModel.riskTolerance = 'low';}
+  if (meta.aggressivePricing) {userModel.riskTolerance = 'high';}
 }
 
 function adjustPace(meta: Record<string, any>) {
-  if (meta.slowInputs) userModel.preferredPace = 'slow';
-  if (meta.fastInputs) userModel.preferredPace = 'fast';
+  if (meta.slowInputs) {userModel.preferredPace = 'slow';}
+  if (meta.fastInputs) {userModel.preferredPace = 'fast';}
 }
 
 function emitProfileUpdated() {

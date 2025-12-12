@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const save = vi.fn()
 const text = vi.fn()
@@ -14,7 +14,11 @@ const autoTable = vi.fn().mockImplementation(() => {
   }
 })
 
-let docInstance: any
+let docInstance: Record<string, unknown> | null = null
+
+function setDocInstance(instance: Record<string, unknown>) {
+  docInstance = instance
+}
 
 vi.mock('jspdf', () => ({
   default: class {
@@ -27,18 +31,21 @@ vi.mock('jspdf', () => ({
     setFillColor = setFillColor
     rect = rect
     internal = { pageSize: { width: 210, height: 297 } }
+    lastAutoTable?: { finalY: number }
     constructor() {
-      docInstance = this
+      setDocInstance(this as unknown as Record<string, unknown>)
     }
-    autoTable(...args: any[]) {
+    autoTable(...args: unknown[]) {
       const res = autoTable(docInstance, ...args)
-      docInstance.lastAutoTable = { finalY: 50 }
+      if (docInstance) {
+        (docInstance as Record<string, unknown>).lastAutoTable = { finalY: 50 }
+      }
       return res
     }
   },
 }))
 
-import { generateCalculationPDF, generateBatchPDF } from '@/utils/pdf/pdfGenerator'
+import { generateBatchPDF, generateCalculationPDF } from '@/utils/pdf/pdfGenerator'
 
 const result = {
   sellingPrice: 150,

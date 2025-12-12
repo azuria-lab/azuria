@@ -56,7 +56,7 @@ export function detectSilentFailures(sample?: SignalSample) {
 }
 
 export function predictBehaviorFromNoise(sample?: SignalSample) {
-  if (!sample) return null;
+  if (!sample) {return null;}
   const noiseScore = (sample.contrastSignals?.length || 0) * 0.2;
   const behavior = noiseScore > 0.5 ? 'unstable' : 'stable';
   emitEvent(

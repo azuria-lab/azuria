@@ -15,7 +15,7 @@ const temporalMemory: Record<Scope, TemporalEntry[]> = {
 function push(scope: Scope, entry: TemporalEntry) {
   const list = temporalMemory[scope];
   list.push(entry);
-  if (list.length > MAX_ENTRIES) list.shift();
+  if (list.length > MAX_ENTRIES) {list.shift();}
 }
 
 export function recordTemporalEvent(scope: Scope, eventName: string, payload: any) {
@@ -30,7 +30,7 @@ export function getTimeline(scope: Scope): TemporalEntry[] {
 
 export function computeTrends(scope: Scope) {
   const data = temporalMemory[scope];
-  if (data.length < 5) return null;
+  if (data.length < 5) {return null;}
   const last = data.slice(-10);
   const growth = last.filter(e => e.payload?.status === 'success').length / last.length;
   const decline = last.filter(e => e.payload?.status === 'error').length / last.length;
@@ -43,7 +43,7 @@ export function computeTrends(scope: Scope) {
 
 export function predictFutureState(scope: Scope) {
   const trend = computeTrends(scope);
-  if (!trend) return null;
+  if (!trend) {return null;}
   const prediction = {
     scope,
     expected: trend.trend === 'growth' ? 'increasing_activity' : 'potential_drop',
@@ -55,7 +55,7 @@ export function predictFutureState(scope: Scope) {
 
 export function detectTemporalAnomaly(scope: Scope) {
   const data = temporalMemory[scope];
-  if (data.length < 4) return null;
+  if (data.length < 4) {return null;}
   const last = data.slice(-4);
   const times = last.map(e => e.timestamp);
   const diffs = times.slice(1).map((t, i) => t - times[i]);

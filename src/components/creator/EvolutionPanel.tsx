@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useCreatorStream } from '../../azuria_ai/hooks/useCreatorStream';
 import { ADMIN_UID_FRONT } from '../../config/admin';
 
@@ -21,8 +21,8 @@ export function EvolutionPanel() {
   }, []);
 
   useCreatorStream((ev) => {
-    if (ev && ev.pattern) return onEvent({ type: 'pattern', payload: ev });
-    if (ev && ev.insight) return onEvent({ type: 'insight', payload: ev });
+    if (ev && ev.pattern) {return onEvent({ type: 'pattern', payload: ev });}
+    if (ev && ev.insight) {return onEvent({ type: 'insight', payload: ev });}
     return onEvent(ev);
   });
 

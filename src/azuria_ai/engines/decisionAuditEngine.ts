@@ -12,7 +12,7 @@ const auditLog: AuditEntry[] = [];
 
 function push(entry: AuditEntry) {
   auditLog.unshift(entry);
-  if (auditLog.length > MAX_LOG) auditLog.pop();
+  if (auditLog.length > MAX_LOG) {auditLog.pop();}
   emitEvent('ai:audited-decision', entry, { source: 'decisionAuditEngine', priority: 4 });
 }
 

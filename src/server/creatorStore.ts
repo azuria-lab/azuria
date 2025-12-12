@@ -31,7 +31,7 @@ export async function insertAlert(data: Partial<CreatorAlert>): Promise<CreatorA
   };
 
   const { data: rows, error } = await supabase.from('creator_alerts').insert(payload).select().limit(1);
-  if (error) throw error;
+  if (error) {throw error;}
   return rows?.[0] as CreatorAlert;
 }
 
@@ -41,7 +41,7 @@ export async function listAlerts({ limit = 50 } = {}): Promise<CreatorAlert[]> {
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
-  if (error) throw error;
+  if (error) {throw error;}
   return (data as CreatorAlert[]) || [];
 }
 
@@ -52,7 +52,7 @@ export async function updateAlertStatus(id: string, status: AlertStatus) {
     .eq('id', id)
     .select()
     .limit(1);
-  if (error) throw error;
+  if (error) {throw error;}
   return data?.[0] as CreatorAlert | undefined;
 }
 
@@ -64,6 +64,6 @@ export async function logAdminAction(entry: { adminId: string; action: string; d
       action: entry.action,
       details: entry.details || null,
     });
-  if (error) throw error;
+  if (error) {throw error;}
 }
 

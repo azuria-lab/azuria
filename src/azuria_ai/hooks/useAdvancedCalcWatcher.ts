@@ -5,7 +5,7 @@
  * Detecta mudanças em cenários, taxas e cálculos avançados.
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { emitEvent } from '../core/eventBus';
 
 export interface AdvancedCalcWatcherOptions {
@@ -79,7 +79,7 @@ export function useAdvancedCalcWatcher(
       data: AdvancedCalcData,
       type: AdvancedCalcEvent['type'] = 'calculation_completed'
     ) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       const calcEvent: AdvancedCalcEvent = {
         type,
@@ -126,7 +126,7 @@ export function useAdvancedCalcWatcher(
    */
   const handleDataChange = useCallback(
     (newData: AdvancedCalcData, changedField?: string) => {
-      if (!isWatching) return;
+      if (!isWatching) {return;}
 
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   mockLoadWebVitals: vi.fn(),
@@ -33,7 +33,7 @@ vi.mock('@/utils/secureRandom', () => ({
 }))
 
 // Importa após mocks para evitar hoisting issues
-import { initWebVitals, getReporter } from '@/utils/webvitals'
+import { getReporter, initWebVitals } from '@/utils/webvitals'
 
 describe('webvitals reporter', () => {
   beforeEach(() => {
