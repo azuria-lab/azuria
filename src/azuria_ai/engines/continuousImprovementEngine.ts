@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { getInternalLogs } from '../logs/modeDeus_internal.log';
+import { getInternalLogs } from '../logs/modeDeus_internal.log.ts';
 
 interface ImprovementParams {
   sensitivity?: number;

@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import { validateActionAgainstPolicy } from './policyEngine';
-import { logGovernance } from '../logs/modeDeus_conscious.log';
+import { logGovernance } from '../logs/modeDeus_conscious.log.ts';
 import { logSafeAction } from '../logs/ai.safeAction-log';
 
 interface SafeResult {

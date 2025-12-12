@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logConflict, logOpportunity, logRisk } from '../logs/modeDeus_internal.log';
+import { logConflict, logOpportunity, logRisk } from '../logs/modeDeus_internal.log.ts';
 
 export type IntentCategory =
   | 'pricing'

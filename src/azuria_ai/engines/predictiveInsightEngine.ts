@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logPredictive } from '../logs/modeDeus_internal.log';
+import { logPredictive } from '../logs/modeDeus_internal.log.ts';
 
 export type RiskLevel = 'safe' | 'alert' | 'critical';
 
