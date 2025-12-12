@@ -1,5 +1,5 @@
 import { emitEvent } from '../core/eventBus';
-import { logInternalInsight } from '../logs/internalInsights.log.ts';
+import { logInternalInsight } from '../logs/internalInsights';
 
 export function validateLogic(state: any) {
   const contradictions = detectContradictions(state);
