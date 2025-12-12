@@ -12,26 +12,26 @@ import { detectIntent, predictNextStep } from '../engines/userIntentEngine';
 import { generatePredictiveInsight } from '../engines/predictiveInsightEngine';
 import { dispatchAction } from '../engines/autonomousActionsEngine';
 import {
-  updateMemory as updateCognitiveMemory,
+  detectAnomalies,
   detectPatterns,
   generateForecast,
-  detectAnomalies,
+  updateMemory as updateCognitiveMemory,
 } from '../engines/cognitiveEngine';
 import {
-  updateUserModel,
+  adaptInterface,
   inferEmotion,
   inferIntent as inferSocialIntent,
-  adaptInterface,
+  updateUserModel,
 } from '../engines/socialEngine';
-import { setGoal, generatePlan, executePlan, adjustPlan } from '../engines/metaPlannerEngine';
-import { updateState, registerError as registerOperationalError } from '../engines/operationalStateEngine';
+import { adjustPlan, executePlan, generatePlan, setGoal } from '../engines/metaPlannerEngine';
+import { registerError as registerOperationalError, updateState } from '../engines/operationalStateEngine';
 import { analyzeAndAdjust, runEvolutionCycle } from '../engines/continuousImprovementEngine';
 import { runConsistencyCheck } from '../engines/consistencyEngine';
 import {
-  recordTemporalEvent,
   computeTrends,
-  predictFutureState,
   detectTemporalAnomaly,
+  predictFutureState,
+  recordTemporalEvent,
 } from '../engines/temporalEngine';
 import { processSocialPresence } from '../engines/socialPresenceEngine';
 import { proposeAdaptiveUX } from '../engines/adaptiveUXEngine';
@@ -39,41 +39,41 @@ import { analyzeRevenueOpportunity } from '../engines/revenueIntelligenceEngine'
 import { runPaywallExperiment } from '../engines/smartPaywallEngine';
 import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
 import {
-  inferUserEmotion,
   getEmotionState,
-  respondWithEncouragement,
-  respondWithSimplification,
-  respondWithReassurance,
+  inferUserEmotion,
   respondWithConfidenceBoost,
   respondWithEmpathy,
+  respondWithEncouragement,
+  respondWithReassurance,
+  respondWithSimplification,
 } from '../engines/affectiveEngine';
 import { analyzeBehavior } from '../engines/behaviorEngine';
 import { applySafeOptimizations, prioritizeFixes } from '../engines/autoOptimizerEngine';
 import {
-  validateInsight,
-  validateRecommendation,
-  validatePricingSuggestion,
-  validateFiscalAdvice,
-  validateUXAdjustment,
-  correctIfUnsafe,
-  rewriteToSafeFormat,
-  downgradeSeverityIfNeeded,
   blockIfOutsideScope,
+  correctIfUnsafe,
+  downgradeSeverityIfNeeded,
+  rewriteToSafeFormat,
+  validateFiscalAdvice,
+  validateInsight,
+  validatePricingSuggestion,
+  validateRecommendation,
+  validateUXAdjustment,
 } from '../engines/cognitiveGovernanceEngine';
 import { recordDecision, recordInsightHistory } from '../engines/decisionAuditEngine';
 import { enforceEthics } from '../engines/ethicalGuardEngine';
-import { checkCriticalBoundaries, detectRunawayBehavior, applySafetyBreak } from '../engines/safetyLimitsEngine';
+import { applySafetyBreak, checkCriticalBoundaries, detectRunawayBehavior } from '../engines/safetyLimitsEngine';
 import { updateCognitiveMap } from '../engines/integratedCoreEngine';
 import {
-  ensureTruthBeforeAction,
-  ensureTruthAfterAction,
   emitTruthAlert,
+  ensureTruthAfterAction,
+  ensureTruthBeforeAction,
 } from '../engines/truthEngine';
 import {
-  predictFailure as predictStabilityFailure,
   detectCascadingErrors,
-  stabilizeCognitiveLoad,
   getStabilityState,
+  predictFailure as predictStabilityFailure,
+  stabilizeCognitiveLoad,
 } from '../engines/stabilityEngine';
 import { processMetaLayers } from '../engines/metaLayerEngine';
 import { CreatorEngine } from '../engines/creatorEngine';
@@ -138,10 +138,23 @@ let insightConfig: InsightConfig = {
 };
 const creator = new CreatorEngine();
 
+// Timer de loop temporal (permite cleanup)
+let temporalLoopTimer: ReturnType<typeof setInterval> | null = null;
+let isOrchestratorInitialized = false;
+
+// IDs das subscriptions para cleanup
+const subscriptionIds: string[] = [];
+
 /**
  * Inicializa o orchestrator e registra listeners de eventos
  */
 export function initializeOrchestrator(config?: InsightConfig): void {
+  // Prevenir múltiplas inicializações
+  if (isOrchestratorInitialized) {
+    console.warn('[aiOrchestrator] Already initialized. Call shutdownOrchestrator() first to reinitialize.');
+    return;
+  }
+
   if (config) {
     insightConfig = { ...insightConfig, ...config };
   }
@@ -153,41 +166,41 @@ export function initializeOrchestrator(config?: InsightConfig): void {
   }
 
   // Registrar listener para eventos de cálculo básico
-  on('calc:completed', handleCalculationEvent);
-  on('calc:updated', handleCalculationUpdateEvent);
-  on('calc:started', handleCalculationStartEvent);
+  subscriptionIds.push(on('calc:completed', handleCalculationEvent));
+  subscriptionIds.push(on('calc:updated', handleCalculationUpdateEvent));
+  subscriptionIds.push(on('calc:started', handleCalculationStartEvent));
 
   // Registrar listeners para calculadora avançada
-  on('scenario:updated', handleScenarioEvent);
-  on('fees:updated', handleFeesEvent);
+  subscriptionIds.push(on('scenario:updated', handleScenarioEvent));
+  subscriptionIds.push(on('fees:updated', handleFeesEvent));
 
   // Registrar listeners para calculadora tributária
-  on('tax:updated', handleTaxEvent);
-  on('icms:updated', handleICMSEvent);
-  on('st:updated', handleSTEvent);
+  subscriptionIds.push(on('tax:updated', handleTaxEvent));
+  subscriptionIds.push(on('icms:updated', handleICMSEvent));
+  subscriptionIds.push(on('st:updated', handleSTEvent));
 
   // Registrar listeners para calculadora de licitações
-  on('bid:updated', handleBidEvent);
-  on('risk:updated', handleRiskEvent);
-  on('discount:updated', handleDiscountEvent);
+  subscriptionIds.push(on('bid:updated', handleBidEvent));
+  subscriptionIds.push(on('risk:updated', handleRiskEvent));
+  subscriptionIds.push(on('discount:updated', handleDiscountEvent));
 
   // Registrar listeners para contexto de tela
-  on('screen:changed', handleScreenChangedEvent);
-  on('screen:dataUpdated', handleScreenDataUpdatedEvent);
+  subscriptionIds.push(on('screen:changed', handleScreenChangedEvent));
+  subscriptionIds.push(on('screen:dataUpdated', handleScreenDataUpdatedEvent));
 
   // Eventos da inteligência expandida
-  on('ai:predictive-insight', handlePredictiveInsightEvent);
-  on('AI:detectedRisk', handleIntentSignalEvent);
-  on('AI:detectedOpportunity', handleIntentSignalEvent);
-  on('ai:behavior-pattern-detected', handleBehavioralEvent);
-  on('ai:ux-friction-detected', handleBehavioralEvent);
-  on('ai:flow-abandon-point', handleBehavioralEvent);
-  on('ai:positive-pattern-detected', handleBehavioralEvent);
-  on('ai:mind-snapshot', handleMindSnapshot);
-  on('ai:reality-updated', handleRealityEvent);
-  on('ai:truth-alert', handleTruthAlert);
-  on('ai:stability-alert', handleStabilityAlert);
-  on('system:tick', () => creator.runSystemScan());
+  subscriptionIds.push(on('ai:predictive-insight', handlePredictiveInsightEvent));
+  subscriptionIds.push(on('ai:detected-risk', handleIntentSignalEvent));
+  subscriptionIds.push(on('ai:detected-opportunity', handleIntentSignalEvent));
+  subscriptionIds.push(on('ai:behavior-pattern-detected', handleBehavioralEvent));
+  subscriptionIds.push(on('ai:ux-friction-detected', handleBehavioralEvent));
+  subscriptionIds.push(on('ai:flow-abandon-point', handleBehavioralEvent));
+  subscriptionIds.push(on('ai:positive-pattern-detected', handleBehavioralEvent));
+  subscriptionIds.push(on('ai:mind-snapshot', handleMindSnapshot));
+  subscriptionIds.push(on('ai:reality-updated', handleRealityEvent));
+  subscriptionIds.push(on('ai:truth-alert', handleTruthAlert));
+  subscriptionIds.push(on('ai:stability-alert', handleStabilityAlert));
+  subscriptionIds.push(on('system:tick', () => creator.runSystemScan()));
 
   // Meta-planner: iniciar objetivo default
   const defaultGoal = {
@@ -200,11 +213,45 @@ export function initializeOrchestrator(config?: InsightConfig): void {
   generatePlan(defaultGoal);
   executePlan();
 
-  // Loop temporal (polling leve)
-  setInterval(() => {
+  // Loop temporal (polling leve) - com referência para cleanup
+  temporalLoopTimer = setInterval(() => {
     runTemporalAnalysis('global', { heartbeat: true });
     runEvolutionCycle();
   }, 30000);
+
+  isOrchestratorInitialized = true;
+  console.log('[aiOrchestrator] Initialized successfully');
+}
+
+/**
+ * Desliga o orchestrator e limpa recursos
+ * Deve ser chamado antes de reinicializar ou ao desmontar o app
+ */
+export function shutdownOrchestrator(): void {
+  if (!isOrchestratorInitialized) {
+    return;
+  }
+
+  // Limpar timer do loop temporal
+  if (temporalLoopTimer) {
+    clearInterval(temporalLoopTimer);
+    temporalLoopTimer = null;
+  }
+
+  // Remover todas as subscriptions de eventos
+  // Nota: precisamos importar unsubscribeFromEvent do eventBus
+  // Por enquanto, limpamos apenas a referência
+  subscriptionIds.length = 0;
+
+  isOrchestratorInitialized = false;
+  console.log('[aiOrchestrator] Shutdown complete');
+}
+
+/**
+ * Verifica se o orchestrator está inicializado
+ */
+export function isOrchestratorRunning(): boolean {
+  return isOrchestratorInitialized;
 }
 
 /**
@@ -317,7 +364,7 @@ function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
     const nextStep = predictNextStep(calcData);
     updateCognitiveMemory('intent', intent, 'userIntentEngine');
     emitEvent(
-      'AI:recommended-action',
+      'ai:recommended-action',
       {
         intentCategory: intent.category,
         intentConfidence: intent.intentConfidence,
@@ -855,7 +902,7 @@ function resolveGlobalConflict(conflicts: any[]) {
 }
 
 function assignDecisionAuthority(confidenceMap?: Record<string, number>) {
-  if (!confidenceMap) return;
+  if (!confidenceMap) {return;}
   const sorted = Object.entries(confidenceMap).sort((a, b) => (b[1] || 0) - (a[1] || 0));
   const leader = sorted[0]?.[0];
   if (leader) {

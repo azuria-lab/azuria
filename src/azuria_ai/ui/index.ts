@@ -19,3 +19,7 @@ export type { InsightToastProps, InsightType } from './InsightToast';
 
 export { AzuriaAIProvider } from './AzuriaAIProvider';
 export type { AzuriaAIProviderProps } from './AzuriaAIProvider';
+
+// Co-Piloto Operacional
+export { CoPilot, CoPilotInline } from './CoPilot';
+export type { CoPilotProps } from './CoPilot';

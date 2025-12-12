@@ -11,6 +11,7 @@
 
 ## 📑 Índice Rápido
 
+- [Modo Deus v1.0](#-modo-deus-v10---o-cérebro-central-inteligente) ⭐ **NOVO**
 - [Visão Geral](#-visão-geral)
 - [Funcionalidades Principais](#-funcionalidades-principais)
 - [Planos e Assinatura](#-planos-e-assinatura)
@@ -28,7 +29,43 @@
 
 ---
 
-## 🧪 Testes e Qualidade
+## � Modo Deus v1.0 - O Cérebro Central Inteligente
+
+> **NOVO!** O Modo Deus é a camada de inteligência artificial autônoma do Azuria.
+
+### O que é?
+
+O Modo Deus opera em **dois níveis**:
+
+| Nível | Público | Funcionalidades |
+|-------|---------|-----------------|
+| 🏢 **Estratégico** | Admin/Criador | Dashboard de insights, governança, análise de riscos |
+| 👤 **Operacional** | Usuário | Co-Piloto inteligente, sugestões contextuais, tutoriais |
+
+### Estatísticas
+
+| Métrica | Valor |
+|---------|-------|
+| Engines de IA | 65 |
+| Testes Passando | 219 ✅ |
+| Tabelas Supabase | 8 |
+
+### Quick Start
+
+```typescript
+// O Co-Piloto já está integrado no DashboardLayout
+import { useCoPilot } from '@/azuria_ai/hooks/useCoPilot';
+
+const { suggestions, acceptSuggestion, dismissSuggestion } = useCoPilot();
+```
+
+### Documentação Completa
+
+📖 **[O Livro Mestre - Modo Deus v1.0](docs/mode-deus/MASTER_BOOK_V1.md)**
+
+---
+
+## �🧪 Testes e Qualidade
 
 - Rodar suíte completa (CI-like):  
   `NODE_OPTIONS=--max-old-space-size=8192 npm run test:ci`

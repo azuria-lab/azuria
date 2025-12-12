@@ -38,7 +38,7 @@ export class CreatorEngine {
     });
 
     emitEvent('ai:creator-alert', saved);
-    emitEvent('ai.creator-alert', saved);
+    emitEvent('ai:creator-alert', saved);
   }
 
   generateInsights() {
