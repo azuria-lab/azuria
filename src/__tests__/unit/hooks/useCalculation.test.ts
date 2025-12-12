@@ -95,7 +95,7 @@ vi.mock('@/domains/calculator/hooks/useCalculatorResult', () => ({
         setIsLoading(false)
         return
       }
-      const res = { sellingPrice: parsed * (1 + marginValue / 100), isHealthyProfit: true, breakdown: {} }
+      const res = { sellingPrice: parsed * (1 + marginValue / 100), profit: parsed * marginValue / 100, isHealthyProfit: true, breakdown: {} }
       const item: CalculationHistory = {
         id: 'calc-1',
         date: new Date(),
