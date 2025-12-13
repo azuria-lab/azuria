@@ -82,194 +82,227 @@ function getSupabaseClient() {
 }
 
 // ============================================================================
-// Handler
+// Handler Helpers
+// ============================================================================
+
+type SupabaseClient = ReturnType<typeof getSupabaseClient>;
+
+/** GET /api/copilot/suggestions?user_id=xxx&status=pending */
+async function handleGetSuggestions(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient
+) {
+  const { user_id, status, limit = '10' } = req.query;
+
+  if (!user_id || typeof user_id !== 'string') {
+    return res.status(400).json({ error: 'user_id is required' });
+  }
+
+  let query = supabase
+    .from('user_suggestions')
+    .select('*')
+    .eq('user_id', user_id)
+    .order('created_at', { ascending: false })
+    .limit(Number.parseInt(limit as string, 10));
+
+  if (status && typeof status === 'string') {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching suggestions:', error);
+    return res.status(500).json({ error: 'Failed to fetch suggestions' });
+  }
+
+  return res.status(200).json({ suggestions: data });
+}
+
+/** GET /api/copilot/metrics?user_id=xxx */
+async function handleGetMetrics(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient
+) {
+  const { user_id } = req.query;
+
+  if (!user_id || typeof user_id !== 'string') {
+    return res.status(400).json({ error: 'user_id is required' });
+  }
+
+  const { data: suggestions, error: sugError } = await supabase
+    .from('user_suggestions')
+    .select('status')
+    .eq('user_id', user_id);
+
+  if (sugError) {
+    console.error('Error fetching metrics:', sugError);
+    return res.status(500).json({ error: 'Failed to fetch metrics' });
+  }
+
+  const metrics = {
+    total: suggestions?.length || 0,
+    pending: suggestions?.filter(s => s.status === 'pending').length || 0,
+    shown: suggestions?.filter(s => s.status === 'shown').length || 0,
+    accepted: suggestions?.filter(s => s.status === 'accepted').length || 0,
+    dismissed: suggestions?.filter(s => s.status === 'dismissed').length || 0,
+    expired: suggestions?.filter(s => s.status === 'expired').length || 0,
+  };
+
+  return res.status(200).json({ metrics });
+}
+
+/** POST /api/copilot/suggestions - Create suggestion */
+async function handleCreateSuggestion(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient
+) {
+  const validation = suggestionSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    return res.status(400).json({ 
+      error: 'Validation failed', 
+      details: validation.error.errors 
+    });
+  }
+
+  const { data, error } = await supabase
+    .from('user_suggestions')
+    .insert({
+      ...validation.data,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating suggestion:', error);
+    return res.status(500).json({ error: 'Failed to create suggestion' });
+  }
+
+  return res.status(201).json({ suggestion: data });
+}
+
+/** POST /api/copilot/feedback - Record feedback */
+async function handleRecordFeedback(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient
+) {
+  const validation = feedbackSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    return res.status(400).json({ 
+      error: 'Validation failed', 
+      details: validation.error.errors 
+    });
+  }
+
+  const { data, error } = await supabase
+    .from('suggestion_feedback')
+    .insert({
+      ...validation.data,
+      created_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error recording feedback:', error);
+    return res.status(500).json({ error: 'Failed to record feedback' });
+  }
+
+  return res.status(201).json({ feedback: data });
+}
+
+/** PUT /api/copilot/suggestions - Update status */
+async function handleUpdateSuggestionStatus(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient
+) {
+  const validation = updateStatusSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    return res.status(400).json({ 
+      error: 'Validation failed', 
+      details: validation.error.errors 
+    });
+  }
+
+  const updateData: Record<string, unknown> = {
+    status: validation.data.status,
+  };
+
+  // Add timestamp based on status
+  if (validation.data.status === 'shown') {
+    updateData.shown_at = new Date().toISOString();
+  } else if (['accepted', 'dismissed', 'expired', 'completed'].includes(validation.data.status)) {
+    updateData.responded_at = new Date().toISOString();
+  }
+
+  const { data, error } = await supabase
+    .from('user_suggestions')
+    .update(updateData)
+    .eq('id', validation.data.suggestion_id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating suggestion:', error);
+    return res.status(500).json({ error: 'Failed to update suggestion' });
+  }
+
+  return res.status(200).json({ suggestion: data });
+}
+
+// ============================================================================
+// Route Handlers
+// ============================================================================
+
+function routeRequest(
+  req: VercelRequest,
+  res: VercelResponse,
+  supabase: SupabaseClient,
+  action: string | string[] | undefined
+): Promise<VercelResponse> | VercelResponse {
+  switch (req.method) {
+    case 'GET':
+      if (action === 'suggestions') { return handleGetSuggestions(req, res, supabase); }
+      if (action === 'metrics') { return handleGetMetrics(req, res, supabase); }
+      return res.status(400).json({ error: 'Invalid action' });
+
+    case 'POST':
+      if (action === 'suggestions') { return handleCreateSuggestion(req, res, supabase); }
+      if (action === 'feedback') { return handleRecordFeedback(req, res, supabase); }
+      return res.status(400).json({ error: 'Invalid action' });
+
+    case 'PUT':
+      if (action === 'suggestions') { return handleUpdateSuggestionStatus(req, res, supabase); }
+      return res.status(400).json({ error: 'Invalid action' });
+
+    default:
+      return res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+// ============================================================================
+// Main Handler
 // ============================================================================
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const isAllowedOrigin = setCorsHeaders(req, res);
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (!isAllowedOrigin) {
-    return res.status(403).json({ error: 'Forbidden - Invalid origin' });
-  }
-
-  const { action } = req.query;
+  if (req.method === 'OPTIONS') { return res.status(200).end(); }
+  if (!isAllowedOrigin) { return res.status(403).json({ error: 'Forbidden - Invalid origin' }); }
 
   try {
     const supabase = getSupabaseClient();
-
-    switch (req.method) {
-      case 'GET': {
-        // GET /api/copilot/suggestions?user_id=xxx&status=pending
-        if (action === 'suggestions') {
-          const { user_id, status, limit = '10' } = req.query;
-
-          if (!user_id || typeof user_id !== 'string') {
-            return res.status(400).json({ error: 'user_id is required' });
-          }
-
-          let query = supabase
-            .from('user_suggestions')
-            .select('*')
-            .eq('user_id', user_id)
-            .order('created_at', { ascending: false })
-            .limit(parseInt(limit as string, 10));
-
-          if (status && typeof status === 'string') {
-            query = query.eq('status', status);
-          }
-
-          const { data, error } = await query;
-
-          if (error) {
-            console.error('Error fetching suggestions:', error);
-            return res.status(500).json({ error: 'Failed to fetch suggestions' });
-          }
-
-          return res.status(200).json({ suggestions: data });
-        }
-
-        // GET /api/copilot/metrics?user_id=xxx
-        if (action === 'metrics') {
-          const { user_id } = req.query;
-
-          if (!user_id || typeof user_id !== 'string') {
-            return res.status(400).json({ error: 'user_id is required' });
-          }
-
-          const { data: suggestions, error: sugError } = await supabase
-            .from('user_suggestions')
-            .select('status')
-            .eq('user_id', user_id);
-
-          if (sugError) {
-            console.error('Error fetching metrics:', sugError);
-            return res.status(500).json({ error: 'Failed to fetch metrics' });
-          }
-
-          const metrics = {
-            total: suggestions?.length || 0,
-            pending: suggestions?.filter(s => s.status === 'pending').length || 0,
-            shown: suggestions?.filter(s => s.status === 'shown').length || 0,
-            accepted: suggestions?.filter(s => s.status === 'accepted').length || 0,
-            dismissed: suggestions?.filter(s => s.status === 'dismissed').length || 0,
-            expired: suggestions?.filter(s => s.status === 'expired').length || 0,
-          };
-
-          return res.status(200).json({ metrics });
-        }
-
-        return res.status(400).json({ error: 'Invalid action' });
-      }
-
-      case 'POST': {
-        // POST /api/copilot/suggestions - Create suggestion
-        if (action === 'suggestions') {
-          const validation = suggestionSchema.safeParse(req.body);
-
-          if (!validation.success) {
-            return res.status(400).json({ 
-              error: 'Validation failed', 
-              details: validation.error.errors 
-            });
-          }
-
-          const { data, error } = await supabase
-            .from('user_suggestions')
-            .insert({
-              ...validation.data,
-              status: 'pending',
-              created_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
-
-          if (error) {
-            console.error('Error creating suggestion:', error);
-            return res.status(500).json({ error: 'Failed to create suggestion' });
-          }
-
-          return res.status(201).json({ suggestion: data });
-        }
-
-        // POST /api/copilot/feedback - Record feedback
-        if (action === 'feedback') {
-          const validation = feedbackSchema.safeParse(req.body);
-
-          if (!validation.success) {
-            return res.status(400).json({ 
-              error: 'Validation failed', 
-              details: validation.error.errors 
-            });
-          }
-
-          const { data, error } = await supabase
-            .from('suggestion_feedback')
-            .insert({
-              ...validation.data,
-              created_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
-
-          if (error) {
-            console.error('Error recording feedback:', error);
-            return res.status(500).json({ error: 'Failed to record feedback' });
-          }
-
-          return res.status(201).json({ feedback: data });
-        }
-
-        return res.status(400).json({ error: 'Invalid action' });
-      }
-
-      case 'PUT': {
-        // PUT /api/copilot/suggestions - Update status
-        if (action === 'suggestions') {
-          const validation = updateStatusSchema.safeParse(req.body);
-
-          if (!validation.success) {
-            return res.status(400).json({ 
-              error: 'Validation failed', 
-              details: validation.error.errors 
-            });
-          }
-
-          const updateData: Record<string, unknown> = {
-            status: validation.data.status,
-          };
-
-          // Add timestamp based on status
-          if (validation.data.status === 'shown') {
-            updateData.shown_at = new Date().toISOString();
-          } else if (['accepted', 'dismissed', 'expired', 'completed'].includes(validation.data.status)) {
-            updateData.responded_at = new Date().toISOString();
-          }
-
-          const { data, error } = await supabase
-            .from('user_suggestions')
-            .update(updateData)
-            .eq('id', validation.data.suggestion_id)
-            .select()
-            .single();
-
-          if (error) {
-            console.error('Error updating suggestion:', error);
-            return res.status(500).json({ error: 'Failed to update suggestion' });
-          }
-
-          return res.status(200).json({ suggestion: data });
-        }
-
-        return res.status(400).json({ error: 'Invalid action' });
-      }
-
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    return await routeRequest(req, res, supabase, req.query.action);
   } catch (error) {
     console.error('API Error:', error);
     return res.status(500).json({ 

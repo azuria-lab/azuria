@@ -125,7 +125,7 @@ export function useEventBus(options: UseEventBusOptions = {}): UseEventBusReturn
     (..._args: unknown[]) => {
       // Debug desabilitado em produção para evitar poluir console
       // Em desenvolvimento, ative debug: true nas options
-      if (debug && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      if (debug && globalThis.window !== undefined && process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
         console.debug(`[${debugPrefix}]`, ..._args);
       }

@@ -177,62 +177,24 @@ export function useCoPilot(options: UseCoPilotOptions = {}): UseCoPilotReturn {
 
   // Escutar eventos do Co-Piloto
   useEffect(() => {
-    const subscriptionIds: string[] = [];
-
-    // Sugestão mostrada
-    subscriptionIds.push(
+    // Subscribe to suggestion and all user events that trigger state sync
+    const subscriptionIds = [
       on('user:suggestion', () => {
         syncState();
-      })
-    );
-
-    // Sugestão aceita
-    subscriptionIds.push(
-      on('user:suggestion-accepted', () => {
-        syncState();
-      })
-    );
-
-    // Sugestão dispensada
-    subscriptionIds.push(
-      on('user:suggestion-dismissed', () => {
-        syncState();
-      })
-    );
-
-    // Sugestão expirada
-    subscriptionIds.push(
-      on('user:suggestion-expired', () => {
-        syncState();
-      })
-    );
-
-    // Contexto atualizado
-    subscriptionIds.push(
-      on('user:context-updated', () => {
-        syncState();
-      })
-    );
-
-    // Config alterada
-    subscriptionIds.push(
-      on('user:config-changed', () => {
-        syncState();
-      })
-    );
-
-    // Co-Piloto habilitado/desabilitado
-    subscriptionIds.push(
-      on('user:copilot-enabled', () => {
-        syncState();
-      })
-    );
-
-    subscriptionIds.push(
-      on('user:copilot-disabled', () => {
-        syncState();
-      })
-    );
+      }),
+      ...['user:suggestion-accepted',
+        'user:suggestion-dismissed',
+        'user:suggestion-expired',
+        'user:context-updated',
+        'user:config-changed',
+        'user:copilot-enabled',
+        'user:copilot-disabled',
+      ].map((eventName) =>
+        on(eventName as Parameters<typeof on>[0], () => {
+          syncState();
+        })
+      ),
+    ];
 
     return () => {
       subscriptionIds.forEach((id) => unsubscribeFromEvent(id));

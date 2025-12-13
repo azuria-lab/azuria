@@ -160,6 +160,7 @@ export function initPredictiveEngine(): void {
   state.predictions = [];
   state.initialized = true;
 
+  // eslint-disable-next-line no-console -- Debug info for initialization
   console.log('[PredictiveEngine] Initialized with', state.transitionModel.size, 'states');
 }
 
@@ -173,7 +174,7 @@ function loadDefaultTransitions(): void {
 
 function integrateLearnedPatterns(): void {
   try {
-    const navPatterns = patternLearning.getPatternsByType('navigation');
+    const navPatterns = patternLearning.getByType('navigation');
 
     for (const pattern of navPatterns) {
       if (pattern.confidence < 0.5) {continue;}
@@ -246,8 +247,10 @@ export function recordUserAction(action: string): void {
 
   // Learn from transition
   if (state.actionHistory.length >= 2) {
-    const prev = state.actionHistory[state.actionHistory.length - 2];
-    learnTransition(prev.action, action, now - prev.timestamp);
+    const prev = state.actionHistory.at(-2);
+    if (prev) {
+      learnTransition(prev.action, action, now - prev.timestamp);
+    }
   }
 
   // Recalculate predictions
@@ -465,26 +468,27 @@ function generatePreventionSuggestions(
 ): string[] {
   const suggestions: string[] = [];
 
+  // Sugestões baseadas em inatividade
   if (triggers.some((t) => t.includes('Inativo'))) {
-    suggestions.push('Oferecer ajuda proativa');
-    suggestions.push('Mostrar dica contextual');
+    suggestions.push('Oferecer ajuda proativa', 'Mostrar dica contextual');
   }
 
+  // Sugestões baseadas em erros
   if (triggers.some((t) => t.includes('erros'))) {
-    suggestions.push('Exibir tutorial relevante');
-    suggestions.push('Simplificar interface atual');
+    suggestions.push('Exibir tutorial relevante', 'Simplificar interface atual');
   }
 
+  // Sugestões baseadas em falta de tarefas
   if (triggers.some((t) => t.includes('Nenhuma tarefa'))) {
-    suggestions.push('Sugerir ação inicial');
-    suggestions.push('Mostrar exemplo prático');
+    suggestions.push('Sugerir ação inicial', 'Mostrar exemplo prático');
   }
 
+  // Sugestões baseadas em navegação repetitiva
   if (triggers.some((t) => t.includes('repetitiva'))) {
-    suggestions.push('Oferecer atalho direto');
-    suggestions.push('Perguntar o que usuário precisa');
+    suggestions.push('Oferecer atalho direto', 'Perguntar o que usuário precisa');
   }
 
+  // Prioridade para nível crítico
   if (level === 'critical') {
     suggestions.unshift('Intervenção imediata necessária');
   }
@@ -602,25 +606,19 @@ export function emitPredictionEvent(): void {
   const topPrediction = getMostLikelyNextAction();
 
   if (topPrediction && topPrediction.probability >= 0.6) {
-    eventBus.emit({
-      type: 'ai:pattern-detected',
-      payload: {
-        pattern: 'high_probability_next_action',
-        action: topPrediction.action,
-        probability: topPrediction.probability,
-      },
+    eventBus.emit('ai:pattern-detected', {
+      pattern: 'high_probability_next_action',
+      action: topPrediction.action,
+      probability: topPrediction.probability,
     });
   }
 
   const abandonmentRisk = calculateAbandonmentRisk();
   if (abandonmentRisk.level === 'high' || abandonmentRisk.level === 'critical') {
-    eventBus.emit({
-      type: 'ai:pattern-detected',
-      payload: {
-        pattern: 'abandonment_risk',
-        level: abandonmentRisk.level,
-        score: abandonmentRisk.score,
-      },
+    eventBus.emit('ai:pattern-detected', {
+      pattern: 'abandonment_risk',
+      level: abandonmentRisk.level,
+      score: abandonmentRisk.score,
     });
   }
 }

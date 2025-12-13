@@ -13,11 +13,17 @@ function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));
 }
 
+function getTrustLevel(score: number): 'low' | 'medium' | 'high' {
+  if (score > 0.75) { return 'high'; }
+  if (score > 0.5) { return 'medium'; }
+  return 'low';
+}
+
 export function assessGlobalState(): AssessmentResult {
-  const state = getGlobalState();
+  const _state = getGlobalState();
   const contradictions = detectContradictions();
   const coherenceScore = generateCoherenceScore(contradictions);
-  const trustLevel = coherenceScore > 0.75 ? 'high' : coherenceScore > 0.5 ? 'medium' : 'low';
+  const trustLevel = getTrustLevel(coherenceScore);
   const reasoning = justifyDecision(contradictions, coherenceScore);
   logCoherence({ coherenceScore, trustLevel });
   emitEvent(

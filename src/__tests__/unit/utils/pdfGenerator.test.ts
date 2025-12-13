@@ -16,8 +16,8 @@ const autoTable = vi.fn().mockImplementation(() => {
 
 let docInstance: Record<string, unknown> | null = null
 
-function setDocInstance(instance: Record<string, unknown>) {
-  docInstance = instance
+function setDocInstance(instance: unknown) {
+  docInstance = instance as Record<string, unknown>
 }
 
 vi.mock('jspdf', () => ({
@@ -33,12 +33,12 @@ vi.mock('jspdf', () => ({
     internal = { pageSize: { width: 210, height: 297 } }
     lastAutoTable?: { finalY: number }
     constructor() {
-      setDocInstance(this as unknown as Record<string, unknown>)
+      setDocInstance(this)
     }
     autoTable(...args: unknown[]) {
       const res = autoTable(docInstance, ...args)
       if (docInstance) {
-        (docInstance as Record<string, unknown>).lastAutoTable = { finalY: 50 }
+        docInstance.lastAutoTable = { finalY: 50 }
       }
       return res
     }

@@ -172,6 +172,7 @@ export function initProactiveAssistant(
 
   state.initialized = true;
 
+  // eslint-disable-next-line no-console -- Debug info for initialization
   console.log('[ProactiveAssistant] Initialized', {
     aggressiveness: state.config.aggressiveness,
     enabledTypes: state.config.enabledTypes.length,
@@ -277,57 +278,87 @@ export function unregisterTrigger(type: string): void {
 }
 
 /**
+ * Verifica se um trigger pode ser disparado (cooldown)
+ */
+function canFireTrigger(trigger: AssistanceTrigger, now: number): boolean {
+  const lastFired = state.triggerCooldowns.get(trigger.type) ?? 0;
+  return now - lastFired >= trigger.cooldown;
+}
+
+/**
+ * Verifica se a assistência deve ser mostrada com base em personalização
+ */
+function shouldShowAssistance(
+  assistance: ProactiveAssistance,
+  context: TriggerContext
+): boolean {
+  if (!state.config.enabledTypes.includes(assistance.type)) {
+    return false;
+  }
+
+  const { show } = personalization.shouldShowProactive({
+    currentScreen: context.currentScreen,
+    timeOfDay: context.timeOfDay,
+    userActivityState: context.idleTime > 30000 ? 'idle' : 'active',
+  });
+
+  return show || state.config.aggressiveness === 'proactive';
+}
+
+/**
+ * Processa um trigger e retorna a assistência gerada (ou null)
+ */
+function processTrigger(
+  trigger: AssistanceTrigger,
+  context: TriggerContext,
+  now: number
+): ProactiveAssistance | null {
+  try {
+    if (!trigger.condition(context)) {
+      return null;
+    }
+
+    const assistance = trigger.generator(context);
+    if (!assistance || !shouldShowAssistance(assistance, context)) {
+      return null;
+    }
+
+    state.triggerCooldowns.set(trigger.type, now);
+    state.stats.generated++;
+    return assistance;
+  } catch (error) {
+    // eslint-disable-next-line no-console -- Error logging for debugging
+    console.warn(`[ProactiveAssistant] Trigger ${trigger.type} error:`, error);
+    return null;
+  }
+}
+
+/**
  * Avalia todos os triggers
  */
 export function evaluateTriggers(context: TriggerContext): ProactiveAssistance[] {
-  if (!state.config.enabled) {return [];}
-  if (Date.now() < state.suppressedUntil) {return [];}
+  if (!state.config.enabled || Date.now() < state.suppressedUntil || isQuietHours()) {
+    return [];
+  }
 
   const now = Date.now();
-  const assistances: ProactiveAssistance[] = [];
-
-  // Check quiet hours
-  if (isQuietHours()) {return [];}
-
-  // Check minimum time between assistances
   if (now - state.lastAssistanceTime < state.config.minTimeBetweenAssistances) {
     return [];
   }
 
-  // Evaluate triggers in priority order
+  const assistances: ProactiveAssistance[] = [];
+
   for (const trigger of state.triggers) {
-    // Check cooldown
-    const lastFired = state.triggerCooldowns.get(trigger.type) ?? 0;
-    if (now - lastFired < trigger.cooldown) {continue;}
+    if (!canFireTrigger(trigger, now)) {
+      continue;
+    }
 
-    // Check condition
-    try {
-      if (!trigger.condition(context)) {continue;}
-
-      // Generate assistance
-      const assistance = trigger.generator(context);
-      if (assistance) {
-        // Check if type is enabled
-        if (!state.config.enabledTypes.includes(assistance.type)) {continue;}
-
-        // Check personalization
-        const { show } = personalization.shouldShowProactiveSuggestion({
-          currentScreen: context.currentScreen,
-          timeOfDay: context.timeOfDay,
-          userActivityState: context.idleTime > 30000 ? 'idle' : 'active',
-        });
-
-        if (!show && state.config.aggressiveness !== 'proactive') {continue;}
-
-        assistances.push(assistance);
-        state.triggerCooldowns.set(trigger.type, now);
-        state.stats.generated++;
-
-        // Stop if we have enough
-        if (assistances.length >= state.config.maxActiveAssistances) {break;}
+    const assistance = processTrigger(trigger, context, now);
+    if (assistance) {
+      assistances.push(assistance);
+      if (assistances.length >= state.config.maxActiveAssistances) {
+        break;
       }
-    } catch (error) {
-      console.warn(`[ProactiveAssistant] Trigger ${trigger.type} error:`, error);
     }
   }
 
@@ -426,12 +457,12 @@ function generateAbandonmentPreventionAssistance(
 }
 
 function generateTutorialOffer(): ProactiveAssistance {
-  const suggestions = tutorialEngine.suggestTutorials(
-    'beginner',
-    'home'
-  );
+  const suggestions = tutorialEngine.suggest();
 
-  const tutorial = suggestions[0]?.id ?? 'getting_started';
+  // Usar título como identificador, ou default
+  const tutorial = suggestions[0]?.title ? 
+    suggestions[0].title.toLowerCase().replaceAll(/\s+/g, '_') : 
+    'getting_started';
 
   return {
     id: `tutorial-offer-${Date.now()}`,
@@ -499,15 +530,15 @@ function generateConceptExplanation(
 
   if (!concept) {return null;}
 
-  const explanation = explanationEngine.getQuickExplanation(concept);
+  const explanation = explanationEngine.getQuick('calculation', concept);
   if (!explanation) {return null;}
 
   return {
     id: `explanation-${Date.now()}`,
     type: 'explanation',
     priority: 30,
-    title: `💡 ${explanation.title}`,
-    message: explanation.content,
+    title: `💡 Conceito: ${concept}`,
+    message: explanation,
     action: {
       label: 'Saber mais',
       handler: 'show_full_explanation',
@@ -573,17 +604,14 @@ export function showAssistance(assistance: ProactiveAssistance): void {
   state.stats.shown++;
 
   // Emit event
-  eventBus.emit({
-    type: 'user:suggestion_shown',
-    payload: {
-      suggestionId: assistance.id,
-      type: assistance.type,
-      priority: assistance.priority,
-    },
+  eventBus.emit('ui:displayInsight', {
+    suggestionId: assistance.id,
+    type: assistance.type,
+    priority: assistance.priority,
   });
 
   // Track in personalization
-  personalization.recordSuggestionShown();
+  personalization.recordShown();
 }
 
 /**
@@ -597,16 +625,15 @@ export function dismissAssistance(assistanceId: string): void {
     state.stats.dismissed++;
 
     // Record feedback
-    feedbackLoop.recordSuggestionDismissed(
+    feedbackLoop.recordApplied(
       assistanceId,
-      assistance.type as UserSuggestion['type']
-    ).catch(console.error);
+      assistance.type as UserSuggestion['type'],
+      'dismissed'
+      // eslint-disable-next-line no-console -- Error logging
+    ).catch((err) => console.error('[ProactiveAssistant] Error recording dismissed feedback:', err));
 
     // Emit event
-    eventBus.emit({
-      type: 'user:suggestion_dismissed',
-      payload: { suggestionId: assistanceId },
-    });
+    eventBus.emit('ui:actionClicked', { suggestionId: assistanceId });
   }
 }
 
@@ -618,27 +645,25 @@ export function actOnAssistance(
 ): { handler: string; params?: Record<string, unknown> } | null {
   const assistance = state.activeAssistances.get(assistanceId);
 
-  if (!assistance || !assistance.action) {return null;}
+  if (!assistance?.action) {return null;}
 
   state.activeAssistances.delete(assistanceId);
   state.stats.actedUpon++;
 
   // Record feedback
-  feedbackLoop.recordSuggestionApplied(
+  feedbackLoop.recordApplied(
     assistanceId,
     assistance.type as UserSuggestion['type'],
     assistance.action.handler
-  ).catch(console.error);
+    // eslint-disable-next-line no-console -- Error logging
+  ).catch((err) => console.error('[ProactiveAssistant] Error recording applied feedback:', err));
 
-  personalization.recordSuggestionApplied();
+  personalization.recordApplied();
 
   // Emit event
-  eventBus.emit({
-    type: 'user:suggestion_applied',
-    payload: {
-      suggestionId: assistanceId,
-      action: assistance.action.handler,
-    },
+  eventBus.emit('ui:actionClicked', {
+    suggestionId: assistanceId,
+    action: assistance.action.handler,
   });
 
   return {
@@ -810,13 +835,13 @@ function isQuietHours(): boolean {
 
 function setupEventListeners(): void {
   // Listen to user errors
-  eventBus.on('user:error', () => {
+  eventBus.on('user:action', () => {
     // Could trigger immediate evaluation
   });
 
-  // Listen to navigation
-  eventBus.on('user:navigated', (event) => {
-    const { to } = event.payload;
+  // Listen to navigation via user action event
+  eventBus.on('screen:changed', (event) => {
+    const to = event.payload?.screen ?? 'unknown';
 
     // Update predictive engine
     predictiveEngine.recordAction(`navigate:${to}`);

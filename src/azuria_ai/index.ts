@@ -129,11 +129,8 @@ export {
 // Providers
 // ============================================================================
 
-export {
-  ModeDeusProvider,
-  useModeDeus,
-  useModeDeusOptional,
-} from './providers/ModeDeusProvider';
+export { ModeDeusProvider } from './providers/ModeDeusProvider';
+export { useModeDeus, useModeDeusOptional } from './hooks/useModeDeusHooks';
 
 // ============================================================================
 // Core - Event Payloads (Types)

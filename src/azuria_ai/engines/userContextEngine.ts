@@ -89,6 +89,29 @@ interface EngineState {
 }
 
 // ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Converte um valor para string para registro, tratando objetos corretamente
+ */
+function stringifyValueForRecord(value: unknown): string | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value === 'object') {
+    return JSON.stringify(value).substring(0, 50);
+  }
+  if (typeof value === 'string') {
+    return value.substring(0, 50);
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return JSON.stringify(value).substring(0, 50);
+}
+
+// ============================================================================
 // Engine State
 // ============================================================================
 
@@ -144,10 +167,7 @@ export function initUserContextEngine(userId?: string): void {
   state.initialized = true;
   state.lastUpdate = now;
 
-  eventBus.emit({
-    type: 'user:copilot-ready',
-    payload: { sessionId },
-    timestamp: now,
+  eventBus.emit('user:copilot-ready', { sessionId }, {
     source: 'user-context-engine',
   });
 }
@@ -248,10 +268,7 @@ export function recordUserAction(
   updateContextFromAction(actionType, screen, now, data);
 
   // Emitir evento
-  eventBus.emit({
-    type: 'user:context-updated',
-    payload: { context: state.session.context },
-    timestamp: now,
+  eventBus.emit('user:context-updated', { context: state.session.context }, {
     source: 'user-context-engine',
   });
 }
@@ -347,20 +364,16 @@ export function recordInputInteraction(
   } else if (interactionType === 'blur' && !value) {
     // Verificar se está hesitando (campo focado sem valor por muito tempo)
     const lastFocus = state.interactions
-      .filter((i) => i.type === `input:focus:${inputId}`)
-      .at(-1);
+      .findLast((i) => i.type === `input:focus:${inputId}`);
 
     if (lastFocus && now - lastFocus.timestamp > HESITATION_THRESHOLD_MS) {
       context.activityState = 'hesitating';
 
-      eventBus.emit({
-        type: 'user:input',
-        payload: {
-          inputId,
-          event: 'hesitation',
-          duration: now - lastFocus.timestamp,
-        },
-        timestamp: now,
+      eventBus.emit('user:input', {
+        inputId,
+        event: 'hesitation',
+        duration: now - lastFocus.timestamp,
+      }, {
         source: 'user-context-engine',
       });
     }
@@ -369,7 +382,7 @@ export function recordInputInteraction(
   recordUserAction(`input:${interactionType}:${inputId}`, context.currentScreen, {
     inputId,
     interactionType,
-    value: value !== undefined ? String(value).substring(0, 50) : undefined,
+    value: stringifyValueForRecord(value),
   });
 }
 
@@ -378,68 +391,115 @@ export function recordInputInteraction(
 // ============================================================================
 
 /**
+ * Calcula pontuação baseada no total de ações do usuário
+ */
+function calculateActionScore(totalActions: number): number {
+  if (totalActions >= EXPERT_THRESHOLD) {
+    return 4;
+  }
+  if (totalActions >= ADVANCED_THRESHOLD) {
+    return 3;
+  }
+  if (totalActions >= INTERMEDIATE_THRESHOLD) {
+    return 2;
+  }
+  return 1;
+}
+
+/**
+ * Calcula pontuação baseada no uso de recursos avançados
+ */
+function calculateAdvancedFeaturesScore(advancedFeaturesUsed: number): number {
+  if (advancedFeaturesUsed >= 20) {
+    return 2;
+  }
+  if (advancedFeaturesUsed >= 5) {
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * Calcula pontuação baseada no uso de atalhos
+ */
+function calculateShortcutsScore(shortcutsUsed: number): number {
+  if (shortcutsUsed >= 10) {
+    return 2;
+  }
+  if (shortcutsUsed >= 3) {
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * Calcula pontuação baseada nas visitas à ajuda
+ */
+function calculateHelpVisitsScore(helpVisits: number, totalActions: number): number {
+  if (helpVisits === 0 && totalActions > 20) {
+    return 1;
+  }
+  if (helpVisits > 5) {
+    return -1;
+  }
+  return 0;
+}
+
+/**
+ * Calcula pontuação baseada na taxa de erro
+ */
+function calculateErrorRateScore(errorsEncountered: number, totalActions: number): number {
+  const errorRate = totalActions > 0 ? errorsEncountered / totalActions : 0;
+  if (errorRate < 0.05 && totalActions > 20) {
+    return 1;
+  }
+  if (errorRate > 0.2) {
+    return -1;
+  }
+  return 0;
+}
+
+/**
+ * Calcula pontuação baseada na velocidade de cálculos
+ */
+function calculateSpeedScore(avgCalculationTime: number): number {
+  if (avgCalculationTime > 0 && avgCalculationTime < 30000) {
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * Mapeia pontuação para nível de habilidade
+ */
+function mapScoreToSkillLevel(score: number): SkillLevel {
+  if (score >= 8) {
+    return 'expert';
+  }
+  if (score >= 5) {
+    return 'advanced';
+  }
+  if (score >= 2) {
+    return 'intermediate';
+  }
+  return 'beginner';
+}
+
+/**
  * Detecta o nível de habilidade do usuário baseado em métricas
  */
 export function detectSkillLevel(): SkillLevel {
   const { metrics } = state;
 
-  // Pontuação baseada em múltiplos fatores
-  let score = 0;
+  const score =
+    calculateActionScore(metrics.totalActions) +
+    calculateAdvancedFeaturesScore(metrics.advancedFeaturesUsed) +
+    calculateShortcutsScore(metrics.shortcutsUsed) +
+    calculateHelpVisitsScore(metrics.helpVisits, metrics.totalActions) +
+    calculateErrorRateScore(metrics.errorsEncountered, metrics.totalActions) +
+    calculateSpeedScore(metrics.avgCalculationTime);
 
-  // Ações totais
-  if (metrics.totalActions >= EXPERT_THRESHOLD) {
-    score += 4;
-  } else if (metrics.totalActions >= ADVANCED_THRESHOLD) {
-    score += 3;
-  } else if (metrics.totalActions >= INTERMEDIATE_THRESHOLD) {
-    score += 2;
-  } else {
-    score += 1;
-  }
-
-  // Uso de recursos avançados
-  if (metrics.advancedFeaturesUsed >= 20) {
-    score += 2;
-  } else if (metrics.advancedFeaturesUsed >= 5) {
-    score += 1;
-  }
-
-  // Uso de atalhos (indica familiaridade)
-  if (metrics.shortcutsUsed >= 10) {
-    score += 2;
-  } else if (metrics.shortcutsUsed >= 3) {
-    score += 1;
-  }
-
-  // Visitas à ajuda (muitas podem indicar iniciante)
-  if (metrics.helpVisits === 0 && metrics.totalActions > 20) {
-    score += 1; // Não precisa de ajuda
-  } else if (metrics.helpVisits > 5) {
-    score -= 1; // Precisa de muita ajuda
-  }
-
-  // Taxa de erro (muitos erros indicam iniciante)
-  const errorRate =
-    metrics.totalActions > 0
-      ? metrics.errorsEncountered / metrics.totalActions
-      : 0;
-
-  if (errorRate < 0.05 && metrics.totalActions > 20) {
-    score += 1;
-  } else if (errorRate > 0.2) {
-    score -= 1;
-  }
-
-  // Velocidade de cálculos
-  if (metrics.avgCalculationTime > 0 && metrics.avgCalculationTime < 30000) {
-    score += 1; // Rápido
-  }
-
-  // Mapear pontuação para nível
-  if (score >= 8) {return 'expert';}
-  if (score >= 5) {return 'advanced';}
-  if (score >= 2) {return 'intermediate';}
-  return 'beginner';
+  return mapScoreToSkillLevel(score);
 }
 
 /**
@@ -454,13 +514,10 @@ export function updateSkillLevel(): void {
   if (newLevel !== currentLevel) {
     state.session.context.skillLevel = newLevel;
 
-    eventBus.emit({
-      type: 'user:context-updated',
-      payload: {
-        context: state.session.context,
-        change: { field: 'skillLevel', from: currentLevel, to: newLevel },
-      },
-      timestamp: Date.now(),
+    eventBus.emit('user:context-updated', {
+      context: state.session.context,
+      change: { field: 'skillLevel', from: currentLevel, to: newLevel },
+    }, {
       source: 'user-context-engine',
     });
   }
@@ -532,13 +589,10 @@ export function updateActivityState(): void {
   if (newState !== currentState) {
     state.session.context.activityState = newState;
 
-    eventBus.emit({
-      type: 'user:context-updated',
-      payload: {
-        context: state.session.context,
-        change: { field: 'activityState', from: currentState, to: newState },
-      },
-      timestamp: Date.now(),
+    eventBus.emit('user:context-updated', {
+      context: state.session.context,
+      change: { field: 'activityState', from: currentState, to: newState },
+    }, {
       source: 'user-context-engine',
     });
   }
@@ -549,29 +603,23 @@ export function updateActivityState(): void {
 // ============================================================================
 
 /**
- * Infere preferências do usuário baseado em comportamento
+ * Infere nível de explicação e frequência de sugestões baseado no skill level
  */
-export function inferPreferences(): UserPreferences {
-  const prefs: UserPreferences = {
-    explanationLevel: 'brief',
-    acceptsProactiveSuggestions: true,
-    suggestionFrequency: 'medium',
-  };
-
-  // Nível de explicação baseado em skill
-  const skillLevel = state.session?.context.skillLevel ?? 'beginner';
+function inferExplanationPreferences(skillLevel: SkillLevel): Pick<UserPreferences, 'explanationLevel' | 'suggestionFrequency'> {
   if (skillLevel === 'beginner') {
-    prefs.explanationLevel = 'detailed';
-    prefs.suggestionFrequency = 'high';
-  } else if (skillLevel === 'expert') {
-    prefs.explanationLevel = 'brief';
-    prefs.suggestionFrequency = 'low';
+    return { explanationLevel: 'detailed', suggestionFrequency: 'high' };
   }
+  if (skillLevel === 'expert') {
+    return { explanationLevel: 'brief', suggestionFrequency: 'low' };
+  }
+  return { explanationLevel: 'brief', suggestionFrequency: 'medium' };
+}
 
-  // Calculadora preferida
-  const calcInteractions = state.interactions.filter((i) =>
-    i.type.includes('calculation')
-  );
+/**
+ * Infere a calculadora preferida do usuário baseado nas interações
+ */
+function inferPreferredCalculator(interactions: InteractionHistory[]): UserPreferences['preferredCalculator'] | undefined {
+  const calcInteractions = interactions.filter((i) => i.type.includes('calculation'));
   const calcCounts: Record<string, number> = {};
 
   for (const interaction of calcInteractions) {
@@ -583,30 +631,68 @@ export function inferPreferences(): UserPreferences {
 
   const preferredCalc = Object.entries(calcCounts).sort((a, b) => b[1] - a[1])[0];
   if (preferredCalc) {
-    prefs.preferredCalculator = preferredCalc[0] as UserPreferences['preferredCalculator'];
+    return preferredCalc[0] as UserPreferences['preferredCalculator'];
+  }
+  return undefined;
+}
+
+/**
+ * Infere o horário típico de uso baseado nas interações
+ */
+function inferTypicalUsageTime(interactions: InteractionHistory[]): UserPreferences['typicalUsageTime'] | undefined {
+  const hours = interactions.map((i) => new Date(i.timestamp).getHours());
+  if (hours.length === 0) {
+    return undefined;
   }
 
-  // Horário típico de uso
-  const hours = state.interactions.map((i) => new Date(i.timestamp).getHours());
-  if (hours.length > 0) {
-    const avgHour = hours.reduce((a, b) => a + b, 0) / hours.length;
-    if (avgHour >= 5 && avgHour < 12) {
-      prefs.typicalUsageTime = 'morning';
-    } else if (avgHour >= 12 && avgHour < 18) {
-      prefs.typicalUsageTime = 'afternoon';
-    } else if (avgHour >= 18 && avgHour < 22) {
-      prefs.typicalUsageTime = 'evening';
-    } else {
-      prefs.typicalUsageTime = 'night';
-    }
+  const avgHour = hours.reduce((a, b) => a + b, 0) / hours.length;
+  if (avgHour >= 5 && avgHour < 12) {
+    return 'morning';
+  }
+  if (avgHour >= 12 && avgHour < 18) {
+    return 'afternoon';
+  }
+  if (avgHour >= 18 && avgHour < 22) {
+    return 'evening';
+  }
+  return 'night';
+}
+
+/**
+ * Infere se o usuário aceita sugestões proativas baseado no histórico
+ */
+function inferAcceptsProactiveSuggestions(session: typeof state.session): boolean {
+  if (!session) {
+    return true;
+  }
+  const { suggestionsShown, suggestionsDismissed } = session;
+  if (suggestionsShown > 5 && suggestionsDismissed / suggestionsShown > 0.7) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Infere preferências do usuário baseado em comportamento
+ */
+export function inferPreferences(): UserPreferences {
+  const skillLevel = state.session?.context.skillLevel ?? 'beginner';
+  const explanationPrefs = inferExplanationPreferences(skillLevel);
+
+  const prefs: UserPreferences = {
+    explanationLevel: explanationPrefs.explanationLevel,
+    acceptsProactiveSuggestions: inferAcceptsProactiveSuggestions(state.session),
+    suggestionFrequency: explanationPrefs.suggestionFrequency,
+  };
+
+  const preferredCalculator = inferPreferredCalculator(state.interactions);
+  if (preferredCalculator) {
+    prefs.preferredCalculator = preferredCalculator;
   }
 
-  // Aceita sugestões baseado em histórico
-  if (state.session) {
-    const { suggestionsShown, suggestionsDismissed } = state.session;
-    if (suggestionsShown > 5 && suggestionsDismissed / suggestionsShown > 0.7) {
-      prefs.acceptsProactiveSuggestions = false;
-    }
+  const typicalUsageTime = inferTypicalUsageTime(state.interactions);
+  if (typicalUsageTime) {
+    prefs.typicalUsageTime = typicalUsageTime;
   }
 
   return prefs;
@@ -621,13 +707,10 @@ export function updatePreferences(): void {
   const newPrefs = inferPreferences();
   state.session.context.preferences = newPrefs;
 
-  eventBus.emit({
-    type: 'user:context-updated',
-    payload: {
-      context: state.session.context,
-      change: { field: 'preferences', to: newPrefs },
-    },
-    timestamp: Date.now(),
+  eventBus.emit('user:context-updated', {
+    context: state.session.context,
+    change: { field: 'preferences', to: newPrefs },
+  }, {
     source: 'user-context-engine',
   });
 }
@@ -742,7 +825,7 @@ function updatePreferredCalculator(calculatorType: string): void {
 
 function setupEventListeners(): void {
   // Ouvir eventos de navegação
-  eventBus.subscribe('user:navigation', (event) => {
+  eventBus.on('user:navigation', (event) => {
     const { to } = event.payload as { to: string };
     if (to) {
       recordNavigation(to);
@@ -750,7 +833,7 @@ function setupEventListeners(): void {
   });
 
   // Ouvir eventos de cálculo
-  eventBus.subscribe('user:calculation', (event) => {
+  eventBus.on('user:calculation', (event) => {
     const { calculatorType, success, durationMs } = event.payload as {
       calculatorType: string;
       success: boolean;
@@ -760,7 +843,7 @@ function setupEventListeners(): void {
   });
 
   // Ouvir eventos de erro
-  eventBus.subscribe('user:error', (event) => {
+  eventBus.on('user:error', (event) => {
     const { errorType, screen } = event.payload as {
       errorType: string;
       screen: string;
@@ -769,7 +852,7 @@ function setupEventListeners(): void {
   });
 
   // Ouvir eventos de input
-  eventBus.subscribe('user:input', (event) => {
+  eventBus.on('user:input', (event) => {
     const { inputId, interactionType, value } = event.payload as {
       inputId: string;
       interactionType: 'focus' | 'blur' | 'change' | 'hover';

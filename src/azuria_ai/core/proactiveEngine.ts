@@ -5,8 +5,8 @@
  * e gera insights de forma autônoma.
  */
 
-import { emitEvent, getEventHistory } from './eventBus';
-import { getContext, getContextStats, getCurrentScreen } from './contextStore';
+import { emitEvent } from './eventBus';
+import { getContext } from './contextStore';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ProactiveRule {
@@ -95,6 +95,7 @@ function emitProactiveInsight(insight: ProactiveInsight): void {
     }
   );
 
+  // eslint-disable-next-line no-console
   console.log('Proactive insight generated:', {
     id: insightPayload.id,
     severity: insight.severity,
@@ -116,8 +117,17 @@ const proactiveRules: ProactiveRule[] = [
       const context = getContext('dashboard');
       if (!context?.data?.lucroOtimizado) {return null;}
 
-      // TODO: Implementar verificação de queda consecutiva
+      // STUB: Verificação de queda consecutiva não implementada
       // Verificar se lucro caiu por 3 períodos consecutivos
+      const lucroOtimizado = context.data.lucroOtimizado;
+      if (lucroOtimizado < 0) {
+        return {
+          severity: 'high' as const,
+          title: 'Lucro negativo detectado',
+          message: 'O lucro otimizado está negativo. Revise sua estratégia.',
+          sourceModule: 'dashboard',
+        };
+      }
 
       return null;
     },
@@ -159,8 +169,17 @@ const proactiveRules: ProactiveRule[] = [
       const context = getContext('history');
       if (!context?.data?.padroesRepetidos) {return null;}
 
-      // TODO: Implementar detecção de padrões repetidos
+      // STUB: Detecção de padrões repetidos não implementada
       // Verificar se mesmo erro de margem baixa em 3+ dias
+      const padroesRepetidos = context.data.padroesRepetidos;
+      if (Array.isArray(padroesRepetidos) && padroesRepetidos.length >= 3) {
+        return {
+          severity: 'medium' as const,
+          title: 'Padrão de margem baixa detectado',
+          message: `Margem baixa repetida em ${padroesRepetidos.length} dias.`,
+          sourceModule: 'history',
+        };
+      }
 
       return null;
     },
@@ -334,6 +353,7 @@ async function runProactiveChecks(): Promise<void> {
         markRuleExecuted(rule.id);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error executing proactive rule ${rule.id}:`, error);
     }
   }
@@ -344,6 +364,7 @@ async function runProactiveChecks(): Promise<void> {
  */
 export function start(): void {
   if (isRunning) {
+    // eslint-disable-next-line no-console
     console.warn('Proactive engine is already running');
     return;
   }
@@ -358,6 +379,7 @@ export function start(): void {
     runProactiveChecks();
   }, CHECK_INTERVAL_MS);
 
+  // eslint-disable-next-line no-console
   console.log('Proactive engine started');
 }
 
@@ -375,6 +397,7 @@ export function stop(): void {
   }
 
   isRunning = false;
+  // eslint-disable-next-line no-console
   console.log('Proactive engine stopped');
 }
 

@@ -11,18 +11,20 @@ const mockSupabase = {
     signOut: vi.fn().mockResolvedValue({ error: null }),
     onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
   },
-  from: vi.fn(() => ({
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    upsert: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    then: vi.fn().mockResolvedValue({ data: [], error: null })
-  }))
+  from: vi.fn(() => {
+    const chainable = {
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      upsert: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    };
+    return Object.assign(Promise.resolve({ data: [], error: null }), chainable);
+  })
 }
 
 // Mock do cliente Supabase
@@ -49,10 +51,10 @@ vi.mock('@/hooks/useOfflineCalculator', () => ({
 }))
 
 // Mock de APIs externas
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 // Mock do window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
     matches: false,
@@ -67,22 +69,20 @@ Object.defineProperty(window, 'matchMedia', {
 })
 
 // Mock do IntersectionObserver (somente se não existir)
-if (typeof global.IntersectionObserver === 'undefined') {
-  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }))
-}
+globalThis.IntersectionObserver ??= vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
 
 // Mock do ResizeObserver (somente se não existir)
-if (typeof global.ResizeObserver === 'undefined') {
+if (globalThis.ResizeObserver === undefined) {
   class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe() { /* noop */ }
+    unobserve() { /* noop */ }
+    disconnect() { /* noop */ }
   }
-  global.ResizeObserver = ResizeObserver
+  globalThis.ResizeObserver = ResizeObserver
 }
 
 // Cleanup após cada teste

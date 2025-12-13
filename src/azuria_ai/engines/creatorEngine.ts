@@ -3,8 +3,6 @@ import { emitEvent } from '../core/eventBus';
 import { insertAlert } from '../../server/creatorStore';
 
 export class CreatorEngine {
-  constructor() {}
-
   async runSystemScan() {
     console.log('Rodando análise estruturada do ecossistema...');
 

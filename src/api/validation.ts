@@ -48,19 +48,19 @@ export function sanitizeString(input: string): string {
   let result = input.trim();
   
   // Remove null bytes
-  result = result.replace(/\0/g, '');
+  result = result.replaceAll('\0', '');
   
   // Escape HTML entities básicos
   result = result
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#x27;');
   
   // Remove caracteres de controle (exceto newline \n=0x0A, carriage return \r=0x0D, tab \t=0x09)
   // eslint-disable-next-line no-control-regex
-  result = result.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  result = result.replaceAll(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
   
   return result;
 }
@@ -75,7 +75,7 @@ export function sanitizeForLog(input: unknown): string {
   const str = String(input).slice(0, 1000); // Limita tamanho
   
   // eslint-disable-next-line no-control-regex
-  return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').replace(/\0/g, '');
+  return str.replaceAll(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').replaceAll('\0', '');
 }
 
 // ============================================================================
@@ -146,9 +146,9 @@ export function validateNumber(
     return { valid: true, sanitized: undefined };
   }
 
-  const num = typeof value === 'string' ? parseFloat(value) : value;
+  const num = typeof value === 'string' ? Number.parseFloat(value) : value;
 
-  if (typeof num !== 'number' || isNaN(num)) {
+  if (typeof num !== 'number' || Number.isNaN(num)) {
     return { valid: false, error: 'Expected number' };
   }
 
@@ -249,24 +249,16 @@ export function validateRequestBody(
         result = validateUUID(value, validator.options);
         break;
       case 'boolean':
-        if (value === null || value === undefined) {
-          result = validator.options?.required !== false
-            ? { valid: false, error: 'Required field is missing' }
-            : { valid: true, sanitized: undefined };
-        } else if (typeof value !== 'boolean') {
-          result = { valid: false, error: 'Expected boolean' };
-        } else {
-          result = { valid: true, sanitized: value };
-        }
+        result = validateBooleanField(value, validator.options);
         break;
       default:
         result = { valid: true, sanitized: value };
     }
 
-    if (!result.valid) {
-      errors[validator.field] = result.error || 'Invalid value';
-    } else {
+    if (result.valid) {
       data[validator.field] = result.sanitized;
+    } else {
+      errors[validator.field] = result.error || 'Invalid value';
     }
   }
 
@@ -275,6 +267,30 @@ export function validateRequestBody(
     errors,
     data,
   };
+}
+
+/**
+ * Valida campo booleano (helper extraído para reduzir complexidade)
+ */
+function validateBooleanField(
+  value: unknown,
+  options?: ValidatorOptions
+): ValidationResult {
+  const isOptional = options?.required === false;
+  const isNullish = value === null || value === undefined;
+
+  if (isNullish) {
+    if (isOptional) {
+      return { valid: true, sanitized: undefined };
+    }
+    return { valid: false, error: 'Required field is missing' };
+  }
+
+  if (typeof value === 'boolean') {
+    return { valid: true, sanitized: value };
+  }
+
+  return { valid: false, error: 'Expected boolean' };
 }
 
 /**

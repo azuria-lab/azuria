@@ -84,7 +84,7 @@ export const useAuthMethods = (
         password,
         options: {
           data: { name: name.trim() },
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${globalThis.location.origin}/`
         }
       });
       
@@ -190,7 +190,7 @@ export const useAuthMethods = (
       setError(null);
       
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/configuracoes?tab=security`
+        redirectTo: `${globalThis.location.origin}/configuracoes?tab=security`
       });
       
       if (error) {throw error;}
@@ -227,11 +227,52 @@ export const useAuthMethods = (
     }
   };
 
+  // Login com Google OAuth
+  const loginWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      logger.info("🔐 Iniciando login com Google...");
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${globalThis.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      logger.info("✅ Redirecionamento para Google iniciado");
+      return data;
+    } catch (err: unknown) {
+      logger.error("❌ Erro no login com Google:", err);
+      
+      let errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      if (errorMessage.includes("OAuth")) {
+        errorMessage = "Erro ao conectar com o Google. Tente novamente.";
+      }
+      
+      setError(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     login,
     register,
     logout,
     resetPassword,
-    updatePassword
+    updatePassword,
+    loginWithGoogle
   };
 };

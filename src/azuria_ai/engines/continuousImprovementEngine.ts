@@ -13,14 +13,14 @@ const params: ImprovementParams = {
   maxAlerts: 5,
 };
 
-let evolutionScore = 0.5;
+let _evolutionScore = 0.5;
 
 function computeEvolutionScore(): number {
   const logs = getInternalLogs();
   const penalty = Math.min(0.4, logs.risk.length * 0.01 + logs.conflict.length * 0.02);
   const reward = Math.min(0.4, logs.opportunity.length * 0.01 + logs.predictive.length * 0.015);
   const score = Math.max(0.1, Math.min(1, 0.6 + reward - penalty));
-  evolutionScore = score;
+  _evolutionScore = score;
   emitEvent(
     'ai:evolution-score-updated',
     { evolutionScore: score },
@@ -32,7 +32,7 @@ function computeEvolutionScore(): number {
 function scanForWeaknesses() {
   const logs = getInternalLogs();
   const weaknesses: string[] = [];
-  if (logs.risk.length > params.maxAlerts!) {weaknesses.push('Muitos alerts de risco');}
+  if (logs.risk.length > (params.maxAlerts ?? 5)) {weaknesses.push('Muitos alerts de risco');}
   if (logs.conflict.length > 0) {weaknesses.push('Conflitos recorrentes em decisões');}
   if (logs.predictive.length < 2) {weaknesses.push('Baixo volume de insights preditivos');}
 
@@ -79,7 +79,7 @@ export function analyzeAndAdjust() {
   const riskCount = logs.risk.length;
   const conflictCount = logs.conflict.length;
 
-  if (riskCount > params.maxAlerts!) {
+  if (riskCount > (params.maxAlerts ?? 5)) {
     params.sensitivity = Math.min(1, (params.sensitivity || 0.5) + 0.1);
   }
   if (conflictCount > 0) {

@@ -36,6 +36,12 @@ import {
   getViabilityColor,
   getViabilityLabel,
 } from '@/services/bidding/biddingCalculations';
+import { OCRUploadModal } from './OCRUploadModal';
+import { RAGSearchModal } from './RAGSearchModal';
+import { MonteCarloModal } from './MonteCarloModal';
+import { XAIExplanationModal } from './XAIExplanationModal';
+import { PortalMonitorWidget } from './PortalMonitorWidget';
+import type { EditalExtraction } from '@/azuria_ai/engines/multimodalEngine';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -70,6 +76,38 @@ export function BiddingCalculator() {
     // Sucesso será tratado por toast notification no futuro
   };
 
+  // Handler para dados extraídos do OCR
+  const handleOCRData = (data: EditalExtraction) => {
+    updateData({
+      editalNumber: data.numero || bidding.data?.editalNumber,
+      organ: data.orgao || bidding.data?.organ,
+      description: data.objeto || bidding.data?.description,
+    });
+
+    // Se tiver valor estimado, atualizar custo base
+    if (data.valorEstimado && bidding.items?.[0]) {
+      const firstItem = bidding.items[0];
+      updateItem(0, {
+        ...firstItem,
+        unitCost: data.valorEstimado / (firstItem.quantity || 1),
+      });
+    }
+
+    // Se tiver itens, adicionar à lista
+    if (data.itens && data.itens.length > 0) {
+      // Limpar itens existentes e adicionar os novos
+      data.itens.forEach((item, index) => {
+        addItem({
+          itemNumber: String(index + 1),
+          description: item.descricao || '',
+          quantity: item.quantidade || 1,
+          unit: item.unidade || 'UN',
+          unitCost: item.valorUnitario || 0,
+        });
+      });
+    }
+  };
+
   // Helper para obter cor de viabilidade
   const getViabilityColorClass = (color: string) => {
     const colorMap: Record<string, string> = {
@@ -90,9 +128,15 @@ export function BiddingCalculator() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Dados da Licitação
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5" />
+                  Dados da Licitação
+                </div>
+                <div className="flex items-center gap-2">
+                  <OCRUploadModal onExtractedData={handleOCRData} />
+                  <RAGSearchModal />
+                </div>
               </CardTitle>
               <CardDescription>
                 Informações básicas sobre o edital e a licitação
@@ -599,13 +643,15 @@ export function BiddingCalculator() {
           </Card>
         </motion.div>
 
-        {/* Botões de Ação */}
+        {/* Botões de Ação + Ferramentas IA */}
         <motion.div
           variants={cardVariants}
           initial="hidden"
           animate="visible"
           transition={{ delay: 0.4 }}
+          className="space-y-4"
         >
+          {/* Botões principais */}
           <div className="flex gap-4">
             <Button
               onClick={handleCalculate}
@@ -626,11 +672,35 @@ export function BiddingCalculator() {
               Salvar
             </Button>
           </div>
+
+          {/* Ferramentas IA */}
+          {showResults && result && (
+            <div className="grid grid-cols-2 gap-2">
+              <MonteCarloModal
+                baseCost={bidding.items?.reduce((sum, item) => sum + (item.unitCost * item.quantity), 0) || 0}
+                targetMargin={bidding.strategy?.desiredMargin || 20}
+              />
+              <XAIExplanationModal
+                bdiFactors={{
+                  administracaoCentral: 3.5,
+                  despesasFinanceiras: 1.5,
+                  lucro: bidding.strategy?.desiredMargin || 20,
+                  garantias: 0.5,
+                  impostos: 5.93,
+                  risco: 2.5,
+                }}
+                bdiTotal={result.profitMargin || 0}
+              />
+            </div>
+          )}
         </motion.div>
       </div>
 
       {/* Coluna Direita - Resultados */}
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 space-y-6">
+        {/* Portal Monitor Widget */}
+        <PortalMonitorWidget />
+
         <motion.div
           variants={cardVariants}
           initial="hidden"

@@ -240,7 +240,7 @@ let state: EngineState = {
 // ============================================================================
 
 function generateId(): string {
-  return `sug_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `sug_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 function canShowSuggestion(rule: SuggestionRule): boolean {
@@ -487,7 +487,7 @@ export function dismissSuggestion(suggestionId: string): void {
  */
 function expireSuggestion(suggestionId: string): void {
   const suggestion = state.shownSuggestions.get(suggestionId);
-  if (!suggestion || suggestion.status !== 'shown') {
+  if (suggestion?.status !== 'shown') {
     return;
   }
 

@@ -26,6 +26,8 @@ export type EventType =
   | 'data:updated'
   | 'error:occurred'
   | 'insight:generated'
+  | 'system:init'
+  | 'system:shutdown'
   | 'ai:predictive-insight'
   | 'ai:detected-risk'
   | 'ai:detected-opportunity'

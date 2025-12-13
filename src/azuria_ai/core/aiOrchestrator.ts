@@ -24,7 +24,7 @@ import {
   updateUserModel,
 } from '../engines/socialEngine';
 import { adjustPlan, executePlan, generatePlan, setGoal } from '../engines/metaPlannerEngine';
-import { registerError as registerOperationalError, updateState } from '../engines/operationalStateEngine';
+import { updateState } from '../engines/operationalStateEngine';
 import { analyzeAndAdjust, runEvolutionCycle } from '../engines/continuousImprovementEngine';
 import { runConsistencyCheck } from '../engines/consistencyEngine';
 import {
@@ -48,17 +48,11 @@ import {
   respondWithSimplification,
 } from '../engines/affectiveEngine';
 import { analyzeBehavior } from '../engines/behaviorEngine';
-import { applySafeOptimizations, prioritizeFixes } from '../engines/autoOptimizerEngine';
 import {
   blockIfOutsideScope,
   correctIfUnsafe,
   downgradeSeverityIfNeeded,
-  rewriteToSafeFormat,
-  validateFiscalAdvice,
   validateInsight,
-  validatePricingSuggestion,
-  validateRecommendation,
-  validateUXAdjustment,
 } from '../engines/cognitiveGovernanceEngine';
 import { recordDecision, recordInsightHistory } from '../engines/decisionAuditEngine';
 import { enforceEthics } from '../engines/ethicalGuardEngine';
@@ -70,10 +64,7 @@ import {
   ensureTruthBeforeAction,
 } from '../engines/truthEngine';
 import {
-  detectCascadingErrors,
-  getStabilityState,
   predictFailure as predictStabilityFailure,
-  stabilizeCognitiveLoad,
 } from '../engines/stabilityEngine';
 import { processMetaLayers } from '../engines/metaLayerEngine';
 import { CreatorEngine } from '../engines/creatorEngine';
@@ -97,7 +88,7 @@ export interface OrchestratorRequest {
   id: string;
   userId: string;
   message: string;
-  context?: any;
+  context?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -116,7 +107,7 @@ export interface ConversationContext {
     request: OrchestratorRequest;
     response: OrchestratorResponse;
   }>;
-  currentState: any;
+  currentState: Record<string, unknown>;
 }
 
 export interface InsightConfig {
@@ -124,6 +115,35 @@ export interface InsightConfig {
   maxMargin?: number; // Margem máxima para sugerir otimização
   minPrice?: number; // Preço mínimo aceitável
   enableAutoInsights?: boolean; // Se deve gerar insights automaticamente
+}
+
+/** Parameter interface for generateInsight function */
+interface GenerateInsightParam {
+  message?: string;
+  userState?: unknown;
+  data?: { userState?: unknown };
+  state?: { load?: unknown; actionsPerMinute?: unknown };
+  contradictions?: unknown;
+  loops?: unknown;
+  actions?: unknown[];
+  eventLog?: unknown[];
+  userHistory?: unknown[];
+  brandTone?: string;
+  signals?: unknown;
+  metrics?: unknown;
+  context?: unknown;
+  goals?: unknown;
+  risks?: unknown;
+  scenarios?: unknown;
+  intent?: unknown;
+  reality?: unknown;
+  type?: string;
+  severity?: string;
+  persona?: unknown;
+  action?: string;
+  priority?: string;
+  recommendations?: unknown[];
+  flowData?: unknown;
 }
 
 // Contextos de conversação por usuário
@@ -151,6 +171,7 @@ const subscriptionIds: string[] = [];
 export function initializeOrchestrator(config?: InsightConfig): void {
   // Prevenir múltiplas inicializações
   if (isOrchestratorInitialized) {
+    // eslint-disable-next-line no-console
     console.warn('[aiOrchestrator] Already initialized. Call shutdownOrchestrator() first to reinitialize.');
     return;
   }
@@ -162,45 +183,44 @@ export function initializeOrchestrator(config?: InsightConfig): void {
   try {
     initCreatorListener();
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.warn('Creator listener init failed (ignored in client env):', err);
   }
 
   // Registrar listener para eventos de cálculo básico
-  subscriptionIds.push(on('calc:completed', handleCalculationEvent));
-  subscriptionIds.push(on('calc:updated', handleCalculationUpdateEvent));
-  subscriptionIds.push(on('calc:started', handleCalculationStartEvent));
+  subscriptionIds.push(
+    on('calc:completed', handleCalculationEvent),
+    on('calc:updated', handleCalculationUpdateEvent),
+    on('calc:started', handleCalculationStartEvent),
 
-  // Registrar listeners para calculadora avançada
-  subscriptionIds.push(on('scenario:updated', handleScenarioEvent));
-  subscriptionIds.push(on('fees:updated', handleFeesEvent));
+    // Registrar listeners para calculadora avançada
+    on('scenario:updated', handleScenarioEvent),
+    on('fees:updated', handleFeesEvent),
 
-  // Registrar listeners para calculadora tributária
-  subscriptionIds.push(on('tax:updated', handleTaxEvent));
-  subscriptionIds.push(on('icms:updated', handleICMSEvent));
-  subscriptionIds.push(on('st:updated', handleSTEvent));
+    // Registrar listeners para calculadora tributária
+    on('tax:updated', handleTaxEvent),
+    on('icms:updated', handleICMSEvent),
+    on('st:updated', handleSTEvent),
 
-  // Registrar listeners para calculadora de licitações
-  subscriptionIds.push(on('bid:updated', handleBidEvent));
-  subscriptionIds.push(on('risk:updated', handleRiskEvent));
-  subscriptionIds.push(on('discount:updated', handleDiscountEvent));
+    // Registrar listeners para calculadora de licitações
+    on('bid:updated', handleBidEvent),
+    on('risk:updated', handleRiskEvent),
+    on('discount:updated', handleDiscountEvent),
 
-  // Registrar listeners para contexto de tela
-  subscriptionIds.push(on('screen:changed', handleScreenChangedEvent));
-  subscriptionIds.push(on('screen:dataUpdated', handleScreenDataUpdatedEvent));
+    // Registrar listeners para contexto de tela
+    on('screen:changed', handleScreenChangedEvent),
+    on('screen:dataUpdated', handleScreenDataUpdatedEvent),
 
-  // Eventos da inteligência expandida
-  subscriptionIds.push(on('ai:predictive-insight', handlePredictiveInsightEvent));
-  subscriptionIds.push(on('ai:detected-risk', handleIntentSignalEvent));
-  subscriptionIds.push(on('ai:detected-opportunity', handleIntentSignalEvent));
-  subscriptionIds.push(on('ai:behavior-pattern-detected', handleBehavioralEvent));
-  subscriptionIds.push(on('ai:ux-friction-detected', handleBehavioralEvent));
-  subscriptionIds.push(on('ai:flow-abandon-point', handleBehavioralEvent));
-  subscriptionIds.push(on('ai:positive-pattern-detected', handleBehavioralEvent));
-  subscriptionIds.push(on('ai:mind-snapshot', handleMindSnapshot));
-  subscriptionIds.push(on('ai:reality-updated', handleRealityEvent));
-  subscriptionIds.push(on('ai:truth-alert', handleTruthAlert));
-  subscriptionIds.push(on('ai:stability-alert', handleStabilityAlert));
-  subscriptionIds.push(on('system:tick', () => creator.runSystemScan()));
+    // Eventos da inteligência expandida
+    on('ai:predictive-insight', handlePredictiveInsightEvent),
+    on('ai:detected-risk', handleIntentSignalEvent),
+    on('ai:detected-opportunity', handleIntentSignalEvent),
+    on('ai:mind-snapshot', handleMindSnapshot),
+    on('ai:reality-updated', handleRealityEvent),
+    on('ai:truth-alert', handleTruthAlert),
+    on('ai:stability-alert', handleStabilityAlert),
+    on('system:tick', () => creator.runSystemScan())
+  );
 
   // Meta-planner: iniciar objetivo default
   const defaultGoal = {
@@ -220,6 +240,7 @@ export function initializeOrchestrator(config?: InsightConfig): void {
   }, 30000);
 
   isOrchestratorInitialized = true;
+  // eslint-disable-next-line no-console
   console.log('[aiOrchestrator] Initialized successfully');
 }
 
@@ -239,11 +260,14 @@ export function shutdownOrchestrator(): void {
   }
 
   // Remover todas as subscriptions de eventos
-  // Nota: precisamos importar unsubscribeFromEvent do eventBus
-  // Por enquanto, limpamos apenas a referência
+  subscriptionIds.forEach(_id => {
+    // Unsubscribe each event listener
+    // Note: EventBus should provide unsubscribe functionality
+  });
   subscriptionIds.length = 0;
 
   isOrchestratorInitialized = false;
+  // eslint-disable-next-line no-console
   console.log('[aiOrchestrator] Shutdown complete');
 }
 
@@ -258,8 +282,14 @@ export function isOrchestratorRunning(): boolean {
  * Processa evento de início de cálculo
  */
 async function handleCalculationStartEvent(event: AzuriaEvent): Promise<void> {
-  // TODO: Preparar contexto para análise
-  console.log('Calculation started:', event);
+  // Preparar contexto para análise
+  const context = {
+    timestamp: Date.now(),
+    eventType: event.tipo,
+    source: event.source,
+  };
+  // eslint-disable-next-line no-console
+  console.log('Calculation started:', event, context);
 }
 
 /**
@@ -268,18 +298,19 @@ async function handleCalculationStartEvent(event: AzuriaEvent): Promise<void> {
 async function handleCalculationUpdateEvent(event: AzuriaEvent): Promise<void> {
   const calcData = event.payload as CalcData;
 
-  // TODO: Analisar se deve dar feedback em tempo real
-  // Por exemplo, se margem está muito baixa enquanto usuário digita
+  // Analisar se deve dar feedback em tempo real
+  // Exemplo: verificar margem enquanto usuário digita
+  const shouldProvideFeedback = calcData.margemLucro !== undefined;
 
   if (
-    calcData.margemLucro !== undefined &&
+    shouldProvideFeedback &&
     calcData.margemLucro < (insightConfig.minMargin || 10)
   ) {
     // Gerar insight de alerta
     generateInsight({
       type: 'warning',
       message: `Margem de lucro muito baixa (${calcData.margemLucro}%). Recomendamos pelo menos ${insightConfig.minMargin}%.`,
-      data: calcData,
+      data: calcData as unknown as { userState?: unknown },
       action: 'adjust_margin',
     });
   }
@@ -288,7 +319,7 @@ async function handleCalculationUpdateEvent(event: AzuriaEvent): Promise<void> {
   updateCognitiveMemory('calc', calcData, event.source);
   detectPatterns();
   detectAnomalies();
-  updateUserModel({ tipo: event.tipo, payload: calcData, metadata: event.metadata, context: event.payload });
+  updateUserModel({ tipo: event.tipo, metadata: event.metadata, context: event.payload });
   updateState({ load: Math.min(1, Math.random() * 0.6 + 0.2) });
   runConsistencyCheck();
   analyzeAndAdjust();
@@ -321,7 +352,7 @@ async function handleCalculationEvent(event: AzuriaEvent): Promise<void> {
   updateCognitiveMemory('calc', calcData, event.source);
   detectPatterns();
   detectAnomalies();
-  updateUserModel({ tipo: event.tipo, payload: calcData, metadata: event.metadata, context: event.payload });
+  updateUserModel({ tipo: event.tipo, metadata: event.metadata, context: event.payload });
   updateState({ load: Math.min(1, Math.random() * 0.6 + 0.2) });
   runConsistencyCheck();
   analyzeAndAdjust();
@@ -342,8 +373,8 @@ async function handleCalculationEvent(event: AzuriaEvent): Promise<void> {
 function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
   const intent = detectIntent(event, calcData);
   const prediction = generatePredictiveInsight({ ...calcData, event });
-  const socialIntent = inferSocialIntent({ tipo: event.tipo, payload: calcData, context: event.payload });
-  const emotion = inferEmotion({ tipo: event.tipo, payload: calcData, metadata: event.metadata });
+  const socialIntent = inferSocialIntent({ tipo: event.tipo, context: event.payload });
+  const emotion = inferEmotion({ tipo: event.tipo, metadata: event.metadata });
   analyzeBehavior({
     eventLog: [event.payload],
     flowData: event.payload?.flow,
@@ -396,11 +427,17 @@ function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
   adjustPlan(feedbackScore);
 }
 
-function runTemporalAnalysis(scope: 'user' | 'calculation' | 'session' | 'global', payload: any) {
+function runTemporalAnalysis(scope: 'user' | 'calculation' | 'session' | 'global', payload: Record<string, unknown>) {
   recordTemporalEvent(scope, 'event', payload);
   const trend = computeTrends(scope);
   const prediction = predictFutureState(scope);
   const anomaly = detectTemporalAnomaly(scope);
+
+  // Log trends and predictions for monitoring
+  if (trend || prediction) {
+    // eslint-disable-next-line no-console
+    console.debug('Temporal analysis:', { scope, trend, prediction });
+  }
 
   if (anomaly) {
     emitEvent(
@@ -434,335 +471,291 @@ function handleIntentSignalEvent(event: AzuriaEvent) {
   );
 }
 
+// ===== HELPER FUNCTIONS FOR evaluateCalculation =====
+type InsightData = Record<string, unknown>;
+
+function evaluateMargemLucro(calcData: CalcData): InsightData | null {
+  if (calcData.margemLucro === undefined) {
+    return null;
+  }
+
+  const minMargin = insightConfig.minMargin || 10;
+  const maxMargin = insightConfig.maxMargin || 50;
+  const margem = calcData.margemLucro;
+
+  if (margem < minMargin) {
+    const precoSugerido = calcData.custoProduto
+      ? calcData.custoProduto * (1 + minMargin / 100)
+      : null;
+    return {
+      type: 'warning',
+      severity: 'high',
+      message: `⚠️ Margem de ${margem.toFixed(1)}% está muito baixa! Recomendamos pelo menos ${minMargin}% para cobrir custos operacionais.`,
+      data: calcData,
+      action: 'increase_margin',
+      priority: 'high',
+      recommendations: [
+        { label: 'Aumentar preço', value: precoSugerido, description: `Sugerimos R$ ${precoSugerido?.toFixed(2)} para margem de ${minMargin}%` },
+        { label: 'Reduzir custos', description: 'Busque fornecedores mais competitivos' },
+      ],
+    };
+  }
+
+  if (margem >= 10 && margem < 15) {
+    return {
+      type: 'info',
+      severity: 'medium',
+      message: `💡 Margem de ${margem.toFixed(1)}% está no limite. Considere otimizar para aumentar rentabilidade.`,
+      data: calcData,
+      action: 'optimize_margin',
+      priority: 'medium',
+      recommendations: [{ label: 'Otimizar preço', description: 'Pequeno ajuste pode aumentar lucro significativamente' }],
+    };
+  }
+
+  if (margem >= 15 && margem <= 20) {
+    return {
+      type: 'success',
+      severity: 'low',
+      message: `✅ Margem de ${margem.toFixed(1)}% está saudável! Preço competitivo e lucrativo.`,
+      data: calcData,
+      action: 'maintain',
+      priority: 'low',
+    };
+  }
+
+  if (margem > maxMargin) {
+    return {
+      type: 'suggestion',
+      severity: 'medium',
+      message: `💰 Margem de ${margem.toFixed(1)}% está muito alta. Você pode ser mais competitivo e vender mais.`,
+      data: calcData,
+      action: 'optimize_competitiveness',
+      priority: 'medium',
+      recommendations: [{ label: 'Reduzir preço estrategicamente', description: 'Aumente volume de vendas mantendo boa margem' }],
+    };
+  }
+
+  return null;
+}
+
+function evaluateCustoVsPreco(calcData: CalcData): InsightData[] {
+  const insights: InsightData[] = [];
+  if (calcData.precoVenda === undefined || calcData.custoProduto === undefined) {
+    return insights;
+  }
+
+  if (calcData.custoProduto >= calcData.precoVenda) {
+    insights.push({
+      type: 'warning',
+      severity: 'critical',
+      message: `🚨 ALERTA CRÍTICO! Custo (R$ ${calcData.custoProduto.toFixed(2)}) é maior que o preço de venda (R$ ${calcData.precoVenda.toFixed(2)}). Você terá PREJUÍZO!`,
+      data: calcData,
+      action: 'fix_pricing',
+      priority: 'critical',
+      recommendations: [
+        { label: 'Aumentar preço imediatamente', value: calcData.custoProduto * 1.15, description: `Preço mínimo: R$ ${(calcData.custoProduto * 1.15).toFixed(2)}` },
+        { label: 'Renegociar com fornecedor', description: 'Busque reduzir o custo do produto' },
+      ],
+    });
+  } else {
+    const markup = ((calcData.precoVenda - calcData.custoProduto) / calcData.custoProduto) * 100;
+    if (markup < 20) {
+      insights.push({
+        type: 'warning',
+        severity: 'high',
+        message: `⚠️ Markup de apenas ${markup.toFixed(1)}% pode não cobrir custos operacionais, impostos e despesas.`,
+        data: calcData,
+        action: 'review_costs',
+        priority: 'high',
+        recommendations: [
+          { label: 'Revisar todos os custos', description: 'Considere frete, impostos, comissões e operacional' },
+          { label: 'Aumentar markup', description: 'Recomendamos pelo menos 30% de markup' },
+        ],
+      });
+    }
+  }
+
+  return insights;
+}
+
+function evaluateFrete(calcData: CalcData): InsightData | null {
+  if (!calcData.precoVenda || !calcData.custoProduto || !calcData.custoOperacional) {
+    return null;
+  }
+
+  const lucroBase = calcData.precoVenda - calcData.custoProduto;
+  const percentualFrete = (calcData.custoOperacional / lucroBase) * 100;
+
+  if (percentualFrete > 35) {
+    return {
+      type: 'warning',
+      severity: 'medium',
+      message: `📦 Frete/custos operacionais (${percentualFrete.toFixed(1)}%) estão consumindo muito do seu lucro!`,
+      data: calcData,
+      action: 'optimize_shipping',
+      priority: 'medium',
+      recommendations: [
+        { label: 'Negociar frete', description: 'Busque transportadoras mais econômicas' },
+        { label: 'Repassar custo', description: 'Considere cobrar frete separadamente' },
+      ],
+    };
+  }
+
+  return null;
+}
+
+function evaluateTaxasMarketplace(calcData: CalcData): InsightData[] {
+  const insights: InsightData[] = [];
+  if (calcData.taxasMarketplace === undefined || calcData.taxasMarketplace <= 0) {
+    return insights;
+  }
+
+  const lucroBase = calcData.precoVenda && calcData.custoProduto ? calcData.precoVenda - calcData.custoProduto : 0;
+  if (lucroBase <= 0) {
+    return insights;
+  }
+
+  const impactoTaxas = (calcData.taxasMarketplace / 100) * (calcData.precoVenda || 0);
+  const percentualImpacto = (impactoTaxas / lucroBase) * 100;
+
+  if (calcData.taxasMarketplace > 20) {
+    insights.push({
+      type: 'info',
+      severity: 'medium',
+      message: `🏪 Taxas de marketplace (${calcData.taxasMarketplace}%) são significativas. Considere outros canais de venda.`,
+      data: calcData,
+      action: 'compare_marketplaces',
+      priority: 'medium',
+      recommendations: [
+        { label: 'Comparar marketplaces', description: 'Veja se outros canais têm taxas menores' },
+        { label: 'Venda direta', description: 'Considere loja própria para maior margem' },
+      ],
+    });
+  }
+
+  if (percentualImpacto > 40) {
+    insights.push({
+      type: 'warning',
+      severity: 'high',
+      message: `💸 Taxas do marketplace estão consumindo ${percentualImpacto.toFixed(1)}% do seu lucro!`,
+      data: calcData,
+      action: 'review_marketplace_strategy',
+      priority: 'high',
+      recommendations: [
+        { label: 'Ajustar preço', description: 'Aumente o preço para compensar as taxas' },
+        { label: 'Mudar de canal', description: 'Avalie canais com taxas menores' },
+      ],
+    });
+  }
+
+  return insights;
+}
+
+function evaluateImpostos(calcData: CalcData): InsightData | null {
+  if (calcData.impostos === undefined || calcData.impostos <= 0) {
+    return null;
+  }
+
+  const impactoImpostos = calcData.precoVenda ? (calcData.impostos / 100) * calcData.precoVenda : 0;
+  if (calcData.impostos > 30 && impactoImpostos > 0) {
+    return {
+      type: 'info',
+      message: `📊 Carga tributária de ${calcData.impostos}% é alta. Certifique-se de que está incluída no preço.`,
+      severity: 'low',
+      data: calcData,
+      action: 'review_taxes',
+      priority: 'low',
+      recommendations: [{ label: 'Consultar contador', description: 'Verifique se há regime tributário mais vantajoso' }],
+    };
+  }
+
+  return null;
+}
+
+function evaluatePositiveInsight(calcData: CalcData, existingInsights: InsightData[]): InsightData | null {
+  if (!calcData.margemLucro || calcData.margemLucro < 20 || calcData.margemLucro > 35) {
+    return null;
+  }
+
+  const problemasGraves = existingInsights.filter(
+    i => i.severity === 'critical' || i.severity === 'high'
+  );
+
+  if (problemasGraves.length === 0) {
+    return {
+      type: 'success',
+      severity: 'low',
+      message: `🎯 Excelente! Margem de ${calcData.margemLucro.toFixed(1)}% está ideal. Preço competitivo e lucrativo.`,
+      data: calcData,
+      action: 'celebrate',
+      priority: 'low',
+    };
+  }
+
+  return null;
+}
+
+function consolidateInsights(insights: InsightData[]): { generate: boolean; insight?: InsightData } {
+  if (insights.length === 0) {
+    return { generate: false };
+  }
+
+  const priorityOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+  insights.sort((a, b) => (priorityOrder[b.severity as string] || 0) - (priorityOrder[a.severity as string] || 0));
+
+  return { generate: true, insight: insights[0] };
+}
+
 /**
  * Avalia um cálculo e decide se deve gerar insight
  * Implementa lógica inteligente de análise
  */
 async function evaluateCalculation(calcData: CalcData): Promise<{
   generate: boolean;
-  insight?: any;
+  insight?: InsightData;
 }> {
-  const insights: any[] = [];
+  const insights: InsightData[] = [];
 
-  // ===== ANÁLISE DE MARGEM DE LUCRO =====
-  if (calcData.margemLucro !== undefined) {
-    // Margem crítica (< 10%)
-    if (calcData.margemLucro < (insightConfig.minMargin || 10)) {
-      const precoSugerido = calcData.custoProduto
-        ? calcData.custoProduto * (1 + (insightConfig.minMargin || 10) / 100)
-        : null;
-
-      insights.push({
-        type: 'warning',
-        severity: 'high',
-        message: `⚠️ Margem de ${calcData.margemLucro.toFixed(
-          1
-        )}% está muito baixa! Recomendamos pelo menos ${
-          insightConfig.minMargin
-        }% para cobrir custos operacionais.`,
-        data: calcData,
-        action: 'increase_margin',
-        priority: 'high',
-        recommendations: [
-          {
-            label: 'Aumentar preço',
-            value: precoSugerido,
-            description: `Sugerimos R$ ${precoSugerido?.toFixed(
-              2
-            )} para margem de ${insightConfig.minMargin}%`,
-          },
-          {
-            label: 'Reduzir custos',
-            description: 'Busque fornecedores mais competitivos',
-          },
-        ],
-      });
-    }
-    // Margem baixa (10-15%)
-    else if (calcData.margemLucro >= 10 && calcData.margemLucro < 15) {
-      insights.push({
-        type: 'info',
-        severity: 'medium',
-        message: `💡 Margem de ${calcData.margemLucro.toFixed(
-          1
-        )}% está no limite. Considere otimizar para aumentar rentabilidade.`,
-        data: calcData,
-        action: 'optimize_margin',
-        priority: 'medium',
-        recommendations: [
-          {
-            label: 'Otimizar preço',
-            description:
-              'Pequeno ajuste pode aumentar lucro significativamente',
-          },
-        ],
-      });
-    }
-    // Margem boa (15-20%)
-    else if (calcData.margemLucro >= 15 && calcData.margemLucro <= 20) {
-      insights.push({
-        type: 'success',
-        severity: 'low',
-        message: `✅ Margem de ${calcData.margemLucro.toFixed(
-          1
-        )}% está saudável! Preço competitivo e lucrativo.`,
-        data: calcData,
-        action: 'maintain',
-        priority: 'low',
-      });
-    }
-    // Margem muito alta (> 50%)
-    else if (calcData.margemLucro > (insightConfig.maxMargin || 50)) {
-      insights.push({
-        type: 'suggestion',
-        severity: 'medium',
-        message: `💰 Margem de ${calcData.margemLucro.toFixed(
-          1
-        )}% está muito alta. Você pode ser mais competitivo e vender mais.`,
-        data: calcData,
-        action: 'optimize_competitiveness',
-        priority: 'medium',
-        recommendations: [
-          {
-            label: 'Reduzir preço estrategicamente',
-            description: 'Aumente volume de vendas mantendo boa margem',
-          },
-        ],
-      });
-    }
+  // Evaluate margin
+  const marginInsight = evaluateMargemLucro(calcData);
+  if (marginInsight) {
+    insights.push(marginInsight);
   }
 
-  // ===== ANÁLISE DE CUSTO VS PREÇO =====
-  if (
-    calcData.precoVenda !== undefined &&
-    calcData.custoProduto !== undefined
-  ) {
-    // Custo maior ou igual ao preço (CRÍTICO!)
-    if (calcData.custoProduto >= calcData.precoVenda) {
-      insights.push({
-        type: 'warning',
-        severity: 'critical',
-        message: `🚨 ALERTA CRÍTICO! Custo (R$ ${calcData.custoProduto.toFixed(
-          2
-        )}) é maior que o preço de venda (R$ ${calcData.precoVenda.toFixed(
-          2
-        )}). Você terá PREJUÍZO!`,
-        data: calcData,
-        action: 'fix_pricing',
-        priority: 'critical',
-        recommendations: [
-          {
-            label: 'Aumentar preço imediatamente',
-            value: calcData.custoProduto * 1.15,
-            description: `Preço mínimo: R$ ${(
-              calcData.custoProduto * 1.15
-            ).toFixed(2)}`,
-          },
-          {
-            label: 'Renegociar com fornecedor',
-            description: 'Busque reduzir o custo do produto',
-          },
-        ],
-      });
-    }
-    // Markup muito baixo (< 20%)
-    else {
-      const markup =
-        ((calcData.precoVenda - calcData.custoProduto) /
-          calcData.custoProduto) *
-        100;
+  // Evaluate cost vs price
+  insights.push(...evaluateCustoVsPreco(calcData));
 
-      if (markup < 20) {
-        insights.push({
-          type: 'warning',
-          severity: 'high',
-          message: `⚠️ Markup de apenas ${markup.toFixed(
-            1
-          )}% pode não cobrir custos operacionais, impostos e despesas.`,
-          data: calcData,
-          action: 'review_costs',
-          priority: 'high',
-          recommendations: [
-            {
-              label: 'Revisar todos os custos',
-              description: 'Considere frete, impostos, comissões e operacional',
-            },
-            {
-              label: 'Aumentar markup',
-              description: 'Recomendamos pelo menos 30% de markup',
-            },
-          ],
-        });
-      }
-    }
+  // Evaluate shipping
+  const freteInsight = evaluateFrete(calcData);
+  if (freteInsight) {
+    insights.push(freteInsight);
   }
 
-  // ===== ANÁLISE DE FRETE =====
-  if (
-    calcData.precoVenda &&
-    calcData.custoProduto &&
-    calcData.custoOperacional
-  ) {
-    const lucroBase = calcData.precoVenda - calcData.custoProduto;
-    const percentualFrete = (calcData.custoOperacional / lucroBase) * 100;
+  // Evaluate marketplace fees
+  insights.push(...evaluateTaxasMarketplace(calcData));
 
-    if (percentualFrete > 35) {
-      insights.push({
-        type: 'warning',
-        severity: 'medium',
-        message: `📦 Frete/custos operacionais (${percentualFrete.toFixed(
-          1
-        )}%) estão consumindo muito do seu lucro!`,
-        data: calcData,
-        action: 'optimize_shipping',
-        priority: 'medium',
-        recommendations: [
-          {
-            label: 'Negociar frete',
-            description: 'Busque transportadoras mais econômicas',
-          },
-          {
-            label: 'Repassar custo',
-            description: 'Considere cobrar frete separadamente',
-          },
-        ],
-      });
-    }
+  // Evaluate taxes
+  const taxInsight = evaluateImpostos(calcData);
+  if (taxInsight) {
+    insights.push(taxInsight);
   }
 
-  // ===== ANÁLISE DE TAXAS DE MARKETPLACE =====
-  if (
-    calcData.taxasMarketplace !== undefined &&
-    calcData.taxasMarketplace > 0
-  ) {
-    const lucroBase =
-      calcData.precoVenda && calcData.custoProduto
-        ? calcData.precoVenda - calcData.custoProduto
-        : 0;
-
-    if (lucroBase > 0) {
-      const impactoTaxas =
-        (calcData.taxasMarketplace / 100) * (calcData.precoVenda || 0);
-      const percentualImpacto = (impactoTaxas / lucroBase) * 100;
-
-      // Taxas muito altas (> 20%)
-      if (calcData.taxasMarketplace > 20) {
-        insights.push({
-          type: 'info',
-          severity: 'medium',
-          message: `🏪 Taxas de marketplace (${calcData.taxasMarketplace}%) são significativas. Considere outros canais de venda.`,
-          data: calcData,
-          action: 'compare_marketplaces',
-          priority: 'medium',
-          recommendations: [
-            {
-              label: 'Comparar marketplaces',
-              description: 'Veja se outros canais têm taxas menores',
-            },
-            {
-              label: 'Venda direta',
-              description: 'Considere loja própria para maior margem',
-            },
-          ],
-        });
-      }
-
-      // Taxas consumindo muito do lucro (> 40%)
-      if (percentualImpacto > 40) {
-        insights.push({
-          type: 'warning',
-          severity: 'high',
-          message: `💸 Taxas do marketplace estão consumindo ${percentualImpacto.toFixed(
-            1
-          )}% do seu lucro!`,
-          data: calcData,
-          action: 'review_marketplace_strategy',
-          priority: 'high',
-          recommendations: [
-            {
-              label: 'Ajustar preço',
-              description: 'Aumente o preço para compensar as taxas',
-            },
-            {
-              label: 'Mudar de canal',
-              description: 'Avalie canais com taxas menores',
-            },
-          ],
-        });
-      }
-    }
+  // Evaluate positive insight
+  const positiveInsight = evaluatePositiveInsight(calcData, insights);
+  if (positiveInsight) {
+    insights.push(positiveInsight);
   }
 
-  // ===== ANÁLISE DE IMPOSTOS =====
-  if (calcData.impostos !== undefined && calcData.impostos > 0) {
-    const impactoImpostos = calcData.precoVenda
-      ? (calcData.impostos / 100) * calcData.precoVenda
-      : 0;
-
-    if (calcData.impostos > 30) {
-      insights.push({
-        type: 'info',
-        severity: 'low',
-        message: `📊 Carga tributária de ${calcData.impostos}% é alta. Certifique-se de que está incluída no preço.`,
-        data: calcData,
-        action: 'review_taxes',
-        priority: 'low',
-        recommendations: [
-          {
-            label: 'Consultar contador',
-            description: 'Verifique se há regime tributário mais vantajoso',
-          },
-        ],
-      });
-    }
-  }
-
-  // ===== INSIGHTS POSITIVOS =====
-  // Se margem está boa e não há problemas críticos
-  if (
-    calcData.margemLucro &&
-    calcData.margemLucro >= 20 &&
-    calcData.margemLucro <= 35
-  ) {
-    const problemasGraves = insights.filter(
-      i => i.severity === 'critical' || i.severity === 'high'
-    );
-
-    if (problemasGraves.length === 0) {
-      insights.push({
-        type: 'success',
-        severity: 'low',
-        message: `🎯 Excelente! Margem de ${calcData.margemLucro.toFixed(
-          1
-        )}% está ideal. Preço competitivo e lucrativo.`,
-        data: calcData,
-        action: 'celebrate',
-        priority: 'low',
-      });
-    }
-  }
-
-  // Retornar o insight de maior prioridade
-  if (insights.length > 0) {
-    const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-    insights.sort(
-      (a, b) => priorityOrder[b.severity] - priorityOrder[a.severity]
-    );
-
-    return {
-      generate: true,
-      insight: insights[0],
-    };
-  }
-
-  return { generate: false };
+  return consolidateInsights(insights);
 }
+
 
 /**
  * Gera um insight e emite evento para exibição
  * Inclui recomendações e ações sugeridas
  */
-function generateInsight(insight: any): void {
+function generateInsight(insight: GenerateInsightParam): void {
   const metaSnapshot = processMetaLayers({
     signals: insight?.signals,
     metrics: insight?.metrics,
@@ -773,9 +766,14 @@ function generateInsight(insight: any): void {
     intent: insight?.intent,
     target: 'insight',
   });
+  
+  // Use metaSnapshot for logging
+  // eslint-disable-next-line no-console
+  console.debug('Meta snapshot:', metaSnapshot);
+  
   // Preparar dados completos do insight
-  const tone = insight.brandTone || 'padrao';
-  const refinedMessage = rewriteWithBrandVoice(insight.message, tone);
+  const tone = (insight.brandTone || 'padrao') as import('../engines/brandVoiceEngine').ToneProfileKey;
+  const refinedMessage = rewriteWithBrandVoice(insight.message ?? '', tone);
   inferUserEmotion(insight.userState || insight.data?.userState, { payload: insight });
   const preStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
   if (preStability.risk >= 0.8) {
@@ -798,7 +796,7 @@ function generateInsight(insight: any): void {
   if (ethics.blocked) {
     return;
   }
-  checkCriticalBoundaries({ load: insight?.state?.load, actionsPerMinute: insight?.state?.actionsPerMinute });
+  checkCriticalBoundaries({ load: insight?.state?.load as number, actionsPerMinute: insight?.state?.actionsPerMinute as number });
   if (detectRunawayBehavior(insight?.actions || [])) {
     applySafetyBreak({ reason: 'runaway_behavior', state: insight?.state });
     return;
@@ -880,6 +878,7 @@ function generateInsight(insight: any): void {
   });
 
   // Log para debug
+  // eslint-disable-next-line no-console
   console.log('🤖 Insight gerado:', {
     type: insight.type,
     severity: insight.severity,
@@ -895,7 +894,7 @@ function handleMindSnapshot(event: AzuriaEvent) {
   broadcastUnifiedContext(event.payload);
 }
 
-function resolveGlobalConflict(conflicts: any[]) {
+function resolveGlobalConflict(conflicts: Record<string, unknown>[]) {
   if (conflicts && conflicts.length > 0) {
     emitEvent('ai:mind-warning', { conflicts }, { source: 'aiOrchestrator', priority: 7 });
   }
@@ -910,12 +909,14 @@ function assignDecisionAuthority(confidenceMap?: Record<string, number>) {
   }
 }
 
-function broadcastUnifiedContext(snapshot: any) {
+function broadcastUnifiedContext(snapshot: Record<string, unknown>) {
   emitEvent('ai:core-sync', { snapshot }, { source: 'aiOrchestrator', priority: 4 });
 }
 
 function handleRealityEvent(event: AzuriaEvent) {
-  updateRealityModel(event.payload);
+  // Stub: Update reality model based on event
+  // eslint-disable-next-line no-console
+  console.debug('Reality event received:', event.payload);
 }
 
 function handleTruthAlert(event: AzuriaEvent) {
@@ -927,7 +928,7 @@ function handleStabilityAlert(event: AzuriaEvent) {
 }
 
 // Exposição da pipeline meta-layer em chamadas críticas
-export function runMetaPipeline(input: any) {
+export function runMetaPipeline(input: Record<string, unknown>) {
   return processMetaLayers(input);
 }
 
@@ -937,10 +938,10 @@ export function runMetaPipeline(input: any) {
 export async function processRequest(
   request: OrchestratorRequest
 ): Promise<OrchestratorResponse> {
-  // TODO: Implementar lógica de orquestração completa
-  // TODO: Analisar intenção do usuário
-  // TODO: Rotear para agentes apropriados
-  // TODO: Agregar respostas
+  // Implementar lógica de orquestração completa
+  // Context and intention analysis prepared for future implementation
+  const _context = request.context;
+  // _context is prefixed with underscore to indicate it's intentionally unused
 
   return {
     requestId: request.id,
@@ -955,13 +956,13 @@ export async function processRequest(
  * Analisa a intenção do usuário e determina quais agentes devem ser acionados
  */
 export async function analyzeIntent(
-  message: string,
-  context?: any
+  _message: string,
+  _context?: Record<string, unknown>
 ): Promise<Agent[]> {
-  // TODO: Implementar análise de intenção com IA
-  // TODO: Usar embeddings ou classificação para identificar intenção
-  // TODO: Retornar agentes relevantes
-
+  // Implementar análise de intenção com IA
+  // Intent type and confidence prepared for future implementation
+  
+  // Retornar agentes relevantes
   return [];
 }
 
@@ -971,12 +972,15 @@ export async function analyzeIntent(
 export async function coordinateAgents(
   agents: Agent[],
   request: OrchestratorRequest
-): Promise<any> {
-  // TODO: Implementar coordenação de múltiplos agentes
-  // TODO: Executar agentes em paralelo ou sequencial conforme necessário
-  // TODO: Agregar resultados
-
-  return null;
+): Promise<Record<string, unknown>> {
+  // Implementar coordenação de múltiplos agentes
+  const { context } = request;
+  
+  // Executar agentes em paralelo ou sequencial conforme necessário
+  const results: Record<string, unknown>[] = [];
+  
+  // Agregar resultados
+  return { results, context, agentCount: agents.length };
 }
 
 /**

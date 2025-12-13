@@ -36,6 +36,7 @@ interface AuthContextType extends AuthState {
   updateProfile: (profileData: Partial<UserProfileWithDisplayData>) => Promise<boolean>;
   updatePassword: (password: string) => Promise<boolean>;
   updateProStatus: (isPro: boolean) => Promise<boolean>;
+  loginWithGoogle: () => Promise<unknown>;
 }
 
 // Initial State
@@ -92,6 +93,7 @@ const defaultAuthValue: AuthContextType = {
   updateProfile: async () => false,
   updatePassword: async () => false,
   updateProStatus: async () => false,
+  loginWithGoogle: async () => null,
 };
 
 // Context
@@ -143,6 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateProfile: auth.updateProfile,
     updatePassword: auth.updatePassword,
     updateProStatus: auth.updateProStatus,
+    loginWithGoogle: auth.loginWithGoogle,
   }), [
     state, 
     auth.login, 
@@ -151,7 +154,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     auth.resetPassword, 
     auth.updateProfile, 
     auth.updatePassword, 
-    auth.updateProStatus
+    auth.updateProStatus,
+    auth.loginWithGoogle
   ]);
 
   return (

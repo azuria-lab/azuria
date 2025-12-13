@@ -62,7 +62,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </main>
             </SidebarInset>
           </div>
-          {/* CoPilot - Assistente IA flutuante */}
+          {/* CoPilot unificado - canto inferior direito com MiniDashboard integrado */}
           <CoPilot position="bottom-right" />
         </SidebarProvider>
       </ModeDeusProvider>

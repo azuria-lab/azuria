@@ -13,7 +13,6 @@
 import type {
   CreateSuggestionInput,
   SkillLevel,
-  Suggestion,
   UserContext,
 } from '../types/operational';
 import { eventBus } from '../core/eventBus';
@@ -484,9 +483,9 @@ function generateFromTemplate(
   state.lastExplanation = explanation;
 
   // Emitir evento
-  eventBus.emit({
-    type: 'user:suggestion',
-    payload: { explanation, depth },
+  eventBus.emit('user:suggestion', {
+    explanation,
+    depth,
     timestamp: Date.now(),
     source: 'explanation-engine',
   });
@@ -505,7 +504,7 @@ function interpolateValues(
 
   let result = text;
   for (const [key, value] of Object.entries(values)) {
-    const regex = new RegExp(`\\{${key}\\}`, 'g');
+    const regex = new RegExp(String.raw`\{${key}\}`, 'g');
     result = result.replace(regex, String(value));
   }
   return result;
@@ -547,6 +546,16 @@ export function getAvailableCategories(): ExplanationCategory[] {
 }
 
 /**
+ * Maps explanation category to suggestion category type
+ */
+function mapCategoryToType(category: string): 'calculation' | 'tax' | 'bidding' | 'general' {
+  if (category === 'calculation' || category === 'pricing') {return 'calculation';}
+  if (category === 'tax') {return 'tax';}
+  if (category === 'bidding') {return 'bidding';}
+  return 'general';
+}
+
+/**
  * Converte explicação em sugestão do Co-Piloto
  */
 export function explanationToSuggestion(
@@ -555,15 +564,7 @@ export function explanationToSuggestion(
   return {
     type: 'explanation',
     priority: 'medium',
-    category:
-      explanation.category === 'calculation' ||
-      explanation.category === 'pricing'
-        ? 'calculation'
-        : explanation.category === 'tax'
-          ? 'tax'
-          : explanation.category === 'bidding'
-            ? 'bidding'
-            : 'general',
+    category: mapCategoryToType(explanation.category),
     title: explanation.title,
     message: explanation.summary,
     details: explanation.fullText,

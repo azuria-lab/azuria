@@ -47,14 +47,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const status =
-      action === 'ack'
-        ? 'acknowledged'
-        : action === 'resolve'
-        ? 'resolved'
-        : action === 'ignore'
-        ? 'ignored'
-        : 'new';
+    let status = 'new';
+    if (action === 'ack') {
+      status = 'acknowledged';
+    } else if (action === 'resolve') {
+      status = 'resolved';
+    } else if (action === 'ignore') {
+      status = 'ignored';
+    }
         
     const sanitizedAdminId = adminId || 'admin';
     const updated = await updateAlertStatus(id, status as any);

@@ -48,7 +48,7 @@ export interface LogEntry {
 // ============================================================================
 
 const getLogLevel = (): LogLevel => {
-  if (typeof window !== 'undefined') {
+  if (globalThis.window !== undefined) {
     // Browser
     const mode = (import.meta as ImportMeta & { env?: { MODE?: string } })?.env?.MODE;
     return mode === 'production' ? 'warn' : 'debug';

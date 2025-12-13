@@ -177,7 +177,7 @@ export function initUIWatcher(config?: Partial<UIWatcherConfig>): void {
   }
 
   // Check if we're in a browser environment
-  if (typeof window === 'undefined' || typeof document === 'undefined') {
+  if (globalThis.window === undefined || typeof document === 'undefined') {
     // SSR/Node environment - skip initialization
     return;
   }
@@ -194,10 +194,10 @@ export function initUIWatcher(config?: Partial<UIWatcherConfig>): void {
 
   state.initialized = true;
 
-  eventBus.emit({
-    type: 'system:component-loaded',
-    payload: { component: 'ui-watcher', status: 'ready' },
-    timestamp: Date.now(),
+  eventBus.emit('system:init', {
+    component: 'ui-watcher',
+    status: 'ready',
+  }, {
     source: 'ui-watcher',
   });
 }
@@ -346,15 +346,12 @@ function recordEvent(
   }
 
   // Emit to event bus
-  eventBus.emit({
-    type: 'user:input',
-    payload: {
-      interactionType: type,
-      target: event.target,
-      targetId: event.targetId,
-      data,
-    },
-    timestamp: event.timestamp,
+  eventBus.emit('user:input', {
+    interactionType: type,
+    target: event.target,
+    targetId: event.targetId,
+    data,
+  }, {
     source: 'ui-watcher',
   });
 }
@@ -405,8 +402,9 @@ function handleMouseEnter(e: MouseEvent): void {
   const elementKey = getElementKey(target);
 
   // Clear any existing timer
-  if (state.hoverTimers.has(elementKey)) {
-    clearTimeout(state.hoverTimers.get(elementKey)!);
+  const existingTimer = state.hoverTimers.get(elementKey);
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
   }
 
   // Set timer for hover interest detection
@@ -418,14 +416,11 @@ function handleMouseEnter(e: MouseEvent): void {
 
     // Emit hesitation event if it's an input
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-      eventBus.emit({
-        type: 'user:input',
-        payload: {
-          inputId: target.id || getElementSelector(target),
-          event: 'hover-interest',
-          duration: HOVER_INTEREST_THRESHOLD,
-        },
-        timestamp: Date.now(),
+      eventBus.emit('user:input', {
+        inputId: target.id || getElementSelector(target),
+        event: 'hover-interest',
+        duration: HOVER_INTEREST_THRESHOLD,
+      }, {
         source: 'ui-watcher',
       });
     }
@@ -442,8 +437,9 @@ function handleMouseLeave(e: MouseEvent): void {
   const elementKey = getElementKey(target);
 
   // Clear hover timer
-  if (state.hoverTimers.has(elementKey)) {
-    clearTimeout(state.hoverTimers.get(elementKey)!);
+  const existingHoverTimer = state.hoverTimers.get(elementKey);
+  if (existingHoverTimer !== undefined) {
+    clearTimeout(existingHoverTimer);
     state.hoverTimers.delete(elementKey);
   }
 }
@@ -461,14 +457,11 @@ function handleFocus(e: FocusEvent): void {
   const timer = setTimeout(() => {
     const inputValue = (target as HTMLInputElement).value;
     if (!inputValue || inputValue.trim() === '') {
-      eventBus.emit({
-        type: 'user:input',
-        payload: {
-          inputId: target.id || getElementSelector(target),
-          event: 'hesitation',
-          duration: HESITATION_THRESHOLD,
-        },
-        timestamp: Date.now(),
+      eventBus.emit('user:input', {
+        inputId: target.id || getElementSelector(target),
+        event: 'hesitation',
+        duration: HESITATION_THRESHOLD,
+      }, {
         source: 'ui-watcher',
       });
     }
@@ -559,13 +552,10 @@ function handleVisibilityChange(): void {
   });
 
   // Emit tab change event
-  eventBus.emit({
-    type: 'user:navigation',
-    payload: {
-      event: 'visibility-change',
-      visible: !document.hidden,
-    },
-    timestamp: Date.now(),
+  eventBus.emit('user:navigation', {
+    event: 'visibility-change',
+    visible: !document.hidden,
+  }, {
     source: 'ui-watcher',
   });
 }
@@ -650,10 +640,9 @@ function updateActivityState(interactionType: InteractionType): void {
       break;
     case 'scroll':
     case 'click':
-      newState = 'browsing';
-      break;
     default:
-      newState = 'browsing';
+      // newState already initialized to 'browsing'
+      break;
   }
 
   if (newState !== state.activityState) {
@@ -668,30 +657,24 @@ function checkIdle(): void {
   if (timeSinceLastInteraction > IDLE_THRESHOLD && state.activityState !== 'idle') {
     state.activityState = 'idle';
 
-    eventBus.emit({
-      type: 'user:input',
-      payload: {
-        event: 'idle',
-        duration: timeSinceLastInteraction,
-      },
-      timestamp: now,
+    eventBus.emit('user:input', {
+      event: 'idle',
+      duration: timeSinceLastInteraction,
+    }, {
       source: 'ui-watcher',
     });
   }
 }
 
 function emitInterestEvent(event: UIInteractionEvent, target: HTMLElement): void {
-  eventBus.emit({
-    type: 'user:input',
-    payload: {
-      event: 'interest',
-      interactionType: event.type,
-      target: event.target,
-      targetId: event.targetId,
-      elementType: target.tagName.toLowerCase(),
-      data: event.data,
-    },
-    timestamp: event.timestamp,
+  eventBus.emit('user:input', {
+    event: 'interest',
+    interactionType: event.type,
+    target: event.target,
+    targetId: event.targetId,
+    elementType: target.tagName.toLowerCase(),
+    data: event.data,
+  }, {
     source: 'ui-watcher',
   });
 }

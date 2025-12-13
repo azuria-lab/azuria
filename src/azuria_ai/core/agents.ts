@@ -29,28 +29,28 @@ export const agentRegistry: Agent[] = [];
 
 /**
  * Registra um novo agente no sistema
- * @param agent - Configuração do agente
+ * @param _agent - Configuração do agente
  */
-export function registerAgent(agent: Agent): void {
-  // TODO: Implementar lógica de registro
+export function registerAgent(_agent: Agent): void {
+  // Stub: registro de agentes será implementado quando necessário
 }
 
 /**
  * Busca agentes por capacidade
- * @param capability - Capacidade desejada
+ * @param _capability - Capacidade desejada
  * @returns Lista de agentes que possuem a capacidade
  */
-export function findAgentsByCapability(capability: string): Agent[] {
-  // TODO: Implementar busca por capacidade
+export function findAgentsByCapability(_capability: string): Agent[] {
+  // Stub: busca por capacidade será implementada quando necessário
   return [];
 }
 
 /**
  * Obtém um agente por ID
- * @param agentId - ID do agente
+ * @param _agentId - ID do agente
  * @returns Agente encontrado ou undefined
  */
-export function getAgentById(agentId: string): Agent | undefined {
-  // TODO: Implementar busca por ID
+export function getAgentById(_agentId: string): Agent | undefined {
+  // Stub: busca por ID será implementada quando necessário
   return undefined;
 }

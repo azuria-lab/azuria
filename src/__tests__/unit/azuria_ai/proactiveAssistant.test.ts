@@ -23,6 +23,9 @@ vi.mock('@/azuria_ai/engines/personalizationEngine', () => ({
     recordSuggestionDismissed: vi.fn(),
     recordSuggestionActed: vi.fn(),
     getUserPreference: vi.fn(() => 'balanced'),
+    recordShown: vi.fn(),
+    recordApplied: vi.fn(),
+    shouldShowProactive: vi.fn(() => ({ show: true, reason: 'allowed' })),
   },
 }));
 
@@ -31,6 +34,8 @@ vi.mock('@/azuria_ai/engines/feedbackLoopEngine', () => ({
   feedbackLoop: {
     recordSuggestionDismissed: vi.fn(() => Promise.resolve()),
     recordSuggestionApplied: vi.fn(() => Promise.resolve()),
+    recordApplied: vi.fn(() => Promise.resolve()),
+    recordDismissed: vi.fn(() => Promise.resolve()),
   },
 }));
 

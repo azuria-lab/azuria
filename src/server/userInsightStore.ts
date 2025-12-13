@@ -40,16 +40,6 @@ interface StoredSuggestion {
   expires_at: string | null;
 }
 
-interface _StoredFeedback {
-  id: string;
-  suggestion_id: string;
-  user_id: string | null;
-  type: string;
-  comment: string | null;
-  context: Record<string, unknown> | null;
-  created_at: string;
-}
-
 // ============================================================================
 // In-Memory Cache (fallback)
 // ============================================================================

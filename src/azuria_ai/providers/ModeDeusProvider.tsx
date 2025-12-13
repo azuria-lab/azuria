@@ -11,9 +11,7 @@
  */
 
 import React, {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -22,7 +20,6 @@ import React, {
 import { useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/domains/auth';
 import {
-  type EngineStatusValue,
   getEngineStatuses,
   getModeDeusConfig,
   handleNavigation,
@@ -37,68 +34,15 @@ import {
 import type { Suggestion, UserContext } from '../types/operational';
 import { on, unsubscribeFromEvent } from '../core/eventBus';
 import { getUserContext } from '../engines/userContextEngine';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-interface ModeDeusState {
-  /** Se o sistema está inicializado */
-  initialized: boolean;
-  /** Se está carregando */
-  loading: boolean;
-  /** Erro de inicialização, se houver */
-  error: string | null;
-  /** Status de todos os engines */
-  engineStatuses: Record<string, EngineStatusValue>;
-  /** Resultado do último processamento */
-  lastResult: ProcessingResult | null;
-  /** Configuração atual */
-  config: OrchestratorConfig | null;
-}
-
-interface ModeDeusContextValue extends ModeDeusState {
-  /** Inicializa manualmente (útil para retry) */
-  initialize: () => Promise<void>;
-  /** Processa contexto e retorna resultado */
-  processContext: (context: Partial<UserContext>) => Promise<ProcessingResult | null>;
-  /** Processa input de texto natural */
-  processNaturalInput: (input: string) => Promise<Suggestion[]>;
-  /** Atualiza sugestões manualmente */
-  refreshSuggestions: () => void;
-}
-
-// ============================================================================
-// Context
-// ============================================================================
-
-const ModeDeusContext = createContext<ModeDeusContextValue | null>(null);
-
-// ============================================================================
-// Hooks
-// ============================================================================
-
-/**
- * Hook para acessar o contexto do Modo Deus
- * @throws Se usado fora do ModeDeusProvider
- */
-export function useModeDeus(): ModeDeusContextValue {
-  const context = useContext(ModeDeusContext);
-
-  if (!context) {
-    throw new Error('useModeDeus deve ser usado dentro de ModeDeusProvider');
-  }
-
-  return context;
-}
-
-/**
- * Hook seguro que não lança erro se fora do provider
- * Útil para componentes que podem existir fora do dashboard
- */
-export function useModeDeusOptional(): ModeDeusContextValue | null {
-  return useContext(ModeDeusContext);
-}
+import ragEngine from '../engines/ragEngine';
+import multimodalEngine from '../engines/multimodalEngine';
+import whatIfSimulator from '../engines/whatIfSimulator';
+import xaiEngine from '../engines/xaiEngine';
+import portalMonitorAgent from '../agents/portalMonitorAgent';
+import priceMonitoringAgent from '../engines/priceMonitoringAgent';
+import invoiceOCREngine from '../engines/invoiceOCREngine';
+import dynamicPricingEngine from '../engines/dynamicPricingEngine';
+import { ModeDeusContext, type ModeDeusContextValue, type ModeDeusState } from './ModeDeusContext';
 
 // ============================================================================
 // Provider
@@ -159,6 +103,56 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
     try {
       await initModeDeus(user?.id, customConfig);
 
+      // Inicializar novos engines de licitações
+      try {
+        ragEngine.initRAGEngine();
+        multimodalEngine.initMultimodalEngine();
+        whatIfSimulator.initWhatIfSimulator();
+        xaiEngine.initXAIEngine();
+
+        // Inicializar engines v2.0 (e-commerce/marketplace)
+        priceMonitoringAgent.initPriceMonitoring();
+        invoiceOCREngine.initInvoiceOCR();
+        dynamicPricingEngine.initDynamicPricing();
+
+        // Iniciar monitoramento de preços para usuários PRO/Enterprise
+        if (
+          user?.user_metadata?.subscription === 'PRO' ||
+          user?.user_metadata?.subscription === 'Enterprise'
+        ) {
+          priceMonitoringAgent.startMonitoring({
+            intervalMinutes: 60, // 1 hora
+            userId: user?.id,
+          });
+        }
+
+        // Iniciar monitor de portais apenas para usuários PRO/Enterprise
+        if (
+          user?.user_metadata?.subscription === 'PRO' ||
+          user?.user_metadata?.subscription === 'Enterprise'
+        ) {
+          portalMonitorAgent.startPortalMonitor({
+            interval: 5 * 60 * 1000, // 5 minutos
+            autoAnalyze: true,
+            autoAlert: true,
+          });
+
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.log('[ModeDeusProvider] 🤖 Portal Monitor iniciado para usuário PRO/Enterprise');
+          }
+        }
+
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.log('[ModeDeusProvider] 🚀 Engines v2.0 (e-commerce) inicializados');
+        }
+      } catch (engineError) {
+        // eslint-disable-next-line no-console
+        console.warn('[ModeDeusProvider] ⚠️ Erro ao inicializar engines:', engineError);
+        // Não bloqueia a inicialização principal
+      }
+
       setState((prev) => ({
         ...prev,
         initialized: true,
@@ -186,7 +180,7 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
       // eslint-disable-next-line no-console
       console.error('[ModeDeusProvider] ❌ Erro na inicialização:', err);
     }
-  }, [user?.id, customConfig]);
+  }, [user?.id, user?.user_metadata?.subscription, customConfig]);
 
   // Auto-inicialização
   useEffect(() => {
@@ -198,6 +192,20 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
     return () => {
       if (state.initialized) {
         shutdownModeDeus();
+        
+        // Desligar engines v2.0
+        try {
+          portalMonitorAgent.stopPortalMonitor();
+          priceMonitoringAgent.stopMonitoring();
+          
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.log('[ModeDeusProvider] 🛑 Engines desligados');
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.warn('[ModeDeusProvider] ⚠️ Erro ao desligar engines:', err);
+        }
       }
     };
   }, [autoInitialize, initialize, state.initialized, state.loading]);
@@ -231,41 +239,65 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
 
     const subscriptionIds: string[] = [];
 
-    const handleInsight = (event: { payload?: { suggestion?: Suggestion } }) => {
-      if (event.payload?.suggestion) {
-        setState((prev) => {
-          const suggestion = event.payload?.suggestion;
-          if (!suggestion) {
-            return prev;
-          }
-
-          const currentSuggestions = prev.lastResult?.suggestions ?? [];
-          const exists = currentSuggestions.some((s) => s.id === suggestion.id);
-
-          if (exists) {
-            return prev;
-          }
-
-          return {
-            ...prev,
-            lastResult: prev.lastResult
-              ? {
-                  ...prev.lastResult,
-                  suggestions: [...currentSuggestions, suggestion].slice(-10),
-                }
-              : {
-                  suggestions: [suggestion],
-                  predictions: [],
-                  insights: [],
-                  shouldShowAssistance: true,
-                },
-          };
-        });
-      }
+    /**
+     * Helper to check if suggestion already exists
+     */
+    const suggestionExists = (suggestions: Suggestion[], id: string): boolean => {
+      return suggestions.some((s) => s.id === id);
     };
 
-    subscriptionIds.push(on('insight:generated', handleInsight));
-    subscriptionIds.push(on('ai:recommended-action', handleInsight));
+    /**
+     * Helper to create updated state with new suggestion
+     */
+    const createUpdatedState = (
+      prev: ModeDeusState,
+      suggestion: Suggestion,
+      currentSuggestions: Suggestion[]
+    ): ModeDeusState => {
+      const newSuggestions = [...currentSuggestions, suggestion].slice(-10);
+      
+      if (prev.lastResult) {
+        return {
+          ...prev,
+          lastResult: {
+            ...prev.lastResult,
+            suggestions: newSuggestions,
+          },
+        };
+      }
+      
+      return {
+        ...prev,
+        lastResult: {
+          suggestions: [suggestion],
+          predictions: [],
+          insights: [],
+          shouldShowAssistance: true,
+        },
+      };
+    };
+
+    const handleInsight = (event: { payload?: { suggestion?: Suggestion } }) => {
+      const suggestion = event.payload?.suggestion;
+      if (!suggestion) {
+        return;
+      }
+
+      setState((prev) => {
+        const currentSuggestions = prev.lastResult?.suggestions ?? [];
+        
+        if (suggestionExists(currentSuggestions, suggestion.id)) {
+          return prev;
+        }
+
+        return createUpdatedState(prev, suggestion, currentSuggestions);
+      });
+    };
+
+    subscriptionIds.push(
+      on('insight:generated', handleInsight),
+      on('ai:recommended-action', handleInsight)
+    );
 
     return () => {
       subscriptionIds.forEach((id) => unsubscribeFromEvent(id));
@@ -283,23 +315,20 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
       }
 
       const userContext = getUserContext();
-      const fullContext = userContext ?? {
-        userId: user?.id ?? 'anonymous',
-        sessionId: `session_${Date.now()}`,
-        currentPage: location.pathname,
-        previousPage: previousPath.current ?? undefined,
-        sessionStartTime: Date.now(),
-        interactionCount: 0,
-        skillLevel: 'intermediate' as const,
-        preferences: {},
-        recentActions: [],
-        formState: {},
+      
+      // Convert UserContext to ProcessingContext for the orchestrator
+      const processingContext = {
+        screen: context.currentScreen ?? userContext?.currentScreen ?? location.pathname,
+        userInput: context.lastActionType ?? userContext?.lastActionType,
+        action: context.lastActionType ?? userContext?.lastActionType,
+        metadata: {
+          userId: context.userId ?? userContext?.userId,
+          sessionId: context.sessionId ?? userContext?.sessionId,
+          skillLevel: context.skillLevel ?? userContext?.skillLevel,
+        },
       };
 
-      const result = await process({
-        ...fullContext,
-        ...context,
-      });
+      const result = await process(processingContext);
 
       setState((prev) => ({
         ...prev,
@@ -308,7 +337,7 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
 
       return result;
     },
-    [state.initialized, user?.id, location.pathname]
+    [state.initialized, location.pathname]
   );
 
   const processNaturalInput = useCallback(
@@ -347,7 +376,19 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
     const userContext = getUserContext();
 
     if (userContext) {
-      process(userContext).then((result) => {
+      // Convert UserContext to ProcessingContext
+      const processingContext = {
+        screen: userContext.currentScreen ?? '',
+        userInput: userContext.lastActionType,
+        action: userContext.lastActionType,
+        metadata: {
+          userId: userContext.userId,
+          sessionId: userContext.sessionId,
+          skillLevel: userContext.skillLevel,
+        },
+      };
+      
+      process(processingContext).then((result) => {
         setState((prev) => ({ ...prev, lastResult: result }));
       });
     }

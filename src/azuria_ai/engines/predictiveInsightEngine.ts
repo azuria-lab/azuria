@@ -8,7 +8,7 @@ export interface PredictiveInsight {
   predictiveScore: number;
   riskLevel: RiskLevel;
   suggestedActions: string[];
-  context: any;
+  context: Record<string, unknown>;
 }
 
 function clampScore(value: number) {
@@ -22,16 +22,35 @@ function evaluateRiskLevel(margem?: number, custo?: number, preco?: number): Ris
   return 'safe';
 }
 
-export function generatePredictiveInsight(context: any = {}): (PredictiveInsight & { id: string }) | null {
-  const margem = context?.margemLucro ?? context?.payload?.margemLucro;
-  const preco = context?.precoVenda ?? context?.payload?.precoVenda;
-  const custo = context?.custoProduto ?? context?.payload?.custoProduto;
-  const custosOper = context?.custoOperacional ?? context?.payload?.custoOperacional;
-  const taxasMarketplace = context?.taxasMarketplace ?? context?.payload?.taxasMarketplace;
+function mapRiskLevelToSeverity(riskLevel: RiskLevel): 'critical' | 'high' | 'low' {
+  if (riskLevel === 'critical') {return 'critical';}
+  if (riskLevel === 'alert') {return 'high';}
+  return 'low';
+}
 
-  const riskLevel = evaluateRiskLevel(margem, custo, preco);
+interface ContextValues {
+  margem?: number;
+  preco?: number;
+  custo?: number;
+  custosOper?: number;
+  taxasMarketplace?: number;
+}
 
+function extractContextValues(context: Record<string, unknown>): ContextValues {
+  const payload = context?.payload as Record<string, unknown> | undefined;
+  return {
+    margem: (context?.margemLucro ?? payload?.margemLucro) as number | undefined,
+    preco: (context?.precoVenda ?? payload?.precoVenda) as number | undefined,
+    custo: (context?.custoProduto ?? payload?.custoProduto) as number | undefined,
+    custosOper: (context?.custoOperacional ?? payload?.custoOperacional) as number | undefined,
+    taxasMarketplace: (context?.taxasMarketplace ?? payload?.taxasMarketplace) as number | undefined,
+  };
+}
+
+function collectSignals(values: ContextValues): string[] {
+  const { margem, preco, custo, custosOper, taxasMarketplace } = values;
   const signals: string[] = [];
+
   if (margem !== undefined) {
     if (margem < 10) {signals.push('queda_margem_prevista');}
     if (margem >= 25) {signals.push('margem_otima');}
@@ -46,29 +65,36 @@ export function generatePredictiveInsight(context: any = {}): (PredictiveInsight
   if (custo !== undefined && preco !== undefined && custo >= preco) {
     signals.push('risco_prejuizo');
   }
+  return signals;
+}
 
-  const predictiveScore = clampScore(0.3 + signals.length * 0.15);
-  const suggestedActions: string[] = [];
+const signalToAction: Record<string, string> = {
+  'queda_margem_prevista': 'Ajustar preço para recompor margem',
+  'aumento_custo_operacional': 'Negociar frete ou repassar custo',
+  'risco_prejuizo': 'Rever custos ou aumentar preço imediatamente',
+  'impacto_marketplace': 'Comparar marketplaces ou ajustar comissão',
+  'margem_otima': 'Explorar promoção controlada para ganho de volume',
+};
 
-  if (signals.includes('queda_margem_prevista')) {
-    suggestedActions.push('Ajustar preço para recompor margem');
-  }
-  if (signals.includes('aumento_custo_operacional')) {
-    suggestedActions.push('Negociar frete ou repassar custo');
-  }
-  if (signals.includes('risco_prejuizo')) {
-    suggestedActions.push('Rever custos ou aumentar preço imediatamente');
-  }
-  if (signals.includes('impacto_marketplace')) {
-    suggestedActions.push('Comparar marketplaces ou ajustar comissão');
-  }
-  if (signals.includes('margem_otima')) {
-    suggestedActions.push('Explorar promoção controlada para ganho de volume');
-  }
+function buildSuggestedActions(signals: string[]): string[] {
+  return signals
+    .map(signal => signalToAction[signal])
+    .filter((action): action is string => action !== undefined);
+}
+
+export function generatePredictiveInsight(context: Record<string, unknown> = {}): (PredictiveInsight & { id: string }) | null {
+  const values = extractContextValues(context);
+  const { margem, preco, custo } = values;
+
+  const riskLevel = evaluateRiskLevel(margem, custo, preco);
+  const signals = collectSignals(values);
 
   if (signals.length === 0) {
     return null;
   }
+
+  const predictiveScore = clampScore(0.3 + signals.length * 0.15);
+  const suggestedActions = buildSuggestedActions(signals);
 
   const insight: PredictiveInsight & { id: string } = {
     id: `predict-${Date.now()}-${Math.random()}`,
@@ -95,7 +121,7 @@ export function generatePredictiveInsight(context: any = {}): (PredictiveInsight
     'insight:generated',
     {
       type: 'forecast',
-      severity: riskLevel === 'critical' ? 'critical' : riskLevel === 'alert' ? 'high' : 'low',
+      severity: mapRiskLevelToSeverity(riskLevel),
       message: insight.message,
       suggestion: suggestedActions[0],
       values: { predictiveScore },

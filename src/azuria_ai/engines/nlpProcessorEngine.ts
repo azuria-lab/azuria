@@ -264,6 +264,7 @@ export function initNLPProcessor(): void {
   state.analysisHistory = [];
   state.initialized = true;
 
+  // eslint-disable-next-line no-console
   console.log('[NLPProcessorEngine] Initialized');
 }
 
@@ -306,7 +307,7 @@ export function analyzeText(text: string): IntentAnalysis {
   const urgency = detectUrgency(normalizedText);
 
   // Generate suggested action
-  const suggestedAction = generateSuggestedAction(intent, entities);
+  const suggestedAction = generateSuggestedAction(intent.intent, entities);
 
   const analysis: IntentAnalysis = {
     intent: intent.intent,
@@ -324,26 +325,23 @@ export function analyzeText(text: string): IntentAnalysis {
   }
 
   // Emit event
-  eventBus.emit({
-    type: 'user:intent_detected',
-    payload: {
-      intent: analysis.intent,
-      confidence: analysis.confidence,
-      entities: analysis.entities.map((e) => e.type),
-    },
+  eventBus.emit('user:action', {
+    intent: analysis.intent,
+    confidence: analysis.confidence,
+    entities: analysis.entities.map((e) => e.type),
+    analysis,
   });
 
   return analysis;
 }
 
 /**
- * Detecta intenção do texto
+ * Helper: Detecta intenção a partir de padrões built-in
  */
-function detectIntent(text: string): { intent: UserIntent; confidence: number } {
+function detectBuiltInIntent(text: string): { intent: UserIntent; score: number } {
   let bestIntent: UserIntent = 'unknown';
   let bestScore = 0;
 
-  // Check built-in patterns
   for (const [intent, patterns] of Object.entries(INTENT_PATTERNS)) {
     if (intent === 'unknown') {continue;}
 
@@ -358,7 +356,15 @@ function detectIntent(text: string): { intent: UserIntent; confidence: number } 
     }
   }
 
-  // Check custom patterns
+  return { intent: bestIntent, score: bestScore };
+}
+
+/**
+ * Helper: Detecta intenção a partir de padrões customizados
+ */
+function detectCustomIntent(text: string, currentBest: { intent: UserIntent; score: number }): { intent: UserIntent; score: number } {
+  let { intent: bestIntent, score: bestScore } = currentBest;
+
   for (const [intent, patterns] of state.customPatterns) {
     for (const pattern of patterns) {
       if (pattern.test(text)) {
@@ -371,22 +377,37 @@ function detectIntent(text: string): { intent: UserIntent; confidence: number } 
     }
   }
 
-  // Normalize confidence
-  const confidence = Math.min(0.95, bestScore > 0 ? 0.5 + bestScore * 0.5 : 0.1);
+  return { intent: bestIntent, score: bestScore };
+}
 
-  return { intent: bestIntent, confidence };
+/**
+ * Helper: Normaliza score para confidence
+ */
+function normalizeConfidence(score: number): number {
+  return Math.min(0.95, score > 0 ? 0.5 + score * 0.5 : 0.1);
+}
+
+/**
+ * Detecta intenção do texto
+ */
+function detectIntent(text: string): { intent: UserIntent; confidence: number } {
+  const builtInResult = detectBuiltInIntent(text);
+  const finalResult = detectCustomIntent(text, builtInResult);
+  const confidence = normalizeConfidence(finalResult.score);
+
+  return { intent: finalResult.intent, confidence };
 }
 
 /**
  * Calcula score de match do padrão
  */
 function calculatePatternScore(text: string, pattern: RegExp): number {
-  const matches = text.match(pattern);
-  if (!matches) {return 0;}
+  const match = pattern.exec(text);
+  if (!match) {return 0;}
 
   // Score based on match length relative to text length
   // Filter out undefined/null matches before reducing
-  const matchLength = matches
+  const matchLength = match
     .filter((m): m is string => m !== undefined && m !== null)
     .reduce((sum, m) => sum + m.length, 0);
   return Math.min(1, matchLength / (text.length * 0.5));
@@ -444,18 +465,18 @@ function normalizeEntityValue(
     case 'currency': {
       // R$ 1.234,56 -> 1234.56
       const cleaned = value
-        .replace(/[R$\s]/g, '')
-        .replace(/\./g, '')
+        .replaceAll(/[R$\s]/g, '')
+        .replaceAll('.', '')
         .replace(',', '.');
-      return parseFloat(cleaned) || 0;
+      return Number.parseFloat(cleaned) || 0;
     }
     case 'percentage': {
       // 25% or 25 por cento -> 25
-      const cleaned = value.replace(/[%\s]/g, '').replace(/por\s*cento/i, '');
-      return parseFloat(cleaned.replace(',', '.')) || 0;
+      const cleaned = value.replaceAll(/[%\s]/g, '').replace(/por\s*cento/i, '');
+      return Number.parseFloat(cleaned.replace(',', '.')) || 0;
     }
     case 'number': {
-      return parseFloat(value.replace(',', '.')) || 0;
+      return Number.parseFloat(value.replace(',', '.')) || 0;
     }
     default:
       return value.toLowerCase().trim();
@@ -526,8 +547,8 @@ export function normalizeText(text: string): string {
   return text
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents for matching
-    .replace(/\s+/g, ' ')
+    .replaceAll(/[\u0300-\u036f]/g, '') // Remove accents for matching
+    .replaceAll(/\s+/g, ' ')
     .trim();
 }
 
@@ -542,10 +563,11 @@ export function correctText(text: string): TextCorrection[] {
     const lower = word.toLowerCase();
 
     // Check custom corrections first
-    if (state.customCorrections.has(lower)) {
+    const customCorrection = state.customCorrections.get(lower);
+    if (customCorrection) {
       corrections.push({
         original: word,
-        corrected: state.customCorrections.get(lower)!,
+        corrected: customCorrection,
         type: 'spelling',
         confidence: 0.9,
       });
@@ -601,6 +623,19 @@ export function suggestCompletions(partial: string): TextCompletion {
 }
 
 /**
+ * Helper function to determine value type based on currency/percentage indicators
+ */
+function determineValueType(hasCurrency: boolean, hasPercent: boolean): 'currency' | 'percentage' | 'number' {
+  if (hasCurrency) {
+    return 'currency';
+  }
+  if (hasPercent) {
+    return 'percentage';
+  }
+  return 'number';
+}
+
+/**
  * Normaliza entrada de valor (input de formulário)
  */
 export function normalizeValueInput(input: string): {
@@ -614,20 +649,20 @@ export function normalizeValueInput(input: string): {
 
   // Clean and parse
   let cleaned = input
-    .replace(/[R$%\s]/gi, '')
-    .replace(/por\s*cento/gi, '')
+    .replaceAll(/[R$%\s]/gi, '')
+    .replaceAll(/por\s*cento/gi, '')
     .trim();
 
   // Handle Brazilian number format (1.234,56)
   if (cleaned.includes(',') && cleaned.includes('.')) {
-    cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    cleaned = cleaned.replaceAll('.', '').replace(',', '.');
   } else if (cleaned.includes(',')) {
     cleaned = cleaned.replace(',', '.');
   }
 
-  const value = parseFloat(cleaned) || 0;
+  const value = Number.parseFloat(cleaned) || 0;
 
-  const type = hasCurrency ? 'currency' : hasPercent ? 'percentage' : 'number';
+  const type = determineValueType(hasCurrency, hasPercent);
 
   // Format output
   let formatted: string;

@@ -11,7 +11,7 @@
  * @module azuria_ai/engines/tutorialEngine
  */
 
-import type { CreateSuggestionInput, SkillLevel, UserContext } from '../types/operational';
+import type { CreateSuggestionInput, UserContext } from '../types/operational';
 import { eventBus } from '../core/eventBus';
 
 // ============================================================================
@@ -604,7 +604,7 @@ export function startTutorial(tutorialId: string): TutorialProgress | null {
   if (tutorial.prerequisites) {
     for (const prereq of tutorial.prerequisites) {
       const prereqProgress = state.progress.get(prereq);
-      if (!prereqProgress || prereqProgress.status !== 'completed') {
+      if (prereqProgress?.status !== 'completed') {
         return null; // Pré-requisito não completado
       }
     }
@@ -626,13 +626,10 @@ export function startTutorial(tutorialId: string): TutorialProgress | null {
   state.activeTutorial = tutorialId;
 
   // Emitir evento
-  eventBus.emit({
-    type: 'user:navigation',
-    payload: {
-      event: 'tutorial-started',
-      tutorialId,
-      tutorialTitle: tutorial.title,
-    },
+  eventBus.emit('user:navigation', {
+    event: 'tutorial-started',
+    tutorialId,
+    tutorialTitle: tutorial.title,
     timestamp: now,
     source: 'tutorial-engine',
   });
@@ -690,7 +687,7 @@ export function skipStep(): TutorialStep | null {
   if (!progress || !tutorial) {return null;}
 
   const currentStep = tutorial.steps[progress.currentStepIndex];
-  if (!currentStep || !currentStep.skippable) {return null;}
+  if (!currentStep?.skippable) {return null;}
 
   // Marcar como pulado
   progress.skippedSteps.push(currentStep.id);
@@ -760,14 +757,11 @@ export function completeTutorial(): void {
   }
 
   // Emitir evento
-  eventBus.emit({
-    type: 'user:navigation',
-    payload: {
-      event: 'tutorial-completed',
-      tutorialId: state.activeTutorial,
-      tutorialTitle: tutorial.title,
-      timeSpent: progress.timeSpent,
-    },
+  eventBus.emit('user:navigation', {
+    event: 'tutorial-completed',
+    tutorialId: state.activeTutorial,
+    tutorialTitle: tutorial.title,
+    timeSpent: progress.timeSpent,
     timestamp: now,
     source: 'tutorial-engine',
   });

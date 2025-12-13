@@ -7,6 +7,9 @@
 
 import { supabase } from '../integrations/supabase/client';
 
+// Helper para tabelas não tipadas no schema
+const untypedFrom = (table: string) => supabase.from(table as never) as ReturnType<typeof supabase.from>;
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -46,7 +49,7 @@ async function persistEvent(entry: EvolutionEntry): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
-    const { error } = await supabase.from('evolution_events').insert({
+    const { error } = await untypedFrom('evolution_events').insert({
       id: entry.id,
       type: entry.type,
       payload: entry.payload,
@@ -69,13 +72,13 @@ async function persistSnapshot(snap: EvolutionSnapshot): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
-    const { error } = await supabase.from('evolution_snapshots').insert({
+    const { error } = await untypedFrom('evolution_snapshots').insert({
       id: snap.id,
       snapshot: snap.snapshot,
       created_at: new Date(snap.created_at).toISOString(),
     });
     
-    if (error && error.code === '42P01') {
+    if (error?.code === '42P01') {
       useSupabase = false;
     }
   } catch {
@@ -162,8 +165,7 @@ export async function loadEventsFromStorage(limit = 100): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
-    const { data, error } = await supabase
-      .from('evolution_events')
+    const { data, error } = await untypedFrom('evolution_events')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -206,7 +208,7 @@ export function getEvolutionStats(): {
     eventsCount: eventsCache.length,
     snapshotsCount: snapshotsCache.length,
     usingSupabase: useSupabase,
-    oldestEvent: eventsCache[eventsCache.length - 1]?.created_at,
+    oldestEvent: eventsCache.at(-1)?.created_at,
     newestEvent: eventsCache[0]?.created_at,
   };
 }

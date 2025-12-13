@@ -13,7 +13,6 @@
 
 import type {
   CreateSuggestionInput,
-  Suggestion,
   UserContext,
 } from '../types/operational';
 import { eventBus } from '../core/eventBus';
@@ -161,6 +160,23 @@ export interface BiddingAlert {
   detalhe?: string;
   /** Referência legal */
   referenciaLegal?: string;
+}
+
+/** Mapeia tipo de alerta para tipo de sugestão */
+function mapAlertTipoToType(tipo: BiddingAlert['tipo']): 'warning' | 'hint' {
+  return tipo === 'error' ? 'warning' : 'hint';
+}
+
+/** Mapeia tipo de alerta para prioridade */
+function mapAlertTipoToPriority(tipo: BiddingAlert['tipo']): 'high' | 'medium' | 'low' {
+  switch (tipo) {
+    case 'error':
+      return 'high';
+    case 'warning':
+      return 'medium';
+    default:
+      return 'low';
+  }
 }
 
 /** Configuração de cálculo */
@@ -346,13 +362,10 @@ export function calcularBDI(
   state.lastResult = result;
 
   // Emitir evento
-  eventBus.emit({
-    type: 'user:calculation',
-    payload: {
-      calculatorType: 'bdi',
-      success: true,
-      result: { bdi, multiplicador, tipo },
-    },
+  eventBus.emit('calc:completed', {
+    calculatorType: 'bdi',
+    success: true,
+    result: { bdi, multiplicador, tipo },
     timestamp: Date.now(),
     source: 'bidding-assistant',
   });
@@ -386,32 +399,55 @@ export function calcularCustoMaximo(precoAlvo: number, bdi: number): number {
 }
 
 // ============================================================================
-// Proposal Analysis
+// Proposal Analysis Helper Types
+// ============================================================================
+
+/** Resultado da análise de referência */
+interface ReferenceAnalysisResult {
+  comparacao: ProposalAnalysis['comparacaoReferencia'];
+  alertas: BiddingAlert[];
+  sugestoes: string[];
+}
+
+/** Resultado do cálculo de scores */
+interface ScoreCalculationResult {
+  scoreCompetitividade: number;
+  scoreRisco: number;
+  sugestoes: string[];
+}
+
+// ============================================================================
+// Proposal Analysis Helpers
 // ============================================================================
 
 /**
- * Analisa uma proposta de licitação
+ * Verifica consistência entre BDI informado e calculado
  */
-export function analisarProposta(proposta: BiddingProposal): ProposalAnalysis {
-  const alertas: BiddingAlert[] = [];
-  const sugestoes: string[] = [];
-
-  // Calcular BDI implícito
-  const bdiImplicito = calcularBDIReverso(proposta.custoDirecto, proposta.precoFinal);
-
-  // Verificar consistência do BDI informado
-  const diferencaBDI = Math.abs(bdiImplicito - proposta.bdiAplicado);
+function verificarConsistenciaBDI(
+  bdiImplicito: number,
+  bdiAplicado: number
+): BiddingAlert | null {
+  const diferencaBDI = Math.abs(bdiImplicito - bdiAplicado);
   if (diferencaBDI > 0.5) {
-    alertas.push({
+    return {
       tipo: 'error',
       codigo: 'BDI_INCONSISTENTE',
       mensagem: 'BDI informado não confere com o calculado',
-      detalhe: `BDI informado: ${proposta.bdiAplicado.toFixed(2)}%, BDI calculado: ${bdiImplicito.toFixed(2)}%`,
-    });
+      detalhe: `BDI informado: ${bdiAplicado.toFixed(2)}%, BDI calculado: ${bdiImplicito.toFixed(2)}%`,
+    };
   }
+  return null;
+}
 
-  // Verificar faixa TCU
-  const faixaTCU = BDI_RANGES[proposta.tipo];
+/**
+ * Verifica conformidade com faixa TCU
+ */
+function verificarFaixaTCU(
+  bdiImplicito: number,
+  faixaTCU: { min: number; max: number }
+): { alertas: BiddingAlert[]; sugestoes: string[] } {
+  const alertas: BiddingAlert[] = [];
+  const sugestoes: string[] = [];
 
   if (bdiImplicito < faixaTCU.min * 0.8) {
     alertas.push({
@@ -438,76 +474,85 @@ export function analisarProposta(proposta: BiddingProposal): ProposalAnalysis {
     );
   }
 
-  // Comparar com valor de referência
-  let comparacaoReferencia:
-    | ProposalAnalysis['comparacaoReferencia']
-    | undefined;
+  return { alertas, sugestoes };
+}
 
-  if (proposta.valorReferencia && proposta.valorReferencia > 0) {
-    const percentualDiferenca =
-      ((proposta.precoFinal - proposta.valorReferencia) /
-        proposta.valorReferencia) *
-      100;
+/**
+ * Compara proposta com valor de referência
+ */
+function compararComReferencia(
+  precoFinal: number,
+  valorReferencia: number | undefined
+): ReferenceAnalysisResult {
+  const alertas: BiddingAlert[] = [];
+  const sugestoes: string[] = [];
 
-    if (percentualDiferenca > 0) {
-      comparacaoReferencia = {
-        percentualDiferenca,
-        status: 'acima',
-      };
-      alertas.push({
-        tipo: 'error',
-        codigo: 'ACIMA_REFERENCIA',
-        mensagem: 'Preço acima do valor de referência',
-        detalhe: `Proposta ${percentualDiferenca.toFixed(2)}% acima da referência. Será desclassificada.`,
-        referenciaLegal: 'Art. 59, §3°, Lei 14.133/2021',
-      });
-    } else if (percentualDiferenca < -30) {
-      comparacaoReferencia = {
-        percentualDiferenca,
-        status: 'abaixo',
-      };
-      alertas.push({
-        tipo: 'warning',
-        codigo: 'MUITO_ABAIXO_REFERENCIA',
-        mensagem: 'Preço muito abaixo da referência',
-        detalhe: `Proposta ${Math.abs(percentualDiferenca).toFixed(2)}% abaixo. Pode ser considerada inexequível.`,
-      });
-      sugestoes.push(
-        'Prepare justificativa técnica para demonstrar exequibilidade.'
-      );
-    } else {
-      comparacaoReferencia = {
-        percentualDiferenca,
-        status: 'dentro',
-      };
-      if (percentualDiferenca < -10) {
-        alertas.push({
-          tipo: 'success',
-          codigo: 'BOA_COMPETITIVIDADE',
-          mensagem: 'Boa posição competitiva',
-          detalhe: `Proposta ${Math.abs(percentualDiferenca).toFixed(2)}% abaixo da referência com margem saudável.`,
-        });
-      }
-    }
+  if (!valorReferencia || valorReferencia <= 0) {
+    return { comparacao: undefined, alertas, sugestoes };
   }
 
-  // Calcular scores
+  const percentualDiferenca =
+    ((precoFinal - valorReferencia) / valorReferencia) * 100;
+
+  if (percentualDiferenca > 0) {
+    alertas.push({
+      tipo: 'error',
+      codigo: 'ACIMA_REFERENCIA',
+      mensagem: 'Preço acima do valor de referência',
+      detalhe: `Proposta ${percentualDiferenca.toFixed(2)}% acima da referência. Será desclassificada.`,
+      referenciaLegal: 'Art. 59, §3°, Lei 14.133/2021',
+    });
+    return { comparacao: { percentualDiferenca, status: 'acima' }, alertas, sugestoes };
+  }
+
+  if (percentualDiferenca < -30) {
+    alertas.push({
+      tipo: 'warning',
+      codigo: 'MUITO_ABAIXO_REFERENCIA',
+      mensagem: 'Preço muito abaixo da referência',
+      detalhe: `Proposta ${Math.abs(percentualDiferenca).toFixed(2)}% abaixo. Pode ser considerada inexequível.`,
+    });
+    sugestoes.push(
+      'Prepare justificativa técnica para demonstrar exequibilidade.'
+    );
+    return { comparacao: { percentualDiferenca, status: 'abaixo' }, alertas, sugestoes };
+  }
+
+  // Dentro da faixa aceitável
+  if (percentualDiferenca < -10) {
+    alertas.push({
+      tipo: 'success',
+      codigo: 'BOA_COMPETITIVIDADE',
+      mensagem: 'Boa posição competitiva',
+      detalhe: `Proposta ${Math.abs(percentualDiferenca).toFixed(2)}% abaixo da referência com margem saudável.`,
+    });
+  }
+  return { comparacao: { percentualDiferenca, status: 'dentro' }, alertas, sugestoes };
+}
+
+/**
+ * Calcula scores de competitividade e risco
+ */
+function calcularScores(
+  comparacaoReferencia: ProposalAnalysis['comparacaoReferencia'],
+  bdiImplicito: number,
+  faixaTCU: { min: number; max: number }
+): ScoreCalculationResult {
+  const sugestoes: string[] = [];
   let scoreCompetitividade = 50;
-  let scoreRisco = 50;
+  let scoreRisco: number;
 
   // Ajustar competitividade baseado na comparação
-  if (comparacaoReferencia) {
-    if (comparacaoReferencia.status === 'abaixo') {
-      scoreCompetitividade = Math.min(
-        100,
-        70 + Math.abs(comparacaoReferencia.percentualDiferenca)
-      );
-    } else if (comparacaoReferencia.status === 'acima') {
-      scoreCompetitividade = Math.max(
-        0,
-        30 - comparacaoReferencia.percentualDiferenca
-      );
-    }
+  if (comparacaoReferencia?.status === 'abaixo') {
+    scoreCompetitividade = Math.min(
+      100,
+      70 + Math.abs(comparacaoReferencia.percentualDiferenca)
+    );
+  } else if (comparacaoReferencia?.status === 'acima') {
+    scoreCompetitividade = Math.max(
+      0,
+      30 - comparacaoReferencia.percentualDiferenca
+    );
   }
 
   // Ajustar risco baseado no BDI
@@ -517,23 +562,64 @@ export function analisarProposta(proposta: BiddingProposal): ProposalAnalysis {
   } else if (bdiImplicito > faixaTCU.max) {
     scoreRisco = Math.min(100, 50 + (bdiImplicito - faixaTCU.max) * 3);
   } else {
-    // Dentro da faixa = baixo risco
-    scoreRisco = 30;
+    scoreRisco = 30; // Dentro da faixa = baixo risco
   }
 
-  // Verificar se proposta é válida
-  const temErrosCriticos = alertas.some(
+  return { scoreCompetitividade, scoreRisco, sugestoes };
+}
+
+/**
+ * Verifica se há erros críticos nos alertas
+ */
+function temErrosCriticos(alertas: BiddingAlert[]): boolean {
+  return alertas.some(
     (a) =>
       a.tipo === 'error' &&
       (a.codigo === 'ACIMA_REFERENCIA' || a.codigo === 'POSSIVEL_INEXEQUIBILIDADE')
   );
+}
+
+// ============================================================================
+// Proposal Analysis
+// ============================================================================
+
+/**
+ * Analisa uma proposta de licitação
+ */
+export function analisarProposta(proposta: BiddingProposal): ProposalAnalysis {
+  const alertas: BiddingAlert[] = [];
+  const sugestoes: string[] = [];
+
+  // Calcular BDI implícito
+  const bdiImplicito = calcularBDIReverso(proposta.custoDirecto, proposta.precoFinal);
+  const faixaTCU = BDI_RANGES[proposta.tipo];
+
+  // Verificar consistência do BDI
+  const alertaBDI = verificarConsistenciaBDI(bdiImplicito, proposta.bdiAplicado);
+  if (alertaBDI) {
+    alertas.push(alertaBDI);
+  }
+
+  // Verificar faixa TCU
+  const analisesTCU = verificarFaixaTCU(bdiImplicito, faixaTCU);
+  alertas.push(...analisesTCU.alertas);
+  sugestoes.push(...analisesTCU.sugestoes);
+
+  // Comparar com valor de referência
+  const analisesReferencia = compararComReferencia(proposta.precoFinal, proposta.valorReferencia);
+  alertas.push(...analisesReferencia.alertas);
+  sugestoes.push(...analisesReferencia.sugestoes);
+
+  // Calcular scores
+  const scores = calcularScores(analisesReferencia.comparacao, bdiImplicito, faixaTCU);
+  sugestoes.push(...scores.sugestoes);
 
   return {
-    valida: !temErrosCriticos,
-    scoreCompetitividade,
-    scoreRisco,
+    valida: !temErrosCriticos(alertas),
+    scoreCompetitividade: scores.scoreCompetitividade,
+    scoreRisco: scores.scoreRisco,
     bdiImplicito,
-    comparacaoReferencia,
+    comparacaoReferencia: analisesReferencia.comparacao,
     alertas,
     sugestoes,
   };
@@ -618,13 +704,8 @@ export function analysisToSuggestions(
 
   for (const alerta of analysis.alertas) {
     suggestions.push({
-      type: alerta.tipo === 'error' ? 'warning' : alerta.tipo === 'warning' ? 'hint' : 'hint',
-      priority:
-        alerta.tipo === 'error'
-          ? 'high'
-          : alerta.tipo === 'warning'
-            ? 'medium'
-            : 'low',
+      type: mapAlertTipoToType(alerta.tipo),
+      priority: mapAlertTipoToPriority(alerta.tipo),
       category: 'bidding',
       title: alerta.mensagem,
       message: alerta.detalhe ?? alerta.mensagem,

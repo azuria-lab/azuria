@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
+  LayoutDashboard,
   Lightbulb,
   MessageSquare,
   Settings,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 import { useCoPilot } from '../hooks/useCoPilot';
+import { MiniDashboard } from './MiniDashboard';
 import type { FeedbackType, Suggestion, SuggestionType } from '../types/operational';
 
 // ============================================================================
@@ -40,6 +42,10 @@ export interface CoPilotProps {
   onSuggestionDismissed?: (suggestion: Suggestion) => void;
   /** Classes CSS customizadas */
   className?: string;
+  /** Se o usuário é admin (para mostrar informações sensíveis) */
+  isAdmin?: boolean;
+  /** ID do usuário */
+  userId?: string;
 }
 
 // ============================================================================
@@ -66,6 +72,20 @@ const priorityColors: Record<string, string> = {
   medium: 'border-l-blue-500',
   high: 'border-l-orange-500',
   critical: 'border-l-red-500',
+};
+
+/**
+ * Helper function to get action button classes based on type
+ */
+const getActionButtonClass = (type: string): string => {
+  switch (type) {
+    case 'primary':
+      return 'bg-cyan-600 text-white hover:bg-cyan-700';
+    case 'secondary':
+      return 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+    default:
+      return 'text-gray-500 hover:text-gray-700';
+  }
 };
 
 const SuggestionCard: React.FC<{
@@ -157,13 +177,7 @@ const SuggestionCard: React.FC<{
               }}
               className={`
                 text-xs px-3 py-1.5 rounded-md transition-colors
-                ${
-                  action.type === 'primary'
-                    ? 'bg-cyan-600 text-white hover:bg-cyan-700'
-                    : action.type === 'secondary'
-                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      : 'text-gray-500 hover:text-gray-700'
-                }
+                ${getActionButtonClass(action.type)}
               `}
             >
               {action.label}
@@ -174,14 +188,7 @@ const SuggestionCard: React.FC<{
 
       {/* Feedback */}
       <div className="mt-3 pt-2 border-t border-gray-100">
-        {!showFeedback ? (
-          <button
-            onClick={() => setShowFeedback(true)}
-            className="text-xs text-gray-400 hover:text-gray-600"
-          >
-            Esta sugestão foi útil?
-          </button>
-        ) : (
+        {showFeedback ? (
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-500">Útil?</span>
             <button
@@ -205,11 +212,85 @@ const SuggestionCard: React.FC<{
               <ThumbsDown className="h-4 w-4" />
             </button>
           </div>
+        ) : (
+          <button
+            onClick={() => setShowFeedback(true)}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            Esta sugestão foi útil?
+          </button>
         )}
       </div>
     </div>
   );
 };
+
+// ============================================================================
+// Helper Components for CoPilot
+// ============================================================================
+
+interface MinimizedButtonProps {
+  onMouseDown: (e: React.MouseEvent) => void;
+  onClick: () => void;
+  isDragging: boolean;
+  suggestionCount: number;
+}
+
+const MinimizedButton: React.FC<MinimizedButtonProps> = ({
+  onMouseDown,
+  onClick,
+  isDragging,
+  suggestionCount,
+}) => (
+  <button
+    onMouseDown={onMouseDown}
+    onClick={onClick}
+    className={`
+      relative rounded-full shadow-lg 
+      bg-gradient-to-br from-cyan-500 to-cyan-600 
+      hover:from-cyan-600 hover:to-cyan-700
+      transition-all duration-200 hover:scale-105
+      p-1.5
+      ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+    `}
+    aria-label="Abrir Co-Piloto"
+  >
+    <AzuriaAvatarImage size="medium" className="ring-2 ring-white" />
+    {suggestionCount > 0 && (
+      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+        {suggestionCount > 9 ? '9+' : suggestionCount}
+      </span>
+    )}
+  </button>
+);
+
+interface SettingsPanelProps {
+  isEnabled: boolean;
+  toggle: () => void;
+}
+
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ isEnabled, toggle }) => (
+  <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-gray-700">Co-Piloto ativo</span>
+      <button
+        onClick={() => toggle()}
+        className={`
+          relative inline-flex h-6 w-11 items-center rounded-full
+          transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2
+          ${isEnabled ? 'bg-cyan-600' : 'bg-gray-200'}
+        `}
+      >
+        <span
+          className={`
+            inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+            ${isEnabled ? 'translate-x-6' : 'translate-x-1'}
+          `}
+        />
+      </button>
+    </div>
+  </div>
+);
 
 // ============================================================================
 // Main Component
@@ -221,6 +302,8 @@ export const CoPilot: React.FC<CoPilotProps> = ({
   onSuggestionAccepted,
   onSuggestionDismissed,
   className = '',
+  isAdmin = false,
+  userId,
 }) => {
   const {
     suggestions,
@@ -237,13 +320,19 @@ export const CoPilot: React.FC<CoPilotProps> = ({
     new Set()
   );
   const [showSettings, setShowSettings] = useState(false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  
+  // Estado para posição arrastável
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Position classes
   const positionClasses: Record<string, string> = {
-    'bottom-right': 'bottom-4 right-2',
-    'bottom-left': 'bottom-4 left-2',
-    'top-right': 'top-4 right-2',
-    'top-left': 'top-4 left-2',
+    'bottom-right': 'bottom-2 right-2',
+    'bottom-left': 'bottom-2 left-2',
+    'top-right': 'top-2 right-2',
+    'top-left': 'top-2 left-2',
   };
 
   const handleAccept = useCallback(
@@ -281,6 +370,44 @@ export const CoPilot: React.FC<CoPilotProps> = ({
     });
   }, []);
 
+  // Handlers de arrastar
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isMinimized) {
+      setIsDragging(true);
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+      e.preventDefault();
+    }
+  }, [isMinimized]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isDragging) {
+      setDragPosition({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y,
+      });
+    }
+  }, [isDragging, dragOffset]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Adicionar/remover event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      globalThis.addEventListener('mousemove', handleMouseMove);
+      globalThis.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        globalThis.removeEventListener('mousemove', handleMouseMove);
+        globalThis.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
   // Não renderizar se não estiver pronto ou desabilitado
   if (!isReady || !isEnabled) {
     return null;
@@ -289,35 +416,28 @@ export const CoPilot: React.FC<CoPilotProps> = ({
   // Badge de contagem
   const suggestionCount = suggestions.length;
 
+  // Estilo de posição (arrastável ou fixa)
+  const containerStyle = dragPosition
+    ? { position: 'fixed' as const, left: `${dragPosition.x}px`, top: `${dragPosition.y}px`, maxWidth: '360px', width: '100%' }
+    : { maxWidth: '360px', width: '100%' };
+
   return (
     <div
       className={`
         fixed z-50 
-        ${positionClasses[position]}
+        ${dragPosition ? '' : positionClasses[position]}
         ${className}
       `}
-      style={{ maxWidth: '360px', width: '100%' }}
+      style={containerStyle}
     >
       {/* Minimized State - Just the bubble */}
       {isMinimized ? (
-        <button
-          onClick={() => setIsMinimized(false)}
-          className={`
-            relative rounded-full shadow-lg 
-            bg-gradient-to-br from-cyan-500 to-cyan-600 
-            hover:from-cyan-600 hover:to-cyan-700
-            transition-all duration-200 hover:scale-105
-            p-1
-          `}
-          aria-label="Abrir Co-Piloto"
-        >
-          <AzuriaAvatarImage size="small" className="ring-2 ring-white" />
-          {suggestionCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              {suggestionCount > 9 ? '9+' : suggestionCount}
-            </span>
-          )}
-        </button>
+        <MinimizedButton
+          onMouseDown={handleMouseDown}
+          onClick={() => !isDragging && setIsMinimized(false)}
+          isDragging={isDragging}
+          suggestionCount={suggestionCount}
+        />
       ) : (
         /* Expanded State */
         <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
@@ -328,6 +448,14 @@ export const CoPilot: React.FC<CoPilotProps> = ({
               <span className="font-semibold text-sm">Co-Piloto Azuria</span>
             </div>
             <div className="flex items-center gap-1">
+              <button
+                onClick={() => setIsDashboardOpen(true)}
+                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded"
+                aria-label="Abrir Dashboard"
+                title="Ver Dashboard Completo"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+              </button>
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded"
@@ -347,26 +475,7 @@ export const CoPilot: React.FC<CoPilotProps> = ({
 
           {/* Settings Panel */}
           {showSettings && (
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Co-Piloto ativo</span>
-                <button
-                  onClick={() => toggle()}
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full
-                    transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2
-                    ${isEnabled ? 'bg-cyan-600' : 'bg-gray-200'}
-                  `}
-                >
-                  <span
-                    className={`
-                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                      ${isEnabled ? 'translate-x-6' : 'translate-x-1'}
-                    `}
-                  />
-                </button>
-              </div>
-            </div>
+            <SettingsPanel isEnabled={isEnabled} toggle={toggle} />
           )}
 
           {/* Content */}
@@ -400,12 +509,20 @@ export const CoPilot: React.FC<CoPilotProps> = ({
           {suggestions.length > 0 && (
             <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
               <p className="text-xs text-gray-400 text-center">
-                {suggestions.length} sugestão{suggestions.length !== 1 ? 'ões' : ''} ativa{suggestions.length !== 1 ? 's' : ''}
+                {suggestions.length} sugest{suggestions.length === 1 ? 'ão ativa' : 'ões ativas'}
               </p>
             </div>
           )}
         </div>
       )}
+
+      {/* MiniDashboard integrado */}
+      <MiniDashboard
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
+        userId={userId}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 };

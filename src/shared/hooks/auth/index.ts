@@ -19,7 +19,7 @@ export const useAuth = () => {
     isAuthenticated,
   } = useAuthState();
 
-  const { login, register, logout, resetPassword, updatePassword } =
+  const { login, register, logout, resetPassword, updatePassword, loginWithGoogle } =
     useAuthMethods(setIsLoading, setError);
 
   const { fetchUserProfile, updateProfile, updateProStatus } = useUserProfile(
@@ -68,6 +68,7 @@ export const useAuth = () => {
     logout,
     resetPassword,
     updatePassword,
+    loginWithGoogle,
 
     // User profile methods
     updateProfile,

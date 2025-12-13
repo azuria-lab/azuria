@@ -8,7 +8,7 @@ export type PersonaKey = keyof typeof personaProfiles;
 function sanitize(text: string, forbidEmojis?: boolean) {
   if (!forbidEmojis) {return text;}
   // remove caracteres fora do básico para evitar emoji
-  return text.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
+  return text.replaceAll(/[\u{1F300}-\u{1FAFF}]/gu, '');
 }
 
 export function getToneProfileForUser(userState?: any): ToneProfileKey {

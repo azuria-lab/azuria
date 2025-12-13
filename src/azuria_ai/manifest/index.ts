@@ -178,8 +178,8 @@ const STRATEGIC_LEVELS: EvolutionLevel[] = [
     category: 'analysis',
     capabilities: ['ml_analysis', 'pattern_recognition'],
     dependencies: [14],
-    implemented: false,
-    module: 'engines/AnalysisEngine.ts',
+    implemented: true,
+    module: 'engines/analysisEngine.ts',
   },
 
   // Sugestões (21-30)
@@ -259,7 +259,8 @@ const STRATEGIC_LEVELS: EvolutionLevel[] = [
     category: 'action',
     capabilities: ['adaptive_behavior', 'context_adaptation'],
     dependencies: [32],
-    implemented: false,
+    implemented: true,
+    module: 'engines/adaptiveActionsEngine.ts',
   },
 
   // Governança (36-40)
@@ -338,7 +339,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'suggestion_store',
     ],
     dependencies: [40],
-    implemented: false,
+    implemented: true,
     module: 'engines/OperationalAIEngine.ts',
   },
   {
@@ -353,7 +354,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'skill_level_detection',
     ],
     dependencies: [41],
-    implemented: false,
+    implemented: true,
     module: 'engines/UserContextEngine.ts',
   },
   {
@@ -368,7 +369,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'navigation_tracking',
     ],
     dependencies: [42],
-    implemented: false,
+    implemented: true,
     module: 'engines/UIWatcherEngine.ts',
   },
 
@@ -385,7 +386,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'non_intrusive_ui',
     ],
     dependencies: [43],
-    implemented: false,
+    implemented: true,
     module: 'engines/TipEngine.ts',
   },
   {
@@ -400,7 +401,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'why_explanation',
     ],
     dependencies: [44],
-    implemented: false,
+    implemented: true,
     module: 'engines/ExplanationEngine.ts',
   },
   {
@@ -415,7 +416,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'timing_hints',
     ],
     dependencies: [45],
-    implemented: false,
+    implemented: true,
     module: 'engines/BiddingAssistantEngine.ts',
   },
 
@@ -432,7 +433,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'suggestion_refinement',
     ],
     dependencies: [46],
-    implemented: false,
+    implemented: true,
     module: 'engines/FeedbackLoopEngine.ts',
   },
   {
@@ -447,7 +448,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'personalization',
     ],
     dependencies: [47],
-    implemented: false,
+    implemented: true,
     module: 'engines/PatternLearningEngine.ts',
   },
 
@@ -464,7 +465,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'need_anticipation',
     ],
     dependencies: [48],
-    implemented: false,
+    implemented: true,
     module: 'engines/PredictiveEngine.ts',
   },
   {
@@ -479,7 +480,7 @@ const OPERATIONAL_LEVELS: EvolutionLevel[] = [
       'adaptive_personality',
     ],
     dependencies: [49],
-    implemented: false,
+    implemented: true,
     module: 'ui/CoPilot.tsx',
   },
 ];

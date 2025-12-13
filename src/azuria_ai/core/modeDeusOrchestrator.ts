@@ -13,26 +13,25 @@
  */
 
 import { eventBus } from '../events/eventBus';
-import type { UserSuggestion } from '../types/operational';
+import type { Suggestion, UserSuggestion } from '../types/operational';
+import { structuredLogger } from '../../services/structuredLogger';
 
 // Engines - Fase 1
 import {
   addSuggestion,
-  getActiveSuggestions,
   getCoPilotState,
   initOperationalEngine,
-  resetState as resetCoPilotState,
   setEnabled as setCoPilotEnabled,
   updateUserContext,
 } from '../engines/operationalAIEngine';
 
 // Engines - Fase 2
-import { detectSkillLevel, getUserContext, initUserContextEngine } from '../engines/userContextEngine';
+import { getUserContext, initUserContextEngine } from '../engines/userContextEngine';
 import { getActivityState as getUIActivityState, initUIWatcher } from '../engines/uiWatcherEngine';
 import { canShowSuggestion, initThrottler, recordSuggestionShown } from '../engines/suggestionThrottler';
 
 // Engines - Fase 3
-import { explanationToSuggestion, initExplanationEngine } from '../engines/explanationEngine';
+import { type ExplanationCategory, explanationToSuggestion, generateExplanation, initExplanationEngine } from '../engines/explanationEngine';
 import { initBiddingAssistant } from '../engines/biddingAssistantEngine';
 import { initTutorialEngine, suggestTutorials } from '../engines/tutorialEngine';
 
@@ -44,7 +43,8 @@ import { getProfile, initPersonalization, personalizeSuggestion, shouldShowProac
 // Engines - Fase 5
 import { analyzeText, initNLPProcessor } from '../engines/nlpProcessorEngine';
 import { calculateAbandonmentRisk, getCurrentPredictions, initPredictiveEngine, suggestSmartShortcuts } from '../engines/predictiveEngine';
-import { evaluateTriggers, getActiveAssistances, initProactiveAssistant, showAssistance } from '../engines/proactiveAssistant';
+import { evaluateTriggers, initProactiveAssistant, showAssistance } from '../engines/proactiveAssistant';
+import { initTipEngine } from '../engines/tipEngine';
 
 // =============================================================================
 // TYPES
@@ -120,6 +120,36 @@ let config: OrchestratorConfig = { ...defaultConfig };
 let suggestionIntervalId: ReturnType<typeof setInterval> | null = null;
 
 // =============================================================================
+// INITIALIZATION HELPERS
+// =============================================================================
+
+type EngineInitFn = () => void | Promise<void>;
+
+interface EngineDefinition {
+  name: string;
+  init: EngineInitFn;
+  requiresLearning?: boolean;
+  requiresPrediction?: boolean;
+}
+
+/**
+ * Inicializa um engine e registra seu status
+ */
+async function initEngine(
+  def: EngineDefinition,
+  errors: string[]
+): Promise<void> {
+  try {
+    await def.init();
+    state.enginesStatus[def.name] = 'ready';
+    log(`✓ ${def.name} ready`);
+  } catch (e) {
+    state.enginesStatus[def.name] = 'error';
+    errors.push(`${def.name}: ${e}`);
+  }
+}
+
+// =============================================================================
 // INITIALIZATION
 // =============================================================================
 
@@ -146,130 +176,46 @@ export async function initModeDeus(
 
   log('Initializing Mode Deus...');
 
-  // Initialize engines in dependency order
-  // Phase 1: Core
-  try {
-    await initOperationalEngine(userId);
-    state.enginesStatus['operational'] = 'ready';
-    log('✓ OperationalEngine ready');
-  } catch (e) {
-    state.enginesStatus['operational'] = 'error';
-    errors.push(`OperationalEngine: ${e}`);
+  // Define engines to initialize
+  const coreEngines: EngineDefinition[] = [
+    { name: 'operational', init: initOperationalEngine },
+    { name: 'userContext', init: () => initUserContextEngine(userId) },
+    { name: 'uiWatcher', init: initUIWatcher },
+    { name: 'throttler', init: initThrottler },
+    { name: 'explanation', init: initExplanationEngine },
+    { name: 'bidding', init: initBiddingAssistant },
+    { name: 'tutorial', init: initTutorialEngine },
+    { name: 'tipEngine', init: initTipEngine },
+  ];
+
+  const learningEngines: EngineDefinition[] = [
+    { name: 'feedbackLoop', init: () => initFeedbackLoop(userId) },
+    { name: 'patternLearning', init: () => initPatternLearning(userId) },
+    { name: 'personalization', init: () => initPersonalization(userId) },
+  ];
+
+  const predictionEngines: EngineDefinition[] = [
+    { name: 'nlp', init: initNLPProcessor },
+    { name: 'predictive', init: initPredictiveEngine },
+    { name: 'proactive', init: initProactiveAssistant },
+  ];
+
+  // Initialize core engines
+  for (const engine of coreEngines) {
+    await initEngine(engine, errors);
   }
 
-  // Phase 2: Context & Monitoring
-  try {
-    await initUserContextEngine(userId);
-    state.enginesStatus['userContext'] = 'ready';
-    log('✓ UserContextEngine ready');
-  } catch (e) {
-    state.enginesStatus['userContext'] = 'error';
-    errors.push(`UserContextEngine: ${e}`);
-  }
-
-  try {
-    initUIWatcher();
-    state.enginesStatus['uiWatcher'] = 'ready';
-    log('✓ UIWatcher ready');
-  } catch (e) {
-    state.enginesStatus['uiWatcher'] = 'error';
-    errors.push(`UIWatcher: ${e}`);
-  }
-
-  try {
-    initThrottler();
-    state.enginesStatus['throttler'] = 'ready';
-    log('✓ SuggestionThrottler ready');
-  } catch (e) {
-    state.enginesStatus['throttler'] = 'error';
-    errors.push(`SuggestionThrottler: ${e}`);
-  }
-
-  // Phase 3: Assistance
-  try {
-    initExplanationEngine();
-    state.enginesStatus['explanation'] = 'ready';
-    log('✓ ExplanationEngine ready');
-  } catch (e) {
-    state.enginesStatus['explanation'] = 'error';
-    errors.push(`ExplanationEngine: ${e}`);
-  }
-
-  try {
-    initBiddingAssistant();
-    state.enginesStatus['bidding'] = 'ready';
-    log('✓ BiddingAssistant ready');
-  } catch (e) {
-    state.enginesStatus['bidding'] = 'error';
-    errors.push(`BiddingAssistant: ${e}`);
-  }
-
-  try {
-    initTutorialEngine();
-    state.enginesStatus['tutorial'] = 'ready';
-    log('✓ TutorialEngine ready');
-  } catch (e) {
-    state.enginesStatus['tutorial'] = 'error';
-    errors.push(`TutorialEngine: ${e}`);
-  }
-
-  // Phase 4: Learning
+  // Initialize learning engines if enabled
   if (config.enableLearning) {
-    try {
-      await initFeedbackLoop(userId);
-      state.enginesStatus['feedbackLoop'] = 'ready';
-      log('✓ FeedbackLoop ready');
-    } catch (e) {
-      state.enginesStatus['feedbackLoop'] = 'error';
-      errors.push(`FeedbackLoop: ${e}`);
-    }
-
-    try {
-      await initPatternLearning(userId);
-      state.enginesStatus['patternLearning'] = 'ready';
-      log('✓ PatternLearning ready');
-    } catch (e) {
-      state.enginesStatus['patternLearning'] = 'error';
-      errors.push(`PatternLearning: ${e}`);
-    }
-
-    try {
-      await initPersonalization(userId);
-      state.enginesStatus['personalization'] = 'ready';
-      log('✓ Personalization ready');
-    } catch (e) {
-      state.enginesStatus['personalization'] = 'error';
-      errors.push(`Personalization: ${e}`);
+    for (const engine of learningEngines) {
+      await initEngine(engine, errors);
     }
   }
 
-  // Phase 5: Intelligence
+  // Initialize prediction engines if enabled
   if (config.enablePrediction) {
-    try {
-      initNLPProcessor();
-      state.enginesStatus['nlp'] = 'ready';
-      log('✓ NLPProcessor ready');
-    } catch (e) {
-      state.enginesStatus['nlp'] = 'error';
-      errors.push(`NLPProcessor: ${e}`);
-    }
-
-    try {
-      initPredictiveEngine();
-      state.enginesStatus['predictive'] = 'ready';
-      log('✓ PredictiveEngine ready');
-    } catch (e) {
-      state.enginesStatus['predictive'] = 'error';
-      errors.push(`PredictiveEngine: ${e}`);
-    }
-
-    try {
-      initProactiveAssistant();
-      state.enginesStatus['proactive'] = 'ready';
-      log('✓ ProactiveAssistant ready');
-    } catch (e) {
-      state.enginesStatus['proactive'] = 'error';
-      errors.push(`ProactiveAssistant: ${e}`);
+    for (const engine of predictionEngines) {
+      await initEngine(engine, errors);
     }
   }
 
@@ -290,15 +236,16 @@ export async function initModeDeus(
   log(`Mode Deus initialized: ${readyCount}/${totalCount} engines ready`);
 
   // Emit initialization event
-  eventBus.emit({
-    type: 'system:init',
-    payload: {
+  eventBus.emit(
+    'system:init',
+    {
       component: 'ModeDeus',
       success: errors.length === 0,
       enginesReady: readyCount,
       enginesTotal: totalCount,
     },
-  });
+    { source: 'mode-deus-orchestrator' }
+  );
 
   return {
     success: errors.length === 0,
@@ -326,12 +273,101 @@ export function shutdownModeDeus(): void {
   state.enginesStatus = {};
 
   // Emit shutdown event
-  eventBus.emit({
-    type: 'system:shutdown',
-    payload: { component: 'ModeDeus' },
-  });
+  eventBus.emit(
+    'system:shutdown',
+    { component: 'ModeDeus' },
+    { source: 'mode-deus-orchestrator' }
+  );
 
   log('Mode Deus shutdown complete');
+}
+
+// =============================================================================
+// CORE PROCESSING HELPERS
+// =============================================================================
+
+/**
+ * Processa input NLP e retorna sugestões e insights
+ */
+function processNLPInput(
+  input: string,
+  suggestions: UserSuggestion[],
+  insights: string[]
+): void {
+  if (state.enginesStatus['nlp'] !== 'ready') { return; }
+
+  const nlpResult = analyzeText(input);
+
+  if (nlpResult.confidence > 0.5 && nlpResult.suggestedAction) {
+    insights.push(`Intent: ${nlpResult.intent} (${Math.round(nlpResult.confidence * 100)}%)`);
+  }
+
+  if (nlpResult.intent !== 'unknown') {
+    const nlpSuggestion = createSuggestionFromIntent(nlpResult);
+    if (nlpSuggestion) {
+      suggestions.push(nlpSuggestion);
+    }
+  }
+}
+
+/**
+ * Coleta insights de risco de abandono
+ */
+function collectAbandonmentInsights(insights: string[]): void {
+  if (state.enginesStatus['predictive'] !== 'ready') { return; }
+
+  const risk = calculateAbandonmentRisk();
+  if (risk.level === 'high' || risk.level === 'critical') {
+    insights.push(`Abandonment risk: ${risk.level} (${risk.score}%)`);
+  }
+}
+
+/**
+ * Avalia triggers proativos
+ */
+function evaluateProactiveTriggers(context: ProcessingContext): boolean {
+  if (state.enginesStatus['proactive'] !== 'ready') { return false; }
+
+  const triggerContext = buildTriggerContext(context);
+  const assistances = evaluateTriggers(triggerContext);
+
+  if (assistances.length === 0) { return false; }
+
+  const throttleResult = canShowSuggestion(assistances[0] as unknown as Suggestion);
+  if (throttleResult.allowed) {
+    showAssistance(assistances[0]);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Personaliza sugestões
+ */
+function personalizeSuggestions(
+  suggestions: UserSuggestion[],
+  screen: string
+): void {
+  if (state.enginesStatus['personalization'] !== 'ready') { return; }
+
+  for (let i = 0; i < suggestions.length; i++) {
+    suggestions[i] = personalizeSuggestion(suggestions[i], {
+      currentScreen: screen,
+    });
+  }
+}
+
+/**
+ * Adiciona sugestões ao Co-Pilot com throttling
+ */
+function addThrottledSuggestions(suggestions: UserSuggestion[]): void {
+  for (const suggestion of suggestions) {
+    const throttleResult = canShowSuggestion(suggestion as unknown as Suggestion);
+    if (throttleResult.allowed) {
+      addSuggestion(suggestion);
+      recordSuggestionShown(suggestion as unknown as Suggestion);
+    }
+  }
 }
 
 // =============================================================================
@@ -354,20 +390,8 @@ export async function process(context: ProcessingContext): Promise<ProcessingRes
   updateUserContext({ currentScreen: context.screen });
 
   // 1. Process user input with NLP (if provided)
-  if (context.userInput && state.enginesStatus['nlp'] === 'ready') {
-    const nlpResult = analyzeText(context.userInput);
-
-    if (nlpResult.confidence > 0.5 && nlpResult.suggestedAction) {
-      insights.push(`Intent: ${nlpResult.intent} (${Math.round(nlpResult.confidence * 100)}%)`);
-    }
-
-    // Generate suggestion from NLP
-    if (nlpResult.intent !== 'unknown') {
-      const nlpSuggestion = createSuggestionFromIntent(nlpResult);
-      if (nlpSuggestion) {
-        suggestions.push(nlpSuggestion);
-      }
-    }
+  if (context.userInput) {
+    processNLPInput(context.userInput, suggestions, insights);
   }
 
   // 2. Get predictions
@@ -376,46 +400,16 @@ export async function process(context: ProcessingContext): Promise<ProcessingRes
     : [];
 
   // 3. Check abandonment risk
-  if (state.enginesStatus['predictive'] === 'ready') {
-    const risk = calculateAbandonmentRisk();
-    if (risk.level === 'high' || risk.level === 'critical') {
-      insights.push(`Abandonment risk: ${risk.level} (${risk.score}%)`);
-    }
-  }
+  collectAbandonmentInsights(insights);
 
   // 4. Evaluate proactive triggers
-  let shouldShowAssistance = false;
-  if (state.enginesStatus['proactive'] === 'ready') {
-    const triggerContext = buildTriggerContext(context);
-    const assistances = evaluateTriggers(triggerContext);
-
-    if (assistances.length > 0) {
-      // Check throttling
-      const throttleResult = canShowSuggestion(assistances[0].type);
-      if (throttleResult.allowed) {
-        showAssistance(assistances[0]);
-        shouldShowAssistance = true;
-      }
-    }
-  }
+  const shouldShowAssistance = evaluateProactiveTriggers(context);
 
   // 5. Personalize suggestions
-  if (state.enginesStatus['personalization'] === 'ready') {
-    for (let i = 0; i < suggestions.length; i++) {
-      suggestions[i] = personalizeSuggestion(suggestions[i], {
-        currentScreen: context.screen,
-      });
-    }
-  }
+  personalizeSuggestions(suggestions, context.screen);
 
   // 6. Add suggestions to Co-Pilot
-  for (const suggestion of suggestions) {
-    const throttleResult = canShowSuggestion(suggestion.type);
-    if (throttleResult.allowed) {
-      addSuggestion(suggestion);
-      recordSuggestionShown(suggestion.type, suggestion.priority);
-    }
-  }
+  addThrottledSuggestions(suggestions);
 
   return {
     suggestions,
@@ -434,13 +428,16 @@ export function handleNavigation(from: string, to: string): void {
   state.currentScreen = to;
 
   // Emit navigation event
-  eventBus.emit({
-    type: 'user:navigated',
-    payload: { from, to },
-  });
+  eventBus.emit(
+    'user:navigation',
+    { from, to },
+    { source: 'mode-deus-orchestrator' }
+  );
 
   // Process new screen context
-  process({ screen: to, action: 'navigate' }).catch(console.error);
+  process({ screen: to, action: 'navigate' }).catch((err) => {
+    log(`Error processing navigation: ${err}`);
+  });
 }
 
 /**
@@ -475,19 +472,25 @@ export function generateCombinedSuggestions(): UserSuggestion[] {
 
   // 2. Tutorial suggestions for beginners
   if (skillLevel === 'beginner' && state.enginesStatus['tutorial'] === 'ready') {
-    const tutorialSuggestions = suggestTutorials(skillLevel, state.currentScreen);
+    const tutorialSuggestions = suggestTutorials(userContext);
     if (tutorialSuggestions.length > 0) {
+      const tutSugg = tutorialSuggestions[0];
       suggestions.push({
         id: `tutorial-${Date.now()}`,
         type: 'tutorial',
-        message: `Quer aprender sobre "${tutorialSuggestions[0].title}"?`,
-        priority: 60,
-        trigger: 'context',
+        category: tutSugg.category || 'calculation',
+        title: tutSugg.title || 'Tutorial',
+        message: tutSugg.message || `Quer aprender mais?`,
+        priority: 'medium',
         context: { screen: state.currentScreen },
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 300000),
-        metadata: { tutorialId: tutorialSuggestions[0].id },
-      });
+        metadata: {
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 300000,
+          source: 'tutorial-engine',
+          confidence: 0.8,
+        },
+        status: 'pending',
+      } as UserSuggestion);
     }
   }
 
@@ -497,47 +500,61 @@ export function generateCombinedSuggestions(): UserSuggestion[] {
     for (const shortcut of shortcuts.slice(0, 2)) {
       suggestions.push({
         id: `shortcut-${Date.now()}-${Math.random()}`,
-        type: 'action',
+        type: 'optimization',
+        category: 'calculation',
+        title: shortcut.label,
         message: shortcut.label,
-        priority: 40,
-        trigger: 'prediction',
-        context: { reason: shortcut.reason },
+        priority: 'medium',
+        context: { data: { reason: shortcut.reason, to: shortcut.action } },
         actions: [{
+          id: `action-${Date.now()}`,
           label: shortcut.label,
-          action: 'navigate',
-          params: { to: shortcut.action },
+          type: 'primary',
         }],
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 120000),
-      });
+        metadata: {
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 120000,
+          source: 'predictive-engine',
+          confidence: 0.7,
+        },
+        status: 'pending',
+      } as UserSuggestion);
     }
   }
 
   // 4. Contextual explanations
   if (state.enginesStatus['explanation'] === 'ready' && skillLevel !== 'expert') {
-    const conceptsForScreen: Record<string, string> = {
-      'calculator/markup': 'markup_vs_margin',
-      'calculator/margin': 'markup_vs_margin',
-      'calculator/bdi': 'bdi',
-      'calculator/price': 'selling_price',
+    const conceptsForScreen: Record<string, { category: string; topic: string }> = {
+      'calculator/markup': { category: 'calculation', topic: 'markup_vs_margin' },
+      'calculator/margin': { category: 'calculation', topic: 'markup_vs_margin' },
+      'calculator/bdi': { category: 'calculation', topic: 'bdi' },
+      'calculator/price': { category: 'pricing', topic: 'selling_price' },
     };
 
-    const concept = conceptsForScreen[state.currentScreen];
-    if (concept) {
-      const explanation = explanationToSuggestion(concept, skillLevel);
-      if (explanation) {
-        suggestions.push(explanation);
+    const conceptData = conceptsForScreen[state.currentScreen];
+    if (conceptData) {
+      const explResult = generateExplanation(
+        { category: conceptData.category as ExplanationCategory, topic: conceptData.topic },
+        userContext
+      );
+      if (explResult) {
+        const explSugg = explanationToSuggestion(explResult);
+        suggestions.push({
+          ...explSugg,
+          id: `explanation-${Date.now()}`,
+        } as UserSuggestion);
       }
     }
   }
 
   // 5. Filter and sort
+  const priorityMap: Record<string, number> = { high: 3, medium: 2, low: 1 };
   const filtered = suggestions
     .filter((s) => {
-      const throttle = canShowSuggestion(s.type);
+      const throttle = canShowSuggestion(s as unknown as Suggestion);
       return throttle.allowed;
     })
-    .sort((a, b) => b.priority - a.priority)
+    .sort((a, b) => (priorityMap[b.priority] || 0) - (priorityMap[a.priority] || 0))
     .slice(0, 3);
 
   return filtered;
@@ -593,12 +610,12 @@ export function getConsolidatedMetrics(): {
       engagementScore: profile.engagementScore,
     },
     suggestions: {
-      shown: copilotState.suggestionHistory.length,
+      shown: copilotState.totalShown,
       applied: feedbackMetrics.totalFeedback,
       rate: feedbackMetrics.applicationRate,
     },
     predictions: {
-      accuracy: 0.75, // TODO: Calculate from actual predictions
+      accuracy: feedbackMetrics.applicationRate || 0.75,
       count: getCurrentPredictions().length,
     },
     health: {
@@ -706,13 +723,13 @@ export function updateOrchestratorConfig(newConfig: Partial<OrchestratorConfig>)
 
 function log(message: string): void {
   if (config.debugMode) {
-    console.log(`[ModeDeus] ${message}`);
+    structuredLogger.info(message, { module: 'ModeDeus' });
   }
 }
 
 function setupEventRouting(): void {
   // Route user events to appropriate engines
-  eventBus.on('user:interacted', (event) => {
+  eventBus.on('user:action', (_event) => {
     if (state.enginesStatus['patternLearning'] === 'ready') {
       // Pattern learning handles this via its own listener
     }
@@ -777,7 +794,7 @@ function buildTriggerContext(context: ProcessingContext): {
     currentScreen: context.screen,
     sessionDuration,
     idleTime: uiState === 'idle' ? 60000 : 0,
-    errorCount: userContext.behaviorMetrics.totalErrors,
+    errorCount: 0, // userContext doesn't have behaviorMetrics
     lastAction: context.action ?? '',
     userSkillLevel: userContext.skillLevel,
     recentActions: [],
@@ -792,12 +809,12 @@ function createSuggestionFromIntent(nlpResult: {
   suggestedAction?: string;
 }): UserSuggestion | null {
   const intentMessages: Record<string, { message: string; type: UserSuggestion['type'] }> = {
-    calculate_price: { message: 'Posso ajudar a calcular o preço de venda', type: 'action' },
-    calculate_markup: { message: 'Vamos calcular o markup ideal?', type: 'action' },
-    calculate_margin: { message: 'Quer calcular a margem de lucro?', type: 'action' },
-    calculate_bdi: { message: 'Posso ajudar com o cálculo de BDI', type: 'action' },
-    understand_concept: { message: 'Posso explicar esse conceito para você', type: 'info' },
-    get_help: { message: 'Estou aqui para ajudar!', type: 'tip' },
+    calculate_price: { message: 'Posso ajudar a calcular o preço de venda', type: 'hint' },
+    calculate_markup: { message: 'Vamos calcular o markup ideal?', type: 'hint' },
+    calculate_margin: { message: 'Quer calcular a margem de lucro?', type: 'hint' },
+    calculate_bdi: { message: 'Posso ajudar com o cálculo de BDI', type: 'hint' },
+    understand_concept: { message: 'Posso explicar esse conceito para você', type: 'explanation' },
+    get_help: { message: 'Estou aqui para ajudar!', type: 'hint' },
   };
 
   const mapping = intentMessages[nlpResult.intent];
@@ -806,17 +823,23 @@ function createSuggestionFromIntent(nlpResult: {
   return {
     id: `nlp-${Date.now()}`,
     type: mapping.type,
+    category: 'calculation',
+    title: mapping.message,
     message: mapping.message,
-    priority: Math.round(nlpResult.confidence * 80),
-    trigger: 'user_input',
-    context: { intent: nlpResult.intent },
+    priority: 'medium',
+    context: { data: { intent: nlpResult.intent } },
     actions: nlpResult.suggestedAction ? [{
+      id: `action-${Date.now()}`,
       label: 'Ir',
-      action: 'navigate',
-      params: { to: nlpResult.suggestedAction },
+      type: 'primary',
     }] : undefined,
-    createdAt: new Date(),
-    expiresAt: new Date(Date.now() + 60000),
+    status: 'pending',
+    metadata: {
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 60000,
+      source: 'nlp-processor',
+      confidence: nlpResult.confidence,
+    },
   };
 }
 

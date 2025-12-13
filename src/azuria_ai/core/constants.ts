@@ -40,7 +40,7 @@ export const CONFIDENCE = {
   /** Limiar para considerar "alta confiança" */
   HIGH: 0.8,
   /** Confiança máxima */
-  MAX: 1.0,
+  MAX: 1,
 } as const;
 
 // ============================================================================

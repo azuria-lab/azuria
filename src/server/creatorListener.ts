@@ -3,18 +3,19 @@ import { insertAlert } from './creatorStore';
 import { notifySSE } from './sseManager';
 import { addEvolutionEvent } from './evolutionStore';
 
+function getEventType(event: string): 'roadmap' | 'recommendation' | 'insight' | 'alert' {
+  if (event.includes('roadmap')) { return 'roadmap'; }
+  if (event.includes('recommendation')) { return 'recommendation'; }
+  if (event.includes('insight')) { return 'insight'; }
+  return 'alert';
+}
+
 async function handle(event: string, payload: any) {
   // Se já vem persistido (id), apenas propaga
   let alert = payload;
   if (!payload?.id) {
     alert = await insertAlert({
-      type: event.includes('roadmap')
-        ? 'roadmap'
-        : event.includes('recommendation')
-        ? 'recommendation'
-        : event.includes('insight')
-        ? 'insight'
-        : 'alert',
+      type: getEventType(event),
       area: payload.area,
       severity: payload.severity,
       message: payload.message || payload.recommendation || 'Alert',

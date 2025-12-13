@@ -7,12 +7,13 @@
 import React, { useEffect, useState } from 'react';
 import { type AzuriaEvent, on, unsubscribeFromEvent } from '../core/eventBus';
 import { AlertTriangle, BarChart3, Calculator, FileText, Sparkles, TrendingUp, X } from 'lucide-react';
-import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
+import { rewriteWithBrandVoice, type ToneProfileKey } from '../engines/brandVoiceEngine';
 
 export interface MiniDashboardProps {
   isOpen: boolean;
   onClose: () => void;
   userId?: string;
+  isAdmin?: boolean;
 }
 
 interface Insight {
@@ -70,13 +71,13 @@ interface DiagnosticState {
   evolutionScore?: number;
   weaknesses?: string[];
   patches?: string[];
-  globalState?: any;
+  globalState?: Record<string, unknown>;
   lastUnifiedRecommendation?: string;
   integratedConfidence?: number;
   healthScore?: number;
   emotionalTone?: string;
   emotionMessage?: string;
-  adaptiveLayout?: any;
+  adaptiveLayout?: Record<string, unknown>;
   engagementScore?: number;
   churnRisk?: number;
   upgradeProbability?: number;
@@ -89,8 +90,8 @@ interface DiagnosticState {
   sensors?: string[];
   strategicHealth?: number;
   strategicRisks?: string[];
-  longTermGoals?: any[];
-  strategicPlan?: any[];
+  longTermGoals?: Array<{ target?: string; id?: string }>;
+  strategicPlan?: Array<{ target?: string; id?: string }>;
 }
 
 interface EngagementNarrativeState {
@@ -122,7 +123,7 @@ interface SystemMindState {
   systemUptimeCognitive?: number;
   realityConfidence?: number;
   externalForces?: string[];
-  contextSnapshot?: any;
+  contextSnapshot?: Record<string, unknown>;
   truthScore?: number;
   contradictionsDetected?: string[];
   stabilityScore?: number;
@@ -144,10 +145,41 @@ function renderAsciiGraph(count: number) {
   return '#'.repeat(bars);
 }
 
+/**
+ * Helper to format percentage values, returning 'n/d' if undefined
+ */
+function formatPercent(value: number | undefined, decimals = 0): string {
+  if (value === undefined) {
+    return 'n/d';
+  }
+  return `${(value * 100).toFixed(decimals)}%`;
+}
+
+/**
+ * Helper to format a numeric score as percentage
+ */
+function formatScore(value: number | undefined): string {
+  if (value === undefined) {
+    return 'n/d';
+  }
+  return `${Math.round(value * 100)}%`;
+}
+
+/**
+ * Helper to format decimal values
+ */
+function formatDecimal(value: number | undefined, decimals = 2): string {
+  if (value === undefined) {
+    return 'n/d';
+  }
+  return value.toFixed(decimals);
+}
+
 export const MiniDashboard: React.FC<MiniDashboardProps> = ({
   isOpen,
   onClose,
-  userId,
+  userId: _userId,
+  isAdmin = false,
 }) => {
   const [lastInsight, setLastInsight] = useState<Insight | null>(null);
   const [insights, setInsights] = useState<Insight[]>([]);
@@ -167,9 +199,10 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
   // Escutar eventos de insights
   useEffect(() => {
     const subscriptionId = on('insight:generated', (event: AzuriaEvent) => {
+      const brandTone = (event.payload.brandTone as ToneProfileKey | undefined) ?? 'padrao';
       const insight: Insight = {
         type: event.payload.type || 'info',
-        message: rewriteWithBrandVoice(event.payload.message || '', (event.payload.brandTone as any) || 'padrao'),
+        message: rewriteWithBrandVoice(event.payload.message || '', brandTone),
         refinedMessage: event.payload.refinedMessage,
         brandTone: event.payload.brandTone,
         persona: event.payload.persona,
@@ -254,7 +287,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
       }));
     });
 
-    const achievementSub = on('ai:achievement-unlocked', (event: AzuriaEvent) => {
+    const achievementSub = on('ai:achievement-unlocked', (_event: AzuriaEvent) => {
       setEngagementNarrative(prev => ({
         ...prev,
         achievementCount: (prev.achievementCount ?? 0) + 1,
@@ -282,7 +315,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
       }));
     });
 
-    const behaviorSub = on('ai:behavior-pattern-detected', (event: AzuriaEvent) => {
+    const behaviorSub = on('ai:behavior-pattern-detected', (_event: AzuriaEvent) => {
       setUxEvolution(prev => ({
         ...prev,
         positivePatterns: prev.positivePatterns || 0,
@@ -326,6 +359,26 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const mindSub = on('ai:mind-snapshot', (event: AzuriaEvent) => {
+      const forces = event.payload?.forces as Record<string, unknown> | undefined;
+      
+      /**
+       * Convert force entry to string, handling all types properly
+       */
+      const formatForceEntry = (k: string, v: unknown): string => {
+        if (v === null || v === undefined) {
+          return `${k}:`;
+        }
+        if (typeof v === 'object') {
+          return `${k}:${JSON.stringify(v)}`;
+        }
+        // v is primitive (string, number, boolean, symbol, bigint)
+        return `${k}:${String(v as string | number | boolean)}`;
+      };
+      
+      const externalForces = forces
+        ? Object.entries(forces).map(([k, v]) => formatForceEntry(k, v))
+        : undefined;
+      
       setSystemMind({
         globalHealthScore: event.payload?.healthScore,
         confidenceMap: event.payload?.confidenceMap,
@@ -333,7 +386,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
         activeConflicts: event.payload?.anomalies,
         systemUptimeCognitive: Date.now(),
         realityConfidence: event.payload?.confidence,
-        externalForces: event.payload?.forces ? Object.entries(event.payload.forces).map(([k,v]) => `${k}:${v}`) : undefined,
+        externalForces,
         contextSnapshot: event.payload?.state,
       });
     });
@@ -437,7 +490,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
       setDiagnostics(prev => ({ ...prev, patches }));
     });
 
-    const coreSyncSub = on('ai:core-sync', (event: AzuriaEvent) => {
+    const coreSyncDiagnosticsSub = on('ai:core-sync', (event: AzuriaEvent) => {
       setDiagnostics(prev => ({
         ...prev,
         globalState: event.payload?.state,
@@ -637,7 +690,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
       unsubscribeFromEvent(stabilitySub);
       unsubscribeFromEvent(marketSub);
       unsubscribeFromEvent(metaLayerSub);
-      unsubscribeFromEvent(coreSyncSub);
+      unsubscribeFromEvent(coreSyncDiagnosticsSub);
     };
   }, []);
 
@@ -683,16 +736,19 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
   ];
 
   const handleQuickAction = (action: string) => {
+    // eslint-disable-next-line no-console
     console.log('Quick action:', action);
-    // TODO: Implementar ações rápidas
+    // NOTE: Quick action implementation pending - will emit events to trigger specific workflows
   };
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
+      {/* Backdrop - clickable overlay to close panel */}
+      <button
+        type="button"
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity cursor-default border-0"
         onClick={onClose}
+        aria-label="Fechar painel"
       />
 
       {/* Panel */}
@@ -752,9 +808,9 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                     {lastInsight.emotion && (
                       <div>
                         Emoção: {lastInsight.emotion}{' '}
-                        {lastInsight.emotionConfidence !== undefined
-                          ? `(${Math.round((lastInsight.emotionConfidence || 0) * 100)}%)`
-                          : ''}
+                        {lastInsight.emotionConfidence === undefined
+                          ? ''
+                          : `(${formatScore(lastInsight.emotionConfidence)})`}
                       </div>
                     )}
                     {lastInsight.affectiveMessage && (
@@ -773,9 +829,9 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               Monetização Inteligente
             </h3>
             <div className="p-3 rounded-lg border bg-yellow-50 border-yellow-200 text-yellow-900 space-y-1 text-sm">
-              <div>Engajamento: {diagnostics.engagementScore !== undefined ? `${(diagnostics.engagementScore * 100).toFixed(0)}%` : 'n/d'}</div>
-              <div>Risco de churn: {diagnostics.churnRisk !== undefined ? `${(diagnostics.churnRisk * 100).toFixed(0)}%` : 'n/d'}</div>
-              <div>Upgrade prob.: {diagnostics.upgradeProbability !== undefined ? `${(diagnostics.upgradeProbability * 100).toFixed(0)}%` : 'n/d'}</div>
+              <div>Engajamento: {formatPercent(diagnostics.engagementScore)}</div>
+              <div>Risco de churn: {formatPercent(diagnostics.churnRisk)}</div>
+              <div>Upgrade prob.: {formatPercent(diagnostics.upgradeProbability)}</div>
             </div>
           </div>
 
@@ -814,7 +870,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               Engajamento e Narrativa
             </h3>
             <div className="p-3 rounded-lg border bg-pink-50 border-pink-200 text-pink-900 space-y-1 text-sm">
-              <div>Motivação: {engagementNarrative.motivationLevel !== undefined ? `${Math.round((engagementNarrative.motivationLevel || 0) * 100)}%` : 'n/d'}</div>
+              <div>Motivação: {formatScore(engagementNarrative.motivationLevel)}</div>
               <div>Conquistas: {engagementNarrative.achievementCount ?? 0}</div>
               <div>Streak recente: {engagementNarrative.recentStreak ?? 0}</div>
               <div>Próxima ação: {engagementNarrative.recommendedNextAction || 'n/d'}</div>
@@ -836,12 +892,13 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               <div>Fricção UX: {uxEvolution.uxFrictionPoints ?? 0}</div>
               <div>Padrões positivos: {uxEvolution.positivePatterns ?? 0}</div>
               <div>Auto-fixes: {(uxEvolution.autoFixesApplied || []).join(', ') || 'n/d'}</div>
-              <div>Abandono: {uxEvolution.abandonRate !== undefined ? `${Math.round((uxEvolution.abandonRate || 0) * 100)}%` : 'n/d'}</div>
+              <div>Abandono: {formatScore(uxEvolution.abandonRate)}</div>
               <div>Fluxos otimizados: {(uxEvolution.optimizedFlows || []).join(', ') || 'n/d'}</div>
             </div>
           </div>
 
-          {/* Governança e Segurança */}
+          {/* Governança e Segurança - ADMIN ONLY */}
+          {isAdmin && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-red-600" />
@@ -852,33 +909,36 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               <div>Safety breaks: {governance.safetyBreaks ?? 0}</div>
             </div>
           </div>
+          )}
 
-          {/* Consciência Sistêmica */}
+          {/* Consciência Sistêmica - ADMIN ONLY */}
+          {isAdmin && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-indigo-700" />
               Consciência Sistêmica
             </h3>
             <div className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-900 space-y-1 text-sm">
-              <div>Health Score: {systemMind.globalHealthScore !== undefined ? Math.round((systemMind.globalHealthScore || 0) * 100) + '%' : 'n/d'}</div>
+              <div>Health Score: {formatScore(systemMind.globalHealthScore)}</div>
               <div>Confiança: {systemMind.confidenceMap ? Object.entries(systemMind.confidenceMap).map(([k,v]) => `${k}:${Math.round((v||0)*100)}%`).join(' | ') : 'n/d'}</div>
               <div>Riscos internos: {(systemMind.internalRisks || []).join(', ') || 'n/d'}</div>
               <div>Conflitos ativos: {(systemMind.activeConflicts || []).join(', ') || 'n/d'}</div>
-              <div>Confiança da realidade: {systemMind.realityConfidence !== undefined ? `${Math.round((systemMind.realityConfidence || 0) * 100)}%` : 'n/d'}</div>
+              <div>Confiança da realidade: {formatScore(systemMind.realityConfidence)}</div>
               <div>Forças externas: {(systemMind.externalForces || []).join(', ') || 'n/d'}</div>
-              <div>Truth Score: {systemMind.truthScore !== undefined ? `${Math.round((systemMind.truthScore || 0) * 100)}%` : 'n/d'}</div>
+              <div>Truth Score: {formatScore(systemMind.truthScore)}</div>
               <div>Contradições: {(systemMind.contradictionsDetected || []).join(', ') || 'n/d'}</div>
-              <div>Estabilidade: {systemMind.stabilityScore !== undefined ? `${Math.round((systemMind.stabilityScore || 0) * 100)}%` : 'n/d'}</div>
-              <div>Risco previsto: {systemMind.predictedFailure !== undefined ? `${Math.round((systemMind.predictedFailure || 0) * 100)}%` : 'n/d'}</div>
+              <div>Estabilidade: {formatScore(systemMind.stabilityScore)}</div>
+              <div>Risco previsto: {formatScore(systemMind.predictedFailure)}</div>
               <div>Balanceamento: {systemMind.loadBalanceStatus || 'n/d'}</div>
               <div>Meta State: {systemMind.metaState || 'n/d'}</div>
-              <div>Decision Quality: {systemMind.decisionQuality !== undefined ? `${Math.round((systemMind.decisionQuality || 0) * 100)}%` : 'n/d'}</div>
-              <div>Scenario Confidence: {systemMind.scenarioConfidence !== undefined ? `${Math.round((systemMind.scenarioConfidence || 0) * 100)}%` : 'n/d'}</div>
+              <div>Decision Quality: {formatScore(systemMind.decisionQuality)}</div>
+              <div>Scenario Confidence: {formatScore(systemMind.scenarioConfidence)}</div>
               <div>Risk Attitude: {systemMind.personalityRiskAttitude || 'n/d'}</div>
-              <div>Opportunity Bias: {systemMind.opportunityBias !== undefined ? `${Math.round((systemMind.opportunityBias || 0) * 100)}%` : 'n/d'}</div>
+              <div>Opportunity Bias: {formatScore(systemMind.opportunityBias)}</div>
               <div>Decision Style: {systemMind.decisionStyle || 'n/d'}</div>
             </div>
           </div>
+          )}
 
           {/* Inteligência de Mercado */}
           <div className="space-y-2">
@@ -936,8 +996,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                     <p className="text-sm mt-1">{item.message}</p>
                     {item.suggestedActions && item.suggestedActions.length > 0 && (
                       <ul className="mt-2 space-y-1 text-xs">
-                        {item.suggestedActions.map((act, idx) => (
-                          <li key={idx} className="flex items-center gap-1">
+                        {item.suggestedActions.map((act) => (
+                          <li key={act} className="flex items-center gap-1">
                             <span className="text-indigo-500">•</span>
                             <span>{act}</span>
                           </li>
@@ -1013,29 +1073,31 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
             </div>
           )}
 
-          {/* Diagnóstico do Modo Deus */}
+          {/* Diagnóstico do Modo Deus - ADMIN ONLY */}
+          {isAdmin && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-gray-700 animate-pulse" />
               Diagnóstico do Modo Deus
             </h3>
             <div className="p-3 rounded-lg border bg-gray-50 border-gray-200 text-gray-900 space-y-1 text-sm">
-              <div>Sinal interno: {diagnostics.signalQuality !== undefined ? `${(diagnostics.signalQuality * 100).toFixed(0)}%` : 'n/d'}</div>
-              <div>Confiança global: {diagnostics.confidence !== undefined ? `${(diagnostics.confidence * 100).toFixed(0)}%` : 'n/d'}</div>
+              <div>Sinal interno: {formatPercent(diagnostics.signalQuality)}</div>
+              <div>Confiança global: {formatPercent(diagnostics.confidence)}</div>
               <div>Drift: {diagnostics.drift ? 'Detectado' : 'Normal'}</div>
               <div>Erros recentes: {diagnostics.errors ?? 0}</div>
               {diagnostics.plannerActions && diagnostics.plannerActions.length > 0 && (
                 <div className="pt-1">
                   <div className="font-semibold text-xs">Ações do Meta-Planner:</div>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    {diagnostics.plannerActions.map((a, idx) => (
-                      <li key={idx}>{a}</li>
+                    {diagnostics.plannerActions.map((a) => (
+                      <li key={a}>{a}</li>
                     ))}
                   </ul>
                 </div>
               )}
             </div>
           </div>
+          )}
 
           {/* Linha do Tempo & Previsão */}
           <div className="space-y-2">
@@ -1058,8 +1120,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 <div className="pt-1">
                   <div className="font-semibold text-xs">Alertas:</div>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    {temporalAlerts.map((a, idx) => (
-                      <li key={idx}>{a}</li>
+                    {temporalAlerts.map((a) => (
+                      <li key={a}>{a}</li>
                     ))}
                   </ul>
                 </div>
@@ -1074,13 +1136,13 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               🧬 Evolução Interna
             </h3>
             <div className="p-3 rounded-lg border bg-green-50 border-green-200 text-green-900 space-y-1 text-sm">
-              <div>Evolution Score: {diagnostics.evolutionScore !== undefined ? (diagnostics.evolutionScore * 100).toFixed(0) + '%' : 'n/d'}</div>
+              <div>Evolution Score: {formatPercent(diagnostics.evolutionScore)}</div>
               {diagnostics.weaknesses && diagnostics.weaknesses.length > 0 && (
                 <div>
                   <div className="font-semibold text-xs">Fraquezas:</div>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    {diagnostics.weaknesses.map((w, idx) => (
-                      <li key={idx}>{w}</li>
+                    {diagnostics.weaknesses.map((w) => (
+                      <li key={w}>{w}</li>
                     ))}
                   </ul>
                 </div>
@@ -1089,8 +1151,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 <div>
                   <div className="font-semibold text-xs">Patches sugeridos:</div>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    {diagnostics.patches.map((p, idx) => (
-                      <li key={idx}>{p}</li>
+                    {diagnostics.patches.map((p) => (
+                      <li key={p}>{p}</li>
                     ))}
                   </ul>
                 </div>
@@ -1105,10 +1167,10 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               Núcleo Integrado
             </h3>
             <div className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-900 space-y-1 text-sm">
-              <div>Confiança integrada: {diagnostics.integratedConfidence !== undefined ? `${(diagnostics.integratedConfidence * 100).toFixed(0)}%` : 'n/d'}</div>
-              <div>Health score: {diagnostics.healthScore !== undefined ? `${(diagnostics.healthScore * 100).toFixed(0)}%` : 'n/d'}</div>
+              <div>Confiança integrada: {formatPercent(diagnostics.integratedConfidence)}</div>
+              <div>Health score: {formatPercent(diagnostics.healthScore)}</div>
               <div>Recomendação: {diagnostics.lastUnifiedRecommendation || 'Sem recomendação'}</div>
-              <div>Coherence Score: {diagnostics.coherenceScore !== undefined ? diagnostics.coherenceScore.toFixed(2) : 'n/d'}</div>
+              <div>Coherence Score: {formatDecimal(diagnostics.coherenceScore)}</div>
               <div>Trust Level: {diagnostics.trustLevel || 'n/d'}</div>
               <div className="pt-1">
                 <div className="font-semibold text-xs">Estado global (compacto)</div>
@@ -1140,16 +1202,16 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               </h3>
               <div className="p-3 rounded-lg border bg-red-50 border-red-200 text-red-900 space-y-1 text-sm">
                 <ul className="list-disc list-inside space-y-1">
-                  {diagnostics.governanceAlerts.map((a, idx) => (
-                    <li key={idx}>{a}</li>
+                  {diagnostics.governanceAlerts.map((a) => (
+                    <li key={a}>{a}</li>
                   ))}
                 </ul>
               </div>
             </div>
           )}
 
-          {/* Internal Insights / Contradições */}
-          {(diagnostics.internalInsights?.length || diagnostics.contradictions?.length) && (
+          {/* Internal Insights / Contradições - ADMIN ONLY */}
+          {isAdmin && Boolean(diagnostics.internalInsights?.length ?? diagnostics.contradictions?.length) && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-gray-500" />
@@ -1159,8 +1221,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 <div className="p-3 rounded-lg border bg-gray-50 border-gray-200 text-gray-900 space-y-1 text-sm">
                   <div className="font-semibold text-xs">Internal XAI</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {diagnostics.internalInsights.map((i, idx) => (
-                      <li key={idx}>{i}</li>
+                    {diagnostics.internalInsights.map((i) => (
+                      <li key={i}>{i}</li>
                     ))}
                   </ul>
                 </div>
@@ -1169,23 +1231,23 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 <div className="p-3 rounded-lg border bg-orange-50 border-orange-200 text-orange-900 space-y-1 text-sm">
                   <div className="font-semibold text-xs">Contradições</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {diagnostics.contradictions.map((c, idx) => (
-                      <li key={idx}>{c}</li>
+                    {diagnostics.contradictions.map((c) => (
+                      <li key={c}>{c}</li>
                     ))}
                   </ul>
                 </div>
               ) : null}
-              {diagnostics.reconstructionConfidence !== undefined && (
+              {diagnostics.reconstructionConfidence === undefined ? null : (
                 <div className="p-2 rounded bg-blue-50 text-blue-900 text-xs border border-blue-200">
-                  Confiança de reconstrução: {(diagnostics.reconstructionConfidence * 100).toFixed(0)}%
+                  Confiança de reconstrução: {formatPercent(diagnostics.reconstructionConfidence)}
                 </div>
               )}
               {diagnostics.sensors && diagnostics.sensors.length > 0 && (
                 <div className="p-2 rounded bg-slate-50 text-slate-900 text-xs border border-slate-200 space-y-1">
                   <div className="font-semibold">Sensores Virtuais</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {diagnostics.sensors.map((s, idx) => (
-                      <li key={idx}>{s}</li>
+                    {diagnostics.sensors.map((s) => (
+                      <li key={s}>{s}</li>
                     ))}
                   </ul>
                 </div>
@@ -1200,13 +1262,13 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
               Estratégia Global
             </h3>
             <div className="p-3 rounded-lg border bg-emerald-50 border-emerald-200 text-emerald-900 space-y-1 text-sm">
-              <div>Saúde sistêmica: {diagnostics.strategicHealth !== undefined ? `${(diagnostics.strategicHealth * 100).toFixed(0)}%` : 'n/d'}</div>
+              <div>Saúde sistêmica: {formatPercent(diagnostics.strategicHealth)}</div>
               {diagnostics.strategicRisks && diagnostics.strategicRisks.length > 0 && (
                 <div>
                   <div className="font-semibold text-xs">Riscos estruturais</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {diagnostics.strategicRisks.map((r, idx) => (
-                      <li key={idx}>{r}</li>
+                    {diagnostics.strategicRisks.map((r) => (
+                      <li key={r}>{r}</li>
                     ))}
                   </ul>
                 </div>
@@ -1215,8 +1277,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                 <div>
                   <div className="font-semibold text-xs">Metas de longo prazo</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {diagnostics.longTermGoals.map((g: any, idx) => (
-                      <li key={idx}>{g.target || g.id}</li>
+                    {diagnostics.longTermGoals.map((g) => (
+                      <li key={g.target ?? g.id ?? JSON.stringify(g)}>{g.target ?? g.id}</li>
                     ))}
                   </ul>
                 </div>

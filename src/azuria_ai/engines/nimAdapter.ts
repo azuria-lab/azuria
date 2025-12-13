@@ -8,7 +8,7 @@ type NimConfig = {
 };
 
 export class NimAdapter {
-  private config: NimConfig;
+  private readonly config: NimConfig;
 
   constructor(cfg: NimConfig) {
     this.config = cfg;

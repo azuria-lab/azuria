@@ -15,7 +15,6 @@ import type {
   SuggestionPriority,
   SuggestionType,
   ThrottleRules,
-  UserActivityState,
   UserContext,
 } from '../types/operational';
 import { eventBus } from '../core/eventBus';
@@ -176,6 +175,136 @@ export function updateThrottlerContext(context: UserContext): void {
 }
 
 // ============================================================================
+// Throttle Evaluation Helpers
+// ============================================================================
+
+/**
+ * Verifica se o período de silêncio forçado está ativo
+ */
+function checkForcedSilence(now: number): ThrottleResult | null {
+  if (now < state.silencedUntil) {
+    return {
+      allowed: false,
+      reason: 'Silenced period active',
+      waitTime: state.silencedUntil - now,
+    };
+  }
+  return null;
+}
+
+/**
+ * Verifica se o usuário está digitando e se deve silenciar
+ */
+function checkTypingSilence(now: number): ThrottleResult | null {
+  if (state.rules.silenceWhileTyping && isTyping(now)) {
+    return {
+      allowed: false,
+      reason: 'User is typing',
+      waitTime: TYPING_SILENCE_DURATION - (now - state.lastTypingAt),
+    };
+  }
+  return null;
+}
+
+/**
+ * Verifica cooldown após dismiss
+ */
+function checkDismissCooldown(now: number, suggestion: Suggestion): ThrottleResult | null {
+  if (now - state.lastDismissAt < state.rules.dismissCooldown) {
+    if (suggestion.priority !== 'critical') {
+      return {
+        allowed: false,
+        reason: 'Dismiss cooldown active',
+        waitTime: state.rules.dismissCooldown - (now - state.lastDismissAt),
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Verifica silêncio após erro
+ */
+function checkErrorSilence(now: number, suggestion: Suggestion): ThrottleResult | null {
+  if (
+    state.rules.silenceAfterError &&
+    now - state.lastErrorAt < state.rules.errorSilenceDuration
+  ) {
+    if (suggestion.type !== 'correction' && suggestion.priority !== 'critical') {
+      return {
+        allowed: false,
+        reason: 'Error silence period',
+        waitTime: state.rules.errorSilenceDuration - (now - state.lastErrorAt),
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Verifica limite de sugestões por minuto
+ */
+function checkRateLimit(
+  now: number,
+  suggestion: Suggestion,
+  recentSuggestions: SuggestionRecord[],
+  adaptiveConfig: AdaptiveConfig
+): ThrottleResult | null {
+  if (recentSuggestions.length >= adaptiveConfig.dynamicMaxPerMinute) {
+    if (suggestion.priority !== 'critical') {
+      const oldestRecent = recentSuggestions[0];
+      return {
+        allowed: false,
+        reason: 'Rate limit reached',
+        waitTime: oldestRecent.shownAt + MINUTE_WINDOW_MS - now,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Verifica limite de sugestões do mesmo tipo por hora
+ */
+function checkSameTypeLimit(
+  now: number,
+  suggestion: Suggestion,
+  sameTypeSuggestions: SuggestionRecord[]
+): ThrottleResult | null {
+  if (sameTypeSuggestions.length >= state.rules.maxSameTypePerHour) {
+    if (suggestion.priority !== 'critical') {
+      const oldestSameType = sameTypeSuggestions[0];
+      return {
+        allowed: false,
+        reason: `Too many ${suggestion.type} suggestions`,
+        waitTime: oldestSameType.shownAt + HOUR_WINDOW_MS - now,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Verifica se sugestões proativas devem ser reduzidas
+ */
+function checkProactiveReduction(
+  suggestion: Suggestion,
+  adaptiveConfig: AdaptiveConfig
+): ThrottleResult | null {
+  if (
+    adaptiveConfig.reduceProactive &&
+    suggestion.type === 'proactive' &&
+    suggestion.priority !== 'critical'
+  ) {
+    return {
+      allowed: false,
+      reason: 'Proactive suggestions reduced based on user behavior',
+    };
+  }
+  return null;
+}
+
+// ============================================================================
 // Throttle Evaluation
 // ============================================================================
 
@@ -186,82 +315,42 @@ export function canShowSuggestion(suggestion: Suggestion): ThrottleResult {
   const now = Date.now();
 
   // 1. Verificar silêncio forçado
-  if (now < state.silencedUntil) {
-    return {
-      allowed: false,
-      reason: 'Silenced period active',
-      waitTime: state.silencedUntil - now,
-    };
+  const forcedSilenceResult = checkForcedSilence(now);
+  if (forcedSilenceResult) {
+    return forcedSilenceResult;
   }
 
   // 2. Verificar silêncio durante digitação
-  if (state.rules.silenceWhileTyping && isTyping(now)) {
-    return {
-      allowed: false,
-      reason: 'User is typing',
-      waitTime: TYPING_SILENCE_DURATION - (now - state.lastTypingAt),
-    };
+  const typingSilenceResult = checkTypingSilence(now);
+  if (typingSilenceResult) {
+    return typingSilenceResult;
   }
 
   // 3. Verificar cooldown após dismiss
-  if (now - state.lastDismissAt < state.rules.dismissCooldown) {
-    // Exceção para sugestões críticas
-    if (suggestion.priority !== 'critical') {
-      return {
-        allowed: false,
-        reason: 'Dismiss cooldown active',
-        waitTime: state.rules.dismissCooldown - (now - state.lastDismissAt),
-      };
-    }
+  const dismissCooldownResult = checkDismissCooldown(now, suggestion);
+  if (dismissCooldownResult) {
+    return dismissCooldownResult;
   }
 
   // 4. Verificar silêncio após erro
-  if (
-    state.rules.silenceAfterError &&
-    now - state.lastErrorAt < state.rules.errorSilenceDuration
-  ) {
-    // Exceção para sugestões de correção
-    if (suggestion.type !== 'correction' && suggestion.priority !== 'critical') {
-      return {
-        allowed: false,
-        reason: 'Error silence period',
-        waitTime: state.rules.errorSilenceDuration - (now - state.lastErrorAt),
-      };
-    }
+  const errorSilenceResult = checkErrorSilence(now, suggestion);
+  if (errorSilenceResult) {
+    return errorSilenceResult;
   }
 
   // 5. Verificar limite por minuto
   const recentSuggestions = getSuggestionsInWindow(MINUTE_WINDOW_MS);
   const adaptiveConfig = getAdaptiveConfig();
-
-  if (recentSuggestions.length >= adaptiveConfig.dynamicMaxPerMinute) {
-    // Exceção para sugestões críticas
-    if (suggestion.priority !== 'critical') {
-      const oldestRecent = recentSuggestions[0];
-      return {
-        allowed: false,
-        reason: 'Rate limit reached',
-        waitTime: oldestRecent.shownAt + MINUTE_WINDOW_MS - now,
-      };
-    }
+  const rateLimitResult = checkRateLimit(now, suggestion, recentSuggestions, adaptiveConfig);
+  if (rateLimitResult) {
+    return rateLimitResult;
   }
 
   // 6. Verificar limite por tipo por hora
-  const sameTypeSuggestions = getSuggestionsOfTypeInWindow(
-    suggestion.type,
-    HOUR_WINDOW_MS
-  );
-
-  if (sameTypeSuggestions.length >= state.rules.maxSameTypePerHour) {
-    // Exceção para sugestões críticas
-    if (suggestion.priority !== 'critical') {
-      const oldestSameType = sameTypeSuggestions[0];
-      return {
-        allowed: false,
-        reason: `Too many ${suggestion.type} suggestions`,
-        waitTime: oldestSameType.shownAt + HOUR_WINDOW_MS - now,
-      };
-    }
+  const sameTypeSuggestions = getSuggestionsOfTypeInWindow(suggestion.type, HOUR_WINDOW_MS);
+  const sameTypeLimitResult = checkSameTypeLimit(now, suggestion, sameTypeSuggestions);
+  if (sameTypeLimitResult) {
+    return sameTypeLimitResult;
   }
 
   // 7. Verificar estado de atividade do usuário
@@ -271,15 +360,9 @@ export function canShowSuggestion(suggestion: Suggestion): ThrottleResult {
   }
 
   // 8. Verificar se usuário não quer sugestões proativas
-  if (
-    adaptiveConfig.reduceProactive &&
-    suggestion.type === 'proactive' &&
-    suggestion.priority !== 'critical'
-  ) {
-    return {
-      allowed: false,
-      reason: 'Proactive suggestions reduced based on user behavior',
-    };
+  const proactiveResult = checkProactiveReduction(suggestion, adaptiveConfig);
+  if (proactiveResult) {
+    return proactiveResult;
   }
 
   // Sugestão permitida
@@ -363,12 +446,7 @@ export function recordErrorOccurrence(): void {
 export function silenceSuggestions(durationMs: number): void {
   state.silencedUntil = Date.now() + durationMs;
 
-  eventBus.emit({
-    type: 'user:copilot-disabled',
-    payload: { reason: 'manual_silence', duration: durationMs },
-    timestamp: Date.now(),
-    source: 'suggestion-throttler',
-  });
+  eventBus.emit('user:copilot-disabled', { reason: 'manual_silence', duration: durationMs });
 }
 
 /**
@@ -377,12 +455,7 @@ export function silenceSuggestions(durationMs: number): void {
 export function unsilenceSuggestions(): void {
   state.silencedUntil = 0;
 
-  eventBus.emit({
-    type: 'user:copilot-enabled',
-    payload: { reason: 'manual_unsilence' },
-    timestamp: Date.now(),
-    source: 'suggestion-throttler',
-  });
+  eventBus.emit('user:copilot-enabled', { reason: 'manual_unsilence' });
 }
 
 // ============================================================================
@@ -620,34 +693,34 @@ function adjustPriority(suggestion: Suggestion): SuggestionPriority {
 
 function setupEventListeners(): void {
   // Escutar eventos de input para detectar digitação
-  eventBus.subscribe('user:input', (event) => {
-    const payload = event.payload as { interactionType?: string; event?: string };
+  eventBus.on('user:input', (event) => {
+    const data = event.payload as { interactionType?: string; event?: string };
     if (
-      payload.interactionType === 'input' ||
-      payload.event === 'keypress'
+      data.interactionType === 'input' ||
+      data.event === 'keypress'
     ) {
       recordTypingActivity();
     }
   });
 
   // Escutar eventos de erro
-  eventBus.subscribe('user:error', () => {
+  eventBus.on('user:error', () => {
     recordErrorOccurrence();
   });
 
   // Escutar eventos de sugestão
-  eventBus.subscribe('user:suggestion-dismissed', (event) => {
+  eventBus.on('user:suggestion-dismissed', (event) => {
     const { suggestionId } = event.payload as { suggestionId: string };
     recordSuggestionDismissed(suggestionId);
   });
 
-  eventBus.subscribe('user:suggestion-accepted', (event) => {
+  eventBus.on('user:suggestion-accepted', (event) => {
     const { suggestionId } = event.payload as { suggestionId: string };
     recordSuggestionAccepted(suggestionId);
   });
 
   // Escutar eventos de contexto
-  eventBus.subscribe('user:context-updated', (event) => {
+  eventBus.on('user:context-updated', (event) => {
     const { context } = event.payload as { context: UserContext };
     if (context) {
       updateThrottlerContext(context);

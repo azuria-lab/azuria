@@ -28,12 +28,12 @@ vi.mock('@/hooks/useOfflineCalculator', () => ({
 
 vi.mock('@/domains/calculator/hooks/useCalculatorInputs', () => ({
   useCalculatorInputs: () => {
-    const [cost, setCostValue] = useState('')
+    const [cost, setCost] = useState('')
     const [margin, setMargin] = useState(30)
-    const [tax, setTaxValue] = useState('')
-    const [cardFee, setCardFeeValue] = useState('')
-    const [otherCosts, setOtherCostsValue] = useState('')
-    const [shipping, setShippingValue] = useState('')
+    const [tax, setTax] = useState('')
+    const [cardFee, setCardFee] = useState('')
+    const [otherCosts, setOtherCosts] = useState('')
+    const [shipping, setShipping] = useState('')
     const [includeShipping, setIncludeShipping] = useState(false)
 
     return {
@@ -44,18 +44,18 @@ vi.mock('@/domains/calculator/hooks/useCalculatorInputs', () => ({
       otherCosts,
       shipping,
       includeShipping,
-      setCost: (e: any) => setCostValue(e.target?.value ?? ''),
+      setCost: (e: any) => setCost(e.target?.value ?? ''),
       setMargin,
-      setTax: (e: any) => setTaxValue(e.target?.value ?? ''),
-      setCardFee: (e: any) => setCardFeeValue(e.target?.value ?? ''),
-      setOtherCosts: (e: any) => setOtherCostsValue(e.target?.value ?? ''),
-      setShipping: (e: any) => setShippingValue(e.target?.value ?? ''),
+      setTax: (e: any) => setTax(e.target?.value ?? ''),
+      setCardFee: (e: any) => setCardFee(e.target?.value ?? ''),
+      setOtherCosts: (e: any) => setOtherCosts(e.target?.value ?? ''),
+      setShipping: (e: any) => setShipping(e.target?.value ?? ''),
       setIncludeShipping,
-      setCostValue,
-      setTaxValue,
-      setCardFeeValue,
-      setOtherCostsValue,
-      setShippingValue,
+      setCostValue: setCost,
+      setTaxValue: setTax,
+      setCardFeeValue: setCardFee,
+      setOtherCostsValue: setOtherCosts,
+      setShippingValue: setShipping,
     }
   }
 }))
@@ -63,7 +63,7 @@ vi.mock('@/domains/calculator/hooks/useCalculatorInputs', () => ({
 vi.mock('@/domains/calculator/hooks/useCalculatorResult', () => ({
   useCalculatorResult: (
     _cost: string,
-    margin: number,
+    _margin: number,
     _tax: string,
     _cardFee: string,
     _otherCosts: string,
@@ -95,7 +95,7 @@ vi.mock('@/domains/calculator/hooks/useCalculatorResult', () => ({
         setIsLoading(false)
         return
       }
-      const res = { sellingPrice: parsed * (1 + marginValue / 100), profit: parsed * marginValue / 100, isHealthyProfit: true, breakdown: {} }
+      const res = { sellingPrice: parsed * (1 + marginValue / 100), profit: parsed * marginValue / 100, isHealthyProfit: true, breakdown: { costValue: parsed, otherCostsValue: 0, shippingValue: 0, totalCost: parsed, marginAmount: parsed * marginValue / 100, realMarginPercent: marginValue, taxAmount: 0, cardFeeAmount: 0 } }
       const item: CalculationHistory = {
         id: 'calc-1',
         date: new Date(),

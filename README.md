@@ -1752,10 +1752,14 @@ CREATE POLICY "Users can view own calculations" ON calculation_history
 ### Autenticação
 
 - **Supabase Auth**: Sistema robusto de autenticação
+- **Login com Email/Senha**: Autenticação tradicional
+- **Login com Google**: OAuth 2.0 integrado via Supabase
 - **JWT Tokens**: Tokens seguros com refresh automático
 - **Multi-factor**: Suporte a 2FA (futuro)
 
-**Documentação completa:** [docs/SEGURANCA_COMPLETA.md](./docs/SEGURANCA_COMPLETA.md)
+**Documentação completa:** 
+- [docs/SEGURANCA_COMPLETA.md](./docs/SEGURANCA_COMPLETA.md)
+- [docs/GOOGLE_OAUTH_SETUP.md](./docs/GOOGLE_OAUTH_SETUP.md) - Configuração do login com Google
 
 ## 🎯 Performance
 
