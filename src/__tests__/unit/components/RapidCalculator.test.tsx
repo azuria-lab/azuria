@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, renderWithProviders, screen } from '@/utils/testing/testUtils'
 // Importa o componente (framer-motion já mockado em setup)
-import SimpleCalculator from '@/domains/calculator/components/SimpleCalculator'
+import RapidCalculator from '@/domains/calculator/components/RapidCalculator'
 
 // Mock do hook
 const mockCalculatorHook = {
@@ -35,7 +35,7 @@ const mockCalculatorHook = {
   calculatePrice: vi.fn(),
   resetCalculator: vi.fn(),
   formatCurrency: vi.fn((value) => `R$ ${value.toFixed(2)}`),
-  parseInputValue: vi.fn((value) => parseFloat(value) || 0),
+  parseInputValue: vi.fn((value) => Number.parseFloat(value) || 0),
   manualPrice: '',
   isManualMode: false,
   handleManualPriceChange: vi.fn(),
@@ -43,13 +43,13 @@ const mockCalculatorHook = {
   setState: vi.fn()
 }
 
-vi.mock('@/hooks/useSimpleCalculator', () => ({
-  useSimpleCalculator: () => mockCalculatorHook
+vi.mock('@/hooks/useRapidCalculator', () => ({
+  useRapidCalculator: () => mockCalculatorHook
 }))
 
-describe('SimpleCalculator', () => {
+describe('RapidCalculator', () => {
   it('should render calculator fields', () => {
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     expect(screen.getByLabelText(/custo do produto/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/margem de lucro/i)).toBeInTheDocument()
@@ -57,7 +57,7 @@ describe('SimpleCalculator', () => {
   })
 
   it('should call setCost when cost input changes', async () => {
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     const costInput = screen.getByLabelText(/custo do produto/i)
     fireEvent.change(costInput, { target: { value: '100' } })
@@ -66,7 +66,7 @@ describe('SimpleCalculator', () => {
   })
 
   it('should call calculatePrice when calculate button is clicked', async () => {
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     const calculateButton = screen.getByRole('button', { name: /calcular preço/i })
     fireEvent.click(calculateButton)
@@ -95,9 +95,9 @@ describe('SimpleCalculator', () => {
     }
 
   vi.resetModules()
-  vi.doMock('@/hooks/useSimpleCalculator', () => ({ useSimpleCalculator: () => hookWithResult }))
-  const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculator')
-  renderWithProviders(<SimpleCalculatorLocal />)
+  vi.doMock('@/hooks/useRapidCalculator', () => ({ useRapidCalculator: () => hookWithResult }))
+  const { default: RapidCalculatorLocal } = await import('@/domains/calculator/components/RapidCalculator')
+  renderWithProviders(<RapidCalculatorLocal />)
 
   expect(screen.getByText(/preço de venda/i)).toBeInTheDocument()
   // The main selling price is rendered in a 5xl heading; assert at least one match exists
@@ -112,16 +112,16 @@ describe('SimpleCalculator', () => {
     }
 
     vi.resetModules()
-    vi.doMock('@/hooks/useSimpleCalculator', () => ({ useSimpleCalculator: () => hookWithLoading }))
-    const { default: SimpleCalculatorLocal } = await import('@/domains/calculator/components/SimpleCalculator')
-    renderWithProviders(<SimpleCalculatorLocal />)
+    vi.doMock('@/hooks/useRapidCalculator', () => ({ useRapidCalculator: () => hookWithLoading }))
+    const { default: RapidCalculatorLocal } = await import('@/domains/calculator/components/RapidCalculator')
+    renderWithProviders(<RapidCalculatorLocal />)
 
   // Button becomes disabled and shows "Calculando..."; assert that text is present
   expect(screen.getByText(/Calculando\.{3}/i)).toBeInTheDocument()
   })
 
   it('should call resetCalculator when clear button is clicked', () => {
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     const clearButton = screen.getByRole('button', { name: /limpar/i })
     fireEvent.click(clearButton)
@@ -130,7 +130,7 @@ describe('SimpleCalculator', () => {
   })
 
   it('should handle margin slider changes', () => {
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
   const marginSlider = screen.getByLabelText(/margem de lucro/i)
     fireEvent.change(marginSlider, { target: { value: '40' } })

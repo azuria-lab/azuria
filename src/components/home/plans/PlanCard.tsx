@@ -31,7 +31,25 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 }
 };
 
-export default function PlanCard({ plan, billingCycle }: PlanCardProps) {
+/**
+ * Retorna a classe de cor do texto baseado no nome do plano
+ */
+function getPriceTextColor(planName: string): string {
+  if (planName === "PRO") {return "text-brand-600";}
+  if (planName === "PREMIUM") {return "text-purple-600";}
+  return "text-gray-900 dark:text-white";
+}
+
+/**
+ * Retorna a classe de cor do ícone de check baseado no nome do plano
+ */
+function getCheckIconColor(planName: string): string {
+  if (planName === "PREMIUM") {return "text-purple-600";}
+  if (planName === "PRO") {return "text-brand-600";}
+  return "text-green-500";
+}
+
+export default function PlanCard({ plan, billingCycle }: Readonly<PlanCardProps>) {
   return (
     <motion.div
       variants={itemVariants}
@@ -75,11 +93,7 @@ export default function PlanCard({ plan, billingCycle }: PlanCardProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className={`text-4xl font-bold ${
-                  plan.name === "PRO" ? "text-brand-600" : 
-                  plan.name === "PREMIUM" ? "text-purple-600" : 
-                  "text-gray-900 dark:text-white"
-                }`}>
+                <span className={`text-4xl font-bold ${getPriceTextColor(plan.name)}`}>
                   {plan.yearlyPrice}
                 </span>
                 <span className="text-gray-500 ml-2">/ano</span>
@@ -101,11 +115,7 @@ export default function PlanCard({ plan, billingCycle }: PlanCardProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className={`text-4xl font-bold ${
-                  plan.name === "PRO" ? "text-brand-600" : 
-                  plan.name === "PREMIUM" ? "text-purple-600" : 
-                  "text-gray-900 dark:text-white"
-                }`}>
+                <span className={`text-4xl font-bold ${getPriceTextColor(plan.name)}`}>
                   {plan.price}
                 </span>
                 <span className="text-gray-500 ml-2">{plan.period}</span>
@@ -121,13 +131,9 @@ export default function PlanCard({ plan, billingCycle }: PlanCardProps) {
         
         <CardContent>
           <ul className="space-y-3">
-            {plan.features.map((feature, featureIndex) => (
-              <li key={featureIndex} className="flex items-start gap-3">
-                <Check className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                  plan.name === "PREMIUM" ? "text-purple-600" : 
-                  plan.name === "PRO" ? "text-brand-600" : 
-                  "text-green-500"
-                }`} />
+            {plan.features.map((feature) => (
+              <li key={feature} className="flex items-start gap-3">
+                <Check className={`h-5 w-5 mt-0.5 flex-shrink-0 ${getCheckIconColor(plan.name)}`} />
                 <span className="text-gray-700 dark:text-gray-300">{feature}</span>
               </li>
             ))}

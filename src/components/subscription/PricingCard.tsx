@@ -18,31 +18,46 @@ interface PricingCardProps {
   isLoading?: boolean;
 }
 
+/**
+ * Retorna o texto do botão baseado no estado atual
+ */
+function getButtonText(isCurrentPlan: boolean, isLoading: boolean, planId: string): string {
+  if (isCurrentPlan) {return 'Plano Atual';}
+  if (isLoading) {return 'Carregando...';}
+  if (planId === 'free') {return 'Começar grátis';}
+  return 'Começar agora';
+}
+
+/**
+ * Retorna o ícone do plano baseado no ID
+ */
+function getPlanIcon(planId: string) {
+  switch (planId) {
+    case 'essencial':
+      return <Star className="h-5 w-5" />;
+    case 'pro':
+      return <Sparkles className="h-5 w-5" />;
+    case 'enterprise':
+      return <Briefcase className="h-5 w-5" />;
+    default:
+      return null;
+  }
+}
+
 export const PricingCard = ({
   plan,
   billingInterval,
   currentPlanId,
   onSelect,
   isLoading = false,
-}: PricingCardProps) => {
+}: Readonly<PricingCardProps>) => {
   const isCurrentPlan = currentPlanId === plan.id;
   const price = billingInterval === 'monthly' ? plan.pricing.monthly : plan.pricing.annual;
   const monthlyEquivalent = billingInterval === 'annual' ? price / 12 : price;
   
   const highlights = PLAN_HIGHLIGHTS[plan.id];
 
-  const getIcon = () => {
-    switch (plan.id) {
-      case 'essencial':
-        return <Star className="h-5 w-5" />;
-      case 'pro':
-        return <Sparkles className="h-5 w-5" />;
-      case 'enterprise':
-        return <Briefcase className="h-5 w-5" />;
-      default:
-        return null;
-    }
-  };
+  const icon = getPlanIcon(plan.id);
 
   return (
     <Card
@@ -76,7 +91,7 @@ export const PricingCard = ({
 
       <CardHeader className="text-center pb-4">
         <div className="flex items-center justify-center gap-2 mb-2">
-          {getIcon()}
+          {icon}
           <CardTitle className="text-2xl font-bold text-slate-900">{plan.name}</CardTitle>
         </div>
         <CardDescription className="text-sm text-slate-600">
@@ -125,8 +140,8 @@ export const PricingCard = ({
 
         {/* Features */}
         <div className="space-y-2.5">
-          {highlights.map((feature, index) => (
-            <div key={index} className="flex items-start gap-2.5">
+          {highlights.map((feature) => (
+            <div key={feature} className="flex items-start gap-2.5">
               <Check className={cn(
                 "h-4 w-4 mt-0.5 flex-shrink-0",
                 plan.recommended && "text-primary",
@@ -151,7 +166,7 @@ export const PricingCard = ({
           variant={plan.id === 'free' ? 'outline' : 'default'}
           size="lg"
         >
-          {isCurrentPlan ? 'Plano Atual' : isLoading ? 'Carregando...' : plan.id === 'free' ? 'Começar grátis' : 'Começar agora'}
+          {getButtonText(isCurrentPlan, isLoading, plan.id)}
         </Button>
       </CardFooter>
     </Card>

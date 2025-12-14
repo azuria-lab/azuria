@@ -10,7 +10,8 @@ import { useAdvancedCache } from '@/hooks/useAdvancedCache';
 import { Activity, AlertTriangle, CheckCircle, TrendingUp, Zap } from 'lucide-react';
 
 export const PerformanceDashboard = () => {
-  const [_refreshKey, setRefreshKey] = useState(0);
+  // refreshKey é usado para forçar re-render em intervalos regulares
+  const [refreshKey, setRefreshKey] = useState(0);
   const { getPerformanceReport, clearData, violations } = usePerformanceMonitor();
   const { getMetrics, getScore } = useWebVitals();
   const cache = useAdvancedCache();
@@ -20,13 +21,18 @@ export const PerformanceDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setReport(getPerformanceReport());
+      setRefreshKey(prev => prev + 1);
     }, 5000); // Atualizar a cada 5 segundos
 
     return () => clearInterval(interval);
   }, [getPerformanceReport]);
 
+  // Atualiza score quando refreshKey muda
   const webVitalsScore = getScore();
   const cacheStats = cache.getStats();
+  
+  // RefreshKey usado para forçar re-render (intencional)
+  void refreshKey;
 
   const getRatingColor = (rating: string) => {
     switch (rating) {
@@ -172,8 +178,8 @@ export const PerformanceDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {report.entries.slice(-5).reverse().map((entry, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
+                  {report.entries.slice(-5).reverse().map((entry) => (
+                    <div key={`${entry.type}-${entry.name}-${entry.duration}`} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
                           {entry.type}
@@ -316,8 +322,8 @@ export const PerformanceDashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {violations.slice(-10).reverse().map((violation, index) => (
-                    <div key={index} className="border rounded-lg p-3">
+                  {violations.slice(-10).reverse().map((violation) => (
+                    <div key={`${violation.type}-${violation.name}-${violation.duration}`} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Badge variant="destructive">{violation.type}</Badge>
@@ -350,8 +356,8 @@ export const PerformanceDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {report.recommendations.map((rec, index) => (
-                  <div key={index} className="border rounded-lg p-4">
+                {report.recommendations.map((rec) => (
+                  <div key={`${rec.type}-${rec.priority}`} className="border rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge 
                         variant={rec.priority === 'high' ? 'destructive' : 'secondary'}

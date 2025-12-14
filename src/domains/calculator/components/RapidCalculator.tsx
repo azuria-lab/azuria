@@ -3,8 +3,7 @@ import { memo, Suspense, useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { CalculatorProvider } from "../context/CalculatorContext";
-import { useSimpleCalculator } from "@/hooks/useSimpleCalculator";
-// import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
+import { useRapidCalculator } from "@/hooks/useRapidCalculator";
 import { ComponentErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner";
 import CalculatorContent from "./CalculatorContent";
@@ -18,26 +17,26 @@ import type { CalculationHistory } from "../types/calculator";
 import { useAuthContext } from "@/domains/auth";
 // hooks imported above
 
-interface SimpleCalculatorModernProps {
+interface RapidCalculatorModernProps {
   isPro?: boolean;
   userId?: string;
 }
 
 // Main calculator component using new architecture
-const CalculatorWithProvider = memo<SimpleCalculatorModernProps>(({ isPro = false, userId }) => {
+const CalculatorWithProvider = memo<RapidCalculatorModernProps>(({ isPro = false, userId }) => {
   return (
     <CalculatorProvider>
       <ComponentErrorBoundary>
-        <SimpleCalculatorInner isPro={isPro} userId={userId} />
+        <RapidCalculatorInner isPro={isPro} userId={userId} />
       </ComponentErrorBoundary>
     </CalculatorProvider>
   );
 });
 
 // Inner component that uses the calculator context
-const SimpleCalculatorInner = memo<SimpleCalculatorModernProps>(({ isPro = false, userId }) => {
+const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, userId }) => {
   // Legacy hook usage to maintain backward-compatibility with existing tests/mocks
-  const legacy = useSimpleCalculator(isPro, userId);
+  const legacy = useRapidCalculator(isPro, userId);
   const { applyTemplate } = useTemplateApplication();
   // Keep service hook available for future use but don't destructure to avoid lint errors
   // const services = useCalculatorWithServices(isPro, userId);
@@ -77,13 +76,6 @@ const SimpleCalculatorInner = memo<SimpleCalculatorModernProps>(({ isPro = false
 
   return (
     <motion.div {...animationVariants} className="w-full space-y-8">
-      {/* Development performance indicator - simplified */}
-      {import.meta.env.MODE === 'development' && (
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 text-xs text-blue-600">
-          ℹ️ Calculator moderno com arquitetura otimizada
-        </div>
-      )}
-
       {/* Main Calculator Card */}
       <div className="relative">
         {/* Background Gradient */}
@@ -94,16 +86,6 @@ const SimpleCalculatorInner = memo<SimpleCalculatorModernProps>(({ isPro = false
           <div className="h-2 bg-gradient-to-r from-primary via-primary/80 to-brand-500" />
           
           <CardContent className="p-8">
-            {/* Title Section */}
-            <div className="mb-8 text-center">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-brand-500 bg-clip-text text-transparent mb-2">
-                Calculadora Simples
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                Calcule o preço ideal de venda do seu produto
-              </p>
-            </div>
-            
             {/* Template Selector */}
             <Suspense fallback={<AdvancedLoadingSpinner size="md" />}>
               <div className="mb-8" data-onboarding="template-selector">
@@ -183,7 +165,7 @@ const SimpleCalculatorInner = memo<SimpleCalculatorModernProps>(({ isPro = false
   );
 });
 
-CalculatorWithProvider.displayName = "SimpleCalculatorModern";
-SimpleCalculatorInner.displayName = "SimpleCalculatorInner";
+CalculatorWithProvider.displayName = "RapidCalculatorModern";
+RapidCalculatorInner.displayName = "RapidCalculatorInner";
 
 export default CalculatorWithProvider;

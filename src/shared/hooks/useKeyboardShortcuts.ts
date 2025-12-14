@@ -39,8 +39,8 @@ export const useKeyboardShortcuts = () => {
     {
       key: 'c',
       ctrl: true,
-      action: () => navigate('/calculadora-simples'),
-      description: 'Calculadora Básica'
+      action: () => navigate('/calculadora-rapida'),
+      description: 'Calculadora Rápida'
     },
     {
       key: 'v',

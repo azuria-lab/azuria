@@ -8,7 +8,7 @@ export const CalculatorProgressiveUI: React.FC = () => {
   const calculatorSections = [
     {
       id: 'basic-calculator',
-      title: 'Calculadora Básica',
+      title: 'Calculadora Rápida',
       description: 'Cálculos essenciais de margem e markup',
       level: 'basic' as const,
       preview: (
@@ -33,16 +33,18 @@ export const CalculatorProgressiveUI: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm font-medium">Custo do Produto</label>
+                    <label htmlFor="cost-input" className="text-sm font-medium">Custo do Produto</label>
                     <input 
+                      id="cost-input"
                       type="number" 
                       placeholder="R$ 0,00"
                       className="w-full mt-1 px-3 py-2 border rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Margem (%)</label>
+                    <label htmlFor="margin-input" className="text-sm font-medium">Margem (%)</label>
                     <input 
+                      id="margin-input"
                       type="number" 
                       placeholder="30%"
                       className="w-full mt-1 px-3 py-2 border rounded-md"

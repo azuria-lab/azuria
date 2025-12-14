@@ -9,6 +9,15 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTour } from './TourProvider';
 
+/**
+ * Retorna a cor do indicador de step baseado na posição
+ */
+function getStepIndicatorColor(index: number, currentStep: number): string {
+  if (index === currentStep) {return 'bg-blue-600 dark:bg-blue-500';}
+  if (index < currentStep) {return 'bg-blue-300 dark:bg-blue-700';}
+  return 'bg-gray-300 dark:bg-gray-600';
+}
+
 export function TourOverlay() {
   const { currentTour, currentStep, isActive, nextStep, prevStep, endTour, skipTour } = useTour();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -65,12 +74,6 @@ export function TourOverlay() {
           left: `${targetRect.left + targetRect.width / 2}px`,
           transform: 'translate(-50%, -100%)'
         };
-      case 'bottom':
-        return {
-          top: `${targetRect.bottom + offset}px`,
-          left: `${targetRect.left + targetRect.width / 2}px`,
-          transform: 'translate(-50%, 0)'
-        };
       case 'left':
         return {
           top: `${targetRect.top + targetRect.height / 2}px`,
@@ -83,6 +86,7 @@ export function TourOverlay() {
           left: `${targetRect.right + offset}px`,
           transform: 'translate(0, -50%)'
         };
+      case 'bottom':
       default:
         return {
           top: `${targetRect.bottom + offset}px`,
@@ -151,18 +155,12 @@ export function TourOverlay() {
         {/* Footer com navegação */}
         <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex gap-1">
-            {currentTour.steps.map((_, index) => (
-              <div
-                key={index}
-                className={`h-2 w-2 rounded-full transition-colors ${
-                  index === currentStep
-                    ? 'bg-blue-600 dark:bg-blue-500'
-                    : index < currentStep
-                    ? 'bg-blue-300 dark:bg-blue-700'
-                    : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-              />
-            ))}
+            {currentTour.steps.map((tourStep, index) => (
+                <div
+                  key={tourStep.target}
+                  className={`h-2 w-2 rounded-full transition-colors ${getStepIndicatorColor(index, currentStep)}`}
+                />
+              ))}
           </div>
 
           <div className="flex gap-2">
@@ -178,7 +176,15 @@ export function TourOverlay() {
               </Button>
             )}
 
-            {!isLastStep ? (
+            {isLastStep ? (
+              <Button
+                size="sm"
+                onClick={endTour}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Concluir Tour
+              </Button>
+            ) : (
               <Button
                 size="sm"
                 onClick={nextStep}
@@ -186,14 +192,6 @@ export function TourOverlay() {
               >
                 Próximo
                 <ChevronRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={endTour}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Concluir Tour
               </Button>
             )}
           </div>

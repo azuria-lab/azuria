@@ -37,8 +37,8 @@ export default function MetricsSummary() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      {metrics.map((metric, index) => (
-        <Card key={index} className="border-brand-100">
+      {metrics.map((metric) => (
+        <Card key={metric.title} className="border-brand-100">
           <div className="p-5">
             <div className="flex justify-between items-start">
               <div>

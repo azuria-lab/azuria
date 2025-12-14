@@ -27,6 +27,39 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 }
 };
 
+type PlanType = "free" | "pro" | "enterprise";
+
+/**
+ * Retorna a classe de cor do texto baseado no tipo de plano
+ */
+function getPlanTextColor(plan: PlanType): string {
+  if (plan === "pro") {return "text-brand-600";}
+  if (plan === "enterprise") {return "text-purple-600";}
+  return "text-gray-900 dark:text-white";
+}
+
+/**
+ * Retorna a classe de cor do ícone de check baseado no tipo de plano  
+ */
+function getCheckIconColor(plan: PlanType): string {
+  if (plan === "enterprise") {return "text-purple-600";}
+  if (plan === "pro") {return "text-brand-600";}
+  return "text-green-500";
+}
+
+/**
+ * Retorna a classe do botão baseado no tipo de plano
+ */
+function getButtonClassName(plan: PlanType): string {
+  if (plan === "pro") {
+    return "bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]";
+  }
+  if (plan === "enterprise") {
+    return "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]";
+  }
+  return "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700";
+}
+
 interface PlanCardProps {
   plan: "free" | "pro" | "enterprise";
   billingCycle: "monthly" | "yearly";
@@ -34,7 +67,7 @@ interface PlanCardProps {
   onSubscribe: (plan: "monthly" | "yearly" | "enterprise") => void;
 }
 
-export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }: PlanCardProps) {
+export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }: Readonly<PlanCardProps>) {
   const planData = {
     free: {
       title: "FREE",
@@ -45,7 +78,7 @@ export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }:
       color: "from-gray-500 to-gray-600",
       bgColor: "bg-gray-50 dark:bg-gray-800",
       features: [
-        "Calculadora básica de preços",
+        "Calculadora rápida de preços",
         "Até 10 cálculos por dia", 
         "Impostos e taxas básicas",
         "Suporte por email"
@@ -167,11 +200,7 @@ export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }:
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className={`text-4xl font-bold ${
-                  plan === "pro" ? "text-brand-600" : 
-                  plan === "enterprise" ? "text-purple-600" : 
-                  "text-gray-900 dark:text-white"
-                }`}>
+                <span className={`text-4xl font-bold ${getPlanTextColor(plan)}`}>
                   {currentPlan.price}
                 </span>
                 <span className="text-gray-500 ml-2">{currentPlan.period}</span>
@@ -192,24 +221,20 @@ export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }:
             initial="hidden"
             animate="visible"
           >
-            {currentPlan.features.map((feature, index) => (
+            {currentPlan.features.map((feature) => (
               <motion.li 
-                key={index} 
+                key={feature} 
                 className="flex items-start gap-3"
                 variants={{
                   hidden: { opacity: 0, x: -20 },
                   visible: { 
                     opacity: 1, 
                     x: 0,
-                    transition: { delay: 0.3 + (index * 0.1) }
+                    transition: { delay: 0.3 + (currentPlan.features.indexOf(feature) * 0.1) }
                   }
                 }}
               >
-                <Check className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                  plan === "enterprise" ? "text-purple-600" : 
-                  plan === "pro" ? "text-brand-600" : 
-                  "text-green-500"
-                }`} />
+                <Check className={`h-5 w-5 mt-0.5 flex-shrink-0 ${getCheckIconColor(plan)}`} />
                 <span className="text-gray-700 dark:text-gray-300">{feature}</span>
               </motion.li>
             ))}
@@ -219,13 +244,7 @@ export default function PlanCard({ plan, billingCycle, isLoading, onSubscribe }:
         <CardFooter>
           <Button 
             variant={currentPlan.buttonVariant}
-            className={`w-full group ${
-              plan === "pro" 
-                ? "bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]" 
-                : plan === "enterprise" 
-                ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]"
-                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-            }`}
+            className={`w-full group ${getButtonClassName(plan)}`}
             onClick={currentPlan.buttonAction}
             disabled={isLoading && plan === "pro"}
           >

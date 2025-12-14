@@ -183,8 +183,8 @@ const ProductionDashboard: React.FC = () => {
                   </div>
                   
                   <div className="space-y-3">
-                    {healthStatus.checks.map((check, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+                    {healthStatus.checks.map((check) => (
+                      <div key={check.name} className="flex items-center justify-between p-3 rounded-lg border">
                         <div className="flex items-center space-x-3">
                           {check.status === 'pass' && <CheckCircle className="h-5 w-5 text-green-500" />}
                           {check.status === 'warn' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
@@ -259,8 +259,8 @@ const ProductionDashboard: React.FC = () => {
               <CardContent>
                 {recentErrors.length > 0 ? (
                   <div className="space-y-3">
-                    {recentErrors.map((error, index) => (
-                      <div key={index} className="border rounded-lg p-3">
+                    {recentErrors.map((error) => (
+                      <div key={`${error.message}-${error.timestamp.getTime()}`} className="border rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">
                           <Badge 
                             variant={error.severity === 'critical' ? 'destructive' : 'secondary'}
@@ -346,7 +346,7 @@ const ProductionDashboard: React.FC = () => {
                 {Object.entries(featureFlags).map(([key, enabled]) => (
                   <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
-                      <p className="font-medium">{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                      <p className="font-medium">{key.replaceAll('_', ' ').replaceAll(/\b\w/g, l => l.toUpperCase())}</p>
                       <p className="text-sm text-muted-foreground">{key}</p>
                     </div>
                     <Badge variant={enabled ? 'default' : 'secondary'}>

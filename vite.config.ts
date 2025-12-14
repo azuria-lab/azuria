@@ -78,7 +78,7 @@ const heavyLibPatterns: Record<string, string> = {
 // Feature patterns (code splitting by feature)
 const featurePatterns: Array<{ patterns: string[]; chunk: string }> = [
   { 
-    patterns: ['/pages/SimpleCalculator', '/pages/AdvancedCalculator', '/pages/TaxCalculator', '/pages/BatchCalculator', '/pages/BiddingCalculator', '/components/calculator'],
+    patterns: ['/pages/RapidCalculator', '/pages/AdvancedCalculator', '/pages/TaxCalculator', '/pages/BatchCalculator', '/pages/BiddingCalculator', '/components/calculator'],
     chunk: 'feature-calculators'
   },
   { patterns: ['/pages/Analytics', '/pages/AdvancedAnalytics', '/components/analytics'], chunk: 'feature-analytics' },

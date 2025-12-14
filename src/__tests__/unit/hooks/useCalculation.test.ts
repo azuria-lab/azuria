@@ -61,56 +61,56 @@ vi.mock('@/domains/calculator/hooks/useCalculatorInputs', () => ({
 }))
 
 vi.mock('@/domains/calculator/hooks/useCalculatorResult', () => ({
-  useCalculatorResult: (
-    _cost: string,
-    _margin: number,
-    _tax: string,
-    _cardFee: string,
-    _otherCosts: string,
-    _shipping: string,
-    _includeShipping: boolean,
-    setIsLoading: (v: boolean) => void,
-    toast: (opts: { title: string; description?: string; variant?: string }) => void
-  ) => {
+  useCalculatorResult: (params: {
+    cost: string;
+    margin: number;
+    tax: string;
+    cardFee: string;
+    otherCosts: string;
+    shipping: string;
+    includeShipping: boolean;
+    setIsLoading: (v: boolean) => void;
+    toast: (opts: { title: string; description?: string; variant?: string }) => void;
+  }) => {
     const [result, setResult] = useState<any>(null)
     const [preview, setPreview] = useState<any>(null)
-    const calculatePrice = (
-      cost: string,
-      marginValue: number,
-      tax: string,
-      cardFee: string,
-      otherCosts: string,
-      shipping: string,
-      includeShipping: boolean,
-      onCalcComplete: (historyItem: CalculationHistory) => void
-    ) => {
-      setIsLoading(true)
-      const parsed = Number(cost) || 0
+    const calculatePrice = (calcParams: {
+      cost: string;
+      marginValue: number;
+      tax: string;
+      cardFee: string;
+      otherCosts: string;
+      shipping: string;
+      includeShipping: boolean;
+      onCalcComplete: (historyItem: CalculationHistory) => void;
+    }) => {
+      params.setIsLoading(true)
+      const parsed = Number(calcParams.cost) || 0
       if (parsed <= 0) {
-        toast?.({
+        params.toast?.({
           title: 'Valor inválido',
           description: 'O custo do produto deve ser maior que zero.',
           variant: 'destructive',
         })
-        setIsLoading(false)
+        params.setIsLoading(false)
         return
       }
-      const res = { sellingPrice: parsed * (1 + marginValue / 100), profit: parsed * marginValue / 100, isHealthyProfit: true, breakdown: { costValue: parsed, otherCostsValue: 0, shippingValue: 0, totalCost: parsed, marginAmount: parsed * marginValue / 100, realMarginPercent: marginValue, taxAmount: 0, cardFeeAmount: 0 } }
+      const res = { sellingPrice: parsed * (1 + calcParams.marginValue / 100), profit: parsed * calcParams.marginValue / 100, isHealthyProfit: true, breakdown: { costValue: parsed, otherCostsValue: 0, shippingValue: 0, totalCost: parsed, marginAmount: parsed * calcParams.marginValue / 100, realMarginPercent: calcParams.marginValue, taxAmount: 0, cardFeeAmount: 0 } }
       const item: CalculationHistory = {
         id: 'calc-1',
         date: new Date(),
-        cost,
-        margin: marginValue,
-        tax,
-        cardFee,
-        otherCosts,
-        shipping,
-        includeShipping,
+        cost: calcParams.cost,
+        margin: calcParams.marginValue,
+        tax: calcParams.tax,
+        cardFee: calcParams.cardFee,
+        otherCosts: calcParams.otherCosts,
+        shipping: calcParams.shipping,
+        includeShipping: calcParams.includeShipping,
         result: res,
       }
       setResult(res)
-      onCalcComplete(item)
-      setIsLoading(false)
+      calcParams.onCalcComplete(item)
+      params.setIsLoading(false)
     }
     return { result, setResult, preview, setPreview, calculatePrice }
   },
@@ -126,9 +126,9 @@ vi.mock('@/domains/calculator/hooks/useManualPricing', () => ({
 }))
 
 // Importa o hook sob teste após todos os mocks
-import { useSimpleCalculator } from '@/hooks/useSimpleCalculator'
+import { useRapidCalculator } from '@/hooks/useRapidCalculator'
 
-describe('useSimpleCalculator', () => {
+describe('useRapidCalculator', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -138,7 +138,7 @@ describe('useSimpleCalculator', () => {
   })
 
   it('should initialize with default values', async () => {
-    const { result } = renderHook(() => useSimpleCalculator())
+    const { result } = renderHook(() => useRapidCalculator())
     // Allow initial effects to settle within act to avoid warnings
     await act(async () => { await Promise.resolve() })
 
@@ -147,7 +147,7 @@ describe('useSimpleCalculator', () => {
   })
 
   it('should calculate price correctly', async () => {
-    const { result } = renderHook(() => useSimpleCalculator())
+    const { result } = renderHook(() => useRapidCalculator())
 
     await act(async () => {
       result.current.setState({ cost: '100', margin: 30, tax: '10', cardFee: '5' })
@@ -164,7 +164,7 @@ describe('useSimpleCalculator', () => {
   })
 
   it('should handle invalid inputs gracefully', async () => {
-    const { result } = renderHook(() => useSimpleCalculator())
+    const { result } = renderHook(() => useRapidCalculator())
 
     await act(async () => {
       result.current.setState({ cost: '0', margin: -10 })
@@ -183,7 +183,7 @@ describe('useSimpleCalculator', () => {
   })
 
   it('should set loading state during calculation', async () => {
-    const { result } = renderHook(() => useSimpleCalculator())
+    const { result } = renderHook(() => useRapidCalculator())
 
     expect(result.current.isLoading).toBe(false)
 
@@ -198,7 +198,7 @@ describe('useSimpleCalculator', () => {
   })
 
   it('should clear results', async () => {
-    const { result } = renderHook(() => useSimpleCalculator())
+    const { result } = renderHook(() => useRapidCalculator())
 
     await act(async () => {
       result.current.setState({ cost: '100', margin: 30 })

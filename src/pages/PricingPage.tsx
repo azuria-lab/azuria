@@ -72,7 +72,7 @@ export default function PricingPage() {
       <SEOHead 
         title="Planos e Preços | Azuria - Calculadora Inteligente"
         description="Escolha o plano ideal para seu negócio. De gratuito a Enterprise, temos a solução perfeita para calcular seus custos e maximizar lucros."
-        url={typeof window !== 'undefined' ? `${window.location.origin}/pricing` : 'https://azuria.app/pricing'}
+        url={globalThis.window === undefined ? 'https://azuria.app/pricing' : `${globalThis.window.location.origin}/pricing`}
         type="website"
       />
       
@@ -118,7 +118,7 @@ export default function PricingPage() {
                       : "text-slate-600 hover:text-slate-900"
                   )}
                 >
-                  Anual
+                  Anual{' '}
                   <span className="ml-2 text-xs font-semibold text-success">
                     -17%
                   </span>
@@ -303,23 +303,26 @@ interface ComparisonRowProps {
   values: (boolean | string | number)[];
 }
 
-function ComparisonRow({ feature, values }: ComparisonRowProps) {
+function ComparisonRow({ feature, values }: Readonly<ComparisonRowProps>) {
   return (
     <tr className="border-b hover:bg-muted/50 transition-colors">
       <td className="py-4 px-4 font-medium text-slate-900">{feature}</td>
-      {values.map((value, index) => (
-        <td key={index} className="text-center py-4 px-4">
-          {typeof value === 'boolean' ? (
-            value ? (
-              <Check className="h-5 w-5 text-primary mx-auto" />
-            ) : (
-              <span className="text-slate-400">—</span>
-            )
-          ) : (
-            <span className="text-sm text-slate-600 font-medium">{value}</span>
-          )}
-        </td>
-      ))}
+      {values.map((value, index) => {
+        const renderValue = () => {
+          if (typeof value === 'boolean') {
+            return value 
+              ? <Check className="h-5 w-5 text-primary mx-auto" />
+              : <span className="text-slate-400">—</span>;
+          }
+          return <span className="text-sm text-slate-600 font-medium">{value}</span>;
+        };
+        
+        return (
+          <td key={`${feature}-col-${index}`} className="text-center py-4 px-4">
+            {renderValue()}
+          </td>
+        );
+      })}
     </tr>
   );
 }

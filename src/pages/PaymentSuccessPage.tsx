@@ -131,7 +131,7 @@ export default function PaymentSuccessPage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                   <Button
                     size="lg"
-                    onClick={() => navigate('/calculadora-simples')}
+                    onClick={() => navigate('/calculadora-rapida')}
                     className="w-full sm:w-auto"
                   >
                     Começar a Usar

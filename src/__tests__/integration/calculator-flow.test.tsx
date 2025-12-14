@@ -62,8 +62,8 @@ vi.mock('@/components/calculators/ResultAnalysis', () => ({
   default: () => <div>Resultado mockado</div>,
 }))
 
-// Mock do SimpleCalculator para isolar lógica e evitar side-effects pesados
-vi.mock('@/domains/calculator/components/SimpleCalculator', () => {
+// Mock do RapidCalculator para isolar lógica e evitar side-effects pesados
+vi.mock('@/domains/calculator/components/RapidCalculator', () => {
   const MockCalculator = () => {
     const [cost, setCost] = useState('')
     const [tax, setTax] = useState('')
@@ -91,21 +91,25 @@ vi.mock('@/domains/calculator/components/SimpleCalculator', () => {
       <div>
         <label>
           Custo do produto
+          {' '}
           <input aria-label="custo do produto" value={cost} onChange={(e) => setCost(e.target.value)} />
         </label>
 
         <label>
           impostos
+          {' '}
           <input aria-label="impostos" value={tax} onChange={(e) => setTax(e.target.value)} />
         </label>
 
         <label>
           margem de lucro
+          {' '}
           <input aria-label="margem de lucro" type="range" min="0" max="100" />
         </label>
 
         <label>
           taxa da maquininha
+          {' '}
           <input aria-label="taxa da maquininha" />
         </label>
 
@@ -125,7 +129,7 @@ vi.mock('@/domains/calculator/components/SimpleCalculator', () => {
   return { default: MockCalculator }
 })
 
-import SimpleCalculator from '@/domains/calculator/components/SimpleCalculator'
+import RapidCalculator from '@/domains/calculator/components/RapidCalculator'
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -135,7 +139,7 @@ afterEach(() => {
 describe('Calculator Integration Flow', () => {
   it('should complete full calculation flow', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     // Input cost
     const costInput = screen.getByLabelText(/custo do produto/i)
@@ -168,7 +172,7 @@ describe('Calculator Integration Flow', () => {
 
   it('should handle input validation errors', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     // Try to calculate without cost
     const calculateButton = screen.getByRole('button', { name: /calcular preço/i })
@@ -182,7 +186,7 @@ describe('Calculator Integration Flow', () => {
 
   it('should save calculation to history', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     // Complete calculation
     const costInput = screen.getByLabelText(/custo do produto/i)
@@ -203,7 +207,7 @@ describe('Calculator Integration Flow', () => {
 
   it('should clear all fields when reset button is clicked', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     // Fill inputs
     const costInput = screen.getByLabelText(/custo do produto/i)
@@ -225,7 +229,7 @@ describe('Calculator Integration Flow', () => {
 
   it('should toggle between automatic and manual pricing modes', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<SimpleCalculator />)
+    renderWithProviders(<RapidCalculator />)
 
     // Look for mode toggle button
   const modeToggle = screen.getByRole('button', { name: /modo manual/i })

@@ -51,9 +51,9 @@ export { useOptimizedCalculator } from './useOptimizedCalculator';
 export { useRealTimeHistory } from './useRealTimeHistory';
 export { useVirtualScroll } from './useVirtualScroll';
 
-// Calculator legacy re-exports
-export { useSimpleCalculator } from './useSimpleCalculator';
-export { useSimpleCalculatorUI } from './useSimpleCalculatorUI';
+// Calculator legacy re-exports (with backward compatibility aliases)
+export { useSimpleCalculator, useRapidCalculator } from './useSimpleCalculator';
+export { useSimpleCalculatorUI, useRapidCalculatorUI } from './useSimpleCalculatorUI';
 
 // ============================================
 // BUSINESS & MARKETPLACE HOOKS

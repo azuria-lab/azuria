@@ -107,8 +107,8 @@ const LGPDCompliance: React.FC = () => {
         {
           id: "calc-1",
           product: "Produto A",
-          cost: 100.00,
-          sellingPrice: 150.00,
+          cost: 100,
+          sellingPrice: 150,
           margin: 33.33,
           createdAt: "2024-12-05T09:15:00Z"
         }
@@ -126,12 +126,12 @@ const LGPDCompliance: React.FC = () => {
     };
 
     const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `meus-dados-precifica-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Dados exportados",
@@ -204,8 +204,8 @@ const LGPDCompliance: React.FC = () => {
             <TabsContent value="data" className="space-y-4">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Categorias de Dados Pessoais</h3>
-                {personalDataCategories.map((category, index) => (
-                  <Card key={index}>
+                {personalDataCategories.map((category) => (
+                  <Card key={category.category}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium">{category.category}</h4>
@@ -234,8 +234,8 @@ const LGPDCompliance: React.FC = () => {
             <TabsContent value="rights" className="space-y-4">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Seus Direitos como Titular</h3>
-                {userRights.map((right, index) => (
-                  <Card key={index}>
+                {userRights.map((right) => (
+                  <Card key={right.right}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">

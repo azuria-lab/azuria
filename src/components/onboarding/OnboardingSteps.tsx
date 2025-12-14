@@ -30,7 +30,7 @@ export default function OnboardingSteps({
   onSkip,
   onComplete,
   step
-}: OnboardingStepsProps) {
+}: Readonly<OnboardingStepsProps>) {
   return (
     <>
       {/* Backdrop */}
@@ -54,7 +54,7 @@ export default function OnboardingSteps({
                     <div className="flex gap-1">
                       {Array.from({ length: totalSteps }).map((_, index) => (
                         <div
-                          key={index}
+                          key={`step-${step.id}-indicator-${index}`}
                           className={`w-2 h-2 rounded-full transition-colors ${
                             index <= currentStep 
                               ? 'bg-brand-600' 

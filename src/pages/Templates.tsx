@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, Filter, Search, Star } from "lucide-react";
-import { useSimpleCalculator } from "@/hooks/useSimpleCalculator";
+import { useRapidCalculator } from "@/hooks/useRapidCalculator";
 import { logger } from "@/services/logger";
 import type { Database } from "@/types/supabase";
 
@@ -52,7 +52,7 @@ const Templates = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const { toast } = useToast();
-  const { setState } = useSimpleCalculator();
+  const { setState } = useRapidCalculator();
 
   const categories = [
     { value: "todos", label: "Todos os Setores" },
@@ -125,7 +125,7 @@ const Templates = () => {
       });
 
       // Redirecionar para a calculadora
-      window.location.href = "/";
+      globalThis.location.href = "/";
     } catch (error) {
   logger.error('Erro ao aplicar template:', error);
       toast({

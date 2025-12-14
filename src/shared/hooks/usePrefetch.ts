@@ -12,7 +12,7 @@ import { useCallback, useRef, useState } from 'react';
 // Mapeamento de rotas para módulos lazy-loaded
 const ROUTE_MODULES: Record<string, () => Promise<unknown>> = {
   '/dashboard': () => import('@/pages/DashboardPage'),
-  '/calculadora-simples': () => import('@/pages/SimpleCalculatorPage'),
+  '/calculadora-rapida': () => import('@/pages/RapidCalculatorPage'),
   '/calculadora-avancada': () => import('@/pages/AdvancedProCalculatorPage'),
   '/calculadora-tributaria': () => import('@/pages/TaxCalculatorPage'),
   '/calculadora-lotes': () => import('@/pages/BatchCalculatorPage'),

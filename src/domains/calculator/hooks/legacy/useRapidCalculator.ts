@@ -10,11 +10,11 @@ import { parseInputValue } from "../../utils/parseInputValue";
 import { useOfflineCalculator } from "@/hooks/useOfflineCalculator";
 import type { CalculationHistory } from "../../types/calculator";
 
-export interface SimpleCalculatorOptions {
+export interface RapidCalculatorOptions {
   onAfterCalculation?: (historyItem: CalculationHistory) => void | Promise<void>;
 }
 
-export const useSimpleCalculator = (
+export const useRapidCalculator = (
   isPro: boolean = false,
   userId?: string,
   options: SimpleCalculatorOptions = {}

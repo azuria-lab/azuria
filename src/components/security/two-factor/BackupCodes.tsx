@@ -26,8 +26,8 @@ const BackupCodes: React.FC<BackupCodesProps> = ({ codes }) => {
     <div className="space-y-2">
       <Label>Códigos de backup (guarde em local seguro):</Label>
       <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded border">
-        {codes.map((code, index) => (
-          <code key={index} className="text-sm font-mono">{code}</code>
+        {codes.map((code) => (
+          <code key={code} className="text-sm font-mono">{code}</code>
         ))}
       </div>
       <Button 

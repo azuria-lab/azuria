@@ -98,8 +98,8 @@ export default function MonetizationPage() {
             variants={itemVariants}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
           >
-            {monetizationStats.map((stat, index) => (
-              <Card key={index} className="text-center">
+            {monetizationStats.map((stat) => (
+              <Card key={stat.title} className="text-center">
                 <CardContent className="pt-6">
                   <div className={`mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4 ${stat.color}`}>
                     {stat.icon}

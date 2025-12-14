@@ -18,7 +18,7 @@ export default function PrefetchOnIdle() {
   const prefetchCriticalRoutes = useCallback(() => {
     const criticalTasks = [
       import("@/pages/DashboardPage"),
-      import("@/pages/SimpleCalculatorPage"),
+      import("@/pages/RapidCalculatorPage"),
       import("@/pages/AdvancedProCalculatorPage"),
     ];
 
@@ -69,14 +69,14 @@ export default function PrefetchOnIdle() {
     // Se estiver no dashboard, prefetch das calculadoras
     if (path === "/dashboard") {
       Promise.allSettled([
-        import("@/pages/SimpleCalculatorPage"),
+        import("@/pages/RapidCalculatorPage"),
         import("@/pages/AdvancedProCalculatorPage"),
         import("@/pages/AnalyticsDashboardPage"),
       ]).catch(() => {});
     }
 
-    // Se estiver em calculadora simples, prefetch da avançada
-    if (path === "/calculadora-simples") {
+    // Se estiver em calculadora rápida, prefetch da avançada
+    if (path === "/calculadora-rapida") {
       Promise.allSettled([
         import("@/pages/AdvancedProCalculatorPage"),
         import("@/pages/BatchCalculatorPage"),

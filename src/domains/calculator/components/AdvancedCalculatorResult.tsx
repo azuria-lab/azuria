@@ -11,6 +11,33 @@ interface AdvancedCalculatorResultProps {
   result: AdvancedCalculationResult;
 }
 
+/**
+ * Retorna a classe de cor do card baseado na economia
+ */
+function getSavingsCardColor(savings: number): string {
+  if (savings > 0) {return 'bg-green-50 border-green-200';}
+  if (savings < 0) {return 'bg-red-50 border-red-200';}
+  return 'bg-gray-50 border-gray-200';
+}
+
+/**
+ * Retorna a classe de cor do badge baseado na economia
+ */
+function getSavingsBadgeColor(savings: number): string {
+  if (savings > 0) {return 'border-green-500 text-green-700';}
+  if (savings < 0) {return 'border-red-500 text-red-700';}
+  return 'border-gray-500 text-gray-700';
+}
+
+/**
+ * Retorna a classe de cor do texto da recomendação baseado na economia
+ */
+function getRecommendationTextColor(savings: number): string {
+  if (savings > 0) {return 'text-green-700';}
+  if (savings < 0) {return 'text-red-700';}
+  return 'text-gray-700';
+}
+
 export default function AdvancedCalculatorResult({ result }: AdvancedCalculatorResultProps) {
   const { sellingPrice, profit, profitMargin, breakdown, taxRegimeAnalysis } = result;
 
@@ -135,10 +162,10 @@ export default function AdvancedCalculatorResult({ result }: AdvancedCalculatorR
               { label: "Impostos", value: breakdown.taxes.total, color: "bg-red-500" },
               { label: "Taxa Marketplace", value: breakdown.marketplaceFee, color: "bg-orange-500" },
               { label: "Lucro Líquido", value: breakdown.netProfit, color: "bg-emerald-500" },
-            ].map((item, index) => {
+            ].map((item) => {
               const percentage = (item.value / sellingPrice) * 100;
               return (
-                <div key={index} className="space-y-2">
+                <div key={item.label} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
@@ -199,23 +226,13 @@ export default function AdvancedCalculatorResult({ result }: AdvancedCalculatorR
                   {taxRegimeAnalysis.alternativeRegimes.map((alt, index) => (
                     <div
                       key={alt.regime.id}
-                      className={`p-4 rounded-lg border ${
-                        alt.savings > 0 
-                          ? 'bg-green-50 border-green-200' 
-                          : alt.savings < 0 
-                          ? 'bg-red-50 border-red-200'
-                          : 'bg-gray-50 border-gray-200'
-                      }`}
+                      className={`p-4 rounded-lg border ${getSavingsCardColor(alt.savings)}`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Badge 
                             variant="outline" 
-                            className={`text-xs ${
-                              alt.savings > 0 ? 'border-green-500 text-green-700' :
-                              alt.savings < 0 ? 'border-red-500 text-red-700' :
-                              'border-gray-500 text-gray-700'
-                            }`}
+                            className={`text-xs ${getSavingsBadgeColor(alt.savings)}`}
                           >
                             #{index + 1}
                           </Badge>
@@ -237,11 +254,7 @@ export default function AdvancedCalculatorResult({ result }: AdvancedCalculatorR
                       <p className="text-sm text-gray-600 mb-2">
                         {alt.regime.description}
                       </p>
-                      <p className={`text-xs font-medium ${
-                        alt.savings > 0 ? 'text-green-700' :
-                        alt.savings < 0 ? 'text-red-700' :
-                        'text-gray-700'
-                      }`}>
+                      <p className={`text-xs font-medium ${getRecommendationTextColor(alt.savings)}`}>
                         {alt.recommendation}
                       </p>
                       {alt.regime.faturamentoLimite && (

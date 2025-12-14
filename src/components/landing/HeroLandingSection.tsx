@@ -22,7 +22,7 @@ export default function HeroLandingSection() {
             </Badge>
             
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Pare de vender no
+              Pare de vender no{' '}
               <span className="block text-yellow-300">prejuízo</span>
             </h1>
             
@@ -47,7 +47,7 @@ export default function HeroLandingSection() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/calculadora-simples">
+              <Link to="/calculadora-rapida">
                 <Button 
                   size="lg" 
                   className="bg-white text-brand-700 hover:bg-brand-50 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] px-8 py-6 text-lg"

@@ -21,7 +21,9 @@ import {
 } from "lucide-react";
 
 export default function AdvancedAnalyticsDashboard() {
-  const canonical = typeof window !== "undefined" ? `${window.location.origin}/analytics/advanced` : "https://azuria.plus/analytics/advanced";
+  const canonical = globalThis.window === undefined 
+    ? "https://azuria.plus/analytics/advanced" 
+    : `${globalThis.window.location.origin}/analytics/advanced`;
   const quickStats = [
     {
       label: "Revenue Impact Hoje",
@@ -86,10 +88,10 @@ export default function AdvancedAnalyticsDashboard() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {quickStats.map((stat, index) => {
+            {quickStats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={index} className="hover:shadow-md transition-shadow">
+                <Card key={stat.label} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <Icon className={`h-5 w-5 ${stat.color}`} />

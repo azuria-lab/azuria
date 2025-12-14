@@ -77,7 +77,7 @@ export default function EnhancedUsageMetrics() {
 
   // Funcionalidades mais utilizadas
   const featureUsage = [
-    { feature: 'Calculadora Simples', usage: 89, growth: +12 },
+    { feature: 'Calculadora Rápida', usage: 89, growth: +12 },
     { feature: 'Análise Competitiva', usage: 67, growth: +28 },
     { feature: 'IA Preços', usage: 45, growth: +156 },
     { feature: 'Marketplace', usage: 34, growth: +89 },
@@ -160,10 +160,10 @@ export default function EnhancedUsageMetrics() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {conversionMetrics.map((metric, index) => {
+            {conversionMetrics.map((metric) => {
               const Icon = metric.icon;
               return (
-                <div key={index} className="space-y-3">
+                <div key={metric.metric} className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Icon className="h-5 w-5 text-gray-600" />
                     <span className={`text-sm font-medium ${metric.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -176,7 +176,7 @@ export default function EnhancedUsageMetrics() {
                     <p className="text-xl font-bold">{metric.value}</p>
                   </div>
 
-                  {metric.target && metric.current && (
+                  {Boolean(metric.target) && Boolean(metric.current) && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs text-gray-500">
                         <span>Meta: {metric.target}{metric.metric.includes('min') ? ' min' : '%'}</span>
@@ -243,8 +243,8 @@ export default function EnhancedUsageMetrics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {featureUsage.map((feature, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {featureUsage.map((feature) => (
+                <div key={feature.feature} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium">{feature.feature}</p>
                     <div className="flex items-center gap-2 mt-1">

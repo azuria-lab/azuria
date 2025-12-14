@@ -9,7 +9,7 @@ export interface PWAOptions {
 
 class PWAManager {
   private swRegistration: ServiceWorkerRegistration | null = null;
-  private options: PWAOptions;
+  private readonly options: PWAOptions;
 
   constructor(options: PWAOptions = {}) {
     this.options = {
@@ -78,7 +78,7 @@ class PWAManager {
   }
 
   private async setupNotifications(): Promise<void> {
-    if (!('Notification' in window)) {
+    if (!('Notification' in globalThis)) {
       logger.warn('Notifications not supported');
       return;
     }
@@ -125,7 +125,7 @@ class PWAManager {
     }
 
     // This will be called when data needs to be synced
-    window.addEventListener('online', () => {
+    globalThis.addEventListener('online', () => {
       this.triggerBackgroundSync('sync-calculations');
     });
   }
@@ -150,13 +150,13 @@ class PWAManager {
     });
 
     // Handle app installation
-    window.addEventListener('beforeinstallprompt', (event: Event) => {
+    globalThis.addEventListener('beforeinstallprompt', (event: Event) => {
       event.preventDefault();
       this.showInstallPrompt(event);
     });
 
     // Handle app installation success
-    window.addEventListener('appinstalled', () => {
+    globalThis.addEventListener('appinstalled', () => {
       logger.info('PWA installed successfully');
       this.trackInstallation();
     });
@@ -191,11 +191,11 @@ class PWAManager {
     const event = new CustomEvent('pwa-update-available', {
       detail: {
         message: 'Nova versão disponível! Recarregue para atualizar.',
-        action: () => window.location.reload()
+        action: () => globalThis.location.reload()
       }
     });
     
-    window.dispatchEvent(event);
+    globalThis.dispatchEvent(event);
   }
 
   private notifySyncComplete(payload: unknown): void {
@@ -203,7 +203,7 @@ class PWAManager {
       detail: payload
     });
     
-    window.dispatchEvent(event);
+    globalThis.dispatchEvent(event);
   }
 
   // Minimal BeforeInstallPromptEvent guard
@@ -231,13 +231,13 @@ class PWAManager {
       }
     });
     
-    window.dispatchEvent(installEvent);
+    globalThis.dispatchEvent(installEvent);
   }
 
   private trackInstallation(): void {
     // Track installation analytics
     const event = new CustomEvent('pwa-installed');
-    window.dispatchEvent(event);
+    globalThis.dispatchEvent(event);
   }
 
   private async sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
@@ -257,14 +257,14 @@ class PWAManager {
   private urlB64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
+      .replaceAll('-', '+')
+      .replaceAll('_', '/');
 
-    const rawData = window.atob(base64);
+    const rawData = globalThis.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
 
     for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
+      outputArray[i] = rawData.codePointAt(i) ?? 0;
     }
     return outputArray;
   }
@@ -287,7 +287,7 @@ class PWAManager {
   }
 
   isInstalled(): boolean {
-    return window.matchMedia('(display-mode: standalone)').matches;
+    return globalThis.matchMedia('(display-mode: standalone)').matches;
   }
 }
 
@@ -295,8 +295,8 @@ class PWAManager {
 const pwaManager = new PWAManager();
 
 // Auto-initialize
-if (typeof window !== 'undefined') {
-  window.addEventListener('load', () => {
+if (globalThis.window !== undefined) {
+  globalThis.window.addEventListener('load', () => {
     pwaManager.init();
   });
 }

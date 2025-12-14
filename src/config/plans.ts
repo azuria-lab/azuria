@@ -87,8 +87,8 @@ const essencialPlan: Plan = {
   tagline: 'Mais Popular',
   popular: true,
   pricing: {
-    monthly: 59.0,
-    annual: 590.0,
+    monthly: 59,
+    annual: 590,
     annualDiscount: 17,
     currency: 'BRL',
     trialDays: 7,
@@ -159,8 +159,8 @@ const proPlan: Plan = {
   tagline: 'Recomendado',
   recommended: true,
   pricing: {
-    monthly: 119.0,
-    annual: 1190.0,
+    monthly: 119,
+    annual: 1190,
     annualDiscount: 17,
     currency: 'BRL',
     trialDays: 14,
@@ -231,7 +231,7 @@ const enterprisePlan: Plan = {
   tagline: 'Enterprise',
   customPricing: true,
   pricing: {
-    monthly: 299.0,
+    monthly: 299,
     annual: 0, // Negociável
     annualDiscount: 0,
     currency: 'BRL',
@@ -417,7 +417,7 @@ export const getRecommendedUpgrade = (currentPlanId: PlanId): PlanId | null => {
 export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
   free: [
     'Até 10 cálculos/dia',
-    'Calculadora básica',
+    'Calculadora rápida',
     'Funcionalidades limitadas',
   ],
   essencial: [

@@ -87,7 +87,7 @@ export default function BasicTabContent({
           <AppIcon size={48} withShadow />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Calculadora Básica
+          Calculadora Rápida
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Precificação inteligente para seu produto

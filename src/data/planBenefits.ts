@@ -20,7 +20,7 @@ export const planBenefits: PlanBenefit[] = [
     price: "Grátis",
     period: "para sempre",
     features: [
-      "Calculadora básica de preços",
+      "Calculadora rápida de preços",
       "Até 10 cálculos por dia",
       "Impostos básicos (Simples Nacional)",
       "Taxas de marketplace principais",
@@ -36,7 +36,7 @@ export const planBenefits: PlanBenefit[] = [
     popular: false,
     color: "gray",
     ctaText: "Começar Grátis",
-    ctaLink: "/calculadora-simples"
+    ctaLink: "/calculadora-rapida"
   },
   {
     id: "pro",

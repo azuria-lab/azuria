@@ -81,7 +81,7 @@ const BenefitsSectionBling: React.FC = () => {
             const Icon = benefit.icon;
             return (
               <motion.div
-                key={index}
+                key={benefit.title}
                 initial={reduceMotion ? undefined : { opacity: 0, y: 30 }}
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -106,8 +106,8 @@ const BenefitsSectionBling: React.FC = () => {
                 </p>
 
                 <ul className="space-y-3">
-                  {benefit.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
+                  {benefit.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#005BFF] mt-2 flex-shrink-0" />
                       <span className="text-gray-700">{feature}</span>
                     </li>

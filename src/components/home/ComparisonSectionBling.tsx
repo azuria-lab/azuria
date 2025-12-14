@@ -105,7 +105,7 @@ const ComparisonSectionBling: React.FC = () => {
               <tbody>
                 {comparisonData.map((row, index) => (
                   <motion.tr
-                    key={index}
+                    key={row.feature}
                     initial={reduceMotion ? undefined : { opacity: 0, x: -20 }}
                     whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
                     viewport={{ once: true }}

@@ -19,10 +19,10 @@ import { FeatureItem } from "@/components/home/FeatureCard";
 // Feature cards for the dashboard
 export const features: FeatureItem[] = [
   {
-    title: "Calculadora Básica",
+    title: "Calculadora Rápida",
     description: "Cálculo rápido de custo, impostos de NF e taxas de maquininha",
     icon: <Calculator className="w-10 h-10 text-brand-600" />,
-    link: "/calculadora-simples",
+    link: "/calculadora-rapida",
     available: true
   },
   {

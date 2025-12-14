@@ -15,6 +15,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScheduleOptions } from "@/types/export";
 
+/**
+ * Retorna o label localizado da frequência
+ */
+function getFrequencyLabel(frequency: string): string {
+  if (frequency === 'daily') {return 'Diário';}
+  if (frequency === 'weekly') {return 'Semanal';}
+  return 'Mensal';
+}
+
 interface ScheduleForm {
   reportName: string;
   frequency: 'daily' | 'weekly' | 'monthly';
@@ -144,15 +153,9 @@ export default function ScheduledReportsManager() {
     return colors[frequency as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
-  const getFormatIcon = (format: string) => {
-    switch (format) {
-      case 'pdf':
-        return <FileText className="h-3 w-3" />;
-      case 'excel':
-        return <FileText className="h-3 w-3" />;
-      default:
-        return <FileText className="h-3 w-3" />;
-    }
+  const getFormatIcon = (_format: string) => {
+    // Todos os formatos usam o mesmo ícone por enquanto
+    return <FileText className="h-3 w-3" />;
   };
 
   return (
@@ -245,7 +248,7 @@ export default function ScheduledReportsManager() {
                       placeholder="email@exemplo.com"
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddEmail()}
                     />
                     <Button type="button" onClick={handleAddEmail} size="sm">
                       Adicionar
@@ -254,8 +257,8 @@ export default function ScheduledReportsManager() {
                   
                   {form.emails.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {form.emails.map((email, index) => (
-                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                      {form.emails.map((email) => (
+                        <Badge key={email} variant="secondary" className="flex items-center gap-1">
                           {email}
                           <button
                             type="button"
@@ -323,8 +326,7 @@ export default function ScheduledReportsManager() {
                   
                   <div className="flex items-center gap-2">
                     <Badge className={getFrequencyBadgeColor(schedule.frequency)}>
-                      {schedule.frequency === 'daily' ? 'Diário' : 
-                       schedule.frequency === 'weekly' ? 'Semanal' : 'Mensal'}
+                      {getFrequencyLabel(schedule.frequency)}
                     </Badge>
                     <Badge variant="outline" className="flex items-center gap-1">
                       {getFormatIcon(schedule.format)}

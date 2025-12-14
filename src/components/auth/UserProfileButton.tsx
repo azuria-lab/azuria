@@ -39,7 +39,7 @@ const UserProfileButton: React.FC = () => {
       // Pequeno delay para garantir que o toast seja exibido
       setTimeout(() => {
         // Redirecionar para home após logout
-        window.location.href = "/";
+        globalThis.location.href = "/";
       }, 300);
     } catch (error) {
       // Em caso de erro inesperado, ainda assim redirecionar
@@ -56,7 +56,7 @@ const UserProfileButton: React.FC = () => {
       
       // Redirecionar mesmo com erro
       setTimeout(() => {
-        window.location.href = "/";
+        globalThis.location.href = "/";
       }, 300);
     }
   };
@@ -154,7 +154,7 @@ const UserProfileButton: React.FC = () => {
         
         <DropdownMenuSeparator />
         
-        <Link to="/calculadora-simples">
+        <Link to="/calculadora-rapida">
           <DropdownMenuItem className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
             <Calculator className="mr-2 h-4 w-4" />
             Calculadora

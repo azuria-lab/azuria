@@ -16,7 +16,7 @@ const engagementData = [
 ];
 
 const featureUsage = [
-  { feature: "Calculadora Simples", usage: 2856, percentage: 68 },
+  { feature: "Calculadora Rápida", usage: 2856, percentage: 68 },
   { feature: "Calculadora PRO", usage: 892, percentage: 21 },
   { feature: "Histórico", usage: 567, percentage: 13 },
   { feature: "Análise Concorrência", usage: 234, percentage: 6 },
@@ -181,8 +181,8 @@ export default function UserEngagement() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {featureUsage.map((feature, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {featureUsage.map((feature) => (
+                <div key={feature.feature} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium">{feature.feature}</p>
                     <p className="text-sm text-muted-foreground">
@@ -224,7 +224,7 @@ export default function UserEngagement() {
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h4 className="font-semibold text-blue-800 mb-2">📊 Oportunidade PRO</h4>
               <p className="text-sm text-blue-700">
-                68% dos usuários usam apenas calculadora simples. Campanhas direcionadas podem aumentar uso PRO.
+                68% dos usuários usam apenas calculadora rápida. Campanhas direcionadas podem aumentar uso PRO.
               </p>
             </div>
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">

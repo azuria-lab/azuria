@@ -12,6 +12,15 @@ interface MarketInsight {
   impact: 'high' | 'medium' | 'low';
 }
 
+/**
+ * Retorna o label localizado do impacto
+ */
+function getImpactLabel(impact: string): string {
+  if (impact === 'high') {return 'Alto';}
+  if (impact === 'medium') {return 'Médio';}
+  return 'Baixo';
+}
+
 export default function MarketplaceInsights() {
   const insights: MarketInsight[] = [
     {
@@ -101,8 +110,8 @@ export default function MarketplaceInsights() {
     <div className="space-y-6">
       {/* Estatísticas do Mercado */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {marketStats.map((stat, index) => (
-          <Card key={index}>
+        {marketStats.map((stat) => (
+          <Card key={stat.label}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-gray-600">{stat.icon}</div>
@@ -128,9 +137,9 @@ export default function MarketplaceInsights() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {insights.map((insight, index) => (
+          {insights.map((insight) => (
             <div 
-              key={index}
+              key={insight.title}
               className={`p-4 rounded-lg border ${getInsightColor(insight.type)}`}
             >
               <div className="flex items-start gap-3">
@@ -145,8 +154,7 @@ export default function MarketplaceInsights() {
                         <span className="text-sm font-bold">{insight.value}</span>
                       )}
                       <Badge variant={getImpactBadge(insight.impact)} className="text-xs">
-                        {insight.impact === 'high' ? 'Alto' : 
-                         insight.impact === 'medium' ? 'Médio' : 'Baixo'} Impacto
+                        {getImpactLabel(insight.impact)} Impacto
                       </Badge>
                     </div>
                   </div>

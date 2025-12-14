@@ -24,7 +24,7 @@ const HeroSection: React.FC = () => {
           </Badge>
         </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800 dark:text-white leading-tight">
-          Pare de vender no 
+          Pare de vender no{' '}
           <span className="block text-brand-600">prejuízo agora</span>
         </h1>
         <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed">
@@ -85,7 +85,7 @@ const HeroSection: React.FC = () => {
       </div>
       
       <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800 dark:text-white leading-tight">
-        Pare de vender no 
+        Pare de vender no{' '}
         <span className="block text-brand-600">prejuízo agora</span>
       </h1>
       
@@ -110,7 +110,7 @@ const HeroSection: React.FC = () => {
       </div>
       
       <div className="flex justify-center gap-4 flex-wrap mb-6">
-        <Link to="/calculadora-simples">
+        <Link to="/calculadora-rapida">
           <Button 
             size="lg" 
             className="bg-brand-600 hover:bg-brand-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] px-8 py-6 text-lg font-bold"

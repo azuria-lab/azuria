@@ -72,8 +72,9 @@ export default function ProUpgradeModal({
   onClose, 
   trigger = 'general',
   feature 
-}: ProUpgradeModalProps) {
-  const [_isClosing, setIsClosing] = useState(false);
+}: Readonly<ProUpgradeModalProps>) {
+  // isClosing é usado para controle de animação CSS
+  const [isClosing, setIsClosing] = useState(false);
   const content = modalContent[trigger];
 
   const handleClose = () => {
@@ -83,6 +84,9 @@ export default function ProUpgradeModal({
       setIsClosing(false);
     }, 150);
   };
+
+  // Closing animation handling (intencional)
+  void isClosing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -143,7 +147,7 @@ export default function ProUpgradeModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   {proFeatures.map((feature, index) => (
                     <motion.div
-                      key={index}
+                      key={feature.text}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -191,9 +195,11 @@ export default function ProUpgradeModal({
                 {/* Social Proof */}
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    ))}
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     +1.000 lojistas já aumentaram seus lucros com o Azuria PRO

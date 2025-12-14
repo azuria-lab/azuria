@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound";
 
 // Lazy load all other pages with route-based code splitting
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const SimpleCalculatorPage = lazy(() => import("./pages/SimpleCalculatorPage"));
+const RapidCalculatorPage = lazy(() => import("./pages/RapidCalculatorPage"));
 const AdvancedCalculatorPage = lazy(() => import("./pages/AdvancedProCalculatorPage"));
 const BatchCalculatorPage = lazy(() => import("./pages/BatchCalculatorPage"));
 const TaxCalculatorPage = lazy(() => import("./pages/TaxCalculatorPage"));
@@ -117,14 +117,19 @@ const App = () => {
                       
                       {/* Calculator Routes - Protected */}
                       <Route
-                        path="/calculadora-simples"
+                        path="/calculadora-rapida"
                         element={
                           <ProtectedRoute>
                             <DashboardLayout>
-                              <SimpleCalculatorPage />
+                              <RapidCalculatorPage />
                             </DashboardLayout>
                           </ProtectedRoute>
                         }
+                      />
+                      {/* Redirect antiga rota para nova */}
+                      <Route
+                        path="/calculadora-simples"
+                        element={<Navigate to="/calculadora-rapida" replace />}
                       />
                       <Route
                         path="/calculadora-avancada"

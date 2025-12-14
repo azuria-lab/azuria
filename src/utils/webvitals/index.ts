@@ -6,8 +6,8 @@ import type { PerformanceReport, WebVitalMetric } from './types.ts';
 import { generateSecureSessionId } from '../secureRandom';
 
 class Reporter {
-  private metrics = new Map<string, WebVitalMetric>();
-  private sessionId = generateSecureSessionId();
+  private readonly metrics = new Map<string, WebVitalMetric>();
+  private readonly sessionId = generateSecureSessionId();
   private isReporting = false;
   private queue: PerformanceReport[] = [];
   private timer?: number;
@@ -20,8 +20,8 @@ class Reporter {
     if (!webVitals) { return; }
     this.isReporting = true;
     subscribeToVitals(webVitals, this.onMetric);
-    this.timer = window.setInterval(() => this.sendBatch(), 30000);
-    window.addEventListener('beforeunload', () => this.flushFinal());
+    this.timer = globalThis.setInterval(() => this.sendBatch(), 30000);
+    globalThis.addEventListener('beforeunload', () => this.flushFinal());
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { this.flushFinal(); } });
   }
 

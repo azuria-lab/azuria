@@ -29,8 +29,8 @@ const FeaturesGrid: React.FC<FeaturesGridProps> = ({ features }) => {
   if (!mounted) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {features.map((feature, index) => (
-          <FeatureCard key={index} feature={feature} />
+        {features.map((feature) => (
+          <FeatureCard key={feature.title} feature={feature} />
         ))}
       </div>
     );
@@ -43,8 +43,8 @@ const FeaturesGrid: React.FC<FeaturesGridProps> = ({ features }) => {
       initial="hidden"
       animate="visible"
     >
-      {features.map((feature, index) => (
-        <FeatureCard key={index} feature={feature} />
+      {features.map((feature) => (
+        <FeatureCard key={feature.title} feature={feature} />
       ))}
     </motion.div>
   );

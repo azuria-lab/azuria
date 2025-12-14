@@ -15,7 +15,7 @@ interface MarketplaceIntelligenceProps {
 export default function MarketplaceIntelligence({ 
   productName = "", 
   onPriceSuggestion 
-}: MarketplaceIntelligenceProps) {
+}: Readonly<MarketplaceIntelligenceProps>) {
   const [searchQuery, setSearchQuery] = useState(productName);
   const { searchProducts, getSuggestedPrice, isLoading, data, error } = useMarketplaceAPI();
 
@@ -50,7 +50,7 @@ export default function MarketplaceIntelligence({
             placeholder="Digite o nome do produto..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           <Button onClick={handleSearch} disabled={isLoading}>
             <Search className="h-4 w-4 mr-2" />
@@ -115,8 +115,8 @@ export default function MarketplaceIntelligence({
             <div>
               <h3 className="font-semibold mb-3">Produtos Encontrados</h3>
               <div className="grid gap-3 max-h-96 overflow-y-auto">
-                {data.products.slice(0, 6).map((product, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                {data.products.slice(0, 6).map((product) => (
+                  <div key={product.title} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
                     <div className="w-12 h-12 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center">
                       <span className="text-xs text-gray-500">IMG</span>
                     </div>

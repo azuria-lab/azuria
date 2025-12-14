@@ -61,7 +61,7 @@ export function GlobalShortcuts() {
           gPressed = false;
         } else if (e.key.toLowerCase() === 'c') {
           e.preventDefault();
-          navigate('/calculadora-simples');
+          navigate('/calculadora-rapida');
           gPressed = false;
         }
       }
@@ -80,7 +80,7 @@ export function GlobalShortcuts() {
   const navigateToDashboard = useCallback(() => navigate('/dashboard'), [navigate]);
   const navigateToMarketplace = useCallback(() => navigate('/marketplace'), [navigate]);
   const navigateToAnalytics = useCallback(() => navigate('/analytics'), [navigate]);
-  const navigateToCalculator = useCallback(() => navigate('/calculadora-simples'), [navigate]);
+  const navigateToCalculator = useCallback(() => navigate('/calculadora-rapida'), [navigate]);
 
   useRegisterShortcut({
     id: 'goto-dashboard',
@@ -117,7 +117,7 @@ export function GlobalShortcuts() {
   // Atalho: Iniciar Tour (Ctrl+Shift+T)
   const handleStartTour = useCallback(() => {
     // Detectar página atual e iniciar tour apropriado
-    const path = window.location.pathname;
+    const path = globalThis.location.pathname;
     if (path.includes('marketplace')) {
       startTour('marketplace-dashboard');
     } else if (path.includes('analytics')) {
@@ -139,8 +139,8 @@ export function GlobalShortcuts() {
 
   // Atalho: Busca Global (Ctrl+K)
   const handleGlobalSearch = useCallback(() => {
-    // TODO: Implementar busca global
-    // Placeholder - será implementado futuramente
+    // Busca global será implementada em milestone futuro
+    // Aguardando especificação de requisitos de pesquisa
   }, []);
 
   useRegisterShortcut({

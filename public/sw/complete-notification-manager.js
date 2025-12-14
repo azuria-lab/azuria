@@ -25,7 +25,7 @@ class CompleteNotificationManager {
     await this.storeNotificationMetrics(data);
     
     // Show notification
-    await self.registration.showNotification(
+    await globalThis.registration.showNotification(
       notificationConfig.title,
       notificationConfig.options
     );
@@ -58,7 +58,7 @@ class CompleteNotificationManager {
             tag: 'price-alert',
             requireInteraction: true,
             data: {
-              url: '/calculadora-simples',
+              url: '/calculadora-rapida',
               type: data.type,
               productId: data.productId,
               oldPrice: data.oldPrice,
@@ -111,7 +111,7 @@ class CompleteNotificationManager {
             body: data.body || 'Que tal fazer uma nova análise de preços?',
             tag: 'calculation-reminder',
             data: {
-              url: '/calculadora-simples',
+              url: '/calculadora-rapida',
               type: data.type
             },
             actions: [
@@ -208,7 +208,7 @@ class CompleteNotificationManager {
     switch (action) {
       case 'view-calculator':
       case 'new-calculation':
-        await this.openWindow('/calculadora-simples');
+        await this.openWindow('/calculadora-rapida');
         break;
         
       case 'view-analytics':
@@ -231,10 +231,11 @@ class CompleteNotificationManager {
         // Just close - no action needed
         break;
         
-      default:
+      default: {
         // Default click behavior
         const targetUrl = notificationData.url || '/';
         await this.openWindow(targetUrl);
+      }
     }
 
     // Update badge count
@@ -245,7 +246,7 @@ class CompleteNotificationManager {
   }
 
   static async openWindow(url, params = {}) {
-    const clients = await self.clients.matchAll({ type: 'window' });
+    const clients = await globalThis.clients.matchAll({ type: 'window' });
     
     // Try to focus existing window
     for (const client of clients) {
@@ -265,13 +266,13 @@ class CompleteNotificationManager {
     const queryString = new URLSearchParams(params).toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
     
-    await self.clients.openWindow(fullUrl);
+    await globalThis.clients.openWindow(fullUrl);
   }
 
   static async storeNotificationMetrics(data) {
     try {
       const metrics = {
-        id: self.crypto.randomUUID(),
+        id: globalThis.crypto.randomUUID(),
         type: data.type,
         timestamp: new Date().toISOString(),
         title: data.title,
@@ -289,7 +290,7 @@ class CompleteNotificationManager {
   static async trackNotificationInteraction(type, action) {
     try {
       const interaction = {
-        id: self.crypto.randomUUID(),
+        id: globalThis.crypto.randomUUID(),
         type: type,
         action: action,
         timestamp: new Date().toISOString()
@@ -335,11 +336,11 @@ class CompleteNotificationManager {
   static async scheduleReminder(delayMs) {
     // Schedule a reminder notification
     setTimeout(async () => {
-      await self.registration.showNotification('💡 Lembrete Precifica+', {
+      await globalThis.registration.showNotification('💡 Lembrete Precifica+', {
         body: 'Que tal fazer uma nova análise de preços agora?',
         icon: '/icon-192.png',
         tag: 'scheduled-reminder',
-        data: { url: '/calculadora-simples', type: 'reminder' }
+        data: { url: '/calculadora-rapida', type: 'reminder' }
       });
     }, delayMs);
   }
@@ -355,7 +356,7 @@ class CompleteNotificationManager {
     };
 
     const config = this.buildNotificationConfig(data);
-    await self.registration.showNotification(config.title, config.options);
+    await globalThis.registration.showNotification(config.title, config.options);
   }
 
   static async sendMarketUpdate(message, marketData) {
@@ -366,9 +367,9 @@ class CompleteNotificationManager {
     };
 
     const config = this.buildNotificationConfig(data);
-    await self.registration.showNotification(config.title, config.options);
+    await globalThis.registration.showNotification(config.title, config.options);
   }
 }
 
 // Export for main service worker
-self.CompleteNotificationManager = CompleteNotificationManager;
+globalThis.CompleteNotificationManager = CompleteNotificationManager;

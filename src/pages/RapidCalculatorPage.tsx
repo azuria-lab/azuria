@@ -1,12 +1,13 @@
-// Aqui ativamos o modo PRO true para todos os recursos, conforme solicitado para testes internos no componente SimpleCalculator.
+// Aqui ativamos o modo PRO true para todos os recursos, conforme solicitado para testes internos no componente RapidCalculator.
 
-import SimpleCalculator from "@/domains/calculator/components/SimpleCalculator";
+import RapidCalculator from "@/domains/calculator/components/RapidCalculator";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { AppIcon } from "@/components/ui/app-icon";
 import { useAuthContext } from "@/domains/auth";
+import { Helmet } from "react-helmet-async";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,7 +29,7 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 }
 };
 
-export default function SimpleCalculatorPage() {
+export default function RapidCalculatorPage() {
   // Usa o contexto de autenticação para obter o usuário real (necessário para salvar no Supabase)
   const { user } = useAuthContext();
   const userId = user?.id;
@@ -36,31 +37,36 @@ export default function SimpleCalculatorPage() {
   const isPro = true;
 
   return (
-    <motion.div 
-      className="flex flex-col min-h-screen"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
-      
-      <main className="flex-grow py-12 px-4 bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div variants={itemVariants} className="text-center mb-12">
-            <div className="inline-flex items-center justify-center mb-6">
-              <AppIcon size={80} withShadow />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
-              Calculadora de Preço Básica
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Calcule rapidamente o preço ideal de venda com base no custo do produto 
-              e na margem de lucro desejada. Interface profissional e cálculos precisos.
-            </p>
-          </motion.div>
-          
-          <motion.div variants={itemVariants} className="max-w-4xl mx-auto">
-            <SimpleCalculator isPro={isPro} userId={userId} />
+    <>
+      <Helmet>
+        <title>Calculadora Rápida | Azuria</title>
+        <meta name="description" content="Calcule rapidamente preços de venda com simplicidade e precisão utilizando a Calculadora Rápida do Azuria." />
+      </Helmet>
+      <motion.div 
+        className="flex flex-col min-h-screen"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
+        
+        <main className="flex-grow py-12 px-4 bg-gradient-to-br from-background via-background to-primary/5">
+          <div className="container mx-auto max-w-6xl">
+            <motion.div variants={itemVariants} className="text-center mb-12">
+              <div className="inline-flex items-center justify-center mb-6">
+                <AppIcon size={80} withShadow />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
+                Calculadora Rápida
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Calcule rapidamente preços de venda com simplicidade e precisão utilizando 
+                a Calculadora Rápida do Azuria.
+              </p>
+            </motion.div>
+            
+            <motion.div variants={itemVariants} className="max-w-4xl mx-auto">
+              <RapidCalculator isPro={isPro} userId={userId} />
           </motion.div>
           
           <motion.div 
@@ -94,10 +100,11 @@ export default function SimpleCalculatorPage() {
                 </Link>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </main>
-      
-    </motion.div>
+            </motion.div>
+          </div>
+        </main>
+        
+      </motion.div>
+    </>
   );
 }

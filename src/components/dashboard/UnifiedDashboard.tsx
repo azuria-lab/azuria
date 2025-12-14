@@ -40,7 +40,7 @@ export default function UnifiedDashboard() {
   const recentActivity = [
     {
       type: 'calculation',
-      title: 'Calculadora Simples',
+      title: 'Calculadora Rápida',
       description: 'Produto: Smartphone XYZ - Margem: 25%',
       time: '2 min atrás',
       icon: Calculator
@@ -63,9 +63,9 @@ export default function UnifiedDashboard() {
 
   const quickActions = [
     {
-      title: 'Calculadora Simples',
+      title: 'Calculadora Rápida',
       description: 'Cálculo rápido de preços',
-      link: '/calculadora-simples',
+      link: '/calculadora-rapida',
       icon: Calculator,
       color: 'bg-blue-500',
       badge: null
@@ -173,8 +173,8 @@ export default function UnifiedDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {quickActions.map((action, index) => (
-              <Link key={index} to={action.link}>
+            {quickActions.map((action) => (
+              <Link key={action.title} to={action.link}>
                 <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-gray-50 transition-colors">
                   <div className={`p-2 rounded-lg ${action.color}`}>
                     <action.icon className="h-5 w-5 text-white" />
@@ -206,8 +206,8 @@ export default function UnifiedDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start gap-3">
+            {recentActivity.map((activity) => (
+              <div key={activity.title} className="flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-gray-100">
                   <activity.icon className="h-4 w-4 text-gray-600" />
                 </div>
@@ -242,9 +242,9 @@ export default function UnifiedDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {achievements.map((achievement, index) => (
+            {achievements.map((achievement) => (
               <div 
-                key={index} 
+                key={achievement.title} 
                 className={`p-4 rounded-lg border ${
                   achievement.completed 
                     ? 'bg-green-50 border-green-200' 

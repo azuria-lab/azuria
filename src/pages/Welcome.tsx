@@ -33,11 +33,11 @@ export default function Welcome() {
                 <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mb-4">
                   <Calculator className="h-6 w-6 text-brand-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Calculadora Básica</h3>
+                <h3 className="text-xl font-semibold mb-2">Calculadora Rápida</h3>
                 <p className="text-gray-600 mb-4">
                   Calcule rapidamente o preço de venda ideal com base no custo e margem de lucro desejada.
                 </p>
-                <Link to="/calculadora-simples">
+                <Link to="/calculadora-rapida">
                   <Button variant="outline" size="sm" className="w-full">
                     Usar Grátis
                   </Button>
@@ -111,7 +111,7 @@ export default function Welcome() {
               Comece grátis agora mesmo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/calculadora-simples">
+              <Link to="/calculadora-rapida">
                 <Button size="lg" className="bg-brand-600 hover:bg-brand-700">
                   Começar Grátis <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>

@@ -46,7 +46,8 @@ const SecurityDashboard: React.FC = () => {
     try {
       await resolveAlert.mutateAsync(alertId);
       toast.success('Alerta resolvido com sucesso');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Erro ao resolver alerta:', error);
       toast.error('Erro ao resolver alerta');
     }
   };
@@ -55,7 +56,8 @@ const SecurityDashboard: React.FC = () => {
     try {
       await cleanupRoles.mutateAsync();
       toast.success('Limpeza de roles expirados executada com sucesso');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Erro na limpeza de roles:', error);
       toast.error('Erro na limpeza de roles expirados');
     }
   };
@@ -64,7 +66,8 @@ const SecurityDashboard: React.FC = () => {
     try {
       await optimizeTables.mutateAsync();
       toast.success('Otimização de tabelas executada com sucesso');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Erro na otimização de tabelas:', error);
       toast.error('Erro na otimização de tabelas');
     }
   };
@@ -73,7 +76,8 @@ const SecurityDashboard: React.FC = () => {
     try {
       await cleanupAnalytics.mutateAsync();
       toast.success('Limpeza de analytics executada com sucesso');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Erro na limpeza de analytics:', error);
       toast.error('Erro na limpeza de analytics');
     }
   };
@@ -82,7 +86,8 @@ const SecurityDashboard: React.FC = () => {
     try {
       await maintenanceCleanup.mutateAsync();
       toast.success('Limpeza completa de manutenção executada com sucesso');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Erro na limpeza de manutenção:', error);
       toast.error('Erro na limpeza de manutenção');
     }
   };
@@ -95,6 +100,45 @@ const SecurityDashboard: React.FC = () => {
       case 'low': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const renderAlertsList = () => {
+    if (alertsLoading) {
+      return <div className="animate-pulse">Carregando alertas...</div>;
+    }
+    
+    if (!alerts || alerts.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+          <p className="text-gray-500">Nenhum alerta ativo</p>
+        </div>
+      );
+    }
+    
+    return alerts.map((alert) => (
+      <div key={alert.id} className="flex items-center justify-between p-4 border rounded-lg">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge className={getSeverityColor(alert.severity)}>
+              {alert.severity}
+            </Badge>
+            <span className="font-medium">{alert.title}</span>
+          </div>
+          <p className="text-sm text-gray-600">{alert.message}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date(alert.created_at).toLocaleString()}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleResolveAlert(alert.id)}
+        >
+          Resolver
+        </Button>
+      </div>
+    ));
   };
 
   const criticalAlerts = alerts?.filter(alert => alert.severity === 'critical') || [];
@@ -199,38 +243,7 @@ const SecurityDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {alertsLoading ? (
-                  <div className="animate-pulse">Carregando alertas...</div>
-                ) : alerts?.length === 0 ? (
-                  <div className="text-center py-8">
-                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <p className="text-gray-500">Nenhum alerta ativo</p>
-                  </div>
-                ) : (
-                  alerts?.map((alert) => (
-                    <div key={alert.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className={getSeverityColor(alert.severity)}>
-                            {alert.severity}
-                          </Badge>
-                          <span className="font-medium">{alert.title}</span>
-                        </div>
-                        <p className="text-sm text-gray-600">{alert.message}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {new Date(alert.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleResolveAlert(alert.id)}
-                      >
-                        Resolver
-                      </Button>
-                    </div>
-                  ))
-                )}
+                {renderAlertsList()}
               </div>
             </CardContent>
           </Card>
@@ -350,7 +363,7 @@ const SecurityDashboard: React.FC = () => {
               <div className="space-y-4">
         {rlsMetrics && Array.isArray(rlsMetrics) && rlsMetrics.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
-          {rlsMetrics.map((metric: { policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number } | null, index: number) => {
+          {rlsMetrics.map((metric: { policy_name?: string; avg_execution_time?: number; table_name?: string; total_calls?: number; avg_policy_execution_time?: number; total_policies?: number } | null) => {
             if (!metric) { return null; }
                       // Support both per-policy and summary shapes
                       const policy = metric.policy_name ?? 'Resumo';
@@ -358,7 +371,7 @@ const SecurityDashboard: React.FC = () => {
                       const table = metric.table_name ?? '—';
                       const calls = metric.total_calls ?? metric.total_policies ?? 0;
                       return (
-                        <div key={index} className="p-4 border rounded-lg">
+                        <div key={`${policy}-${table}`} className="p-4 border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-medium">{policy}</span>
                             <Badge variant="outline">{avg}ms</Badge>

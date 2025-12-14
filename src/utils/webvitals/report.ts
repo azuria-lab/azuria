@@ -24,8 +24,9 @@ export async function sendReportsBatch(reports: PerformanceReport[]) {
         keepalive: true,
       });
     }
-  } catch (_e) {
-    // swallow; caller can retry later
+  } catch (error_) {
+    // Swallow error; caller can retry later
+    console.debug('Failed to send web vitals batch:', error_);
   }
 }
 
@@ -41,7 +42,7 @@ function getDeviceInfo() {
   const nav = navigator as unknown as { deviceMemory?: number; connection?: { type?: string } };
   return {
     userAgent: navigator.userAgent,
-    viewport: { width: window.innerWidth, height: window.innerHeight },
+    viewport: { width: globalThis.innerWidth, height: globalThis.innerHeight },
     deviceMemory: nav.deviceMemory,
     hardwareConcurrency: navigator.hardwareConcurrency,
     connectionType: nav.connection?.type,

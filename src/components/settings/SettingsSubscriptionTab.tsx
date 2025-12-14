@@ -90,8 +90,8 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
                   "Notificações push inteligentes",
                   "Suporte por e-mail prioritário",
                   "API básica (10.000 req/dia)"
-                ].map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-green-600" />
                     <span className="text-sm">{feature}</span>
                   </li>
@@ -115,8 +115,8 @@ const SettingsSubscriptionTab: React.FC<Props> = ({
                   "Calculadora de preço básica",
                   "Cálculo com base em custo e margem",
                   "Simulação ilimitada de preços"
-                ].map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-green-600" />
                     <span className="text-sm">{feature}</span>
                   </li>

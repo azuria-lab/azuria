@@ -67,7 +67,7 @@ export default function CompetitiveDifferentials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {differentials.map((item, index) => (
             <motion.div
-              key={index}
+              key={item.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -85,8 +85,8 @@ export default function CompetitiveDifferentials() {
                 <CardContent>
                   <p className="text-gray-600 mb-4">{item.description}</p>
                   <ul className="space-y-2">
-                    {item.details.map((detail, i) => (
-                      <li key={i} className="flex items-center text-sm text-muted-foreground">
+                    {item.details.map((detail) => (
+                      <li key={detail} className="flex items-center text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                         {detail}
                       </li>
@@ -117,9 +117,9 @@ export default function CompetitiveDifferentials() {
                 </tr>
               </thead>
               <tbody>
-                {competitors.map((comp, index) => (
+                {competitors.map((comp) => (
                   <tr 
-                    key={index} 
+                    key={comp.name} 
                     className={`border-b ${comp.highlight ? 'bg-brand-50 dark:bg-brand-950' : ''}`}
                   >
                     <td className="py-4 px-4 font-medium">
@@ -162,7 +162,7 @@ export default function CompetitiveDifferentials() {
           </p>
           
           <div className="flex justify-center gap-4 flex-wrap">
-            <Link to="/calculadora-simples">
+            <Link to="/calculadora-rapida">
               <Button size="lg" className="bg-brand-600 hover:bg-brand-700 px-8 py-6">
                 <Calculator className="mr-2 h-5 w-5" />
                 Começar Grátis Agora

@@ -1,12 +1,12 @@
 /**
  * useCalcWatcher Hook
  *
- * Hook que monitora a Calculadora Básica e envia eventos para a IA.
+ * Hook que monitora a Calculadora Rápida e envia eventos para a IA.
  * Detecta mudanças nos inputs e resultados, emitindo eventos reativos.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type AzuriaEvent, emitEvent } from '../core/eventBus';
+import { emitEvent } from '../core/eventBus';
 
 export interface CalcWatcherOptions {
   enabled?: boolean;
@@ -45,6 +45,7 @@ export interface UseCalcWatcherReturn {
   stopWatching: () => void;
   getEventHistory: () => CalcEvent[];
   emitCalculationEvent: (data: CalcData, type?: CalcEvent['type']) => void;
+  handleDataChange: (newData: CalcData, changedField?: string) => void;
 }
 
 export function useCalcWatcher(
@@ -54,7 +55,7 @@ export function useCalcWatcher(
     enabled = true,
     debounceMs = 500,
     captureInputs = true,
-    captureResults = true,
+    captureResults: _captureResults = true,
     autoEmitEvents = true,
   } = options;
 
@@ -214,6 +215,7 @@ export function useCalcWatcher(
     stopWatching,
     getEventHistory,
     emitCalculationEvent,
+    handleDataChange,
   };
 }
 

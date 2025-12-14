@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const navigationItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: FileText, label: "Templates", path: "/templates" },
-  { icon: Calculator, label: "Calcular", path: "/calculadora-simples" },
+  { icon: Calculator, label: "Calcular", path: "/calculadora-rapida" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },
   { icon: Settings, label: "Config", path: "/configuracoes" }
 ];

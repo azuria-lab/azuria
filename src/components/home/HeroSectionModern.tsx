@@ -101,7 +101,7 @@ const HeroSectionModern: React.FC = () => {
             animate={useReducedMotion() ? undefined : { opacity: 1, y: 0 }}
             transition={useReducedMotion() ? undefined : { duration: 0.6, delay: 0.5 }}
           >
-            <Link to="/calculadora-simples">
+            <Link to="/calculadora-rapida">
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] px-8 py-6 text-lg font-bold group"

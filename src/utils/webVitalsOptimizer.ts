@@ -14,10 +14,12 @@ const warnLog = (...args: unknown[]) => {
   }
 };
 
+type VitalsRating = 'good' | 'needs-improvement' | 'poor';
+
 interface VitalsData {
   name: string;
   value: number;
-  rating: 'good' | 'needs-improvement' | 'poor';
+  rating: VitalsRating;
   timestamp: number;
   url: string;
   connection?: string;
@@ -26,8 +28,8 @@ interface VitalsData {
 }
 
 class WebVitalsOptimizer {
-  private metrics: VitalsData[] = [];
-  private analyticsEndpoint = '/api/analytics/vitals';
+  private readonly metrics: VitalsData[] = [];
+  private readonly analyticsEndpoint = '/api/analytics/vitals';
 
   initialize() {
     this.measureCoreVitals();
@@ -121,7 +123,7 @@ class WebVitalsOptimizer {
       value,
       rating,
       timestamp: Date.now(),
-      url: window.location.href,
+      url: globalThis.location.href,
       connection: (
         navigator as unknown as { connection?: { effectiveType?: string } }
       ).connection?.effectiveType,
@@ -210,7 +212,7 @@ class WebVitalsOptimizer {
   private breakUpLongTasks(): void {
     // Use scheduler.postTask if available to yield
     const sched = (
-      window as unknown as {
+      globalThis as unknown as {
         scheduler?: { postTask?: (cb: () => void) => Promise<unknown> };
       }
     ).scheduler;
@@ -228,7 +230,7 @@ class WebVitalsOptimizer {
 
   private offloadToWebWorkers() {
     // Create web workers for heavy calculations
-    if (window.Worker) {
+    if (globalThis.Worker) {
       const workerCode = `
         self.addEventListener('message', function(e) {
           const { type, data } = e.data;
@@ -280,7 +282,7 @@ class WebVitalsOptimizer {
   }
 
   private setupPerformanceObserver() {
-    if ('PerformanceObserver' in window) {
+    if ('PerformanceObserver' in globalThis) {
       // Monitor long tasks but be less aggressive
       const longTaskObserver = new PerformanceObserver(list => {
         list.getEntries().forEach(entry => {
@@ -294,8 +296,9 @@ class WebVitalsOptimizer {
 
       try {
         longTaskObserver.observe({ entryTypes: ['longtask'] });
-      } catch (_e) {
-        // Not supported in all browsers
+      } catch (error_) {
+        // longtask observation not supported in all browsers
+        debugLog('LongTask observer not supported:', error_);
       }
 
       // Monitor largest contentful paint candidates
@@ -307,8 +310,9 @@ class WebVitalsOptimizer {
 
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-      } catch (_e) {
-        // Not supported in all browsers
+      } catch (error_) {
+        // LCP observation not supported in all browsers
+        debugLog('LCP observer not supported:', error_);
       }
     }
   }

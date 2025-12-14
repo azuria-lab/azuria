@@ -8,19 +8,24 @@ import { flushReportsQueue, sendSingleReport } from '@/services/perf/report';
 import { generateSecureSessionId } from './secureRandom';
 
 class WebVitalsReporter {
-  private metrics: Map<string, WebVitalMetric> = new Map();
-  private sessionId: string;
+  private readonly metrics: Map<string, WebVitalMetric> = new Map();
+  private readonly sessionId: string;
   private isReporting: boolean = false;
   private reportQueue: PerformanceReport[] = [];
   private reportTimer?: NodeJS.Timeout;
+  private initPromise?: Promise<void>;
 
   constructor() {
     this.sessionId = this.generateSessionId();
-    this.initializeReporting();
   }
 
   private generateSessionId(): string {
     return generateSecureSessionId();
+  }
+
+  async initialize() {
+    this.initPromise ??= this.initializeReporting();
+    return this.initPromise;
   }
 
   async initializeReporting() {
@@ -64,7 +69,7 @@ class WebVitalsReporter {
     }, 30000);
 
     // Enviar relatório quando a página for fechada
-    window.addEventListener('beforeunload', () => {
+    globalThis.addEventListener('beforeunload', () => {
       this.sendFinalReport();
     });
 
@@ -153,7 +158,7 @@ class WebVitalsReporter {
     const nav = navigator as Navigator & { deviceMemory?: number; connection?: { type?: string } };
     return {
       userAgent: nav.userAgent,
-      viewport: { width: window.innerWidth, height: window.innerHeight },
+      viewport: { width: globalThis.innerWidth, height: globalThis.innerHeight },
       deviceMemory: nav.deviceMemory,
       hardwareConcurrency: nav.hardwareConcurrency,
       connectionType: nav.connection?.type,
@@ -226,7 +231,7 @@ export const reportCustomMetric = (name: string, value: number, metadata?: Recor
   };
 
   // Enviar para sistema de analytics
-  window.gtag?.('event', event.action, {
+  globalThis.gtag?.('event', event.action, {
     event_category: event.category,
     value: event.value,
     custom_parameters: event.metadata

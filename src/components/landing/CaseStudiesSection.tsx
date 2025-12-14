@@ -36,7 +36,7 @@ const caseStudies = [
     title: "Pequeno Varejista Online",
     industry: "Varejo",
     challenge: "Gestão manual de preços e custos desorganizados",
-    solution: "Calculadora básica + organização de custos",
+    solution: "Calculadora rápida + organização de custos",
     results: [
       { metric: "Organização", value: "100%", icon: TrendingUp },
       { metric: "Erros reduzidos", value: "90%", icon: Users },
@@ -103,8 +103,8 @@ export default function CaseStudiesSection() {
                     </div>
                     
                     <div className="grid grid-cols-1 gap-4">
-                      {caseStudy.results.map((result, idx) => (
-                        <div key={idx} className="bg-gray-50 p-4 rounded-lg flex items-center gap-3">
+                      {caseStudy.results.map((result) => (
+                        <div key={result.metric} className="bg-gray-50 p-4 rounded-lg flex items-center gap-3">
                           <div className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center">
                             <result.icon className="h-5 w-5 text-brand-600" />
                           </div>

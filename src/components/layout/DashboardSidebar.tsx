@@ -78,8 +78,8 @@ const dashboardMenuGroups: SidebarGroupData[] = [
         icon: Calculator,
         items: [
           {
-            title: "Calculadora Básica",
-            url: "/calculadora-simples",
+            title: "Calculadora Rápida",
+            url: "/calculadora-rapida",
             icon: Calculator,
           },
           {
