@@ -68,10 +68,10 @@ const SuggestionIcon: React.FC<{ type: SuggestionType }> = ({ type }) => {
 };
 
 const priorityColors: Record<string, string> = {
-  low: 'border-l-gray-400',
-  medium: 'border-l-blue-500',
-  high: 'border-l-orange-500',
-  critical: 'border-l-red-500',
+  low: 'border-l-muted-foreground/40',
+  medium: 'border-l-primary/60',
+  high: 'border-l-orange-500/60',
+  critical: 'border-l-destructive/60',
 };
 
 /**
@@ -80,11 +80,11 @@ const priorityColors: Record<string, string> = {
 const getActionButtonClass = (type: string): string => {
   switch (type) {
     case 'primary':
-      return 'bg-cyan-600 text-white hover:bg-cyan-700';
+      return 'bg-primary text-primary-foreground hover:bg-primary/90';
     case 'secondary':
-      return 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+      return 'bg-muted text-muted-foreground hover:bg-muted/80';
     default:
-      return 'text-gray-500 hover:text-gray-700';
+      return 'text-muted-foreground hover:text-foreground';
   }
 };
 
@@ -108,24 +108,24 @@ const SuggestionCard: React.FC<{
   return (
     <div
       className={`
-        bg-white rounded-lg shadow-md border-l-4 p-3 mb-2 
-        transition-all duration-200 hover:shadow-lg
+        bg-card rounded-lg shadow-sm border-l-2 border p-3 mb-2 
+        transition-all duration-200 hover:shadow-md hover:border-l-4
         ${priorityColors[suggestion.priority] || priorityColors.medium}
       `}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-cyan-600 flex-shrink-0">
+          <span className="text-primary flex-shrink-0">
             <SuggestionIcon type={suggestion.type} />
           </span>
-          <h4 className="font-medium text-sm text-gray-900 truncate">
+          <h4 className="font-medium text-sm text-foreground truncate">
             {suggestion.title}
           </h4>
         </div>
         <button
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+          className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
           aria-label="Fechar"
         >
           <X className="h-4 w-4" />
@@ -133,7 +133,7 @@ const SuggestionCard: React.FC<{
       </div>
 
       {/* Message */}
-      <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
         {suggestion.message}
       </p>
 
@@ -142,7 +142,7 @@ const SuggestionCard: React.FC<{
         <div className="mt-2">
           <button
             onClick={onToggleExpand}
-            className="text-xs text-cyan-600 hover:text-cyan-700 flex items-center gap-1"
+            className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
           >
             {isExpanded ? (
               <>
@@ -155,7 +155,7 @@ const SuggestionCard: React.FC<{
             )}
           </button>
           {isExpanded && (
-            <p className="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">
+            <p className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
               {suggestion.details}
             </p>
           )}
@@ -187,16 +187,16 @@ const SuggestionCard: React.FC<{
       )}
 
       {/* Feedback */}
-      <div className="mt-3 pt-2 border-t border-gray-100">
+      <div className="mt-3 pt-2 border-t border-border/50">
         {showFeedback ? (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-500">Útil?</span>
+            <span className="text-xs text-muted-foreground">Útil?</span>
             <button
               onClick={() => {
                 onFeedback('helpful');
                 setShowFeedback(false);
               }}
-              className="text-green-500 hover:text-green-600"
+              className="text-green-600 hover:text-green-700 transition-colors"
               aria-label="Útil"
             >
               <ThumbsUp className="h-4 w-4" />
@@ -206,7 +206,7 @@ const SuggestionCard: React.FC<{
                 onFeedback('not-helpful');
                 setShowFeedback(false);
               }}
-              className="text-red-500 hover:text-red-600"
+              className="text-destructive hover:text-destructive/80 transition-colors"
               aria-label="Não útil"
             >
               <ThumbsDown className="h-4 w-4" />
@@ -215,7 +215,7 @@ const SuggestionCard: React.FC<{
         ) : (
           <button
             onClick={() => setShowFeedback(true)}
-            className="text-xs text-gray-400 hover:text-gray-600"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Esta sugestão foi útil?
           </button>
@@ -246,18 +246,25 @@ const MinimizedButton: React.FC<MinimizedButtonProps> = ({
     onMouseDown={onMouseDown}
     onClick={onClick}
     className={`
-      relative rounded-full shadow-lg 
-      bg-gradient-to-br from-cyan-500 to-cyan-600 
-      hover:from-cyan-600 hover:to-cyan-700
-      transition-all duration-200 hover:scale-105
-      p-1.5
-      ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+      relative w-16 h-16 rounded-full shadow-lg backdrop-blur-sm
+      border-2 border-border/60 hover:border-border
+      transition-all duration-300 hover:shadow-xl
+      overflow-hidden
+      ${isDragging ? 'cursor-grabbing scale-95 opacity-80' : 'cursor-grab'}
     `}
     aria-label="Abrir Co-Piloto"
   >
-    <AzuriaAvatarImage size="medium" className="ring-2 ring-white" />
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
+      <img
+        src="/images/azuria/avatar.jpg"
+        alt="Azuria AI"
+        className="w-full h-full object-cover"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
     {suggestionCount > 0 && (
-      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+      <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center shadow-sm border-2 border-background z-10">
         {suggestionCount > 9 ? '9+' : suggestionCount}
       </span>
     )}
@@ -326,6 +333,7 @@ export const CoPilot: React.FC<CoPilotProps> = ({
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [hasMoved, setHasMoved] = useState(false); // Para detectar se houve movimento durante o arrasto
 
   // Position classes
   const positionClasses: Record<string, string> = {
@@ -370,31 +378,75 @@ export const CoPilot: React.FC<CoPilotProps> = ({
     });
   }, []);
 
-  // Handlers de arrastar
+  // Handlers de arrastar com snap zones
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (isMinimized) {
+    if (e.button === 0) { // Apenas botão esquerdo
       setIsDragging(true);
+      setHasMoved(false);
       const rect = e.currentTarget.getBoundingClientRect();
       setDragOffset({
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
       });
       e.preventDefault();
+      e.stopPropagation();
     }
+  }, []);
+
+  const snapToEdge = useCallback((x: number, y: number) => {
+    if (typeof globalThis.window === 'undefined') {
+      return { x, y };
+    }
+    
+    const threshold = 50; // Distância para ativar snap
+    const elementWidth = isMinimized ? 64 : 360; // Tamanho do botão circular (64px)
+    const elementHeight = isMinimized ? 64 : 400; // Altura aproximada do painel expandido
+    const margin = 16; // Margem das bordas
+    
+    let snappedX = x;
+    let snappedY = y;
+    
+    // Snap horizontal
+    if (x < threshold) {
+      snappedX = margin;
+    } else if (x > window.innerWidth - threshold - elementWidth) {
+      snappedX = window.innerWidth - elementWidth - margin;
+    }
+    
+    // Snap vertical
+    if (y < threshold) {
+      snappedY = margin;
+    } else if (y > window.innerHeight - threshold - elementHeight) {
+      snappedY = window.innerHeight - elementHeight - margin;
+    }
+    
+    return { x: snappedX, y: snappedY };
   }, [isMinimized]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isDragging) {
-      setDragPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y,
-      });
+      // Detectar se houve movimento significativo
+      const movement = Math.abs(e.movementX) + Math.abs(e.movementY);
+      if (movement > 3) {
+        setHasMoved(true);
+      }
+      
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      setDragPosition({ x: newX, y: newY });
     }
   }, [isDragging, dragOffset]);
 
   const handleMouseUp = useCallback(() => {
+    if (isDragging && dragPosition) {
+      // Aplicar snap quando soltar
+      const snapped = snapToEdge(dragPosition.x, dragPosition.y);
+      setDragPosition(snapped);
+    }
     setIsDragging(false);
-  }, []);
+    // Reset hasMoved após um pequeno delay para permitir que o onClick seja processado
+    setTimeout(() => setHasMoved(false), 100);
+  }, [isDragging, dragPosition, snapToEdge]);
 
   // Adicionar/remover event listeners
   React.useEffect(() => {
@@ -417,9 +469,33 @@ export const CoPilot: React.FC<CoPilotProps> = ({
   const suggestionCount = suggestions.length;
 
   // Estilo de posição (arrastável ou fixa)
-  const containerStyle = dragPosition
-    ? { position: 'fixed' as const, left: `${dragPosition.x}px`, top: `${dragPosition.y}px`, maxWidth: '360px', width: '100%' }
-    : { maxWidth: '360px', width: '100%' };
+  const getContainerStyle = () => {
+    if (dragPosition && typeof window !== 'undefined') {
+      const maxWidth = isMinimized ? 56 : 360;
+      const maxHeight = isMinimized ? 56 : 600;
+      return {
+        position: 'fixed' as const,
+        left: `${Math.max(8, Math.min(dragPosition.x, window.innerWidth - maxWidth - 8))}px`,
+        top: `${Math.max(8, Math.min(dragPosition.y, window.innerHeight - maxHeight - 8))}px`,
+        maxWidth: isMinimized ? '56px' : '360px',
+        width: '100%',
+        transition: isDragging ? 'none' : 'left 0.3s ease-out, top 0.3s ease-out'
+      };
+    }
+    if (dragPosition) {
+      return {
+        position: 'fixed' as const,
+        left: `${dragPosition.x}px`,
+        top: `${dragPosition.y}px`,
+        maxWidth: isMinimized ? '56px' : '360px',
+        width: '100%',
+        transition: isDragging ? 'none' : 'left 0.3s ease-out, top 0.3s ease-out'
+      };
+    }
+    return { maxWidth: isMinimized ? '56px' : '360px', width: '100%' };
+  };
+  
+  const containerStyle = getContainerStyle();
 
   return (
     <div
@@ -434,38 +510,58 @@ export const CoPilot: React.FC<CoPilotProps> = ({
       {isMinimized ? (
         <MinimizedButton
           onMouseDown={handleMouseDown}
-          onClick={() => !isDragging && setIsMinimized(false)}
+          onClick={() => {
+            // Só expandir se não houve movimento (não foi arrasto)
+            if (!hasMoved && !isDragging) {
+              setIsMinimized(false);
+            }
+          }}
           isDragging={isDragging}
           suggestionCount={suggestionCount}
         />
       ) : (
         /* Expanded State */
-        <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-white">
-              <AzuriaAvatarImage size="tiny" className="ring-1 ring-white/50" />
-              <span className="font-semibold text-sm">Co-Piloto Azuria</span>
+        <div className="bg-background rounded-xl shadow-xl border border-border overflow-hidden backdrop-blur-sm">
+          {/* Header - arrastável */}
+          <div 
+            className="bg-card border-b border-border px-4 py-3 flex items-center justify-between cursor-grab active:cursor-grabbing select-none"
+            onMouseDown={handleMouseDown}
+          >
+            <div className="flex items-center gap-2 text-foreground">
+              <AzuriaAvatarImage size="tiny" className="ring-1 ring-border/30" />
+              <span className="font-medium text-sm">Co-Piloto Azuria</span>
             </div>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setIsDashboardOpen(true)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDashboardOpen(true);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                 aria-label="Abrir Dashboard"
                 title="Ver Dashboard Completo"
               >
                 <LayoutDashboard className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowSettings(!showSettings);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                 aria-label="Configurações"
               >
                 <Settings className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setIsMinimized(true)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMinimized(true);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                 aria-label="Minimizar"
               >
                 <ChevronDown className="h-4 w-4" />

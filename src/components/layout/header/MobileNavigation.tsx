@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 import { useFilteredNavLinks } from './NavLinks';
 
 interface MobileNavigationProps {
@@ -29,6 +29,7 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
         size="icon"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+        className="h-9 w-9 hover:bg-accent transition-all duration-200"
       >
         {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
@@ -39,9 +40,9 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
-          className="absolute top-full left-0 right-0 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-50"
+          className="fixed top-16 left-0 right-0 bottom-0 border-t border-border bg-background z-50 overflow-y-auto"
         >
-          <div className="container py-4 space-y-1">
+          <div className="container py-4 px-4 space-y-1">
             {filteredLinks.map((link) => {
               const isActive = location?.pathname === link.path;
               const isAnchor = link.path.startsWith('#');
@@ -63,14 +64,14 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
                   >
                     <Button
                       variant={isActive ? "default" : "ghost"}
-                      className={`w-full justify-start ${
+                      className={`w-full justify-start h-12 min-h-[44px] text-base font-medium transition-all duration-200 ${
                         isActive 
-                          ? "bg-[#EAF6FF] text-[#005BFF]" 
-                          : "text-[#0A1930] hover:text-[#005BFF]"
+                          ? "bg-accent text-foreground" 
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       }`}
                     >
                       {link.icon}
-                      <span className="ml-2">{link.label}</span>
+                      <span className="ml-3">{link.label}</span>
                     </Button>
                   </a>
                 );
@@ -80,14 +81,14 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
                 <Link key={link.path} to={link.path} className="block">
                   <Button
                     variant={isActive ? "default" : "ghost"}
-                    className={`w-full justify-start ${
+                    className={`w-full justify-start h-12 min-h-[44px] text-base font-medium transition-all duration-200 ${
                       isActive 
-                        ? "bg-[#EAF6FF] text-[#005BFF]" 
-                        : "text-[#0A1930] hover:text-[#005BFF]"
+                        ? "bg-accent text-foreground" 
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     }`}
                   >
                     {link.icon}
-                    <span className="ml-2">{link.label}</span>
+                    <span className="ml-3">{link.label}</span>
                   </Button>
                 </Link>
               );
@@ -95,16 +96,25 @@ export default function MobileNavigation({ isAuthenticated, isPro }: MobileNavig
             
             {/* Botão de Login para Mobile */}
             {!isAuthenticated && (
-              <div className="mt-4 pt-2 border-t border-gray-100 space-y-2">
-                <Link to="/login" className="block">
-                  <Button variant="outline" className="w-full border-[#005BFF] text-[#005BFF] hover:bg-[#EAF6FF]">
+              <div className="mt-6 pt-6 border-t border-border space-y-3">
+                <Link to="/login" className="block" onClick={() => setMobileMenuOpen(false)}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-12 min-h-[44px] text-base font-medium border-2 border-primary/20 text-primary hover:bg-accent hover:border-primary/30 transition-all duration-200"
+                  >
                     Login
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <Link to="/cadastro" className="block">
-                  <Button className="w-full bg-[#005BFF] hover:bg-[#0048CC] text-white">
-                    Começar grátis
-                  </Button>
+                <Link to="/cadastro" className="block" onClick={() => setMobileMenuOpen(false)}>
+                  <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                    <Button 
+                      className="w-full h-12 min-h-[44px] text-base font-medium bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-200"
+                    >
+                      Começar grátis
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </motion.div>
                 </Link>
               </div>
             )}

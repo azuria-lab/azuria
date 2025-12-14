@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { logger } from "@/services/logger";
 import { Camera, Upload } from "lucide-react";
@@ -191,11 +192,13 @@ const SettingsProfileTab: React.FC<Props> = ({
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <button
+              <motion.button
                 type="button"
                 onClick={handleAvatarClick}
                 disabled={isUploadingAvatar}
-                className="absolute bottom-0 right-0 bg-brand-600 hover:bg-brand-700 text-white rounded-full p-2 shadow-lg transition-colors disabled:opacity-50"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute bottom-0 right-0 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-2 shadow-lg transition-colors disabled:opacity-50"
                 aria-label="Alterar foto de perfil"
               >
                 {isUploadingAvatar ? (
@@ -203,7 +206,7 @@ const SettingsProfileTab: React.FC<Props> = ({
                 ) : (
                   <Camera className="h-4 w-4" />
                 )}
-              </button>
+              </motion.button>
             </div>
             <input
               ref={fileInputRef}
@@ -257,9 +260,15 @@ const SettingsProfileTab: React.FC<Props> = ({
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" disabled={isSubmitting || isUploadingAvatar}>
-            {isSubmitting ? "Salvando..." : "Salvar Alterações"}
-          </Button>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || isUploadingAvatar}
+              className="min-w-[140px]"
+            >
+              {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+            </Button>
+          </motion.div>
         </CardFooter>
       </form>
     </Card>

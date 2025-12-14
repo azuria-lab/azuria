@@ -45,13 +45,17 @@ export function AzuriaAvatarImage({
         src="/images/azuria/avatar.jpg"
         alt="Azuria AI"
         className={cn(
-          'rounded-full object-cover',
+          'rounded-full',
           sizeMap[size],
           className
         )}
-        width={pixelSizes[size]}
-        height={pixelSizes[size]}
-        loading="lazy"
+        width={pixelSizes[size] * 2}
+        height={pixelSizes[size] * 2}
+        style={{
+          imageRendering: 'auto',
+        }}
+        loading="eager"
+        decoding="async"
         {...props}
       />
     </picture>

@@ -55,33 +55,38 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       <ModeDeusProvider autoInitialize>
         <SidebarProvider>
-          <div className="flex min-h-screen w-full">
-            <Suspense fallback={<SidebarSkeleton />}>
-              <DashboardSidebar />
+          <div className="flex flex-col min-h-screen w-full">
+            {/* Header no topo */}
+            <Suspense fallback={<HeaderSkeleton />}>
+              <DashboardHeader />
             </Suspense>
-            <SidebarInset className="flex flex-col flex-1">
-              <Suspense fallback={<HeaderSkeleton />}>
-                <DashboardHeader />
+            <Separator />
+            
+            {/* Conteúdo principal com sidebar e main */}
+            <div className="flex flex-1 min-h-0 w-full relative">
+              <Suspense fallback={<SidebarSkeleton />}>
+                <DashboardSidebar />
               </Suspense>
-              <Separator />
-              <main className="flex-1 overflow-auto">
-                <Suspense
-                  fallback={
-                    <div className="flex items-center justify-center min-h-[400px]">
-                      <AdvancedLoadingSpinner
-                        variant="dashboard"
-                        size="lg"
-                        message="Carregando..."
-                      />
+              <SidebarInset className="flex flex-col flex-1 min-h-0">
+                <main className="flex-1 overflow-auto">
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center justify-center min-h-[400px]">
+                        <AdvancedLoadingSpinner
+                          variant="dashboard"
+                          size="lg"
+                          message="Carregando..."
+                        />
+                      </div>
+                    }
+                  >
+                    <div className="container mx-auto px-4 py-6">
+                      {children}
                     </div>
-                  }
-                >
-                  <div className="container mx-auto px-4 py-6">
-                    {children}
-                  </div>
-                </Suspense>
-              </main>
-            </SidebarInset>
+                  </Suspense>
+                </main>
+              </SidebarInset>
+            </div>
           </div>
           {/* CoPilot unificado - lazy loaded para não bloquear renderização inicial */}
           <Suspense fallback={null}>

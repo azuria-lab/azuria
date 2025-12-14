@@ -1,96 +1,97 @@
 
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Quote } from "lucide-react";
+import { Briefcase, Building2, Quote, ShoppingBag, User, UserCircle } from "lucide-react";
 
 const testimonials = [
   {
     name: "Renan Silva",
     role: "Lojista E-commerce",
     niche: "Eletrônicos",
-    testimonial: "O Azuria transformou completamente minha estratégia de precificação. Aumentei meus lucros em 47% em apenas 3 meses!",
-    result: "+47% lucro",
-    avatar: "👤"
+    testimonial: "O Azuria transformou completamente nossa estratégia de precificação. Registramos aumento de 47% na lucratividade em apenas três meses de utilização.",
+    result: "+47% lucratividade",
+    icon: ShoppingBag
   },
   {
     name: "Mariana Costa",
     role: "Fundadora",
     niche: "Moda Feminina",
-    testimonial: "Economizo mais de 15 horas por semana que antes gastava calculando preços manualmente. A IA é incrível!",
+    testimonial: "Reduzimos em mais de 15 horas semanais o tempo dedicado a cálculos manuais de precificação. A inteligência artificial superou nossas expectativas.",
     result: "15h/sem economizadas",
-    avatar: "👩"
+    icon: UserCircle
   },
   {
     name: "Bruno Oliveira",
     role: "Empresário",
     niche: "Casa e Decoração",
-    testimonial: "A análise de concorrência me ajudou a encontrar o preço ideal. Minhas vendas aumentaram 35% desde que comecei a usar.",
+    testimonial: "A análise competitiva nos permitiu identificar o posicionamento de preço ideal. Nossas vendas aumentaram 35% após a implementação da plataforma.",
     result: "+35% vendas",
-    avatar: "👨"
+    icon: Building2
   },
   {
     name: "Patrícia Santos",
     role: "CEO",
     niche: "Beleza e Cosméticos",
-    testimonial: "O cálculo automático de impostos é perfeito. Nunca mais tive problemas com questões fiscais na precificação.",
+    testimonial: "O cálculo automático de impostos é extremamente preciso. Eliminamos completamente problemas relacionados à conformidade fiscal na precificação.",
     result: "100% preciso",
-    avatar: "👩‍💼"
+    icon: UserCircle
   },
   {
     name: "Fábio Lima",
     role: "Fundador",
     niche: "Esportes",
-    testimonial: "A integração com marketplaces é fantástica. Atualizo preços de centenas de produtos em minutos, não mais em horas.",
+    testimonial: "A integração com marketplaces é excepcional. Atualizamos preços de centenas de produtos em minutos, processo que anteriormente demandava horas.",
     result: "90% mais rápido",
-    avatar: "👨‍💼"
+    icon: UserCircle
   },
   {
     name: "Carla Mendes",
     role: "Diretora Comercial",
     niche: "Alimentação",
-    testimonial: "A plataforma é intuitiva e os resultados são imediatos. Recomendo para qualquer lojista que quer crescer.",
+    testimonial: "A plataforma oferece interface intuitiva e resultados imediatos. Recomendamos para empresas que buscam crescimento sustentável.",
     result: "+28% margem",
-    avatar: "👩‍💼"
+    icon: Briefcase
   },
   {
     name: "Roberto Alves",
     role: "Empreendedor",
     niche: "Tecnologia",
-    testimonial: "O suporte é excepcional e a plataforma realmente entrega o que promete. Vale cada centavo investido!",
+    testimonial: "O suporte técnico é excepcional e a plataforma entrega consistentemente os resultados prometidos. Excelente retorno sobre investimento.",
     result: "+42% ROI",
-    avatar: "👨"
+    icon: User
   }
 ];
 
 // Componente para cada card de depoimento
 const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ testimonial }) => {
+  const Icon = testimonial.icon;
   return (
     <div className="flex-shrink-0 w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-20px)] px-4">
-      <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow h-full">
+      <div className="bg-card rounded-lg p-8 shadow-sm border border-border hover:shadow-lg transition-all h-full">
         {/* Quote Icon */}
         <div className="mb-4">
-          <Quote className="h-8 w-8 text-[#005BFF] opacity-50" />
+          <Quote className="h-8 w-8 text-primary opacity-50" />
         </div>
 
         {/* Testimonial */}
-        <p className="text-gray-700 mb-6 leading-relaxed text-lg">
+        <p className="text-muted-foreground mb-6 leading-relaxed text-base">
           "{testimonial.testimonial}"
         </p>
 
         {/* Author */}
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 rounded-full bg-[#EAF6FF] flex items-center justify-center text-2xl flex-shrink-0">
-            {testimonial.avatar}
+          <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <Icon className="h-6 w-6 text-primary" />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-[#0A1930] truncate">{testimonial.name}</p>
-            <p className="text-sm text-gray-600 truncate">{testimonial.role}</p>
-            <p className="text-xs text-gray-500 truncate">{testimonial.niche}</p>
+            <p className="font-semibold text-foreground truncate">{testimonial.name}</p>
+            <p className="text-sm text-muted-foreground truncate">{testimonial.role}</p>
+            <p className="text-xs text-muted-foreground/70 truncate">{testimonial.niche}</p>
           </div>
         </div>
 
         {/* Result Badge */}
-        <div className="inline-block px-4 py-2 bg-[#0BA360] text-white rounded-full text-sm font-semibold">
+        <div className="inline-block px-4 py-2 bg-green-500 text-white rounded-full text-sm font-semibold">
           {testimonial.result}
         </div>
       </div>
@@ -112,8 +113,8 @@ const TestimonialsSectionBling: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-white w-full">
-      <div className="container mx-auto px-4 w-full">
+    <section className="py-20 md:py-32 bg-background w-full">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 w-full">
         <motion.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -121,11 +122,11 @@ const TestimonialsSectionBling: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0A1930] mb-4">
-            Ajudamos milhares de empreendedores a simplificar seus negócios
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+            Resultados Comprovados por Milhares de Empresas
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Veja o que estão falando sobre o Azuria
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Conheça os resultados obtidos por empresas que utilizam o Azuria
           </p>
         </motion.div>
 

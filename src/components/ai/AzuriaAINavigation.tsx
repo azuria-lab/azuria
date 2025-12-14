@@ -1,5 +1,6 @@
 import { Brain, MessageSquare, Package2, Sparkles, Target } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface AzuriaAINavigationProps {
   activeSection: string;
@@ -10,96 +11,88 @@ export const AzuriaAINavigation = ({ activeSection, onSectionChange }: AzuriaAIN
   const sections = [
     {
       id: 'assistente',
-      label: 'Assistente IA',
+      label: 'Assistente',
+      shortLabel: 'Assistente',
       icon: MessageSquare,
       description: 'Chat inteligente para precificação'
     },
     {
       id: 'lote',
       label: 'Lote IA',
+      shortLabel: 'Lote',
       icon: Package2,
       description: 'Calculadora em lote inteligente'
     },
     {
       id: 'precos',
       label: 'IA Preços',
+      shortLabel: 'Preços',
       icon: Brain,
       description: 'Sugestões de preços com IA'
     },
     {
       id: 'sugestao',
-      label: 'Sugestão de Preços',
+      label: 'Sugestão',
+      shortLabel: 'Sugestão',
       icon: Sparkles,
       description: 'Recomendações automáticas'
     },
     {
       id: 'competitividade',
       label: 'Competitividade',
+      shortLabel: 'Competição',
       icon: Target,
       description: 'Análise de concorrência'
     }
   ];
 
+  const activeSectionData = sections.find(s => s.id === activeSection);
+
   return (
     <div className="w-full">
-      {/* Desktop Navigation - Tabs */}
-      <div className="hidden md:block">
-        <Tabs value={activeSection} onValueChange={onSectionChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-[#EAF6FF] border border-[#112B4A]/20">
-            {sections.map((section) => {
-              const Icon = section.icon;
-              const isActive = activeSection === section.id;
-              return (
-                <TabsTrigger
-                  key={section.id}
-                  value={section.id}
-                  className={`flex flex-col items-center gap-1 py-3 transition-all ${
-                    isActive
-                      ? 'bg-[#0A1930] border border-[#00C2FF] text-[#00C2FF] shadow-[0_0_15px_rgba(0,194,255,0.3)]'
-                      : 'hover:bg-[#005BFF]/10 hover:text-[#005BFF] text-muted-foreground'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs font-medium">{section.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </Tabs>
+      {/* Quick Actions Style Navigation */}
+      <div className="flex flex-wrap gap-2">
+        {sections.map((section) => {
+          const Icon = section.icon;
+          const isActive = activeSection === section.id;
+          return (
+            <motion.button
+              key={section.id}
+              onClick={() => onSectionChange(section.id)}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={cn(
+                'relative flex items-center gap-2 px-4 py-2 rounded-md',
+                'text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+                isActive
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm hover:bg-primary/90'
+                  : 'text-foreground hover:border-primary/50'
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{section.label}</span>
+              <span className="sm:hidden">{section.shortLabel}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
-      {/* Mobile Navigation - Scrollable Tabs */}
-      <div className="md:hidden">
-        <Tabs value={activeSection} onValueChange={onSectionChange} className="w-full">
-          <TabsList className="w-full h-auto p-1 bg-[#EAF6FF] border border-[#112B4A]/20 flex overflow-x-auto">
-            {sections.map((section) => {
-              const Icon = section.icon;
-              const isActive = activeSection === section.id;
-              return (
-                <TabsTrigger
-                  key={section.id}
-                  value={section.id}
-                  className={`flex flex-col items-center gap-1 py-2 px-4 min-w-[80px] transition-all ${
-                    isActive
-                      ? 'bg-[#0A1930] border border-[#00C2FF] text-[#00C2FF] shadow-[0_0_15px_rgba(0,194,255,0.3)]'
-                      : 'hover:bg-[#005BFF]/10 hover:text-[#005BFF] text-muted-foreground'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="text-xs font-medium whitespace-nowrap">{section.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Section Description */}
-      <div className="mt-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          {sections.find(s => s.id === activeSection)?.description}
-        </p>
-      </div>
+      {/* Elegant Description */}
+      {activeSectionData && (
+        <motion.div 
+          className="mt-6"
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <p className="text-base text-muted-foreground font-light">
+            {activeSectionData.description}
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 };

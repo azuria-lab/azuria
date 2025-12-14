@@ -15,43 +15,43 @@ import {
 const features = [
   {
     icon: Sparkles,
-    title: "IA de Precificação Avançada",
-    description: "Algoritmos de machine learning treinados especificamente para o mercado brasileiro, analisando múltiplos fatores simultaneamente."
+    title: "Inteligência Artificial Avançada",
+    description: "Algoritmos de machine learning especializados no mercado brasileiro, processando múltiplas variáveis simultaneamente para otimização de preços."
   },
   {
     icon: ShoppingCart,
-    title: "Marketplace integrado",
-    description: "Conecte-se automaticamente com Mercado Livre, Shopee, Amazon, Magalu e outros marketplaces para sincronizar produtos e preços."
+    title: "Integração com Marketplaces",
+    description: "Conexão automatizada com Mercado Livre, Shopee, Amazon, Magalu e demais plataformas para sincronização de produtos e preços."
   },
   {
     icon: BarChart3,
-    title: "Simulador de cenários",
-    description: "Teste diferentes estratégias de precificação e veja o impacto nos seus lucros antes de aplicar mudanças."
+    title: "Simulação de Cenários",
+    description: "Teste estratégias de precificação alternativas e analise o impacto financeiro antes de implementar alterações."
   },
   {
     icon: Layers,
-    title: "Precificação em lote",
-    description: "Atualize preços de centenas ou milhares de produtos de uma só vez, economizando horas de trabalho manual."
+    title: "Precificação em Massa",
+    description: "Atualize preços de centenas ou milhares de produtos simultaneamente, reduzindo significativamente o tempo operacional."
   },
   {
     icon: FileText,
-    title: "Análise tributária",
-    description: "Cálculo automático e preciso de todos os impostos brasileiros: ICMS, PIS, COFINS, IPI, ISS e mais."
+    title: "Análise Tributária Completa",
+    description: "Cálculo automático e preciso de todos os impostos brasileiros aplicáveis: ICMS, PIS, COFINS, IPI, ISS e demais tributos."
   },
   {
     icon: TrendingUp,
-    title: "Comparativos de concorrência",
-    description: "Monitore preços da concorrência em tempo real e ajuste sua estratégia para manter competitividade."
+    title: "Monitoramento Competitivo",
+    description: "Acompanhe preços da concorrência em tempo real e ajuste sua estratégia para manter posicionamento competitivo."
   },
   {
     icon: PieChart,
-    title: "Relatórios e Analytics",
-    description: "Dashboards completos com métricas de lucro, margem, volume de vendas e tendências de mercado."
+    title: "Analytics e Relatórios",
+    description: "Dashboards executivos com métricas de lucratividade, margem de contribuição, volume de vendas e tendências de mercado."
   },
   {
     icon: Zap,
-    title: "Automações inteligentes",
-    description: "Configure regras automáticas para ajustar preços baseado em estoque, sazonalidade e comportamento de mercado."
+    title: "Automação Inteligente",
+    description: "Configure regras de negócio para ajuste automático de preços baseado em estoque, sazonalidade e comportamento de mercado."
   }
 ];
 
@@ -59,8 +59,8 @@ const FeaturesSectionBling: React.FC = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="recursos" className="py-20 md:py-32 bg-white w-full">
-      <div className="container mx-auto px-4 w-full">
+    <section id="recursos" className="py-20 md:py-32 bg-background w-full">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 w-full">
         <motion.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -68,11 +68,11 @@ const FeaturesSectionBling: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0A1930] mb-4">
-            Recursos para manter as finanças sob controle: tem no Azuria!
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+            Recursos Completos para Gestão Financeira Estratégica
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Tudo que você precisa para precificar com inteligência e aumentar seus lucros
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Solução completa para precificação inteligente e maximização de resultados financeiros
           </p>
         </motion.div>
 
@@ -86,17 +86,18 @@ const FeaturesSectionBling: React.FC = () => {
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={reduceMotion ? undefined : { duration: 0.6, delay: index * 0.05 }}
-                className="bg-white rounded-xl p-6 border border-gray-100 hover:border-[#005BFF] hover:shadow-lg transition-all"
+                whileHover={reduceMotion ? undefined : { y: -4 }}
+                className="bg-card rounded-lg p-6 border border-border hover:border-primary/30 hover:shadow-lg transition-all"
               >
-                <div className="p-3 bg-[#EAF6FF] rounded-lg w-fit mb-4">
-                  <Icon className="h-6 w-6 text-[#005BFF]" />
+                <div className="p-2.5 bg-primary/10 rounded-lg w-fit mb-4 border border-primary/20">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
 
-                <h3 className="text-lg font-bold text-[#0A1930] mb-2">
+                <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {feature.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

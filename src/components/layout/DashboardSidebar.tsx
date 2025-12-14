@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   BarChart3,
@@ -23,18 +25,40 @@ import {
   ChevronRight,
   FileCheck,
   FileText,
+  Flag,
   Gavel,
   History,
   Home,
+  MoreHorizontal,
+  Plus,
   Puzzle,
+  Search as SearchIcon,
   Settings,
   ShoppingBag,
   TrendingUp,
   Users,
+  X,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProStatus } from "@/shared/hooks/useProStatus";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/domains/auth";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 interface SidebarItem {
   title: string;
@@ -53,117 +77,7 @@ interface SidebarGroupData {
   items: SidebarItem[];
 }
 
-const dashboardMenuGroups: SidebarGroupData[] = [
-  {
-    label: "Visão Geral",
-    items: [
-      {
-        title: "Dashboard",
-        url: "/dashboard",
-        icon: Home,
-      },
-      {
-        title: "Analytics",
-        url: "/analytics",
-        icon: BarChart3,
-      },
-    ],
-  },
-  {
-    label: "Precificação & Ferramentas",
-    items: [
-      {
-        title: "Calculadoras",
-        url: "/calculadoras",
-        icon: Calculator,
-        items: [
-          {
-            title: "Calculadora Rápida",
-            url: "/calculadora-rapida",
-            icon: Calculator,
-          },
-          {
-            title: "Calculadora Avançada",
-            url: "/calculadora-avancada",
-            icon: TrendingUp,
-          },
-          {
-            title: "Calculadora Tributária",
-            url: "/calculadora-tributaria",
-            icon: FileCheck,
-          },
-          {
-            title: "Calculadora de Licitação",
-            url: "/calculadora-licitacao",
-            icon: Gavel,
-          },
-          {
-            title: "Calculadora de Lotes",
-            url: "/calculadora-lotes",
-            icon: Zap,
-          },
-          {
-            title: "Análise de Sensibilidade",
-            url: "/analise-sensibilidade",
-            icon: BarChart3,
-          },
-        ],
-      },
-      {
-        title: "IA de Precificação",
-        url: "/azuria-ia",
-        icon: Brain,
-        badge: "Beta",
-      },
-      {
-        title: "Templates",
-        url: "/templates",
-        icon: FileText,
-      },
-    ],
-  },
-  {
-    label: "Gestão de Vendas",
-    items: [
-      {
-        title: "Marketplaces",
-        url: "/marketplace",
-        icon: ShoppingBag,
-      },
-      {
-        title: "Licitações",
-        url: "/dashboard-licitacoes",
-        icon: Gavel,
-      },
-      {
-        title: "Histórico",
-        url: "/historico",
-        icon: History,
-      },
-    ],
-  },
-  {
-    label: "Sistema",
-    items: [
-      {
-        title: "Integrações",
-        url: "/integracoes",
-        icon: Puzzle,
-      },
-      {
-        title: "Colaboração",
-        url: "/colaboracao",
-        icon: Users,
-        badge: "Novo",
-      },
-      {
-        title: "Configurações",
-        url: "/configuracoes",
-        icon: Settings,
-      },
-    ],
-  },
-];
+const dashboardMenuGroups: SidebarGroupData[] = [];
 
 // Helper to find items that should be expanded based on current path
 const findActiveParentItems = (groups: SidebarGroupData[], currentPath: string): string[] => {
@@ -184,6 +98,59 @@ const isTopLevelItem = (groups: SidebarGroupData[], url: string): boolean => {
 export default function DashboardSidebar() {
   const location = useLocation();
   const { isPro } = useProStatus();
+  const auth = useAuthContext();
+  const userProfile = auth?.userProfile;
+  const { toggleSidebar, state } = useSidebar();
+  
+  // Mapeamento de nomes de ícones para componentes
+  const iconMap: Record<string, React.ElementType> = {
+    Home,
+    BarChart3,
+    Calculator,
+    TrendingUp,
+    FileCheck,
+    Gavel,
+    Zap,
+    Brain,
+    FileText,
+    ShoppingBag,
+    History,
+    Puzzle,
+    Users,
+    Settings,
+    Flag,
+  };
+
+  // Atalhos favoritos (salvos no localStorage)
+  const [favoriteShortcuts, setFavoriteShortcuts] = useState<Array<{ title: string; url: string; iconName: string }>>(() => {
+    const saved = localStorage.getItem('azuria-favorite-shortcuts');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Se for formato antigo (com icon como objeto), converter
+        if (parsed.length > 0 && parsed[0].icon && typeof parsed[0].icon !== 'string') {
+          // Converter formato antigo para novo
+          return parsed.map((item: any) => {
+            // Tentar identificar o ícone pelo nome do componente
+            const iconName = Object.keys(iconMap).find(
+              key => iconMap[key] === item.icon
+            ) || 'Flag';
+            return { title: item.title, url: item.url, iconName };
+          });
+        }
+        return parsed;
+      } catch {
+        return [];
+      }
+    }
+    // Atalhos padrão
+    return [
+      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Calculator" },
+      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "TrendingUp" },
+      { title: "Marketplace", url: "/marketplace", iconName: "ShoppingBag" },
+          { title: "Azuria AI", url: "/azuria-ia", iconName: "Brain" },
+    ];
+  });
   
   // Auto-expand items that have active sub-items
   const getInitialExpandedItems = React.useCallback(() => {
@@ -222,24 +189,216 @@ export default function DashboardSidebar() {
     return isActive(item.url);
   };
 
+  const { toast } = useToast();
+  const [isAddShortcutOpen, setIsAddShortcutOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  // Lista de todos os itens disponíveis para adicionar como atalho
+  const getAllAvailableItems = () => {
+    // Lista fixa de todas as funcionalidades disponíveis no projeto
+    const allItems = [
+      { title: "Dashboard", url: "/dashboard", iconName: "Home", icon: Home },
+      { title: "Analytics", url: "/analytics", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Templates", url: "/templates", iconName: "FileText", icon: FileText },
+      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Calculator", icon: Calculator },
+      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "TrendingUp", icon: TrendingUp },
+      { title: "Calculadora Tributária", url: "/calculadora-tributaria", iconName: "FileCheck", icon: FileCheck },
+      { title: "Calculadora de Licitações", url: "/calculadora-licitacao", iconName: "Gavel", icon: Gavel },
+      { title: "Calculadora de Lotes", url: "/calculadora-lotes", iconName: "Zap", icon: Zap },
+      { title: "Análise de Sensibilidade", url: "/analise-sensibilidade", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Azuria AI", url: "/azuria-ia", iconName: "Brain", icon: Brain },
+      { title: "Marketplaces", url: "/marketplace", iconName: "ShoppingBag", icon: ShoppingBag },
+      { title: "Comparador de Marketplaces", url: "/comparador-marketplaces", iconName: "ShoppingBag", icon: ShoppingBag },
+      { title: "Licitações", url: "/dashboard-licitacoes", iconName: "Gavel", icon: Gavel },
+      { title: "Documentos", url: "/documentos", iconName: "FileText", icon: FileText },
+      { title: "Inteligência de Dados", url: "/inteligencia-dados", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Métricas de Preços", url: "/metricas-precos", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Análise de Rentabilidade", url: "/analise-rentabilidade", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Relatórios", url: "/relatorios", iconName: "FileText", icon: FileText },
+      { title: "Histórico", url: "/historico", iconName: "History", icon: History },
+      { title: "Integrações", url: "/integracoes", iconName: "Puzzle", icon: Puzzle },
+      { title: "API", url: "/api", iconName: "Puzzle", icon: Puzzle },
+      { title: "Colaboração", url: "/colaboracao", iconName: "Users", icon: Users },
+      { title: "Cenários", url: "/cenarios", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Importação", url: "/importacao", iconName: "FileText", icon: FileText },
+      { title: "Automações", url: "/automacoes", iconName: "Zap", icon: Zap },
+    ];
+    
+    return allItems;
+  };
+
+  const availableItems = getAllAvailableItems();
+  
+  // Filtrar itens que já estão nos favoritos
+  const favoriteUrls = favoriteShortcuts.map((s: { url: string }) => s.url);
+  const itemsToShow = availableItems.filter(
+    (item) => !favoriteUrls.includes(item.url) && item.url !== "/dashboard"
+  );
+
+  // Filtrar por busca
+  const filteredItems = itemsToShow.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleAddShortcut = (item: { title: string; url: string; iconName: string }) => {
+    const newShortcuts = [...favoriteShortcuts, { title: item.title, url: item.url, iconName: item.iconName }];
+    setFavoriteShortcuts(newShortcuts);
+    localStorage.setItem('azuria-favorite-shortcuts', JSON.stringify(newShortcuts));
+    
+    toast({
+      title: "Atalho adicionado",
+      description: `${item.title} foi adicionado aos seus atalhos favoritos.`,
+    });
+    
+    setIsAddShortcutOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleRemoveShortcut = (url: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const newShortcuts = favoriteShortcuts.filter((s: { url: string }) => s.url !== url);
+    setFavoriteShortcuts(newShortcuts);
+    localStorage.setItem('azuria-favorite-shortcuts', JSON.stringify(newShortcuts));
+    
+    toast({
+      title: "Atalho removido",
+      description: "O atalho foi removido dos seus favoritos.",
+    });
+  };
+
+  // Buscar logo e nome da empresa
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      if (!userProfile?.id) {return;}
+
+      try {
+        const { data, error } = await supabase
+          .from("company_data")
+          .select("data")
+          .eq("user_id", userProfile.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+          console.error("Erro ao buscar dados da empresa:", error);
+          return;
+        }
+
+        if (data?.data) {
+          const companyData = data.data as { logoUrl?: string; nome?: string; nomeFantasia?: string };
+          if (companyData.logoUrl) {
+            setCompanyLogo(companyData.logoUrl);
+          }
+          if (companyData.nomeFantasia || companyData.nome) {
+            setCompanyName(companyData.nomeFantasia || companyData.nome || null);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados da empresa:", error);
+      }
+    };
+
+    fetchCompanyData();
+  }, [userProfile?.id]);
+
   return (
+    <>
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-4 py-3">
-          <div className="flex h-24 w-24 items-center justify-center">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2 flex-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
             <img 
-              src="/images/azuria-logo-official.png" 
-              alt="Azuria" 
-              className="h-full w-full object-contain"
+                  src={companyLogo || "/images/azuria-logo-official.png"} 
+                  alt={companyName || "Azuria"} 
+                  className="h-8 w-8 object-contain"
+                  onError={(e) => {
+                    // Fallback para logo do Azuria se a logo da empresa não carregar
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== `${window.location.origin}/images/azuria-logo-official.png`) {
+                      target.src = "/images/azuria-logo-official.png";
+                    }
+                  }}
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Azuria</span>
-            <span className="text-xs text-muted-foreground">Dashboard</span>
+                <span className="text-sm font-semibold">{companyName || "Azuria"}</span>
+                {userProfile?.email && (
+                  <span className="text-xs text-muted-foreground truncate max-w-[140px]">
+                    {userProfile.email}
+                  </span>
+                )}
           </div>
+            </div>
+            {/* Botão de ocultar menu - 3 riscos horizontais (só aparece quando menu está aberto) */}
+            {state === "expanded" && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={toggleSidebar}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Ocultar menu</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
         </div>
       </SidebarHeader>
       <SidebarContent>
+        {/* Atalhos Favoritos - CÍRCULO VERDE CLARO */}
+        <SidebarGroup>
+          <div className="flex items-center justify-between px-2 mb-2">
+            <SidebarGroupLabel>Atalhos favoritos</SidebarGroupLabel>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={() => setIsAddShortcutOpen(true)}
+              title="Adicionar atalho"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {favoriteShortcuts.map((shortcut, index) => {
+                const Icon = iconMap[shortcut.iconName] || Flag;
+                const isShortcutActive = location.pathname === shortcut.url;
+                return (
+                  <SidebarMenuItem key={`${shortcut.url}-${index}`}>
+                    <SidebarMenuButton asChild isActive={isShortcutActive}>
+                      <Link to={shortcut.url} className="flex items-center gap-2 group/item">
+                        <Icon className="h-4 w-4" />
+                        <span className="flex-1">{shortcut.title}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                          onClick={(e) => handleRemoveShortcut(shortcut.url, e)}
+                          title="Remover atalho"
+                        >
+                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {dashboardMenuGroups.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
@@ -312,9 +471,83 @@ export default function DashboardSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <div className="text-xs text-muted-foreground text-center">
-          © 2024 Azuria. Todos os direitos reservados.
+          © 2025 Azuria. Todos os direitos reservados.
         </div>
       </SidebarFooter>
     </Sidebar>
+    
+    {/* Botão para expandir menu quando oculto - aparece abaixo do header */}
+    {state === "collapsed" && (
+      <div className="fixed top-16 left-0 z-10 h-12 w-12 flex items-center justify-center bg-sidebar border-r border-sidebar-border">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={toggleSidebar}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Expandir menu</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    )}
+
+    {/* Modal para adicionar atalho favorito */}
+    <Dialog open={isAddShortcutOpen} onOpenChange={setIsAddShortcutOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Adicionar atalho favorito</DialogTitle>
+          <DialogDescription>
+            Selecione uma funcionalidade para adicionar aos seus atalhos favoritos
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Campo de busca */}
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar funcionalidade..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {/* Lista de itens disponíveis */}
+          <div className="max-h-[400px] overflow-y-auto space-y-1">
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                {searchQuery ? "Nenhum resultado encontrado" : "Todos os itens já estão nos favoritos"}
+              </div>
+            ) : (
+              filteredItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.url}
+                    variant="ghost"
+                    className="w-full justify-start gap-2 h-auto py-3"
+                    onClick={() => handleAddShortcut({ title: item.title, url: item.url, iconName: item.iconName })}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="text-left flex-1">{item.title}</span>
+                    <Plus className="h-4 w-4 text-green-600" />
+                  </Button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

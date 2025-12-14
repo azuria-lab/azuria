@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { CreditCard, Home, Info, Sparkles } from 'lucide-react';
+import { BadgeCheck, Building2, Home, Layers } from 'lucide-react';
 
 // Navbar pública - apenas links institucionais
 // Todas as ferramentas foram movidas para dentro do Dashboard (área logada)
@@ -16,21 +16,21 @@ export const navLinks = [
     to: "#recursos", 
     label: "Recursos",
     path: "#recursos",
-    icon: <Sparkles className="h-4 w-4" />,
+    icon: <Layers className="h-4 w-4" />,
     dataOnboarding: "resources-button"
   },
   { 
     to: "/planos", 
     label: "Planos",
     path: "/planos",
-    icon: <CreditCard className="h-4 w-4" />,
+    icon: <BadgeCheck className="h-4 w-4" />,
     dataOnboarding: "pricing-button"
   },
   { 
     to: "#sobre", 
     label: "Sobre",
     path: "#sobre",
-    icon: <Info className="h-4 w-4" />,
+    icon: <Building2 className="h-4 w-4" />,
     dataOnboarding: "about-button"
   }
 ];

@@ -49,61 +49,71 @@ export default function RapidCalculatorPage() {
         animate="visible"
         exit="exit"
       >
-        
-        <main className="flex-grow py-12 px-4 bg-gradient-to-br from-background via-background to-primary/5">
-          <div className="container mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="text-center mb-12">
-              <div className="inline-flex items-center justify-center mb-6">
-                <AppIcon size={80} withShadow />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
-                Calculadora Rápida
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Calcule rapidamente preços de venda com simplicidade e precisão utilizando 
-                a Calculadora Rápida do Azuria.
-              </p>
-            </motion.div>
-            
-            <motion.div variants={itemVariants} className="max-w-4xl mx-auto">
-              <RapidCalculator isPro={isPro} userId={userId} />
-          </motion.div>
-          
-          <motion.div 
-            variants={itemVariants}
-            className="mt-12 bg-brand-50 border border-brand-100 rounded-lg p-6 shadow-md"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-brand-800">Precisa de cálculos mais detalhados?</h3>
-                <p className="text-gray-600">
-                  Experimente a Calculadora Avançada com regimes tributários completos (Simples Nacional, Lucro Presumido, Lucro Real),
-                  taxas de marketplace e análise de custos de e-commerce.
-                </p>
-              </div>
+        <main className="flex-grow bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16">
+            <div className="max-w-5xl mx-auto">
+              <motion.div 
+                variants={itemVariants} 
+                className="mb-8 sm:mb-12 md:mb-16"
+              >
+                <div>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-2 sm:mb-3">
+                    Calculadora Rápida
+                  </h1>
+                  <p className="text-base sm:text-lg md:text-xl text-muted-foreground font-light">
+                    Calcule o preço de venda ideal considerando custos, impostos e margem de lucro desejada. 
+                    Ferramenta profissional para precificação estratégica.
+                  </p>
+                </div>
+              </motion.div>
               
-              <div className="flex gap-4">
-                <Link to="/calculadora-avancada">
-                  <Button 
-                    variant="outline" 
-                    className="border-brand-600 text-brand-600 hover:bg-brand-50 transition-all hover:shadow"
-                  >
-                    Ver Calculadora Avançada
-                  </Button>
-                </Link>
-                <Link to="/planos">
-                  <Button 
-                    className="bg-brand-600 hover:bg-brand-700 shadow hover:shadow-md transition-all transform hover:scale-[1.02]"
-                  >
-                    Assinar PRO <ArrowUpRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+              <motion.div variants={itemVariants}>
+                <RapidCalculator isPro={isPro} userId={userId} />
+              </motion.div>
+            
+              <motion.div 
+                variants={itemVariants}
+                className="mt-8 sm:mt-12"
+              >
+              <div className="bg-card rounded-lg border border-border p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
+                      Precisa de análises mais detalhadas?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      A Calculadora Avançada oferece análise completa de regimes tributários, 
+                      comparação de marketplaces e simulação de cenários para otimização de precificação.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link to="/calculadora-avancada" className="w-full sm:w-auto">
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button 
+                          variant="outline" 
+                          className="w-full sm:w-auto h-12 min-h-[44px] border-primary/20 text-primary hover:bg-primary/10 transition-all"
+                        >
+                          Ver Calculadora Avançada
+                        </Button>
+                      </motion.div>
+                    </Link>
+                    <Link to="/planos" className="w-full sm:w-auto">
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button 
+                          className="w-full sm:w-auto h-12 min-h-[44px] bg-primary hover:bg-primary/90 transition-all"
+                        >
+                          Assinar PRO <ArrowUpRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </div>
+                </div>
               </div>
+              </motion.div>
             </div>
-            </motion.div>
           </div>
         </main>
-        
       </motion.div>
     </>
   );

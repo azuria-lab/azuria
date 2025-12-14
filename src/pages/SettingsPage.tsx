@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 import SettingsTabs from "@/components/settings/SettingsTabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileWithDisplayData } from "@/hooks/auth";
@@ -77,32 +78,47 @@ const SettingsPage: React.FC = () => {
         noIndex={true}
       />
       
-      <main className="flex flex-col items-center min-h-[calc(100vh-80px)] pb-8 bg-gradient-to-br from-gray-50 via-white to-brand-50">
-        <div className="w-full max-w-6xl pt-8 px-4">
-          {/* Header com botão de voltar */}
-          <div className="mb-8">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="mb-4 hover:bg-brand-50 transition-colors"
+      <main className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 py-12 md:py-16">
+          {/* Minimalist Header */}
+          <motion.div 
+            className="mb-12 md:mb-16"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="mb-6 -ml-2"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar
+              </Button>
+            </motion.div>
             
-            <div className="text-center">
-              <h1 className="text-4xl font-bold mb-2 text-gray-900 bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
+            <div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-3">
                 Configurações
               </h1>
-              <p className="text-gray-600 text-lg">
-                Gerencie sua conta Azuria+ e preferências do app
+              <p className="text-lg md:text-xl text-muted-foreground font-light">
+                Gerencie sua conta e preferências do Azuria
               </p>
             </div>
-          </div>
+          </motion.div>
           
-          {/* Tabs de Configurações */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          {/* Settings Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <SettingsTabs 
               userProfile={userProfile}
               isPro={auth?.isPro ?? true}
@@ -110,7 +126,7 @@ const SettingsPage: React.FC = () => {
               onCancelSubscription={handleCancelSubscription}
               onUpgradeSubscription={handleUpgradeSubscription}
             />
-          </div>
+          </motion.div>
         </div>
       </main>
     </>

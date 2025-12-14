@@ -56,13 +56,24 @@ export const useFeatureAccess = () => {
     const allowed = hasFeature(feature);
     const calculatorType = type === 'basic' ? 'básica' : 'avançada';
 
+    if (type === 'advanced') {
+      return {
+        allowed,
+        reason: allowed 
+          ? undefined 
+          : 'Este recurso está disponível nos planos Essencial ou superiores.',
+        upgradeRequired: !allowed,
+        suggestedPlan: !allowed ? 'essencial' : undefined,
+      };
+    }
+
     return {
       allowed,
       reason: allowed 
         ? undefined 
         : `A calculadora ${calculatorType} não está disponível no seu plano.`,
       upgradeRequired: !allowed,
-      suggestedPlan: !allowed && subscription?.planId === 'free' ? 'essencial' : undefined,
+      suggestedPlan: !allowed && subscription?.planId === 'free' ? 'iniciante' : undefined,
     };
   };
 
@@ -76,9 +87,9 @@ export const useFeatureAccess = () => {
       allowed,
       reason: allowed 
         ? undefined 
-        : 'O assistente de IA não está disponível no seu plano.',
+        : 'Este recurso está disponível nos planos Essencial ou superiores.',
       upgradeRequired: !allowed,
-      suggestedPlan: !allowed && subscription?.planId === 'free' ? 'essencial' : undefined,
+      suggestedPlan: !allowed ? 'essencial' : undefined,
     };
   };
 
@@ -94,7 +105,7 @@ export const useFeatureAccess = () => {
         ? undefined 
         : 'Salvar histórico não está disponível no seu plano.',
       upgradeRequired: !allowed,
-      suggestedPlan: !allowed && subscription?.planId === 'free' ? 'essencial' : undefined,
+      suggestedPlan: !allowed && subscription?.planId === 'free' ? 'iniciante' : undefined,
     };
   };
 
@@ -109,7 +120,7 @@ export const useFeatureAccess = () => {
         allowed: false,
         reason: 'Exportação de relatórios não está disponível no seu plano.',
         upgradeRequired: true,
-        suggestedPlan: subscription?.planId === 'free' ? 'essencial' : undefined,
+        suggestedPlan: subscription?.planId === 'free' ? 'iniciante' : undefined,
       };
     }
 

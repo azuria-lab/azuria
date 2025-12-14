@@ -1,5 +1,5 @@
-
 import type { CalculationResult } from "@/types/simpleCalculator";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 interface ResultDisplayProps {
   displayedResult: CalculationResult | null;
@@ -13,74 +13,72 @@ export default function ResultDisplay({ displayedResult, formatCurrency, isManua
   }
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-brand-500/10 rounded-2xl" />
-      
-      <div className={`relative p-8 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 ${
-        displayedResult.isHealthyProfit 
-          ? 'border-green-200/50 bg-green-50/80 shadow-lg shadow-green-100/50' 
-          : 'border-amber-200/50 bg-amber-50/80 shadow-lg shadow-amber-100/50'
-      }`}>
-        {/* Status Icon */}
-        <div className="absolute top-4 right-4">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            displayedResult.isHealthyProfit ? 'bg-green-100' : 'bg-amber-100'
-          }`}>
-            <span className="text-lg">
-              {displayedResult.isHealthyProfit ? '✅' : '⚠️'}
-            </span>
-          </div>
-        </div>
-
-        <div className="text-center space-y-4">
+    <div className={`rounded-lg border bg-card shadow-sm overflow-hidden border-l-4 ${
+      displayedResult.isHealthyProfit 
+        ? 'border-l-green-500' 
+        : 'border-l-blue-500'
+    }`}>
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="text-center space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              {isManualMode ? "Preço Informado" : "Preço Sugerido"}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {isManualMode ? "Análise do Preço Informado" : "Preço de Venda Recomendado"}
             </p>
-            <div className="w-16 h-1 bg-gradient-to-r from-primary to-brand-500 rounded-full mx-auto" />
           </div>
           
           {/* Main Price */}
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Preço de venda</p>
-            <p className="text-5xl font-bold bg-gradient-to-r from-primary to-brand-500 bg-clip-text text-transparent">
+            <p className="text-sm text-muted-foreground font-medium">Valor de Venda</p>
+            <p className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight ${
+              displayedResult.isHealthyProfit ? 'text-green-600' : 'text-blue-600'
+            }`}>
               {formatCurrency(displayedResult.sellingPrice)}
             </p>
           </div>
           
           {/* Profit Information */}
-          <div className={`p-4 rounded-xl ${
+          <div className={`p-4 sm:p-5 rounded-lg border-2 ${
             displayedResult.isHealthyProfit 
-              ? 'bg-green-100/60 border border-green-200/50' 
-              : 'bg-amber-100/60 border border-amber-200/50'
+              ? 'bg-green-50/80 border-green-200' 
+              : 'bg-blue-50/80 border-blue-200'
           }`}>
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-sm font-medium">💰</span>
-              <span className={`font-semibold ${
-                displayedResult.isHealthyProfit ? 'text-green-700' : 'text-amber-700'
-              }`}>
-                Lucro: {formatCurrency(displayedResult.profit)}
-              </span>
+            <div className="flex items-center justify-center gap-2.5 mb-2">
+              {displayedResult.isHealthyProfit ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-blue-600" />
+              )}
+              <div className="text-center">
+                <p className={`text-sm font-semibold ${
+                  displayedResult.isHealthyProfit ? 'text-green-700' : 'text-blue-700'
+                }`}>
+                  Lucro Líquido: {formatCurrency(displayedResult.profit)}
+                </p>
+                {isManualMode && displayedResult.breakdown && (
+                  <p className={`text-xs mt-0.5 ${
+                    displayedResult.isHealthyProfit ? 'text-green-600' : 'text-blue-600'
+                  }`}>
+                    Margem real: {displayedResult.breakdown.realMarginPercent.toFixed(1)}%
+                  </p>
+                )}
+              </div>
             </div>
-            
-            {isManualMode && displayedResult.breakdown && (
-              <p className={`text-sm ${
-                displayedResult.isHealthyProfit ? 'text-green-600' : 'text-amber-600'
-              }`}>
-                Margem real: {displayedResult.breakdown.realMarginPercent.toFixed(1)}%
-              </p>
-            )}
           </div>
           
           {/* Warning for low margin */}
           {!displayedResult.isHealthyProfit && (
-            <div className="flex items-center justify-center gap-2 p-3 bg-amber-100/80 rounded-lg border border-amber-200/50">
-              <span className="text-amber-600">⚠️</span>
-              <p className="text-sm font-medium text-amber-700">
-                Margem abaixo do recomendado (menos de 10%)
-              </p>
+            <div className="flex items-start justify-center gap-2.5 p-3 sm:p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
+              <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-left sm:text-center">
+                <p className="text-sm font-semibold text-blue-800 mb-1">
+                  Atenção: Margem abaixo do recomendado
+                </p>
+                <p className="text-xs text-blue-700">
+                  A margem de lucro está abaixo de 10%, o que pode comprometer a rentabilidade do negócio. 
+                  Considere revisar os custos ou ajustar o preço de venda.
+                </p>
+              </div>
             </div>
           )}
         </div>

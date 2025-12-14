@@ -7,50 +7,50 @@ import { Badge } from "@/components/ui/badge";
 const benefits = [
   {
     icon: TrendingUp,
-    title: "Aumento real de lucro",
-    description: "Nossa IA calcula o preço ideal considerando todos os fatores para maximizar sua margem de lucro.",
+    title: "Maximização de Lucratividade",
+    description: "Algoritmos de inteligência artificial calculam o preço ideal considerando múltiplos fatores para otimizar sua margem de lucro de forma estratégica.",
     badge: "+47%",
     badgeColor: "bg-[#0BA360] text-white",
     features: [
-      "Análise de margem otimizada",
-      "Cálculo automático de impostos",
-      "Recomendações baseadas em dados"
+      "Otimização automática de margens",
+      "Cálculo preciso de impostos e taxas",
+      "Recomendações fundamentadas em dados de mercado"
     ]
   },
   {
     icon: Clock,
-    title: "Economia de tempo",
-    description: "Automatize cálculos complexos que levariam horas e receba resultados precisos em segundos.",
+    title: "Eficiência Operacional",
+    description: "Automatize processos de precificação que demandariam horas de trabalho manual e receba resultados precisos em segundos.",
     badge: "15h/sem",
     badgeColor: "bg-[#005BFF] text-white",
     features: [
-      "Precificação em lote",
-      "Automações inteligentes",
-      "Integração com marketplaces"
+      "Precificação em massa de produtos",
+      "Automações configuráveis",
+      "Integração nativa com principais marketplaces"
     ]
   },
   {
     icon: Brain,
-    title: "IA especializada para produtos brasileiros",
-    description: "Treinada especificamente para o mercado brasileiro, considerando tributos, concorrência e tendências locais.",
+    title: "Inteligência Artificial Especializada",
+    description: "Sistema de IA desenvolvido especificamente para o mercado brasileiro, considerando legislação tributária, concorrência e dinâmicas locais.",
     badge: "100%",
     badgeColor: "bg-[#00C2FF] text-[#0A1930]",
     features: [
-      "Análise de concorrência nacional",
-      "Tributos brasileiros atualizados",
-      "Insights de mercado local"
+      "Análise competitiva do mercado nacional",
+      "Base tributária brasileira atualizada",
+      "Insights estratégicos baseados em dados locais"
     ]
   },
   {
     icon: Shield,
-    title: "Cálculos confiáveis com 100% dos impostos",
-    description: "Todos os impostos brasileiros são calculados automaticamente: ICMS, PIS, COFINS, IPI e mais.",
+    title: "Conformidade Fiscal Completa",
+    description: "Cálculo automático e preciso de todos os impostos brasileiros aplicáveis: ICMS, PIS, COFINS, IPI, ISS e demais tributos.",
     badge: "100%",
     badgeColor: "bg-[#0BA360] text-white",
     features: [
-      "Todos os impostos incluídos",
-      "Atualização automática de alíquotas",
-      "Conformidade fiscal garantida"
+      "Cobertura completa de impostos federais e estaduais",
+      "Atualização automática de alíquotas e legislação",
+      "Garantia de conformidade com a legislação vigente"
     ]
   }
 ];
@@ -59,8 +59,8 @@ const BenefitsSectionBling: React.FC = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="py-20 md:py-32 bg-white w-full">
-      <div className="container mx-auto px-4 w-full">
+    <section className="py-20 md:py-32 bg-background w-full">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 w-full">
         <motion.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -68,15 +68,15 @@ const BenefitsSectionBling: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0A1930] mb-4">
-            Recursos essenciais que melhoram a performance do seu negócio
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+            Recursos Estratégicos para Otimização de Performance
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Automatize processos e ganhe tempo para focar no crescimento do negócio
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Automatize processos operacionais e concentre seus esforços no crescimento estratégico do negócio
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
@@ -86,30 +86,31 @@ const BenefitsSectionBling: React.FC = () => {
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={reduceMotion ? undefined : { duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
+                whileHover={reduceMotion ? undefined : { y: -4 }}
+                className="bg-card rounded-lg border border-border p-8 shadow-sm hover:shadow-lg transition-all"
               >
                 <div className="flex items-start justify-between mb-6">
-                  <div className="p-3 bg-[#EAF6FF] rounded-xl">
-                    <Icon className="h-8 w-8 text-[#005BFF]" />
+                  <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <Icon className="h-6 w-6 text-primary" />
                   </div>
-                  <Badge className={`${benefit.badgeColor} text-lg font-bold px-4 py-2`}>
+                  <Badge className={`${benefit.badgeColor} text-base font-semibold px-3 py-1.5`}>
                     {benefit.badge}
                   </Badge>
                 </div>
 
-                <h3 className="text-2xl font-bold text-[#0A1930] mb-3">
+                <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-3">
                   {benefit.title}
                 </h3>
 
-                <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                <p className="text-muted-foreground mb-6 text-base leading-relaxed">
                   {benefit.description}
                 </p>
 
                 <ul className="space-y-3">
                   {benefit.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#005BFF] mt-2 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <span className="text-muted-foreground text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>

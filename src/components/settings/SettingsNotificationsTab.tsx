@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
 import React from "react";
 
 interface Props {
@@ -29,7 +30,7 @@ const SettingsNotificationsTab: React.FC<Props> = ({
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="email-notifs">Notificações por email</Label>
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
               Receba atualizações sobre sua conta por email
             </p>
           </div>
@@ -43,7 +44,7 @@ const SettingsNotificationsTab: React.FC<Props> = ({
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="marketing-notifs">Emails de marketing</Label>
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
               Receba ofertas especiais e novidades por email
             </p>
           </div>
@@ -53,7 +54,7 @@ const SettingsNotificationsTab: React.FC<Props> = ({
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="update-notifs">Atualizações do sistema</Label>
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
               Seja notificado sobre novos recursos e melhorias
             </p>
           </div>
@@ -62,7 +63,9 @@ const SettingsNotificationsTab: React.FC<Props> = ({
       </div>
     </CardContent>
     <CardFooter>
-      <Button onClick={onSave}>Salvar Preferências</Button>
+      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <Button onClick={onSave} className="min-w-[140px]">Salvar Preferências</Button>
+      </motion.div>
     </CardFooter>
   </Card>
 );

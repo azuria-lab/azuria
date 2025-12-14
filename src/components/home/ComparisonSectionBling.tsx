@@ -11,49 +11,49 @@ const comparisonData = [
     azuria: true
   },
   {
-    feature: "IA de precificação avançada",
+    feature: "Inteligência artificial avançada",
     planilhas: false,
     outrosApps: false,
     azuria: true
   },
   {
-    feature: "Integração com marketplaces",
+    feature: "Integração nativa com marketplaces",
     planilhas: false,
     outrosApps: "Parcial",
     azuria: true
   },
   {
-    feature: "Análise de concorrência",
+    feature: "Análise competitiva de mercado",
     planilhas: false,
     outrosApps: false,
     azuria: true
   },
   {
-    feature: "Precificação em lote",
+    feature: "Precificação em massa",
     planilhas: "Manual",
     outrosApps: "Limitado",
     azuria: true
   },
   {
-    feature: "Simulador de cenários",
+    feature: "Simulação de cenários estratégicos",
     planilhas: false,
     outrosApps: false,
     azuria: true
   },
   {
-    feature: "Relatórios e analytics",
+    feature: "Analytics e relatórios executivos",
     planilhas: "Básico",
     outrosApps: "Básico",
     azuria: true
   },
   {
-    feature: "Automações inteligentes",
+    feature: "Automação inteligente de processos",
     planilhas: false,
     outrosApps: false,
     azuria: true
   },
   {
-    feature: "Suporte especializado",
+    feature: "Suporte técnico especializado",
     planilhas: false,
     outrosApps: "Email",
     azuria: true
@@ -83,11 +83,11 @@ const ComparisonSectionBling: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0A1930] mb-4">
-            Compare e veja a diferença
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+            Compare e Identifique a Diferença
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Veja por que o Azuria é a melhor escolha para sua precificação
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Descubra por que o Azuria é a solução mais completa para precificação estratégica
           </p>
         </motion.div>
 

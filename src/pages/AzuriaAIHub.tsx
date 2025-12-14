@@ -1,19 +1,14 @@
 /**
  * Azuria IA Hub - Módulo Unificado de IA
  * 
- * Página central que consolida todas as funcionalidades de IA:
- * - Assistente IA (Chat)
- * - Lote IA (Calculadora em Lote Inteligente)
- * - IA Preços (Sugestões e Análises)
- * - Sugestão de Preços
- * - Competitividade (Análise de Concorrência)
+ * Design Premium - Estilo Apple
+ * Foco em simplicidade, clareza e experiência fluida
  */
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AzuriaAINavigation } from '@/components/ai/AzuriaAINavigation';
-import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 import {
   AssistenteSection,
   CompetitividadeSection,
@@ -25,21 +20,35 @@ import { supabase } from '@/integrations/supabase/client';
 import LoadingState from '@/components/calculators/LoadingState';
 import { logger } from '@/services/logger';
 
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      delayChildren: 0.2,
-      staggerChildren: 0.1
+      duration: 0.4,
+      ease: [0.22, 1, 0.36, 1]
     }
   }
 };
 
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1 }
+const contentVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    transition: {
+      duration: 0.3,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  }
 };
 
 export default function AzuriaAIHub() {
@@ -59,7 +68,6 @@ export default function AzuriaAIHub() {
           return;
         }
 
-        
         // Verificação de assinatura PRO
         const userIsPro = localStorage.getItem('isPro') === 'true';
         setIsPro(userIsPro);
@@ -113,71 +121,54 @@ export default function AzuriaAIHub() {
 
   return (
     <motion.div
-      className="container mx-auto px-4 py-8 max-w-7xl"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Header */}
-        <motion.div variants={itemVariants} className="text-center mb-8">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            {/* Azuria Character Avatar */}
-            <div className="relative">
-              <AzuriaAvatarImage 
-                size="large"
-                className="ring-4 ring-[#00C2FF] ring-opacity-50 shadow-lg shadow-[#00C2FF]/20"
-              />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#00C2FF] rounded-full border-2 border-white"></div>
-            </div>
-            
-            <div className="text-left">
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00C2FF] via-[#005BFF] to-[#00C2FF] bg-clip-text text-transparent">
-                Azuria AI
-              </h1>
-              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-                Assistente inteligente de precificação e análise tributária
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-center gap-3">
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#0A1930] text-[#00C2FF] border border-[#00C2FF]/30 shadow-[0_0_10px_rgba(0,194,255,0.2)]">
-              Beta
-            </span>
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#0A1930] text-[#005BFF] border border-[#005BFF]/30">
-              Powered by AI
-            </span>
-          </div>
+      className="min-h-screen bg-background"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 py-12 md:py-16">
+        {/* Minimalist Header */}
+        <motion.div 
+          className="mb-12 md:mb-16"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-3">
+            Azuria AI
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground font-light max-w-2xl">
+            Inteligência artificial para precificação precisa e análise tributária avançada
+          </p>
         </motion.div>
 
-        {/* Navigation */}
-        <motion.div variants={itemVariants} className="mb-8">
+        {/* Refined Navigation */}
+        <motion.div 
+          className="mb-10 md:mb-12"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <AzuriaAINavigation 
             activeSection={activeSection} 
             onSectionChange={handleSectionChange}
           />
         </motion.div>
 
-        {/* Content */}
-        <motion.div 
-          variants={itemVariants}
-          key={activeSection}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {renderSection()}
-        </motion.div>
-
-        {/* Footer Info */}
-        <motion.div 
-          variants={itemVariants}
-          className="mt-12 text-center text-sm text-muted-foreground"
-        >
-          <p>
-            A Azuria IA está em desenvolvimento ativo. Algumas funcionalidades podem sofrer alterações.
-          </p>
-        </motion.div>
-      </motion.div>
+        {/* Content with smooth transitions */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeSection}
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            {renderSection()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }

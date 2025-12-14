@@ -1,7 +1,9 @@
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BellRing, CircleDollarSign, ShieldCheck, UserRound } from "lucide-react";
+import { BellRing, Building2, CircleDollarSign, ShieldCheck, UserRound } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import SettingsProfileTab from "@/components/settings/SettingsProfileTab";
 import SettingsNotificationsTab from "@/components/settings/SettingsNotificationsTab";
@@ -61,82 +63,117 @@ export default function SettingsTabs({
   const subscriptionEnd = new Date();
   subscriptionEnd.setDate(subscriptionEnd.getDate() + 30);
 
-  return (
-    <Tabs defaultValue={currentTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:grid-cols-5 mb-8 bg-gray-100 p-1 rounded-xl">
-        <TabsTrigger 
-          value="profile" 
-          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
-        >
-          <UserRound className="w-4 h-4" />
-          <span className="hidden sm:block">Perfil</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="notifications" 
-          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
-        >
-          <BellRing className="w-4 h-4" />
-          <span className="hidden sm:block">Notificações</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="security" 
-          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
-        >
-          <ShieldCheck className="w-4 h-4" />
-          <span className="hidden sm:block">Segurança</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="subscription" 
-          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
-        >
-          <CircleDollarSign className="w-4 h-4" />
-          <span className="hidden sm:block">Assinatura</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="business" 
-          className="flex items-center gap-2 sm:py-2.5 data-[state=active]:bg-white data-[state=active]:text-brand-700 data-[state=active]:shadow-md transition-all"
-        >
-          <CircleDollarSign className="w-4 h-4" />
-          <span className="hidden sm:block">Negócio</span>
-        </TabsTrigger>
-      </TabsList>
+  const tabs = [
+    { id: 'profile', label: 'Perfil', icon: UserRound, shortLabel: 'Perfil' },
+    { id: 'notifications', label: 'Notificações', icon: BellRing, shortLabel: 'Notif.' },
+    { id: 'security', label: 'Segurança', icon: ShieldCheck, shortLabel: 'Segurança' },
+    { id: 'subscription', label: 'Assinatura', icon: CircleDollarSign, shortLabel: 'Assinatura' },
+    { id: 'business', label: 'Negócio', icon: Building2, shortLabel: 'Negócio' },
+  ];
 
-      <TabsContent value="profile">
-        <SettingsProfileTab 
-          onSave={handleProfileSave}
-          initialData={{
-            name: userProfile?.name || undefined,
-            email: userProfile?.email || undefined,
-            avatar_url: userProfile?.avatar_url || undefined,
-            phone: userProfile?.phone || undefined,
-            company: userProfile?.company || undefined
-          }}
-        />
+  return (
+    <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+      {/* Premium Navigation - Quick Actions Style */}
+      <div className="flex flex-wrap gap-2 mb-10">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = currentTab === tab.id;
+          return (
+            <motion.button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={cn(
+                'relative flex items-center gap-2 px-4 py-2 rounded-md',
+                'text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+                isActive
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm hover:bg-primary/90'
+                  : 'text-foreground hover:border-primary/50'
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.shortLabel}</span>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <TabsContent value="profile" className="mt-0">
+        <motion.div
+          key="profile"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SettingsProfileTab 
+            onSave={handleProfileSave}
+            initialData={{
+              name: userProfile?.name || undefined,
+              email: userProfile?.email || undefined,
+              avatar_url: userProfile?.avatar_url || undefined,
+              phone: userProfile?.phone || undefined,
+              company: userProfile?.company || undefined
+            }}
+          />
+        </motion.div>
       </TabsContent>
       
-      <TabsContent value="notifications">
-        <SettingsNotificationsTab 
-          emailNotifications={emailNotifications}
-          setEmailNotifications={setEmailNotifications}
-          onSave={handleNotificationsSave}
-        />
+      <TabsContent value="notifications" className="mt-0">
+        <motion.div
+          key="notifications"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SettingsNotificationsTab 
+            emailNotifications={emailNotifications}
+            setEmailNotifications={setEmailNotifications}
+            onSave={handleNotificationsSave}
+          />
+        </motion.div>
       </TabsContent>
       
-      <TabsContent value="security">
-        <SettingsSecurityTab userId={userProfile?.id} />
+      <TabsContent value="security" className="mt-0">
+        <motion.div
+          key="security"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SettingsSecurityTab userId={userProfile?.id} />
+        </motion.div>
       </TabsContent>
       
-      <TabsContent value="subscription">
-        <SettingsSubscriptionTab 
-          isPro={isPro}
-          subscriptionEnd={subscriptionEnd}
-          onCancel={onCancelSubscription}
-          onUpgrade={onUpgradeSubscription}
-        />
+      <TabsContent value="subscription" className="mt-0">
+        <motion.div
+          key="subscription"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SettingsSubscriptionTab 
+            isPro={isPro}
+            subscriptionEnd={subscriptionEnd}
+            onCancel={onCancelSubscription}
+            onUpgrade={onUpgradeSubscription}
+          />
+        </motion.div>
       </TabsContent>
       
-      <TabsContent value="business">
-        <SettingsBusinessTab userId={userProfile?.id} />
+      <TabsContent value="business" className="mt-0">
+        <motion.div
+          key="business"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <SettingsBusinessTab userId={userProfile?.id} />
+        </motion.div>
       </TabsContent>
     </Tabs>
   );

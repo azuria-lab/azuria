@@ -1,5 +1,6 @@
 // Modern calculator using new architecture patterns
 import { memo, Suspense, useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -23,6 +24,8 @@ import { useTemplateApplication } from "@/hooks/useTemplateApplication";
 import type { CalculationTemplate } from "@/types/templates";
 import type { CalculationHistory } from "../types/calculator";
 import { useAuthContext } from "@/domains/auth";
+import { useDailyCalculationLimit } from "@/hooks/useDailyCalculationLimit";
+import { UpgradeModal } from "@/components/subscription/UpgradeModal";
 // hooks imported above
 
 interface RapidCalculatorModernProps {
@@ -58,7 +61,18 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
   const [simuladorModalOpen, setSimuladorModalOpen] = useState(false);
   const [exportImportModalOpen, setExportImportModalOpen] = useState(false);
   const [historicoTaxasModalOpen, setHistoricoTaxasModalOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const isSupabaseConfigured = HistoryService.isSupabaseAvailable();
+  
+  // Daily calculation limit hook
+  const { 
+    used, 
+    limit, 
+    remaining, 
+    canCalculate, 
+    isFreeUser,
+    recordCalculation 
+  } = useDailyCalculationLimit();
 
   // Atalhos de teclado
   useEffect(() => {
@@ -121,6 +135,25 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
     legacy.setTax({ target: { value: impostos.toString() } } as unknown as React.ChangeEvent<HTMLInputElement>);
     legacy.setTaxValue(impostos.toString());
   };
+
+  // Wrapper para calculatePrice com verificação de limite
+  const handleCalculateWithLimit = () => {
+    if (!canCalculate) {
+      setUpgradeModalOpen(true);
+      return;
+    }
+
+    // Registrar cálculo antes de executar
+    const canProceed = recordCalculation();
+    
+    if (!canProceed) {
+      setUpgradeModalOpen(true);
+      return;
+    }
+
+    // Executar cálculo normalmente
+    legacy.calculatePrice();
+  };
   
   // Performance monitoring - simplified for now
   // const performance = usePerformanceMonitor();
@@ -133,71 +166,106 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
   };
 
   return (
-    <motion.div {...animationVariants} className="w-full space-y-8">
+    <motion.div {...animationVariants} className="w-full space-y-6">
+      {/* Indicador de limite para usuários FREE */}
+      {isFreeUser && typeof limit === 'number' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-muted/50 border border-border rounded-lg p-3 sm:p-4"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground">
+                {used} de {limit} cálculos diários no modo gratuito
+              </span>
+            </div>
+            {remaining === 0 ? (
+              <Link to="/planos" className="w-full sm:w-auto">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto h-10 min-h-[44px] text-primary border-primary/20 hover:bg-primary/10">
+                  Assine para uso ilimitado
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/planos" className="w-full sm:w-auto">
+                <Button variant="ghost" size="sm" className="w-full sm:w-auto h-10 min-h-[44px] text-xs sm:text-sm text-muted-foreground hover:text-primary">
+                  Assine o Plano Iniciante para uso ilimitado
+                </Button>
+              </Link>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* Main Calculator Card */}
-      <div className="relative">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-brand-500/5 rounded-2xl blur-3xl" />
-        
-        <Card className="relative bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden">
-          {/* Header with gradient bar */}
-          <div className="h-2 bg-gradient-to-r from-primary via-primary/80 to-brand-500" />
-          
-          <CardContent className="p-8">
-            {/* Template Selector */}
-            <Suspense fallback={<AdvancedLoadingSpinner size="md" />}>
-              <div className="mb-8" data-onboarding="template-selector">
-                <TemplateSelector 
-                  onSelectTemplate={(template: CalculationTemplate) => {
-                    // Apply template using legacy state updater for backward compatibility
-                    applyTemplate(template, (newState) => {
-                      legacy.setState(newState);
-                    });
-                  }} 
-                />
-              </div>
-            </Suspense>
-            
-            {/* Calculator Content */}
-            <Suspense fallback={<AdvancedLoadingSpinner size="lg" />}>
-              <CalculatorContent
-                isPro={isPro}
-                // Inputs from legacy hook to satisfy existing tests
-                cost={legacy.cost}
-                setCost={(value: string) => { legacy.setCost({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setCostValue(value); }}
-                otherCosts={legacy.otherCosts}
-                setOtherCosts={(value: string) => { legacy.setOtherCosts({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setOtherCostsValue(value); }}
-                shipping={legacy.shipping}
-                setShipping={(value: string) => { legacy.setShipping({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setShippingValue(value); }}
-                includeShipping={legacy.includeShipping}
-                setIncludeShipping={legacy.setIncludeShipping}
-                tax={legacy.tax}
-                setTax={(value: string) => { legacy.setTax({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setTaxValue(value); }}
-                cardFee={legacy.cardFee}
-                setCardFee={(value: string) => { legacy.setCardFee({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setCardFeeValue(value); }}
-                margin={legacy.margin}
-                // MarginSection expects (values: number[]); bridge to legacy signature (number)
-                setMargin={(values) => legacy.setMargin(values[0])}
-                // Actions
-                calculatePrice={legacy.calculatePrice}
-                resetCalculator={legacy.resetCalculator}
-                // Result / status
-                displayedResult={legacy.result}
-                formatCurrency={legacy.formatCurrency}
-                isLoading={legacy.isLoading}
-                // Manual pricing controls
-                isManualMode={legacy.isManualMode}
-                manualPrice={legacy.manualPrice}
-                onToggleMode={legacy.togglePriceMode}
-                onManualPriceChange={legacy.handleManualPriceChange}
-                // Modals
-                onOpenMaquininhaModal={() => setMaquininhaModalOpen(true)}
-                onOpenImpostosModal={() => setImpostosModalOpen(true)}
+      <Card 
+        className="rounded-lg border border-border bg-card shadow-sm border-l-4"
+        style={{ borderLeftColor: '#148D8D' }}
+      >
+        <CardContent className="p-4 sm:p-6 md:p-8">
+          {/* Template Selector */}
+          <Suspense fallback={<AdvancedLoadingSpinner size="md" />}>
+            <div className="mb-6" data-onboarding="template-selector">
+              <TemplateSelector 
+                onSelectTemplate={(template: CalculationTemplate) => {
+                  // Apply template using legacy state updater for backward compatibility
+                  applyTemplate(template, (newState) => {
+                    legacy.setState(newState);
+                  });
+                }} 
               />
-            </Suspense>
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+          </Suspense>
+          
+          {/* Calculator Content */}
+          <Suspense fallback={<AdvancedLoadingSpinner size="lg" />}>
+            <CalculatorContent
+              isPro={isPro}
+              // Inputs from legacy hook to satisfy existing tests
+              cost={legacy.cost}
+              setCost={(value: string) => { legacy.setCost({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setCostValue(value); }}
+              otherCosts={legacy.otherCosts}
+              setOtherCosts={(value: string) => { legacy.setOtherCosts({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setOtherCostsValue(value); }}
+              shipping={legacy.shipping}
+              setShipping={(value: string) => { legacy.setShipping({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setShippingValue(value); }}
+              includeShipping={legacy.includeShipping}
+              setIncludeShipping={legacy.setIncludeShipping}
+              tax={legacy.tax}
+              setTax={(value: string) => { legacy.setTax({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setTaxValue(value); }}
+              cardFee={legacy.cardFee}
+              setCardFee={(value: string) => { legacy.setCardFee({ target: { value } } as unknown as React.ChangeEvent<HTMLInputElement>); legacy.setCardFeeValue(value); }}
+              margin={legacy.margin}
+              // MarginSection expects (values: number[]); bridge to legacy signature (number)
+              setMargin={(values) => legacy.setMargin(values[0])}
+              // Actions - usar wrapper com verificação de limite
+              calculatePrice={handleCalculateWithLimit}
+              resetCalculator={legacy.resetCalculator}
+              // Result / status
+              displayedResult={legacy.result}
+              formatCurrency={legacy.formatCurrency}
+              isLoading={legacy.isLoading}
+              // Manual pricing controls
+              isManualMode={legacy.isManualMode}
+              manualPrice={legacy.manualPrice}
+              onToggleMode={legacy.togglePriceMode}
+              onManualPriceChange={legacy.handleManualPriceChange}
+              // Modals
+              onOpenMaquininhaModal={() => setMaquininhaModalOpen(true)}
+              onOpenImpostosModal={() => setImpostosModalOpen(true)}
+            />
+          </Suspense>
+        </CardContent>
+      </Card>
+      
+      {/* Upgrade Modal */}
+      {isFreeUser && (
+        <UpgradeModal
+          open={upgradeModalOpen}
+          onOpenChange={setUpgradeModalOpen}
+          currentLimit={typeof limit === 'number' ? limit : 5}
+          used={used}
+        />
+      )}
       
       {/* Modals */}
       <MaquininhaModal
@@ -237,55 +305,81 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
       />
 
       {/* Barra de Ferramentas Avançadas */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl">
-        <CardContent className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="text-sm font-medium text-muted-foreground">
-              Ferramentas Avançadas
+      <Card className="rounded-lg border border-border bg-card shadow-sm border-l-4 border-l-indigo-500">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-indigo-50 border border-indigo-100">
+                  <BarChart3 className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-foreground">
+                    Ferramentas Avançadas
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Comparadores, simuladores e recursos adicionais
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setComparadorModalOpen(true)}
-                className="text-xs"
-              >
-                <BarChart3 className="h-3 w-3 mr-1" />
-                Comparador
-                <kbd className="ml-2 px-1 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+K</kbd>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSimuladorModalOpen(true)}
-                className="text-xs"
-              >
-                <Calculator className="h-3 w-3 mr-1" />
-                Simulador
-                <kbd className="ml-2 px-1 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+J</kbd>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setHistoricoTaxasModalOpen(true)}
-                className="text-xs"
-              >
-                <History className="h-3 w-3 mr-1" />
-                Histórico
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setExportImportModalOpen(true)}
-                className="text-xs"
-              >
-                <Download className="h-3 w-3 mr-1" />
-                Backup
-              </Button>
+            <div className="flex flex-wrap gap-3">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setComparadorModalOpen(true)}
+                  className="border-border hover:bg-accent"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Comparador
+                  <kbd className="ml-2 px-1.5 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+K</kbd>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSimuladorModalOpen(true)}
+                  className="border-border hover:bg-accent"
+                >
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Simulador
+                  <kbd className="ml-2 px-1.5 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+J</kbd>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHistoricoTaxasModalOpen(true)}
+                  className="border-border hover:bg-accent"
+                >
+                  <History className="h-4 w-4 mr-2" />
+                  Histórico
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setExportImportModalOpen(true)}
+                  className="border-border hover:bg-accent"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Backup
+                </Button>
+              </motion.div>
             </div>
-          </div>
-          <div className="mt-2 text-xs text-muted-foreground">
-            Atalhos: <kbd className="px-1 bg-muted rounded">Ctrl+M</kbd> Maquininha • <kbd className="px-1 bg-muted rounded">Ctrl+I</kbd> Impostos
+            <div className="text-xs text-muted-foreground pt-3 border-t border-border">
+              <p className="font-medium mb-1.5">Atalhos de teclado:</p>
+              <div className="flex flex-wrap gap-2">
+                <span><kbd className="px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl+M</kbd> Calculadora de Taxas</span>
+                <span><kbd className="px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl+I</kbd> Calculadora de Impostos</span>
+                <span><kbd className="px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl+K</kbd> Comparador</span>
+                <span><kbd className="px-1.5 py-0.5 bg-muted rounded border border-border">Ctrl+J</kbd> Simulador</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -1,13 +1,8 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutGroup, motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import { useFilteredNavLinks } from './NavLinks';
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
 
 interface DesktopNavigationProps {
   readonly isAuthenticated: boolean;
@@ -21,39 +16,60 @@ export default function DesktopNavigation({ isAuthenticated, isPro }: DesktopNav
   return (
     <nav className="hidden md:flex items-center space-x-1">
       <LayoutGroup id="desktop-nav">
-        <NavigationMenu>
-          <NavigationMenuList>
-            {filteredLinks.map((link) => {
-              const isActive = location?.pathname === link.path;
-              
-              // Links simples sem submenu
-              return (
-                <NavigationMenuItem key={link.path}>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to={link.to}
-                      className={`relative flex items-center px-3 py-2 rounded-md transition-colors ${
-                        isActive 
-                          ? "bg-brand-100 text-brand-800 hover:bg-brand-200 dark:bg-brand-900 dark:text-brand-200" 
-                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      }`}
-                    >
-                      {link.icon}
-                      <span className="ml-1 hidden lg:inline">{link.label}</span>
-                      {isActive && (
-                        <motion.div
-                          className="absolute inset-0 border-b-2 border-brand-500 dark:border-brand-400 rounded-sm"
-                          layoutId="underline"
-                          style={{ bottom: -1, top: "auto", height: "2px" }}
-                        />
-                      )}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              );
-            })}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {filteredLinks.map((link) => {
+          const isActive = location?.pathname === link.path;
+          const isAnchor = link.path.startsWith('#');
+          
+          if (isAnchor) {
+            return (
+              <a
+                key={link.path}
+                href={link.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const element = document.querySelector(link.path);
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                <Button
+                  variant="ghost"
+                  className="h-9 px-3 text-sm font-medium relative"
+                >
+                  {link.icon}
+                  <span className="ml-1 hidden lg:inline">{link.label}</span>
+                  {isActive && (
+                    <motion.div
+                      className="absolute inset-0 border-b-2 border-primary rounded-sm"
+                      layoutId="underline"
+                      style={{ bottom: -1, top: "auto", height: "2px" }}
+                    />
+                  )}
+                </Button>
+              </a>
+            );
+          }
+          
+          return (
+            <Link key={link.path} to={link.to}>
+              <Button
+                variant="ghost"
+                className="h-9 px-3 text-sm font-medium relative"
+              >
+                {link.icon}
+                <span className="ml-1 hidden lg:inline">{link.label}</span>
+                {isActive && (
+                  <motion.div
+                    className="absolute inset-0 border-b-2 border-primary rounded-sm"
+                    layoutId="underline"
+                    style={{ bottom: -1, top: "auto", height: "2px" }}
+                  />
+                )}
+              </Button>
+            </Link>
+          );
+        })}
       </LayoutGroup>
     </nav>
   );

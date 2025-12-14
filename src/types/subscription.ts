@@ -3,7 +3,7 @@
  * Define tipos e interfaces para gerenciamento de planos
  */
 
-export type PlanId = 'free' | 'essencial' | 'pro' | 'enterprise';
+export type PlanId = 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
 
 export type BillingInterval = 'monthly' | 'annual';
 

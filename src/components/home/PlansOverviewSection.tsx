@@ -46,8 +46,8 @@ const PlansOverviewSection: React.FC = () => {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-white w-full">
-      <div className="container mx-auto px-4 w-full">
+    <section className="py-20 md:py-32 bg-background w-full">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 w-full">
         <motion.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -55,11 +55,11 @@ const PlansOverviewSection: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0A1930] mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 tracking-tight">
             Planos e Preços
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Escolha o plano ideal para seu negócio e comece a calcular com inteligência
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
+            Selecione o plano que melhor se adequa às necessidades do seu negócio e inicie sua jornada de precificação inteligente
           </p>
         </motion.div>
 
@@ -71,7 +71,7 @@ const PlansOverviewSection: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.2 }}
           className="flex items-center justify-center gap-4 mb-12"
         >
-          <Label htmlFor="billing-toggle" className={billingInterval === 'monthly' ? 'font-semibold text-[#0A1930]' : 'text-gray-600'}>
+          <Label htmlFor="billing-toggle" className={billingInterval === 'monthly' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
             Mensal
           </Label>
           <Switch
@@ -79,9 +79,9 @@ const PlansOverviewSection: React.FC = () => {
             checked={billingInterval === 'annual'}
             onCheckedChange={(checked) => setBillingInterval(checked ? 'annual' : 'monthly')}
           />
-          <Label htmlFor="billing-toggle" className={billingInterval === 'annual' ? 'font-semibold text-[#0A1930]' : 'text-gray-600'}>
+          <Label htmlFor="billing-toggle" className={billingInterval === 'annual' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
             Anual
-            <span className="ml-2 text-xs text-[#0BA360] font-medium">(Economize 17%)</span>
+            <span className="ml-2 text-xs text-green-600 font-medium">(Economize 17%)</span>
           </Label>
         </motion.div>
 
@@ -116,13 +116,19 @@ const PlansOverviewSection: React.FC = () => {
           transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.4 }}
           className="text-center mt-12"
         >
-          <p className="text-gray-600 text-lg mb-4">
-            Não tem certeza? Comece com o Free e faça upgrade quando precisar.
+          <p className="text-muted-foreground text-lg mb-4">
+            Não tem certeza? Inicie com o plano gratuito e faça upgrade conforme suas necessidades evoluem.
           </p>
           <Link to="/cadastro">
-            <Button variant="outline" size="lg" className="border-[#005BFF] text-[#005BFF] hover:bg-[#EAF6FF]">
-              Começar grátis agora
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-12 px-8 text-base font-medium border-2 border-primary/20 text-primary hover:bg-accent hover:border-primary/30 rounded-lg transition-all duration-200"
+              >
+                Iniciar teste gratuito
+              </Button>
+            </motion.div>
           </Link>
         </motion.div>
       </div>

@@ -754,91 +754,88 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
       {/* Panel */}
       <div
         className="
-          fixed top-0 right-0 h-full w-full sm:w-96
-          bg-white shadow-2xl z-50
+          fixed top-0 right-0 h-full w-full sm:w-[420px]
+          bg-background shadow-2xl z-50 border-l border-border
           transform transition-transform duration-300 ease-out
           overflow-y-auto
         "
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 shadow-md">
+        <div className="sticky top-0 bg-card border-b border-border p-4 shadow-sm z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6" />
-              <h2 className="text-xl font-bold">Azuria AI</h2>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Dashboard IA</h2>
+                <p className="text-xs text-muted-foreground">Insights e métricas</p>
+              </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-accent rounded-md transition-colors text-muted-foreground hover:text-foreground"
               aria-label="Fechar"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-sm text-cyan-100 mt-1">Sua assistente inteligente</p>
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-6">
-          {/* Last Insight */}
+        <div className="p-6 space-y-6">
+          {/* Último Insight */}
           {lastInsight && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-cyan-600" />
-                Último Insight
-              </h3>
-              <div
-                className={`
-                  p-4 rounded-lg border-2
-                  ${insightTypeStyles[lastInsight.type]}
-                `}
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-xl">{insightIcons[lastInsight.type]}</span>
-                  <p className="text-sm flex-1">{lastInsight.message}</p>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Último Insight</h3>
+              <div className="bg-card rounded-lg border border-border p-4 space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-base">{insightIcons[lastInsight.type]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground leading-relaxed">{lastInsight.message}</p>
+                  </div>
                 </div>
-                {(lastInsight.brandTone || lastInsight.persona) && (
-                  <div className="text-xs text-gray-600 mt-2 flex gap-2">
-                    {lastInsight.brandTone && <span>Tom: {lastInsight.brandTone}</span>}
-                    {lastInsight.persona && <span>Persona: {lastInsight.persona}</span>}
-                  </div>
-                )}
-                {(lastInsight.emotion || lastInsight.affectiveMessage) && (
-                  <div className="text-xs text-gray-700 mt-2 space-y-1">
-                    {lastInsight.emotion && (
-                      <div>
-                        Emoção: {lastInsight.emotion}{' '}
-                        {lastInsight.emotionConfidence === undefined
-                          ? ''
-                          : `(${formatScore(lastInsight.emotionConfidence)})`}
-                      </div>
-                    )}
-                    {lastInsight.affectiveMessage && (
-                      <div className="italic text-gray-600">{lastInsight.affectiveMessage}</div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           )}
 
-          {/* Monetização Inteligente */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-yellow-600" />
-              Monetização Inteligente
-            </h3>
-            <div className="p-3 rounded-lg border bg-yellow-50 border-yellow-200 text-yellow-900 space-y-1 text-sm">
-              <div>Engajamento: {formatPercent(diagnostics.engagementScore)}</div>
-              <div>Risco de churn: {formatPercent(diagnostics.churnRisk)}</div>
-              <div>Upgrade prob.: {formatPercent(diagnostics.upgradeProbability)}</div>
+          {/* Métricas Principais */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground">Métricas Principais</h3>
+            <div className="grid grid-cols-1 gap-3">
+              {diagnostics.engagementScore !== undefined && (
+                <div className="bg-card rounded-lg border border-border p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Engajamento</span>
+                    <span className="text-sm font-semibold text-foreground">{formatPercent(diagnostics.engagementScore)}</span>
+                  </div>
+                </div>
+              )}
+              {diagnostics.healthScore !== undefined && (
+                <div className="bg-card rounded-lg border border-border p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Saúde do Sistema</span>
+                    <span className="text-sm font-semibold text-foreground">{formatPercent(diagnostics.healthScore)}</span>
+                  </div>
+                </div>
+              )}
+              {diagnostics.confidence !== undefined && (
+                <div className="bg-card rounded-lg border border-border p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Confiança</span>
+                    <span className="text-sm font-semibold text-foreground">{formatPercent(diagnostics.confidence)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700">Ações Rápidas</h3>
-            <div className="grid grid-cols-2 gap-2">
+          {/* Ações Rápidas */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground">Ações Rápidas</h3>
+            <div className="grid grid-cols-2 gap-3">
               {quickActions.map((action) => {
                 const Icon = action.icon;
                 return (
@@ -846,15 +843,15 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
                     key={action.action}
                     onClick={() => handleQuickAction(action.action)}
                     className="
-                      p-3 rounded-lg border-2 border-gray-200
-                      hover:border-cyan-400 hover:bg-cyan-50
+                      p-4 rounded-lg border border-border bg-card
+                      hover:border-primary/30 hover:bg-accent/50
                       transition-all duration-200
-                      flex flex-col items-center gap-2
+                      flex flex-col items-center gap-2.5
                       group
                     "
                   >
-                    <Icon className={`w-6 h-6 ${action.color} group-hover:scale-110 transition-transform`} />
-                    <span className="text-xs font-medium text-gray-700 text-center">
+                    <Icon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-medium text-foreground text-center">
                       {action.label}
                     </span>
                   </button>
@@ -863,112 +860,21 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
             </div>
           </div>
 
-          {/* Engajamento e Narrativa */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-pink-600" />
-              Engajamento e Narrativa
-            </h3>
-            <div className="p-3 rounded-lg border bg-pink-50 border-pink-200 text-pink-900 space-y-1 text-sm">
-              <div>Motivação: {formatScore(engagementNarrative.motivationLevel)}</div>
-              <div>Conquistas: {engagementNarrative.achievementCount ?? 0}</div>
-              <div>Streak recente: {engagementNarrative.recentStreak ?? 0}</div>
-              <div>Próxima ação: {engagementNarrative.recommendedNextAction || 'n/d'}</div>
-              {engagementNarrative.lastStory && (
-                <div className="text-xs text-pink-800 italic mt-1">
-                  História: {engagementNarrative.lastStory}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Evolução da Experiência (Beta) */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              Evolução da Experiência (Beta)
-            </h3>
-            <div className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-900 space-y-1 text-sm">
-              <div>Fricção UX: {uxEvolution.uxFrictionPoints ?? 0}</div>
-              <div>Padrões positivos: {uxEvolution.positivePatterns ?? 0}</div>
-              <div>Auto-fixes: {(uxEvolution.autoFixesApplied || []).join(', ') || 'n/d'}</div>
-              <div>Abandono: {formatScore(uxEvolution.abandonRate)}</div>
-              <div>Fluxos otimizados: {(uxEvolution.optimizedFlows || []).join(', ') || 'n/d'}</div>
-            </div>
-          </div>
-
-          {/* Governança e Segurança - ADMIN ONLY */}
-          {isAdmin && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-red-600" />
-              Governança & Segurança
-            </h3>
-            <div className="p-3 rounded-lg border bg-red-50 border-red-200 text-red-900 space-y-1 text-sm">
-              <div>Alertas éticos: {governance.ethicalWarnings ?? 0}</div>
-              <div>Safety breaks: {governance.safetyBreaks ?? 0}</div>
-            </div>
-          </div>
-          )}
-
-          {/* Consciência Sistêmica - ADMIN ONLY */}
-          {isAdmin && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-700" />
-              Consciência Sistêmica
-            </h3>
-            <div className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-900 space-y-1 text-sm">
-              <div>Health Score: {formatScore(systemMind.globalHealthScore)}</div>
-              <div>Confiança: {systemMind.confidenceMap ? Object.entries(systemMind.confidenceMap).map(([k,v]) => `${k}:${Math.round((v||0)*100)}%`).join(' | ') : 'n/d'}</div>
-              <div>Riscos internos: {(systemMind.internalRisks || []).join(', ') || 'n/d'}</div>
-              <div>Conflitos ativos: {(systemMind.activeConflicts || []).join(', ') || 'n/d'}</div>
-              <div>Confiança da realidade: {formatScore(systemMind.realityConfidence)}</div>
-              <div>Forças externas: {(systemMind.externalForces || []).join(', ') || 'n/d'}</div>
-              <div>Truth Score: {formatScore(systemMind.truthScore)}</div>
-              <div>Contradições: {(systemMind.contradictionsDetected || []).join(', ') || 'n/d'}</div>
-              <div>Estabilidade: {formatScore(systemMind.stabilityScore)}</div>
-              <div>Risco previsto: {formatScore(systemMind.predictedFailure)}</div>
-              <div>Balanceamento: {systemMind.loadBalanceStatus || 'n/d'}</div>
-              <div>Meta State: {systemMind.metaState || 'n/d'}</div>
-              <div>Decision Quality: {formatScore(systemMind.decisionQuality)}</div>
-              <div>Scenario Confidence: {formatScore(systemMind.scenarioConfidence)}</div>
-              <div>Risk Attitude: {systemMind.personalityRiskAttitude || 'n/d'}</div>
-              <div>Opportunity Bias: {formatScore(systemMind.opportunityBias)}</div>
-              <div>Decision Style: {systemMind.decisionStyle || 'n/d'}</div>
-            </div>
-          </div>
-          )}
-
-          {/* Inteligência de Mercado */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-700" />
-              Inteligência de Mercado
-            </h3>
-            <div className="p-3 rounded-lg border bg-amber-50 border-amber-200 text-amber-900 space-y-1 text-sm">
-              <div>Oportunidades: {(systemMind.marketOpportunities || []).join(', ') || 'n/d'}</div>
-              <div>Riscos externos: {(systemMind.marketRisks || []).join(', ') || 'n/d'}</div>
-            </div>
-          </div>
-
-          {/* Insights History */}
+          {/* Histórico de Insights */}
           {insights.length > 1 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-700">Histórico de Insights</h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Histórico de Insights</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {insights.slice(1).map((insight, index) => (
+                {insights.slice(1, 6).map((insight, index) => (
                   <div
                     key={`${insight.timestamp}-${index}`}
-                    className={`
-                      p-3 rounded-lg border
-                      ${insightTypeStyles[insight.type]}
-                      opacity-75
-                    `}
+                    className="bg-card rounded-lg border border-border p-3"
                   >
                     <div className="flex items-start gap-2">
-                      <span className="text-sm">{insightIcons[insight.type]}</span>
-                      <p className="text-xs flex-1">{insight.message}</p>
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs">{insightIcons[insight.type]}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground flex-1 leading-relaxed">{insight.message}</p>
                     </div>
                   </div>
                 ))}
@@ -976,34 +882,21 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
             </div>
           )}
 
-          {/* Previsões */}
+          {/* Previsões Relevantes */}
           {predictiveInsights.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-indigo-600" />
-                Previsões
-              </h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Previsões</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {predictiveInsights.map(item => (
+                {predictiveInsights.slice(0, 3).map(item => (
                   <div
                     key={item.id}
-                    className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-900"
+                    className="bg-card rounded-lg border border-border p-3"
                   >
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span>Nível: {item.riskLevel}</span>
-                      <span>Score: {(item.predictiveScore * 100).toFixed(0)}%</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-foreground capitalize">{item.riskLevel}</span>
+                      <span className="text-xs text-muted-foreground">{(item.predictiveScore * 100).toFixed(0)}%</span>
                     </div>
-                    <p className="text-sm mt-1">{item.message}</p>
-                    {item.suggestedActions && item.suggestedActions.length > 0 && (
-                      <ul className="mt-2 space-y-1 text-xs">
-                        {item.suggestedActions.map((act) => (
-                          <li key={act} className="flex items-center gap-1">
-                            <span className="text-indigo-500">•</span>
-                            <span>{act}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.message}</p>
                   </div>
                 ))}
               </div>
@@ -1293,12 +1186,15 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
 
           {/* Empty State */}
           {!lastInsight && insights.length === 0 && (
-            <div className="text-center py-12">
-              <Sparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm">
-                Nenhum insight ainda.
-                <br />
-                Faça um cálculo para receber sugestões!
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Nenhum insight ainda
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Faça um cálculo para receber sugestões
               </p>
             </div>
           )}

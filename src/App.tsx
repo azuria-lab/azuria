@@ -36,6 +36,7 @@ const IntegrationsPage = lazy(() => import("./pages/IntegrationsPage"));
 const ApiPage = lazy(() => import("./pages/ApiPage"));
 const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const CompanyDataPage = lazy(() => import("./pages/CompanyDataPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
@@ -365,6 +366,16 @@ const App = () => {
                           <ProtectedRoute>
                             <DashboardLayout>
                               <SettingsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/dados-empresa"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <CompanyDataPage />
                             </DashboardLayout>
                           </ProtectedRoute>
                         }

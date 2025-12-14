@@ -7,13 +7,13 @@ import { Plan, PlanId } from '@/types/subscription';
 
 /**
  * Plano FREE
- * Ideal para usuários que querem experimentar a plataforma
+ * Modo de teste - não exibido na página de planos
  */
 const freePlan: Plan = {
   id: 'free',
-  name: 'Iniciante',
+  name: 'Gratuito',
   description:
-    'Ideal para testar a plataforma e validar suas primeiras precificações',
+    'Modo de teste para experimentar a plataforma',
   pricing: {
     monthly: 0,
     annual: 0,
@@ -26,14 +26,14 @@ const freePlan: Plan = {
     advancedCalculator: false,
 
     // Limites
-    dailyCalculations: 10,
+    dailyCalculations: 5, // Limite reduzido para 5
     aiQueriesPerMonth: 0,
     apiRequestsPerMonth: 0,
     maxStores: 0,
     teamMembers: 1,
 
     // Funcionalidades
-    saveHistory: false,
+    saveHistory: false, // Histórico limitado (últimos 3)
     exportReports: false,
     exportFormats: [],
 
@@ -71,6 +71,77 @@ const freePlan: Plan = {
 
     // Branding
     watermark: true,
+    whiteLabel: false,
+  },
+};
+
+/**
+ * Plano INICIANTE
+ * Foco exclusivo na Calculadora Rápida ilimitada
+ */
+const iniciantePlan: Plan = {
+  id: 'iniciante',
+  name: 'Iniciante',
+  description:
+    'Perfeito para quem está começando e precisa precificar rápido, sem complicação',
+  pricing: {
+    monthly: 25,
+    annual: 250,
+    annualDiscount: 17,
+    currency: 'BRL',
+    trialDays: 7,
+  },
+  features: {
+    // Calculadoras
+    basicCalculator: true, // Calculadora Rápida ilimitada
+    advancedCalculator: false, // Bloqueada
+
+    // Limites
+    dailyCalculations: 'unlimited', // Ilimitado para Calculadora Rápida
+    aiQueriesPerMonth: 0,
+    apiRequestsPerMonth: 0,
+    maxStores: 0,
+    teamMembers: 1,
+
+    // Funcionalidades
+    saveHistory: true, // Histórico ilimitado
+    exportReports: true, // Exportação em PDF
+    exportFormats: ['pdf'],
+
+    // IA
+    aiAssistant: false,
+    aiModel: null,
+
+    // Analytics
+    basicAnalytics: false,
+    advancedAnalytics: false,
+    competitorAnalysis: false,
+
+    // Integrações
+    marketplaceIntegration: false,
+    marketplaces: [],
+    priceAlerts: false,
+
+    // API
+    apiAccess: false,
+
+    // Colaboração
+    teamCollaboration: false,
+    permissionsSystem: false,
+    auditLog: false,
+    commentsOnCalculations: false,
+    approvalWorkflow: false,
+    consolidatedDashboard: false,
+
+    // Suporte
+    supportType: 'email',
+    supportResponseTime: '48h',
+    accountManager: false,
+    personalizedOnboarding: false,
+    slaGuarantee: false,
+
+    // Branding
+    watermark: false,
     whiteLabel: false,
   },
 };
@@ -297,16 +368,17 @@ const enterprisePlan: Plan = {
  */
 export const PLANS: Record<PlanId, Plan> = {
   free: freePlan,
+  iniciante: iniciantePlan,
   essencial: essencialPlan,
   pro: proPlan,
   enterprise: enterprisePlan,
 };
 
 /**
- * Array ordenado dos planos para exibição
+ * Array ordenado dos planos para exibição (FREE não é exibido)
  */
 export const PLANS_ARRAY: Plan[] = [
-  freePlan,
+  iniciantePlan,
   essencialPlan,
   proPlan,
   enterprisePlan,
@@ -352,7 +424,7 @@ export const planHasFeature = (
  * Compara dois planos
  */
 export const comparePlans = (planId1: PlanId, planId2: PlanId): number => {
-  const order: PlanId[] = ['free', 'essencial', 'pro', 'enterprise'];
+  const order: PlanId[] = ['free', 'iniciante', 'essencial', 'pro', 'enterprise'];
   return order.indexOf(planId1) - order.indexOf(planId2);
 };
 
@@ -401,7 +473,7 @@ export const formatPrice = (price: number): string => {
  * Obtém o plano recomendado para upgrade
  */
 export const getRecommendedUpgrade = (currentPlanId: PlanId): PlanId | null => {
-  const planOrder: PlanId[] = ['free', 'essencial', 'pro', 'enterprise'];
+  const planOrder: PlanId[] = ['free', 'iniciante', 'essencial', 'pro', 'enterprise'];
   const currentIndex = planOrder.indexOf(currentPlanId);
 
   if (currentIndex < planOrder.length - 1) {
@@ -416,16 +488,26 @@ export const getRecommendedUpgrade = (currentPlanId: PlanId): PlanId | null => {
  */
 export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
   free: [
-    'Até 10 cálculos/dia',
+    'Até 5 cálculos/dia',
     'Calculadora rápida',
-    'Funcionalidades limitadas',
+    'Templates básicos',
+    'Histórico limitado (3 últimos)',
+  ],
+  iniciante: [
+    'Uso ilimitado da Calculadora Rápida',
+    'Templates completos',
+    'Histórico ilimitado',
+    'Exportação em PDF',
+    'Presets salvos (maquininha e impostos)',
+    'Duplicar cálculos',
+    'Salvar modelos rápidos',
   ],
   essencial: [
-    'Cálculos ilimitados',
-    'Histórico completo',
+    'Tudo do Iniciante',
+    'Calculadora Avançada',
+    'Calculadora Tributária',
     '50 consultas IA/mês (GPT-3.5)',
     'Analytics básico',
-    'Exportação em PDF',
     "Sem marca d'água",
   ],
   pro: [

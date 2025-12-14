@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/domains/auth";
 import { 
   DropdownMenu, 
@@ -12,18 +12,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calculator, Crown, History, LogOut, Settings } from "lucide-react";
+import { Building2, Crown, LogOut, Moon, Settings, Shield, Sun, User } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { logger } from "@/services/logger";
+import { useTheme } from "@/components/ui/theme-provider";
+import { useProStatus } from "@/shared/hooks/useProStatus";
 
 const UserProfileButton: React.FC = () => {
   // Read auth context at top-level (hooks must not be conditional)
   const auth = useAuthContext();
   const userProfile = auth?.userProfile ?? null;
   const isAuthenticated = auth?.isAuthenticated ?? false;
-  const isPro = auth?.isPro ?? false;
+  const { isPro } = useProStatus();
   const isLoading = auth?.isLoading ?? false;
   const logout = auth?.logout ?? (async () => false);
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   
   const handleLogout = async () => {
     try {
@@ -140,47 +144,113 @@ const UserProfileButton: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border shadow-lg z-50">
-        <DropdownMenuLabel className="flex flex-col">
-          <span className="font-medium">{userProfile?.name || "Usuário"}</span>
-          <span className="text-xs text-gray-500 truncate">{userProfile?.email}</span>
-          {isPro && (
-            <span className="text-xs mt-1 flex items-center gap-1 text-yellow-600">
-              <Crown className="h-3 w-3" />
-              <span>Plano PRO</span>
-            </span>
-          )}
-        </DropdownMenuLabel>
-        
+      <DropdownMenuContent align="end" className="w-72 bg-white dark:bg-gray-800 border shadow-lg z-50">
+        {/* Header com logo e informações da empresa */}
+        <div className="px-4 py-3 border-b">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <img 
+                src="/images/azuria-logo-official.png" 
+                alt="Azuria" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{userProfile?.name || "Usuário"}</p>
+              <p className="text-xs text-muted-foreground truncate">{userProfile?.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Menu Items */}
+        <div className="py-2">
+          <Link to="/configuracoes">
+            <DropdownMenuItem className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Meu Perfil
+            </DropdownMenuItem>
+          </Link>
+          
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/dados-empresa")}>
+            <Building2 className="mr-2 h-4 w-4" />
+            Dados da empresa
+          </DropdownMenuItem>
+          
+          <Link to="/configuracoes">
+            <DropdownMenuItem className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              Todas as configurações
+            </DropdownMenuItem>
+          </Link>
+          
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/configuracoes?tab=security")}>
+            <Shield className="mr-2 h-4 w-4" />
+            Consultar gestão de ações
+          </DropdownMenuItem>
+        </div>
+
         <DropdownMenuSeparator />
-        
-        <Link to="/calculadora-rapida">
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-            <Calculator className="mr-2 h-4 w-4" />
-            Calculadora
+
+        {/* Plano */}
+        <div className="px-4 py-3 border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isPro ? (
+                <>
+                  <Crown className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm font-medium">Plano PRO</span>
+                </>
+              ) : (
+                <span className="text-sm font-medium">Plano Gratuito</span>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => navigate("/planos")}
+            >
+              Gerenciar plano
+            </Button>
+          </div>
+        </div>
+
+        {/* Toggle Tema Escuro */}
+        <div className="px-4 py-3 border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {theme === "dark" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
+              <span className="text-sm">Tema escuro</span>
+            </div>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                theme === "dark" ? "bg-primary" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  theme === "dark" ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Sair */}
+        <div className="p-2">
+          <DropdownMenuItem 
+            className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950" 
+            onClick={handleLogout}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair da conta
           </DropdownMenuItem>
-        </Link>
-        
-        <Link to="/historico">
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-            <History className="mr-2 h-4 w-4" />
-            Histórico
-          </DropdownMenuItem>
-        </Link>
-        
-        <DropdownMenuSeparator />
-        
-        <Link to="/configuracoes">
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-            <Settings className="mr-2 h-4 w-4" />
-            Configurações
-          </DropdownMenuItem>
-        </Link>
-        
-        <DropdownMenuItem className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          Sair
-        </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
