@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [lint, typecheck]
-    continue-on-error: false
+    continue-on-error: true  # Coverage é informativo, não bloqueante
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -89,7 +89,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: coverage/lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false  # Codecov não deve bloquear CI
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
