@@ -1,7 +1,9 @@
 // Modern calculator using new architecture patterns
 import { memo, Suspense, useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { BarChart3, Calculator, Download, History } from "lucide-react";
 import { CalculatorProvider } from "../context/CalculatorContext";
 import { useRapidCalculator } from "@/hooks/useRapidCalculator";
 import { ComponentErrorBoundary } from "@/shared/components/ErrorBoundary";
@@ -10,6 +12,12 @@ import CalculatorContent from "./CalculatorContent";
 import HistoryDisplayOptimized from "@/components/calculators/HistoryDisplayOptimized";
 import ResultAnalysis from "@/components/calculators/ResultAnalysis";
 import TemplateSelector from "@/components/templates/TemplateSelector";
+import MaquininhaModal from "@/components/calculators/modals/MaquininhaModal";
+import ImpostosModal from "@/components/calculators/modals/ImpostosModal";
+import ComparadorMaquininhasModal from "@/components/calculators/modals/ComparadorMaquininhasModal";
+import SimuladorCenariosModal from "@/components/calculators/modals/SimuladorCenariosModal";
+import ExportImportPresetsModal from "@/components/calculators/modals/ExportImportPresetsModal";
+import HistoricoTaxasModal from "@/components/calculators/modals/HistoricoTaxasModal";
 import { HistoryService } from "../services/HistoryService";
 import { useTemplateApplication } from "@/hooks/useTemplateApplication";
 import type { CalculationTemplate } from "@/types/templates";
@@ -44,7 +52,47 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
   const [history, setHistory] = useState<CalculationHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [maquininhaModalOpen, setMaquininhaModalOpen] = useState(false);
+  const [impostosModalOpen, setImpostosModalOpen] = useState(false);
+  const [comparadorModalOpen, setComparadorModalOpen] = useState(false);
+  const [simuladorModalOpen, setSimuladorModalOpen] = useState(false);
+  const [exportImportModalOpen, setExportImportModalOpen] = useState(false);
+  const [historicoTaxasModalOpen, setHistoricoTaxasModalOpen] = useState(false);
   const isSupabaseConfigured = HistoryService.isSupabaseAvailable();
+
+  // Atalhos de teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignorar se estiver em um input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'm':
+            e.preventDefault();
+            setMaquininhaModalOpen(true);
+            break;
+          case 'i':
+            e.preventDefault();
+            setImpostosModalOpen(true);
+            break;
+          case 'k':
+            e.preventDefault();
+            setComparadorModalOpen(true);
+            break;
+          case 'j':
+            e.preventDefault();
+            setSimuladorModalOpen(true);
+            break;
+        }
+      }
+    };
+
+    globalThis.addEventListener('keydown', handleKeyDown);
+    return () => globalThis.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -63,6 +111,16 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
       loadHistory();
     }
   }, [isAuthenticated, user?.id, loadHistory]);
+
+  const handleMaquininhaSave = (taxa: number) => {
+    legacy.setCardFee({ target: { value: taxa.toString() } } as unknown as React.ChangeEvent<HTMLInputElement>);
+    legacy.setCardFeeValue(taxa.toString());
+  };
+
+  const handleImpostosSave = (impostos: number) => {
+    legacy.setTax({ target: { value: impostos.toString() } } as unknown as React.ChangeEvent<HTMLInputElement>);
+    legacy.setTaxValue(impostos.toString());
+  };
   
   // Performance monitoring - simplified for now
   // const performance = usePerformanceMonitor();
@@ -132,11 +190,105 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
                 manualPrice={legacy.manualPrice}
                 onToggleMode={legacy.togglePriceMode}
                 onManualPriceChange={legacy.handleManualPriceChange}
+                // Modals
+                onOpenMaquininhaModal={() => setMaquininhaModalOpen(true)}
+                onOpenImpostosModal={() => setImpostosModalOpen(true)}
               />
             </Suspense>
           </CardContent>
         </Card>
       </div>
+      
+      {/* Modals */}
+      <MaquininhaModal
+        isOpen={maquininhaModalOpen}
+        onClose={() => setMaquininhaModalOpen(false)}
+        valorVenda={legacy.result?.sellingPrice || 0}
+        onSave={handleMaquininhaSave}
+      />
+      
+      <ImpostosModal
+        isOpen={impostosModalOpen}
+        onClose={() => setImpostosModalOpen(false)}
+        valorVenda={legacy.result?.sellingPrice || 0}
+        onSave={handleImpostosSave}
+      />
+
+      <ComparadorMaquininhasModal
+        isOpen={comparadorModalOpen}
+        onClose={() => setComparadorModalOpen(false)}
+        valorVenda={legacy.result?.sellingPrice || 100}
+      />
+
+      <SimuladorCenariosModal
+        isOpen={simuladorModalOpen}
+        onClose={() => setSimuladorModalOpen(false)}
+        valorVenda={legacy.result?.sellingPrice || 100}
+      />
+
+      <ExportImportPresetsModal
+        isOpen={exportImportModalOpen}
+        onClose={() => setExportImportModalOpen(false)}
+      />
+
+      <HistoricoTaxasModal
+        isOpen={historicoTaxasModalOpen}
+        onClose={() => setHistoricoTaxasModalOpen(false)}
+      />
+
+      {/* Barra de Ferramentas Avançadas */}
+      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm font-medium text-muted-foreground">
+              Ferramentas Avançadas
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setComparadorModalOpen(true)}
+                className="text-xs"
+              >
+                <BarChart3 className="h-3 w-3 mr-1" />
+                Comparador
+                <kbd className="ml-2 px-1 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+K</kbd>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSimuladorModalOpen(true)}
+                className="text-xs"
+              >
+                <Calculator className="h-3 w-3 mr-1" />
+                Simulador
+                <kbd className="ml-2 px-1 py-0.5 text-[10px] bg-muted rounded hidden sm:inline">Ctrl+J</kbd>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHistoricoTaxasModalOpen(true)}
+                className="text-xs"
+              >
+                <History className="h-3 w-3 mr-1" />
+                Histórico
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportImportModalOpen(true)}
+                className="text-xs"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                Backup
+              </Button>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Atalhos: <kbd className="px-1 bg-muted rounded">Ctrl+M</kbd> Maquininha • <kbd className="px-1 bg-muted rounded">Ctrl+I</kbd> Impostos
+          </div>
+        </CardContent>
+      </Card>
       
   {/* Result Analysis Section */}
   {legacy.result && (

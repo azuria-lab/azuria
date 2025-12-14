@@ -12,28 +12,28 @@ import CalculatorActions from "./sections/CalculatorActions";
 import ResultsSection from "./sections/ResultsSection";
 
 interface BasicTabContentProps {
-  marketplace: string;
-  setMarketplace: (value: string) => void;
-  marketplaces: Marketplace[];
-  selectedMarketplace: Marketplace | undefined;
-  marketplaceFee: number;
-  productInfo: { name: string; sku: string; category: string };
-  setProductInfo: React.Dispatch<React.SetStateAction<{ name: string; sku: string; category: string }>>;
-  cost: string;
-  taxPercent: string;
-  shipping: string;
-  includeShipping: boolean;
-  targetProfit: number;
-  sellingPrice: number | null;
-  discountPercent: number;
-  discountedPrice: number | null;
-  discountedProfit: number | null;
-  breakdown: { profit?: number; [key: string]: unknown };
-  handleInputChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleTargetProfitChange: (values: number[]) => void;
-  setState: React.Dispatch<React.SetStateAction<unknown>>;
-  calculatePrice: () => void;
-  isProfitHealthy: (profit: number) => boolean;
+  readonly marketplace: string;
+  readonly setMarketplace: (value: string) => void;
+  readonly marketplaces: Marketplace[];
+  readonly selectedMarketplace: Marketplace | undefined;
+  readonly marketplaceFee: number;
+  readonly productInfo: { name: string; sku: string; category: string };
+  readonly setProductInfo: React.Dispatch<React.SetStateAction<{ name: string; sku: string; category: string }>>;
+  readonly cost: string;
+  readonly taxPercent: string;
+  readonly shipping: string;
+  readonly includeShipping: boolean;
+  readonly targetProfit: number;
+  readonly sellingPrice: number | null;
+  readonly discountPercent: number;
+  readonly discountedPrice: number | null;
+  readonly discountedProfit: number | null;
+  readonly breakdown: { profit?: number; [key: string]: unknown };
+  readonly handleInputChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly handleTargetProfitChange: (values: number[]) => void;
+  readonly setState: React.Dispatch<React.SetStateAction<unknown>>;
+  readonly calculatePrice: () => void;
+  readonly isProfitHealthy: (profit: number) => boolean;
 }
 
 export default function BasicTabContent({

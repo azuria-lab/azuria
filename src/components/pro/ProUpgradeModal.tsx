@@ -73,8 +73,8 @@ export default function ProUpgradeModal({
   trigger = 'general',
   feature 
 }: Readonly<ProUpgradeModalProps>) {
-  // isClosing é usado para controle de animação CSS
-  const [isClosing, setIsClosing] = useState(false);
+  // isClosing é usado para controle de animação CSS via setter
+  const [, setIsClosing] = useState(false);
   const content = modalContent[trigger];
 
   const handleClose = () => {
@@ -84,9 +84,6 @@ export default function ProUpgradeModal({
       setIsClosing(false);
     }, 150);
   };
-
-  // Closing animation handling (intencional)
-  void isClosing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

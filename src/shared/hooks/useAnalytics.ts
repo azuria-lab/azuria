@@ -125,7 +125,7 @@ export function useRevenueAnalytics() {
         .select('*')
         .eq('is_pro', true);
 
-      const monthlyRevenue = (proUsers?.length || 0) * 29.90; // Preço mensal PRO
+      const monthlyRevenue = (proUsers?.length || 0) * 29.9; // Preço mensal PRO
       const annualRevenue = monthlyRevenue * 12;
 
       return {
@@ -138,4 +138,25 @@ export function useRevenueAnalytics() {
     },
     staleTime: 10 * 60 * 1000, // 10 minutos
   });
+}
+
+/**
+ * Hook para rastrear eventos de analytics
+ */
+export function useAnalyticsTracking() {
+  const trackEvent = (eventName: string, properties?: Record<string, unknown>) => {
+    // Por enquanto apenas loga no console em desenvolvimento
+    // No futuro, integrar com Google Analytics, Mixpanel, etc.
+    if (import.meta.env.DEV) {
+      // Em desenvolvimento, não logamos nada para evitar poluir o console
+      return;
+    }
+    
+    // Em produção, enviar para analytics
+    if (typeof globalThis !== 'undefined' && (globalThis as {gtag?: (...args: unknown[]) => void}).gtag) {
+      (globalThis as {gtag: (...args: unknown[]) => void}).gtag('event', eventName, properties);
+    }
+  };
+
+  return { trackEvent };
 }

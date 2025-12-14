@@ -33,6 +33,9 @@ interface CalculatorContentProps {
   manualPrice?: string;
   onToggleMode?: () => void;
   onManualPriceChange?: (value: string) => void;
+  // Modals props
+  onOpenMaquininhaModal?: () => void;
+  onOpenImpostosModal?: () => void;
 }
 
 export default function CalculatorContent({
@@ -59,7 +62,9 @@ export default function CalculatorContent({
   isManualMode = false,
   manualPrice = "",
   onToggleMode,
-  onManualPriceChange
+  onManualPriceChange,
+  onOpenMaquininhaModal,
+  onOpenImpostosModal
 }: CalculatorContentProps) {
   return (
     <div className="space-y-6">
@@ -77,6 +82,8 @@ export default function CalculatorContent({
         setTax={setTax}
         cardFee={cardFee}
         setCardFee={setCardFee}
+        onOpenMaquininhaModal={onOpenMaquininhaModal}
+        onOpenImpostosModal={onOpenImpostosModal}
       />
 
       {/* Manual Price Toggle - só mostra se as funções foram passadas */}

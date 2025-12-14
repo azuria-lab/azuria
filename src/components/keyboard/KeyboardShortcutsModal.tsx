@@ -36,9 +36,10 @@ export function KeyboardShortcutsModal() {
 
   const formatShortcut = (shortcut: typeof shortcuts[0]) => {
     const keys: string[] = [];
+    const isMac = globalThis.navigator.userAgent.includes('Mac');
     
     if (shortcut.ctrl) {
-      keys.push(navigator.platform.includes('Mac') ? '⌘' : 'Ctrl');
+      keys.push(isMac ? '⌘' : 'Ctrl');
     }
     if (shortcut.shift) {
       keys.push('Shift');
@@ -99,7 +100,7 @@ export function KeyboardShortcutsModal() {
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
             Pressione <kbd className="px-2 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-700 rounded">
-              {navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'} + /
+              {globalThis.navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'} + /
             </kbd> para abrir esta janela novamente
           </p>
         </div>
@@ -107,3 +108,5 @@ export function KeyboardShortcutsModal() {
     </Dialog>
   );
 }
+
+export default KeyboardShortcutsModal;

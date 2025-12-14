@@ -2,20 +2,24 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Calculator } from "lucide-react";
 
 interface InputFieldsProps {
-  cost: string;
-  setCost: (value: string) => void;
-  otherCosts: string;
-  setOtherCosts: (value: string) => void;
-  shipping: string;
-  setShipping: (value: string) => void;
-  includeShipping: boolean;
-  setIncludeShipping: (value: boolean) => void;
-  tax: string;
-  setTax: (value: string) => void;
-  cardFee: string;
-  setCardFee: (value: string) => void;
+  readonly cost: string;
+  readonly setCost: (value: string) => void;
+  readonly otherCosts: string;
+  readonly setOtherCosts: (value: string) => void;
+  readonly shipping: string;
+  readonly setShipping: (value: string) => void;
+  readonly includeShipping: boolean;
+  readonly setIncludeShipping: (value: boolean) => void;
+  readonly tax: string;
+  readonly setTax: (value: string) => void;
+  readonly cardFee: string;
+  readonly setCardFee: (value: string) => void;
+  readonly onOpenMaquininhaModal?: () => void;
+  readonly onOpenImpostosModal?: () => void;
 }
 
 export default function InputFields({
@@ -30,7 +34,9 @@ export default function InputFields({
   tax,
   setTax,
   cardFee,
-  setCardFee
+  setCardFee,
+  onOpenMaquininhaModal,
+  onOpenImpostosModal
 }: InputFieldsProps) {
   return (
     <div className="space-y-8">
@@ -136,6 +142,18 @@ export default function InputFields({
               <Label htmlFor="tax" className="text-sm font-medium text-foreground">
                 Impostos (%)
               </Label>
+              {onOpenImpostosModal && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onOpenImpostosModal}
+                  className="h-6 w-6 p-0 ml-auto"
+                  title="Calculadora de Impostos"
+                >
+                  <Calculator className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                </Button>
+              )}
             </div>
             <Input
               id="tax"
@@ -153,6 +171,18 @@ export default function InputFields({
               <Label htmlFor="card-fee" className="text-sm font-medium text-foreground">
                 Taxa da Maquininha (%)
               </Label>
+              {onOpenMaquininhaModal && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onOpenMaquininhaModal}
+                  className="h-6 w-6 p-0 ml-auto"
+                  title="Calculadora de Maquininha"
+                >
+                  <Calculator className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                </Button>
+              )}
             </div>
             <Input
               id="card-fee"

@@ -11,7 +11,7 @@ import { Activity, AlertTriangle, CheckCircle, TrendingUp, Zap } from 'lucide-re
 
 export const PerformanceDashboard = () => {
   // refreshKey é usado para forçar re-render em intervalos regulares
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, setRefreshKey] = useState(0);
   const { getPerformanceReport, clearData, violations } = usePerformanceMonitor();
   const { getMetrics, getScore } = useWebVitals();
   const cache = useAdvancedCache();
@@ -30,9 +30,6 @@ export const PerformanceDashboard = () => {
   // Atualiza score quando refreshKey muda
   const webVitalsScore = getScore();
   const cacheStats = cache.getStats();
-  
-  // RefreshKey usado para forçar re-render (intencional)
-  void refreshKey;
 
   const getRatingColor = (rating: string) => {
     switch (rating) {
