@@ -1,50 +1,132 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
+/**
+ * PrefetchOnIdle - Pré-carrega módulos importantes em tempo ocioso
+ * 
+ * Estratégias de otimização:
+ * 1. Prefetch inicial: carrega rotas mais usadas após página carregar
+ * 2. Prefetch contextual: carrega rotas relacionadas à página atual
+ * 3. Usa requestIdleCallback para não bloquear interações do usuário
+ */
 export default function PrefetchOnIdle() {
+  const location = useLocation();
+
+  /**
+   * Prefetch inicial - rotas mais acessadas
+   */
+  const prefetchCriticalRoutes = useCallback(() => {
+    const criticalTasks = [
+      import("@/pages/DashboardPage"),
+      import("@/pages/SimpleCalculatorPage"),
+      import("@/pages/AdvancedProCalculatorPage"),
+    ];
+
+    Promise.allSettled(criticalTasks).catch(() => {
+      // Silencia erros de prefetch
+    });
+  }, []);
+
+  /**
+   * Prefetch secundário - outras rotas importantes
+   */
+  const prefetchSecondaryRoutes = useCallback(() => {
+    const secondaryTasks = [
+      import("@/pages/PricingPage"),
+      import("@/pages/IntegrationsPage"),
+      import("@/pages/AdvancedAnalyticsDashboard"),
+      import("@/pages/BatchCalculatorPage"),
+      import("@/pages/HistoryPage"),
+    ];
+
+    Promise.allSettled(secondaryTasks).catch(() => {
+      // Silencia erros de prefetch
+    });
+  }, []);
+
+  /**
+   * Prefetch de componentes pesados (analytics, integrações)
+   */
+  const prefetchHeavyComponents = useCallback(() => {
+    const heavyTasks = [
+      import("@/components/integrations/MarketplaceIntegrations"),
+      import("@/components/integrations/EcommerceIntegrations"),
+      import("@/components/analytics/AnalyticsDashboard"),
+      import("@/components/analytics/advanced/AdvancedAnalyticsDashboard"),
+    ];
+
+    Promise.allSettled(heavyTasks).catch(() => {
+      // Silencia erros de prefetch
+    });
+  }, []);
+
+  /**
+   * Prefetch contextual baseado na rota atual
+   */
+  const prefetchContextualRoutes = useCallback(() => {
+    const path = location.pathname;
+
+    // Se estiver no dashboard, prefetch das calculadoras
+    if (path === "/dashboard") {
+      Promise.allSettled([
+        import("@/pages/SimpleCalculatorPage"),
+        import("@/pages/AdvancedProCalculatorPage"),
+        import("@/pages/AnalyticsDashboardPage"),
+      ]).catch(() => {});
+    }
+
+    // Se estiver em calculadora simples, prefetch da avançada
+    if (path === "/calculadora-simples") {
+      Promise.allSettled([
+        import("@/pages/AdvancedProCalculatorPage"),
+        import("@/pages/BatchCalculatorPage"),
+      ]).catch(() => {});
+    }
+
+    // Se estiver em analytics, prefetch de relatórios
+    if (path.includes("analytics")) {
+      Promise.allSettled([
+        import("@/pages/ReportsPage"),
+        import("@/pages/ProfitabilityAnalysisPage"),
+      ]).catch(() => {});
+    }
+  }, [location.pathname]);
+
+  // Prefetch inicial (apenas produção)
   useEffect(() => {
-    // Avoid prefetching in development to prevent pulling in modules with build issues
     if (import.meta.env.DEV) {
       return;
     }
-    const prefetch = () => {
-      // Prefetch rotas-chave e módulos pesados em idle
-      const tasks = [
-        import("@/pages/DashboardPage"),
-        import("@/pages/PricingPage"),
-        import("@/pages/IntegrationsPage"),
-        import("@/pages/EnterprisePage"),
-        import("@/pages/Welcome"),
-        import("@/pages/AdvancedAnalyticsDashboard"),
-      ];
 
-// MarketplaceIntegrations e outros módulos pesados usados dentro de integrações
-      tasks.push(import("@/components/integrations/MarketplaceIntegrations"));
-      tasks.push(import("@/components/integrations/EcommerceIntegrations"));
-      tasks.push(import("@/components/integrations/ERPIntegrations"));
-      tasks.push(import("@/components/integrations/SpreadsheetSync"));
-      tasks.push(import("@/components/integrations/WebhookAutomation"));
-      tasks.push(import("@/components/integrations/WebhookIntegration"));
-      tasks.push(import("@/components/integrations/SharingOptions"));
-      tasks.push(import("@/components/integrations/ExportOptions"));
+    const w = globalThis as typeof globalThis & { 
+      requestIdleCallback?: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number 
+    };
+    const hasRIC = typeof w.requestIdleCallback === "function";
 
-      // Dashboards/Analytics
-      tasks.push(import("@/components/analytics/AnalyticsDashboard"));
-      tasks.push(import("@/components/analytics/advanced/AdvancedAnalyticsDashboard"));
-
-      Promise.allSettled(tasks).catch(() => {
-        // Silencia erros de prefetch
-      });
+    // Fase 1: Rotas críticas (imediato no idle)
+    const scheduleIdle = (cb: () => void, timeout: number) => {
+      if (hasRIC && w.requestIdleCallback) {
+        w.requestIdleCallback(cb, { timeout });
+      } else {
+        setTimeout(cb, timeout);
+      }
     };
 
-    // Executa em idle ou após pequeno atraso
-    const w = window as Window & typeof globalThis & { requestIdleCallback?: (cb: IdleRequestCallback, options?: IdleRequestOptions) => number };
-    const hasRIC = typeof w.requestIdleCallback === "function";
-    if (hasRIC && w.requestIdleCallback) {
-      w.requestIdleCallback(prefetch, { timeout: 2000 });
-    } else {
-      setTimeout(prefetch, 1200);
+    // Escalonar prefetch para não sobrecarregar
+    scheduleIdle(prefetchCriticalRoutes, 500);
+    scheduleIdle(prefetchSecondaryRoutes, 2000);
+    scheduleIdle(prefetchHeavyComponents, 4000);
+  }, [prefetchCriticalRoutes, prefetchSecondaryRoutes, prefetchHeavyComponents]);
+
+  // Prefetch contextual quando rota muda
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      return;
     }
-  }, []);
+
+    const timer = setTimeout(prefetchContextualRoutes, 1000);
+    return () => clearTimeout(timer);
+  }, [prefetchContextualRoutes]);
 
   return null;
 }

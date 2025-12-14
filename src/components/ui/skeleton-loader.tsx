@@ -107,9 +107,163 @@ export const FeatureGridSkeleton: React.FC = () => (
   </div>
 );
 
+/**
+ * Skeleton progressivo para Analytics
+ * Mostra partes gradualmente conforme dados carregam
+ */
+export const AnalyticsSkeleton: React.FC = () => (
+  <div className="space-y-6 p-6">
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-10" />
+      </div>
+    </div>
+
+    {/* KPIs */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="p-4 border rounded-lg space-y-2 bg-card">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-5 w-5 rounded" />
+          </div>
+          <Skeleton className="h-8 w-24" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="h-3 w-8" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Charts */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="p-4 border rounded-lg space-y-4 bg-card">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-[300px] w-full rounded" />
+      </div>
+      <div className="p-4 border rounded-lg space-y-4 bg-card">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-[300px] w-full rounded" />
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * Skeleton para histórico/tabelas
+ */
+export const TableSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => (
+  <div className="space-y-4">
+    {/* Header da tabela */}
+    <div className="flex items-center gap-4 p-3 border-b">
+      {[...Array(5)].map((_, i) => (
+        <Skeleton key={i} className="h-4 flex-1" />
+      ))}
+    </div>
+    {/* Linhas */}
+    {[...Array(rows)].map((_, rowIndex) => (
+      <div key={rowIndex} className="flex items-center gap-4 p-3 border-b last:border-0">
+        {[...Array(5)].map((_, colIndex) => (
+          <Skeleton key={colIndex} className="h-4 flex-1" />
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
+/**
+ * Skeleton para cards de integração
+ */
+export const IntegrationCardSkeleton: React.FC = () => (
+  <div className="p-6 border rounded-lg space-y-4 bg-card">
+    <div className="flex items-center gap-4">
+      <Skeleton className="h-12 w-12 rounded-lg" />
+      <div className="space-y-2 flex-1">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-3 w-48" />
+      </div>
+      <Skeleton className="h-6 w-20 rounded-full" />
+    </div>
+    <div className="flex gap-2">
+      <Skeleton className="h-9 flex-1" />
+      <Skeleton className="h-9 w-24" />
+    </div>
+  </div>
+);
+
+/**
+ * Skeleton para sidebar
+ */
+export const SidebarSkeleton: React.FC = () => (
+  <div className="w-[280px] h-screen border-r bg-card p-4 space-y-6">
+    {/* Logo */}
+    <div className="flex items-center gap-2 p-2">
+      <Skeleton className="h-8 w-8 rounded" />
+      <Skeleton className="h-6 w-24" />
+    </div>
+    {/* Menu Groups */}
+    {[...Array(3)].map((_, groupIndex) => (
+      <div key={groupIndex} className="space-y-2">
+        <Skeleton className="h-4 w-20" />
+        {[...Array(4)].map((_, itemIndex) => (
+          <div key={itemIndex} className="flex items-center gap-2 p-2">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
+/**
+ * Skeleton para header
+ */
+export const HeaderSkeleton: React.FC = () => (
+  <div className="h-14 border-b bg-card flex items-center justify-between px-4">
+    <div className="flex items-center gap-4">
+      <Skeleton className="h-8 w-8 rounded" />
+      <Skeleton className="h-6 w-32" />
+    </div>
+    <div className="flex items-center gap-2">
+      <Skeleton className="h-8 w-8 rounded-full" />
+      <Skeleton className="h-8 w-8 rounded-full" />
+      <Skeleton className="h-8 w-8 rounded-full" />
+    </div>
+  </div>
+);
+
+/**
+ * Skeleton para página completa (loading inicial)
+ */
+export const PageSkeleton: React.FC = () => (
+  <div className="min-h-screen bg-background">
+    <HeaderSkeleton />
+    <div className="flex">
+      <SidebarSkeleton />
+      <main className="flex-1 p-6">
+        <DashboardSkeleton />
+      </main>
+    </div>
+  </div>
+);
+
 export default {
   PlanCardSkeleton,
   CalculatorSkeleton,
   DashboardSkeleton,
-  FeatureGridSkeleton
+  FeatureGridSkeleton,
+  AnalyticsSkeleton,
+  TableSkeleton,
+  IntegrationCardSkeleton,
+  SidebarSkeleton,
+  HeaderSkeleton,
+  PageSkeleton,
 };

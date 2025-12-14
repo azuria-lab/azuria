@@ -43,24 +43,93 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // Smart chunking strategy for optimal loading
+        // Smart chunking strategy for optimal loading by feature
         manualChunks: (id) => {
-          // Separate heavy libraries into their own chunks
+          // ============================================
+          // Bibliotecas pesadas (lazy load sob demanda)
+          // ============================================
           if (id.includes('jspdf') || id.includes('autotable')) {
             return 'pdf-export'; // 388KB → lazy loaded only when exporting
           }
           if (id.includes('html2canvas')) {
             return 'screenshot'; // 201KB → lazy loaded only when needed
           }
-          if (id.includes('recharts') || id.includes('victory')) {
+          if (id.includes('recharts') || id.includes('victory') || id.includes('d3')) {
             return 'charts'; // 449KB → lazy loaded only on analytics pages
           }
+          if (id.includes('monaco-editor') || id.includes('prismjs')) {
+            return 'code-editor'; // Editor de código (se existir)
+          }
+
+          // ============================================
+          // Chunks por Feature (code splitting)
+          // ============================================
+          
+          // Feature: Calculadoras
+          if (id.includes('/pages/SimpleCalculator') || 
+              id.includes('/pages/AdvancedCalculator') ||
+              id.includes('/pages/TaxCalculator') ||
+              id.includes('/pages/BatchCalculator') ||
+              id.includes('/pages/BiddingCalculator') ||
+              id.includes('/components/calculator')) {
+            return 'feature-calculators';
+          }
+          
+          // Feature: Analytics
+          if (id.includes('/pages/Analytics') || 
+              id.includes('/pages/AdvancedAnalytics') ||
+              id.includes('/components/analytics')) {
+            return 'feature-analytics';
+          }
+          
+          // Feature: IA/Azuria AI
+          if (id.includes('/azuria_ai/') || 
+              id.includes('/pages/AzuriaAI') ||
+              id.includes('/components/ai')) {
+            return 'feature-ai';
+          }
+          
+          // Feature: Integrações
+          if (id.includes('/pages/Integration') || 
+              id.includes('/components/integrations')) {
+            return 'feature-integrations';
+          }
+          
+          // Feature: Licitações
+          if (id.includes('/pages/Bidding') || 
+              id.includes('/components/bidding')) {
+            return 'feature-bidding';
+          }
+          
+          // Feature: Marketplace
+          if (id.includes('/pages/Marketplace') || 
+              id.includes('/components/marketplace')) {
+            return 'feature-marketplace';
+          }
+
+          // ============================================
+          // Vendor chunks (node_modules)
+          // ============================================
           if (id.includes('node_modules')) {
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'ui-vendor';
+            // UI Framework
+            if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('cmdk')) {
+              return 'vendor-ui';
             }
+            // Data layer
             if (id.includes('@tanstack') || id.includes('@supabase')) {
-              return 'data-vendor';
+              return 'vendor-data';
+            }
+            // Animações
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            // Forms
+            if (id.includes('react-hook-form') || id.includes('zod')) {
+              return 'vendor-forms';
+            }
+            // Utils gerais
+            if (id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) {
+              return 'vendor-utils';
             }
           }
         },

@@ -86,6 +86,59 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
   // Inicialização
   // ==========================================================================
 
+  /**
+   * Inicializa engines secundários em background (não-bloqueante)
+   * Isso permite que a UI renderize imediatamente enquanto engines carregam
+   */
+  const initializeSecondaryEngines = useCallback(async () => {
+    const isPremiumUser =
+      user?.user_metadata?.subscription === 'PRO' ||
+      user?.user_metadata?.subscription === 'Enterprise';
+
+    // Inicializar engines em paralelo para máxima performance
+    const enginePromises = [
+      // Engines de licitações (inicialização leve)
+      Promise.resolve().then(() => ragEngine.initRAGEngine()),
+      Promise.resolve().then(() => multimodalEngine.initMultimodalEngine()),
+      Promise.resolve().then(() => whatIfSimulator.initWhatIfSimulator()),
+      Promise.resolve().then(() => xaiEngine.initXAIEngine()),
+      // Engines v2.0 (e-commerce/marketplace)
+      Promise.resolve().then(() => priceMonitoringAgent.initPriceMonitoring()),
+      Promise.resolve().then(() => invoiceOCREngine.initInvoiceOCR()),
+      Promise.resolve().then(() => dynamicPricingEngine.initDynamicPricing()),
+    ];
+
+    // Aguardar todas as inicializações em paralelo
+    await Promise.allSettled(enginePromises);
+
+    // Iniciar monitoramentos apenas para usuários PRO/Enterprise (após engines carregados)
+    if (isPremiumUser) {
+      // Usar setTimeout para não bloquear o thread principal
+      setTimeout(() => {
+        priceMonitoringAgent.startMonitoring({
+          intervalMinutes: 60, // 1 hora
+          userId: user?.id,
+        });
+
+        portalMonitorAgent.startPortalMonitor({
+          interval: 5 * 60 * 1000, // 5 minutos
+          autoAnalyze: true,
+          autoAlert: true,
+        });
+
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.log('[ModeDeusProvider] 🤖 Monitoramentos PRO/Enterprise iniciados em background');
+        }
+      }, 100);
+    }
+
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log('[ModeDeusProvider] 🚀 Engines v2.0 inicializados em paralelo');
+    }
+  }, [user?.id, user?.user_metadata?.subscription]);
+
   const initialize = useCallback(async () => {
     if (isInitialized()) {
       setState((prev) => ({
@@ -101,58 +154,10 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
+      // Inicializar orchestrator principal (crítico)
       await initModeDeus(user?.id, customConfig);
 
-      // Inicializar novos engines de licitações
-      try {
-        ragEngine.initRAGEngine();
-        multimodalEngine.initMultimodalEngine();
-        whatIfSimulator.initWhatIfSimulator();
-        xaiEngine.initXAIEngine();
-
-        // Inicializar engines v2.0 (e-commerce/marketplace)
-        priceMonitoringAgent.initPriceMonitoring();
-        invoiceOCREngine.initInvoiceOCR();
-        dynamicPricingEngine.initDynamicPricing();
-
-        // Iniciar monitoramento de preços para usuários PRO/Enterprise
-        if (
-          user?.user_metadata?.subscription === 'PRO' ||
-          user?.user_metadata?.subscription === 'Enterprise'
-        ) {
-          priceMonitoringAgent.startMonitoring({
-            intervalMinutes: 60, // 1 hora
-            userId: user?.id,
-          });
-        }
-
-        // Iniciar monitor de portais apenas para usuários PRO/Enterprise
-        if (
-          user?.user_metadata?.subscription === 'PRO' ||
-          user?.user_metadata?.subscription === 'Enterprise'
-        ) {
-          portalMonitorAgent.startPortalMonitor({
-            interval: 5 * 60 * 1000, // 5 minutos
-            autoAnalyze: true,
-            autoAlert: true,
-          });
-
-          if (import.meta.env.DEV) {
-            // eslint-disable-next-line no-console
-            console.log('[ModeDeusProvider] 🤖 Portal Monitor iniciado para usuário PRO/Enterprise');
-          }
-        }
-
-        if (import.meta.env.DEV) {
-          // eslint-disable-next-line no-console
-          console.log('[ModeDeusProvider] 🚀 Engines v2.0 (e-commerce) inicializados');
-        }
-      } catch (engineError) {
-        // eslint-disable-next-line no-console
-        console.warn('[ModeDeusProvider] ⚠️ Erro ao inicializar engines:', engineError);
-        // Não bloqueia a inicialização principal
-      }
-
+      // Marcar como inicializado IMEDIATAMENTE para desbloquear UI
       setState((prev) => ({
         ...prev,
         initialized: true,
@@ -164,8 +169,22 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
 
       if (import.meta.env.DEV) {
         // eslint-disable-next-line no-console
-        console.log('[ModeDeusProvider] ✅ Sistema inicializado com sucesso');
+        console.log('[ModeDeusProvider] ✅ Core inicializado - carregando engines em background...');
       }
+
+      // Inicializar engines secundários em BACKGROUND (não-bloqueante)
+      // Usar requestIdleCallback se disponível, senão setTimeout
+      const hasIdleCallback = 'requestIdleCallback' in globalThis;
+      const scheduleBackgroundInit = hasIdleCallback
+        ? requestIdleCallback 
+        : (cb: () => void) => setTimeout(cb, 1);
+
+      scheduleBackgroundInit(() => {
+        initializeSecondaryEngines().catch((engineError) => {
+          // eslint-disable-next-line no-console
+          console.warn('[ModeDeusProvider] ⚠️ Erro ao inicializar engines secundários:', engineError);
+        });
+      });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Erro ao inicializar Modo Deus';
@@ -180,7 +199,7 @@ export const ModeDeusProvider: React.FC<ModeDeusProviderProps> = ({
       // eslint-disable-next-line no-console
       console.error('[ModeDeusProvider] ❌ Erro na inicialização:', err);
     }
-  }, [user?.id, user?.user_metadata?.subscription, customConfig]);
+  }, [user?.id, customConfig, initializeSecondaryEngines]);
 
   // Auto-inicialização
   useEffect(() => {

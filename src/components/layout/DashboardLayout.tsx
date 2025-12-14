@@ -1,13 +1,25 @@
-import React, { Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner";
-import DashboardSidebar from "@/components/layout/DashboardSidebar";
-import DashboardHeader from "@/components/layout/DashboardHeader";
 import ErrorBoundary from "./ErrorBoundary";
 import { ModeDeusProvider } from "@/azuria_ai";
-import CoPilot from "@/azuria_ai/ui/CoPilot";
+
+// Lazy load componentes pesados para melhorar TTI (Time to Interactive)
+const DashboardSidebar = lazy(() => import("@/components/layout/DashboardSidebar"));
+const DashboardHeader = lazy(() => import("@/components/layout/DashboardHeader"));
+const CoPilot = lazy(() => import("@/azuria_ai/ui/CoPilot"));
+
+// Skeleton leve para sidebar (não bloqueia renderização)
+const SidebarSkeleton = () => (
+  <div className="w-[280px] h-screen bg-muted/30 animate-pulse" />
+);
+
+// Skeleton leve para header
+const HeaderSkeleton = () => (
+  <div className="h-14 w-full bg-muted/30 animate-pulse" />
+);
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,6 +31,11 @@ interface DashboardLayoutProps {
  * DashboardLayout - Layout específico para área logada
  * Deve ser usado dentro de ProtectedRoute
  * Não faz verificação de autenticação (ProtectedRoute já faz isso)
+ * 
+ * Otimizações de Performance:
+ * - Sidebar, Header e CoPilot são carregados via lazy loading
+ * - ModeDeusProvider inicializa engines em background
+ * - Skeletons leves evitam layout shift
  */
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
@@ -39,9 +56,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <ModeDeusProvider autoInitialize>
         <SidebarProvider>
           <div className="flex min-h-screen w-full">
-            <DashboardSidebar />
+            <Suspense fallback={<SidebarSkeleton />}>
+              <DashboardSidebar />
+            </Suspense>
             <SidebarInset className="flex flex-col flex-1">
-              <DashboardHeader />
+              <Suspense fallback={<HeaderSkeleton />}>
+                <DashboardHeader />
+              </Suspense>
               <Separator />
               <main className="flex-1 overflow-auto">
                 <Suspense
@@ -62,8 +83,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </main>
             </SidebarInset>
           </div>
-          {/* CoPilot unificado - canto inferior direito com MiniDashboard integrado */}
-          <CoPilot position="bottom-right" defaultMinimized />
+          {/* CoPilot unificado - lazy loaded para não bloquear renderização inicial */}
+          <Suspense fallback={null}>
+            <CoPilot position="bottom-right" defaultMinimized />
+          </Suspense>
         </SidebarProvider>
       </ModeDeusProvider>
     </ErrorBoundary>
