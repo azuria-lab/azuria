@@ -63,7 +63,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </SidebarInset>
           </div>
           {/* CoPilot unificado - canto inferior direito com MiniDashboard integrado */}
-          <CoPilot position="bottom-right" />
+          <CoPilot position="bottom-right" defaultMinimized />
         </SidebarProvider>
       </ModeDeusProvider>
     </ErrorBoundary>

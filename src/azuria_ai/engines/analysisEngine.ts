@@ -614,7 +614,7 @@ export function clusterUsers(
  */
 export function initAnalysisEngine(config?: Partial<AnalysisEngineConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[AnalysisEngine] Already initialized');
+    structuredLogger.debug('[AnalysisEngine] Already initialized, skipping');
     return;
   }
 

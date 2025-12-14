@@ -934,7 +934,7 @@ export async function optimizeMargin(
  */
 export function initWhatIfSimulator(config?: Partial<SimulatorConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[WhatIfSimulator] Already initialized');
+    structuredLogger.debug('[WhatIfSimulator] Already initialized, skipping');
     return;
   }
 

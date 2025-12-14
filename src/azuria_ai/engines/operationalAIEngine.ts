@@ -307,7 +307,7 @@ export function initOperationalEngine(
   throttle?: Partial<ThrottleRules>
 ): void {
   if (state.initialized) {
-    structuredLogger.warn('OperationalAIEngine já inicializado');
+    structuredLogger.debug('[OperationalAIEngine] Already initialized, skipping');
     return;
   }
 

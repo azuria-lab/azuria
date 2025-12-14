@@ -686,7 +686,7 @@ export function getRAGStats(): {
  */
 export function initRAGEngine(config?: Partial<RAGConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[RAGEngine] Already initialized');
+    structuredLogger.debug('[RAGEngine] Already initialized, skipping');
     return;
   }
 

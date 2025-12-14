@@ -730,7 +730,7 @@ export async function extractText(file: File): Promise<string> {
  */
 export function initMultimodalEngine(config?: Partial<MultimodalConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[MultimodalEngine] Already initialized');
+    structuredLogger.debug('[MultimodalEngine] Already initialized, skipping');
     return;
   }
 

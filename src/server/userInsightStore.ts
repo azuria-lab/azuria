@@ -20,6 +20,14 @@ const logger = structuredLogger.withContext({ module: 'userInsightStore' });
 // Types
 // ============================================================================
 
+/**
+ * Resultado de operação de persistência
+ * - persisted: salvo com sucesso no banco de dados
+ * - memory: salvo apenas em memória (fallback)
+ * - error: falha na operação
+ */
+type PersistenceResult = 'persisted' | 'memory' | 'error';
+
 interface StoredSuggestion {
   id: string;
   user_id: string | null;
@@ -53,6 +61,13 @@ const memoryCache = {
 // Supabase Client
 // ============================================================================
 
+// Cache para verificar disponibilidade das tabelas
+let tablesAvailable: boolean | null = null;
+let tablesCheckPromise: Promise<boolean> | null = null;
+
+// Desabilita persistência completamente (tabelas de IA não criadas ainda)
+const AI_TABLES_DISABLED = false;
+
 function getSupabaseClient() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -66,25 +81,101 @@ function getSupabaseClient() {
   return createClient(url, key);
 }
 
+// Verifica se as tabelas estão disponíveis
+async function checkTablesAvailable(): Promise<boolean> {
+  // Tabelas de IA ainda não criadas - desabilitar silenciosamente
+  if (AI_TABLES_DISABLED) {
+    tablesAvailable = false;
+    return false;
+  }
+
+  // Em ambiente de cliente, só segue se houver sessão (evita 406 por anônimo)
+  try {
+    if (globalThis.window !== undefined) {
+      const client = getSupabaseClient();
+      if (!client) {
+        tablesAvailable = false;
+        return false;
+      }
+      const { data } = await client.auth.getSession();
+      if (!data?.session) {
+        tablesAvailable = false;
+        return false;
+      }
+    }
+  } catch {
+    tablesAvailable = false;
+    return false;
+  }
+
+  if (tablesAvailable !== null) {
+    return tablesAvailable;
+  }
+
+  // Se já existe uma verificação em andamento, aguarda ela
+  if (tablesCheckPromise !== null) {
+    return tablesCheckPromise;
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    tablesAvailable = false;
+    return false;
+  }
+
+  // Cria Promise compartilhada para evitar múltiplas requisições simultâneas
+  tablesCheckPromise = (async () => {
+    try {
+      const { error } = await supabase
+        .from('user_suggestions')
+        .select('id')
+        .limit(1);
+
+      if (error) {
+        // Tabela não existe ou sem permissão - usar apenas memória
+        tablesAvailable = false;
+        return false;
+      }
+
+      tablesAvailable = true;
+      return true;
+    } catch {
+      tablesAvailable = false;
+      return false;
+    } finally {
+      tablesCheckPromise = null;
+    }
+  })();
+
+  return tablesCheckPromise;
+}
+
 // ============================================================================
 // Suggestion Operations
 // ============================================================================
 
 /**
  * Salva uma sugestão no store
+ * @returns 'persisted' se salvo no DB, 'memory' se apenas em memória, 'error' se falhou
  */
 export async function saveSuggestion(
   suggestion: Suggestion,
   userId?: string,
   sessionId?: string
-): Promise<boolean> {
+): Promise<PersistenceResult> {
   const supabase = getSupabaseClient();
   
   // Salvar em memória primeiro
   memoryCache.suggestions.set(suggestion.id, suggestion);
   
   if (!supabase) {
-    return true; // Apenas memória
+    return 'memory';
+  }
+
+  // Verificar se tabelas estão disponíveis
+  const available = await checkTablesAvailable();
+  if (!available) {
+    return 'memory';
   }
   
   try {
@@ -110,25 +201,28 @@ export async function saveSuggestion(
       });
     
     if (error) {
-      logger.error('Erro ao salvar sugestão: ' + error.message);
-      return false;
+      // Desabilitar persistência para próximas chamadas
+      tablesAvailable = false;
+      return 'memory';
     }
     
-    return true;
-  } catch (err) {
-    logger.error('Exceção ao salvar sugestão', err instanceof Error ? err : new Error(String(err)));
-    return false;
+    return 'persisted';
+  } catch {
+    // Desabilitar persistência silenciosamente
+    tablesAvailable = false;
+    return 'error';
   }
 }
 
 /**
  * Atualiza o status de uma sugestão
+ * @returns 'persisted' se atualizado no DB, 'memory' se apenas em memória, 'error' se falhou
  */
 export async function updateSuggestionStatus(
   suggestionId: string,
   status: Suggestion['status'],
   actionType?: string
-): Promise<boolean> {
+): Promise<PersistenceResult> {
   // Atualizar em memória
   const cached = memoryCache.suggestions.get(suggestionId);
   if (cached) {
@@ -136,8 +230,8 @@ export async function updateSuggestionStatus(
   }
   
   const supabase = getSupabaseClient();
-  if (!supabase) {
-    return true;
+  if (!supabase || !tablesAvailable) {
+    return 'memory';
   }
   
   try {
@@ -156,14 +250,14 @@ export async function updateSuggestionStatus(
       .eq('id', suggestionId);
     
     if (error) {
-      logger.error('Erro ao atualizar status: ' + error.message);
-      return false;
+      tablesAvailable = false;
+      return 'memory';
     }
     
-    return true;
-  } catch (err) {
-    logger.error('Exceção ao atualizar status', err instanceof Error ? err : new Error(String(err)));
-    return false;
+    return 'persisted';
+  } catch {
+    tablesAvailable = false;
+    return 'error';
   }
 }
 
@@ -226,19 +320,20 @@ export async function getSuggestions(
 
 /**
  * Salva feedback de uma sugestão
+ * @returns 'persisted' se salvo no DB, 'memory' se apenas em memória, 'error' se falhou
  */
 export async function saveFeedback(
   feedback: SuggestionFeedback,
   userId?: string
-): Promise<boolean> {
+): Promise<PersistenceResult> {
   const feedbackId = `fb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   
   // Salvar em memória
   memoryCache.feedback.set(feedbackId, feedback);
   
   const supabase = getSupabaseClient();
-  if (!supabase) {
-    return true;
+  if (!supabase || !tablesAvailable) {
+    return 'memory';
   }
   
   try {
@@ -255,14 +350,14 @@ export async function saveFeedback(
       });
     
     if (error) {
-      logger.error('Erro ao salvar feedback: ' + error.message);
-      return false;
+      tablesAvailable = false;
+      return 'memory';
     }
     
-    return true;
-  } catch (err) {
-    logger.error('Exceção ao salvar feedback', err instanceof Error ? err : new Error(String(err)));
-    return false;
+    return 'persisted';
+  } catch {
+    tablesAvailable = false;
+    return 'error';
   }
 }
 

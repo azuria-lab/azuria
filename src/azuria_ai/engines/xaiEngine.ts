@@ -1039,7 +1039,7 @@ export async function generateAuditReport(
  */
 export function initXAIEngine(config?: Partial<XAIConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[XAIEngine] Already initialized');
+    structuredLogger.debug('[XAIEngine] Already initialized, skipping');
     return;
   }
 

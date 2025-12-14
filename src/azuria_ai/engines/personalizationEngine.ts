@@ -184,43 +184,109 @@ export async function initPersonalization(userId?: string): Promise<void> {
   });
 }
 
+// Cache para evitar múltiplas verificações de persistência
+let persistenceCheckCache: boolean | null = null;
+let persistenceCheckPromise: Promise<boolean> | null = null;
+
+// Habilita persistência (tabelas de IA criadas com RLS configurado)
+const AI_TABLES_DISABLED = false;
+
 async function checkPersistenceAvailable(): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('user_personalization')
-      .select('user_id')
-      .limit(1);
-
-    // Tabela não existe ou sem permissão - desabilitar persistência silenciosamente
-    if (error) {
-      // eslint-disable-next-line no-console
-      console.debug('Personalization persistence not available:', error.message);
-      return false;
-    }
-
-    return true;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.debug('Personalization persistence check failed:', err);
+  // Só tenta persistir se houver sessão autenticada
+  const session = await supabase.auth.getSession();
+  if (!session.data.session) {
+    persistenceCheckCache = false;
     return false;
   }
+
+  const currentUserId = session.data.session.user.id;
+  // Garantir que estamos usando sempre o user_id da sessão corrente
+  if (state.profile.userId && state.profile.userId !== currentUserId) {
+    state.profile.userId = currentUserId;
+  }
+  if (!state.profile.userId) {
+    state.profile.userId = currentUserId;
+  }
+
+  // Tabelas de IA ainda não criadas - desabilitar silenciosamente
+  if (AI_TABLES_DISABLED) {
+    persistenceCheckCache = false;
+    return false;
+  }
+
+  // Retorna cache se já verificado
+  if (persistenceCheckCache !== null) {
+    return persistenceCheckCache;
+  }
+
+  // Se já existe uma verificação em andamento, aguarda ela
+  if (persistenceCheckPromise !== null) {
+    return persistenceCheckPromise;
+  }
+
+  // Cria Promise compartilhada para evitar múltiplas requisições simultâneas
+  persistenceCheckPromise = (async () => {
+    try {
+      const { error } = await supabase
+        .from('user_personalization')
+        .select('user_id')
+        .limit(1);
+
+      // Tabela não existe (406), sem permissão, ou outro erro - desabilitar persistência silenciosamente
+      if (error) {
+        persistenceCheckCache = false;
+        return false;
+      }
+
+      persistenceCheckCache = true;
+      return true;
+    } catch {
+      // Erro de rede ou outro - desabilitar persistência silenciosamente
+      persistenceCheckCache = false;
+      return false;
+    } finally {
+      persistenceCheckPromise = null;
+    }
+  })();
+
+  return persistenceCheckPromise;
 }
 
 async function loadProfile(userId: string): Promise<void> {
+  // Forçar userId da sessão para evitar mismatch com RLS
+  const session = await supabase.auth.getSession();
+  const sessionUserId = session.data.session?.user.id;
+  const effectiveUserId = sessionUserId ?? userId;
+  if (!sessionUserId) {
+    // Sem sessão, não tentar persistir
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
+    return;
+  }
+  state.profile.userId = effectiveUserId;
+
+  // Não tentar carregar se persistência não está disponível
+  if (!state.persistenceEnabled) {
+    return;
+  }
+
   try {
+    // Usar maybeSingle() em vez de single() para evitar erro quando não há dados
     const { data, error } = await supabase
       .from('user_personalization')
       .select('*')
-      .eq('user_id', userId)
-      .single();
+      .eq('user_id', effectiveUserId)
+      .maybeSingle();
 
-    // Se tabela não existe ou sem permissão, usar perfil padrão
-    if (error && error.code !== 'PGRST116') {
-      // eslint-disable-next-line no-console
-      console.debug('Could not load user personalization:', error.message);
+    // Se tabela não existe ou sem permissão, desabilitar persistência e usar perfil padrão
+    if (error) {
+      // Qualquer erro de tabela/RLS desabilita persistência silenciosamente
+      state.persistenceEnabled = false;
+      persistenceCheckCache = false;
       return; // Usar perfil padrão em memória
     }
 
+    // Se há dados, mapear para o perfil
     if (data) {
       state.profile = {
         ...state.profile,
@@ -228,16 +294,15 @@ async function loadProfile(userId: string): Promise<void> {
       };
     }
 
-    // Also load skill metrics
+    // Carregar métricas de skill (também usando maybeSingle para tolerância)
     const { data: metrics, error: metricsError } = await supabase
       .from('user_skill_metrics')
       .select('*')
-      .eq('user_id', userId)
-      .single();
+      .eq('user_id', effectiveUserId)
+      .maybeSingle();
 
+    // Se tabela não existe, apenas ignorar (não desabilitar persistência)
     if (metricsError) {
-      // eslint-disable-next-line no-console
-      console.debug('Could not load skill metrics:', metricsError.message);
       return;
     }
 
@@ -247,9 +312,10 @@ async function loadProfile(userId: string): Promise<void> {
       // @ts-expect-error - Supabase types not regenerated
       state.profile.skillScore = metrics.skill_score;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[PersonalizationEngine] Failed to load profile:', error);
+  } catch {
+    // Silenciosamente usar perfil padrão em memória
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
   }
 }
 
@@ -709,11 +775,11 @@ function updateEngagementScore(): void {
 }
 
 async function persistProfile(): Promise<void> {
-  if (!state.profile.userId) {return;}
+  if (!state.profile.userId || !state.persistenceEnabled) {return;}
 
   try {
     // @ts-expect-error - Supabase types not regenerated after table creation
-    await supabase.from('user_personalization').upsert({
+    const { error } = await supabase.from('user_personalization').upsert({
       user_id: state.profile.userId,
       preferred_calculator: state.profile.preferredCalculator,
       preferred_explanation_depth: state.profile.preferredExplanationDepth,
@@ -727,27 +793,41 @@ async function persistProfile(): Promise<void> {
     }, {
       onConflict: 'user_id',
     });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[PersonalizationEngine] Failed to persist profile:', error);
+
+    // Se tabela não existe, desabilitar persistência silenciosamente
+    if (error) {
+      state.persistenceEnabled = false;
+      persistenceCheckCache = false;
+    }
+  } catch {
+    // Silenciosamente desabilitar persistência
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
   }
 }
 
 async function persistSkillMetrics(): Promise<void> {
-  if (!state.profile.userId) {return;}
+  if (!state.profile.userId || !state.persistenceEnabled) {return;}
 
   try {
     // @ts-expect-error - Supabase types not regenerated after table creation
-    await supabase.from('user_skill_metrics').upsert({
+    const { error } = await supabase.from('user_skill_metrics').upsert({
       user_id: state.profile.userId,
       skill_level: state.profile.skillLevel,
       skill_score: state.profile.skillScore,
     }, {
       onConflict: 'user_id',
     });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[PersonalizationEngine] Failed to persist skill metrics:', error);
+
+    // Se tabela não existe, desabilitar persistência silenciosamente
+    if (error) {
+      state.persistenceEnabled = false;
+      persistenceCheckCache = false;
+    }
+  } catch {
+    // Silenciosamente desabilitar persistência
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
   }
 }
 
@@ -793,6 +873,9 @@ export function resetSessionStats(): void {
  */
 export function resetPersonalization(): void {
   state.initialized = false;
+  state.persistenceEnabled = false;
+  persistenceCheckCache = null; // Reset cache de persistência
+  persistenceCheckPromise = null; // Reset Promise compartilhada
   state.profile = { ...defaultProfile };
   state.config = { ...defaultConfig };
   state.sessionStats = {

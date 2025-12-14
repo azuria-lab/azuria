@@ -673,7 +673,7 @@ export function getAdaptationStats(): {
  */
 export function initAdaptiveActions(config?: Partial<AdaptiveActionsConfig>): void {
   if (state.initialized) {
-    structuredLogger.warn('[AdaptiveActions] Already initialized');
+    structuredLogger.debug('[AdaptiveActions] Already initialized, skipping');
     return;
   }
 

@@ -142,31 +142,81 @@ export async function initFeedbackLoop(userId?: string): Promise<void> {
 /**
  * Verifica se as tabelas de persistência existem
  */
+// Cache para evitar múltiplas verificações de persistência
+let persistenceCheckCache: boolean | null = null;
+let persistenceCheckPromise: Promise<boolean> | null = null;
+
+// Desabilita persistência completamente (tabelas de IA não criadas ainda)
+const AI_TABLES_DISABLED = false;
+
 async function checkPersistenceAvailable(): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('suggestion_feedback')
-      .select('id')
-      .limit(1);
-
-    if (error) {
-      // eslint-disable-next-line no-console
-      console.debug('Feedback persistence not available:', error.message);
-      return false;
-    }
-
-    return true;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.debug('Feedback persistence check failed:', err);
+  // Só tenta persistir se houver sessão autenticada
+  const session = await supabase.auth.getSession();
+  if (!session.data.session) {
+    persistenceCheckCache = false;
     return false;
   }
+
+  const currentUserId = session.data.session.user.id;
+  if (state.userId && state.userId !== currentUserId) {
+    state.userId = currentUserId;
+  }
+  if (!state.userId) {
+    state.userId = currentUserId;
+  }
+
+  // Tabelas de IA ainda não criadas - desabilitar silenciosamente
+  if (AI_TABLES_DISABLED) {
+    persistenceCheckCache = false;
+    return false;
+  }
+
+  // Retorna cache se já verificado
+  if (persistenceCheckCache !== null) {
+    return persistenceCheckCache;
+  }
+
+  // Se já existe uma verificação em andamento, aguarda ela
+  if (persistenceCheckPromise !== null) {
+    return persistenceCheckPromise;
+  }
+
+  // Cria Promise compartilhada para evitar múltiplas requisições simultâneas
+  persistenceCheckPromise = (async () => {
+    try {
+      const { error } = await supabase
+        .from('suggestion_feedback')
+        .select('id')
+        .limit(1);
+
+      if (error) {
+        persistenceCheckCache = false;
+        return false;
+      }
+
+      persistenceCheckCache = true;
+      return true;
+    } catch {
+      // Erro de rede ou outro - desabilitar persistência silenciosamente
+      persistenceCheckCache = false;
+      return false;
+    } finally {
+      persistenceCheckPromise = null;
+    }
+  })();
+
+  return persistenceCheckPromise;
 }
 
 /**
  * Carrega histórico de feedback do usuário
  */
 async function loadFeedbackHistory(userId: string): Promise<void> {
+  // Não tentar carregar se persistência não está disponível
+  if (!state.persistenceEnabled) {
+    return;
+  }
+
   try {
     const { data, error } = await supabase
       .from('suggestion_feedback')
@@ -176,8 +226,9 @@ async function loadFeedbackHistory(userId: string): Promise<void> {
       .limit(100);
 
     if (error) {
-      // eslint-disable-next-line no-console
-      console.debug('Could not load feedback history:', error.message);
+      // Desabilitar persistência silenciosamente
+      state.persistenceEnabled = false;
+      persistenceCheckCache = false;
       return;
     }
 
@@ -185,9 +236,10 @@ async function loadFeedbackHistory(userId: string): Promise<void> {
       state.feedbackHistory = data.map(mapDbToFeedback);
       recalculateMetrics();
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[FeedbackLoopEngine] Failed to load history:', error);
+  } catch {
+    // Silenciosamente usar histórico em memória
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
   }
 }
 
@@ -585,9 +637,11 @@ function generateRecommendations(
 }
 
 async function persistFeedback(feedback: SuggestionFeedback): Promise<void> {
+  if (!state.persistenceEnabled) {return;}
+
   try {
     // @ts-expect-error - Supabase types not regenerated after table creation
-    await supabase.from('suggestion_feedback').insert({
+    const { error } = await supabase.from('suggestion_feedback').insert({
       suggestion_id: feedback.suggestionId,
       user_id: state.userId,
       feedback_type: feedback.feedbackType,
@@ -595,9 +649,16 @@ async function persistFeedback(feedback: SuggestionFeedback): Promise<void> {
       comment: feedback.comment,
       metadata: feedback.context,
     });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[FeedbackLoopEngine] Failed to persist feedback:', error);
+
+    // Se tabela não existe, desabilitar persistência silenciosamente
+    if (error) {
+      state.persistenceEnabled = false;
+      persistenceCheckCache = false;
+    }
+  } catch {
+    // Silenciosamente desabilitar persistência
+    state.persistenceEnabled = false;
+    persistenceCheckCache = false;
   }
 }
 
@@ -644,6 +705,9 @@ export function clearFeedbackState(): void {
  */
 export function resetFeedbackLoop(): void {
   state.initialized = false;
+  state.persistenceEnabled = false;
+  persistenceCheckCache = null; // Reset cache de persistência
+  persistenceCheckPromise = null; // Reset Promise compartilhada
   state.userId = null;
   state.feedbackHistory = [];
   state.metrics = createEmptyMetrics();

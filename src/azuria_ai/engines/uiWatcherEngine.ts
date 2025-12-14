@@ -307,13 +307,16 @@ function recordEvent(
   // Check ignore selectors
   if (shouldIgnoreElement(target)) {return;}
 
+  // Extrair classes do elemento de forma segura (SVG tem SVGAnimatedString)
+  const targetClasses = getTargetClasses(target);
+
   const event: UIInteractionEvent = {
     id: generateEventId(),
     type,
     timestamp: Date.now(),
     target: getElementSelector(target),
     targetId: target.id || undefined,
-    targetClasses: target.className ? target.className.split(' ').filter(Boolean) : undefined,
+    targetClasses,
     targetType: target.tagName.toLowerCase(),
     data,
   };
@@ -595,19 +598,34 @@ function generateEventId(): string {
   return `evt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 }
 
+/**
+ * Extrai classes de um elemento de forma segura
+ * SVG elements têm className como SVGAnimatedString, não string
+ */
+function getTargetClasses(el: HTMLElement): string[] | undefined {
+  if (el.classList && el.classList.length > 0) {
+    return Array.from(el.classList);
+  }
+  if (typeof el.className === 'string' && el.className) {
+    return el.className.split(' ').filter(Boolean);
+  }
+  return undefined;
+}
+
 function getElementSelector(el: HTMLElement): string {
   if (el.id) {return `#${el.id}`;}
 
   const tag = el.tagName.toLowerCase();
-  const classes = el.className
-    ? `.${el.className.split(' ').filter(Boolean).slice(0, 2).join('.')}`
-    : '';
+  const classList = getTargetClasses(el);
+  const classes = classList ? `.${classList.slice(0, 2).join('.')}` : '';
 
   return `${tag}${classes}`;
 }
 
 function getElementKey(el: HTMLElement): string {
-  return el.id || `${el.tagName}_${el.className}_${getElementSelector(el)}`;
+  // classList é mais seguro que className para elementos SVG
+  const classString = el.classList ? Array.from(el.classList).join(' ') : '';
+  return el.id || `${el.tagName}_${classString}_${getElementSelector(el)}`;
 }
 
 function shouldIgnoreElement(el: HTMLElement): boolean {

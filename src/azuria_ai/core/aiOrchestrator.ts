@@ -169,10 +169,8 @@ const subscriptionIds: string[] = [];
  * Inicializa o orchestrator e registra listeners de eventos
  */
 export function initializeOrchestrator(config?: InsightConfig): void {
-  // Prevenir múltiplas inicializações
+  // Prevenir múltiplas inicializações (silencioso - é comportamento esperado)
   if (isOrchestratorInitialized) {
-    // eslint-disable-next-line no-console
-    console.warn('[aiOrchestrator] Already initialized. Call shutdownOrchestrator() first to reinitialize.');
     return;
   }
 
