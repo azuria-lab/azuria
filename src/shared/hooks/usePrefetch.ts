@@ -45,8 +45,9 @@ export const usePrefetch = (importFn: Importer) => {
     try {
       await importFn();
       setPrefetched(true);
-    } catch (_err) {
-      // Silently ignore prefetch errors in production
+    } catch {
+      // Prefetch errors are non-critical, component will load on demand
+      setPrefetched(false);
     }
   }, [importFn, prefetched]);
   
@@ -78,8 +79,9 @@ export const useBatchPrefetch = (importFns: Array<Importer>) => {
     try {
       await importFns[index]();
       setPrefetchedRoutes(prev => new Set([...prev, index]));
-    } catch (_err) {
-      // ignore individual prefetch failures
+    } catch {
+      // Individual prefetch failures are non-critical
+      // Component will load on demand when user navigates
     }
   }, [importFns, prefetchedRoutes]);
   

@@ -1,7 +1,7 @@
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import path from "node:path";
 // Dev-only security headers (approximation). In production, set headers at the reverse proxy.
 import { generateCSP, SECURITY_CONFIG } from "./src/config/security";
 // Build: 2025-10-12 18:30 - Force cache invalidation
@@ -44,95 +44,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Smart chunking strategy for optimal loading by feature
-        manualChunks: (id) => {
-          // ============================================
-          // Bibliotecas pesadas (lazy load sob demanda)
-          // ============================================
-          if (id.includes('jspdf') || id.includes('autotable')) {
-            return 'pdf-export'; // 388KB → lazy loaded only when exporting
-          }
-          if (id.includes('html2canvas')) {
-            return 'screenshot'; // 201KB → lazy loaded only when needed
-          }
-          if (id.includes('recharts') || id.includes('victory') || id.includes('d3')) {
-            return 'charts'; // 449KB → lazy loaded only on analytics pages
-          }
-          if (id.includes('monaco-editor') || id.includes('prismjs')) {
-            return 'code-editor'; // Editor de código (se existir)
-          }
-
-          // ============================================
-          // Chunks por Feature (code splitting)
-          // ============================================
-          
-          // Feature: Calculadoras
-          if (id.includes('/pages/SimpleCalculator') || 
-              id.includes('/pages/AdvancedCalculator') ||
-              id.includes('/pages/TaxCalculator') ||
-              id.includes('/pages/BatchCalculator') ||
-              id.includes('/pages/BiddingCalculator') ||
-              id.includes('/components/calculator')) {
-            return 'feature-calculators';
-          }
-          
-          // Feature: Analytics
-          if (id.includes('/pages/Analytics') || 
-              id.includes('/pages/AdvancedAnalytics') ||
-              id.includes('/components/analytics')) {
-            return 'feature-analytics';
-          }
-          
-          // Feature: IA/Azuria AI
-          if (id.includes('/azuria_ai/') || 
-              id.includes('/pages/AzuriaAI') ||
-              id.includes('/components/ai')) {
-            return 'feature-ai';
-          }
-          
-          // Feature: Integrações
-          if (id.includes('/pages/Integration') || 
-              id.includes('/components/integrations')) {
-            return 'feature-integrations';
-          }
-          
-          // Feature: Licitações
-          if (id.includes('/pages/Bidding') || 
-              id.includes('/components/bidding')) {
-            return 'feature-bidding';
-          }
-          
-          // Feature: Marketplace
-          if (id.includes('/pages/Marketplace') || 
-              id.includes('/components/marketplace')) {
-            return 'feature-marketplace';
-          }
-
-          // ============================================
-          // Vendor chunks (node_modules)
-          // ============================================
-          if (id.includes('node_modules')) {
-            // UI Framework
-            if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('cmdk')) {
-              return 'vendor-ui';
-            }
-            // Data layer
-            if (id.includes('@tanstack') || id.includes('@supabase')) {
-              return 'vendor-data';
-            }
-            // Animações
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
-            // Forms
-            if (id.includes('react-hook-form') || id.includes('zod')) {
-              return 'vendor-forms';
-            }
-            // Utils gerais
-            if (id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) {
-              return 'vendor-utils';
-            }
-          }
-        },
+        manualChunks: getChunkName,
         // Optimized file naming
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -146,3 +58,68 @@ export default defineConfig({
     reportCompressedSize: false
   }
 });
+
+// ============================================
+// Chunk naming strategy (extracted for clarity)
+// ============================================
+
+// Heavy libraries patterns (lazy loaded on demand)
+const heavyLibPatterns: Record<string, string> = {
+  'jspdf': 'pdf-export',
+  'autotable': 'pdf-export',
+  'html2canvas': 'screenshot',
+  'recharts': 'charts',
+  'victory': 'charts',
+  'd3': 'charts',
+  'monaco-editor': 'code-editor',
+  'prismjs': 'code-editor',
+};
+
+// Feature patterns (code splitting by feature)
+const featurePatterns: Array<{ patterns: string[]; chunk: string }> = [
+  { 
+    patterns: ['/pages/SimpleCalculator', '/pages/AdvancedCalculator', '/pages/TaxCalculator', '/pages/BatchCalculator', '/pages/BiddingCalculator', '/components/calculator'],
+    chunk: 'feature-calculators'
+  },
+  { patterns: ['/pages/Analytics', '/pages/AdvancedAnalytics', '/components/analytics'], chunk: 'feature-analytics' },
+  { patterns: ['/azuria_ai/', '/pages/AzuriaAI', '/components/ai'], chunk: 'feature-ai' },
+  { patterns: ['/pages/Integration', '/components/integrations'], chunk: 'feature-integrations' },
+  { patterns: ['/pages/Bidding', '/components/bidding'], chunk: 'feature-bidding' },
+  { patterns: ['/pages/Marketplace', '/components/marketplace'], chunk: 'feature-marketplace' },
+];
+
+// Vendor patterns (node_modules)
+const vendorPatterns: Record<string, string> = {
+  '@radix-ui': 'vendor-ui',
+  'lucide-react': 'vendor-ui',
+  'cmdk': 'vendor-ui',
+  '@tanstack': 'vendor-data',
+  '@supabase': 'vendor-data',
+  'framer-motion': 'vendor-motion',
+  'react-hook-form': 'vendor-forms',
+  'zod': 'vendor-forms',
+  'date-fns': 'vendor-utils',
+  'clsx': 'vendor-utils',
+  'class-variance': 'vendor-utils',
+};
+
+function getChunkName(id: string): string | undefined {
+  // Check heavy libraries first
+  for (const [pattern, chunk] of Object.entries(heavyLibPatterns)) {
+    if (id.includes(pattern)) {return chunk;}
+  }
+  
+  // Check feature patterns
+  for (const { patterns, chunk } of featurePatterns) {
+    if (patterns.some(p => id.includes(p))) {return chunk;}
+  }
+  
+  // Check vendor patterns (only for node_modules)
+  if (id.includes('node_modules')) {
+    for (const [pattern, chunk] of Object.entries(vendorPatterns)) {
+      if (id.includes(pattern)) {return chunk;}
+    }
+  }
+  
+  return undefined;
+}

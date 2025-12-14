@@ -148,7 +148,7 @@ export function invalidateFeatureQueries(feature: keyof typeof QUERY_KEYS): void
 }
 
 /**
- * Limpa todo o cache (útil em logout)
+ * Limpa cache completo (chamada no logout)
  */
 export function clearAllQueries(): void {
   queryClient.clear();

@@ -2,6 +2,12 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Helper to generate unique keys for skeleton items
+const generateKey = (prefix: string, index: number) => `${prefix}-skeleton-${index}`;
+
+// Helper to create array of specified length
+const createRange = (length: number) => Array.from({ length }, (_, i) => i);
+
 export const PlanCardSkeleton: React.FC = () => (
   <div className="border rounded-lg p-6 space-y-4 bg-white shadow-lg">
     <div className="flex flex-col items-center space-y-2">
@@ -11,8 +17,8 @@ export const PlanCardSkeleton: React.FC = () => (
       <Skeleton className="h-8 w-24" />
     </div>
     <div className="space-y-2">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="flex items-center space-x-2">
+      {createRange(4).map((idx) => (
+        <div key={generateKey('plan-feature', idx)} className="flex items-center space-x-2">
           <Skeleton className="h-4 w-4 rounded-full" />
           <Skeleton className="h-4 flex-1" />
         </div>
@@ -29,8 +35,8 @@ export const CalculatorSkeleton: React.FC = () => (
       <Skeleton className="h-4 w-full max-w-md" />
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="space-y-2">
+      {createRange(6).map((idx) => (
+        <div key={generateKey('calc-field', idx)} className="space-y-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-10 w-full" />
         </div>
@@ -50,8 +56,8 @@ export const DashboardSkeleton: React.FC = () => (
       <Skeleton className="h-4 w-96" />
     </div>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="p-4 border rounded-lg space-y-2">
+      {createRange(3).map((idx) => (
+        <div key={generateKey('dash-stat', idx)} className="p-4 border rounded-lg space-y-2">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-6 w-6 rounded" />
             <Skeleton className="h-5 w-20" />
@@ -69,8 +75,8 @@ export const DashboardSkeleton: React.FC = () => (
       <div className="space-y-4">
         <Skeleton className="h-6 w-32" />
         <div className="space-y-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-2 border rounded">
+          {createRange(5).map((idx) => (
+            <div key={generateKey('dash-item', idx)} className="flex items-center justify-between p-2 border rounded">
               <div className="flex items-center space-x-2">
                 <Skeleton className="h-8 w-8 rounded" />
                 <div className="space-y-1">
@@ -89,8 +95,8 @@ export const DashboardSkeleton: React.FC = () => (
 
 export const FeatureGridSkeleton: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {[...Array(6)].map((_, i) => (
-      <div key={i} className="p-6 border rounded-lg space-y-4 bg-white">
+    {createRange(6).map((idx) => (
+      <div key={generateKey('feature', idx)} className="p-6 border rounded-lg space-y-4 bg-white">
         <div className="flex items-center space-x-3">
           <Skeleton className="h-10 w-10 rounded" />
           <div className="space-y-1">
@@ -127,8 +133,8 @@ export const AnalyticsSkeleton: React.FC = () => (
 
     {/* KPIs */}
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="p-4 border rounded-lg space-y-2 bg-card">
+      {createRange(4).map((idx) => (
+        <div key={generateKey('kpi', idx)} className="p-4 border rounded-lg space-y-2 bg-card">
           <div className="flex items-center justify-between">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-5 w-5 rounded" />
@@ -163,15 +169,15 @@ export const TableSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => (
   <div className="space-y-4">
     {/* Header da tabela */}
     <div className="flex items-center gap-4 p-3 border-b">
-      {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} className="h-4 flex-1" />
+      {createRange(5).map((idx) => (
+        <Skeleton key={generateKey('th', idx)} className="h-4 flex-1" />
       ))}
     </div>
     {/* Linhas */}
-    {[...Array(rows)].map((_, rowIndex) => (
-      <div key={rowIndex} className="flex items-center gap-4 p-3 border-b last:border-0">
-        {[...Array(5)].map((_, colIndex) => (
-          <Skeleton key={colIndex} className="h-4 flex-1" />
+    {createRange(rows).map((rowIdx) => (
+      <div key={generateKey('row', rowIdx)} className="flex items-center gap-4 p-3 border-b last:border-0">
+        {createRange(5).map((colIdx) => (
+          <Skeleton key={generateKey(`row-${rowIdx}-col`, colIdx)} className="h-4 flex-1" />
         ))}
       </div>
     ))}
@@ -209,11 +215,11 @@ export const SidebarSkeleton: React.FC = () => (
       <Skeleton className="h-6 w-24" />
     </div>
     {/* Menu Groups */}
-    {[...Array(3)].map((_, groupIndex) => (
-      <div key={groupIndex} className="space-y-2">
+    {createRange(3).map((groupIdx) => (
+      <div key={generateKey('menu-group', groupIdx)} className="space-y-2">
         <Skeleton className="h-4 w-20" />
-        {[...Array(4)].map((_, itemIndex) => (
-          <div key={itemIndex} className="flex items-center gap-2 p-2">
+        {createRange(4).map((itemIdx) => (
+          <div key={generateKey(`group-${groupIdx}-item`, itemIdx)} className="flex items-center gap-2 p-2">
             <Skeleton className="h-5 w-5 rounded" />
             <Skeleton className="h-4 w-28" />
           </div>
