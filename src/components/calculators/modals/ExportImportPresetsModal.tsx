@@ -55,7 +55,7 @@ export default function ExportImportPresetsModal({
     });
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     try {
       const data: ExportData = JSON.parse(importData);
 
@@ -73,7 +73,7 @@ export default function ExportImportPresetsModal({
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
-        saveMaquininhaPreset(novoPreset);
+        await saveMaquininhaPreset(novoPreset);
         importados++;
       }
 
@@ -85,7 +85,7 @@ export default function ExportImportPresetsModal({
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
-        saveImpostosPreset(novoPreset);
+        await saveImpostosPreset(novoPreset);
         importados++;
       }
 

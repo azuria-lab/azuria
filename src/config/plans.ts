@@ -234,7 +234,7 @@ const proPlan: Plan = {
     annual: 1190,
     annualDiscount: 17,
     currency: 'BRL',
-    trialDays: 14,
+    trialDays: 7,
   },
   features: {
     // Calculadoras
@@ -306,7 +306,7 @@ const enterprisePlan: Plan = {
     annual: 0, // Negociável
     annualDiscount: 0,
     currency: 'BRL',
-    trialDays: 30,
+    trialDays: 7,
   },
   features: {
     // Calculadoras

@@ -84,7 +84,7 @@ export default function Index() {
       <Layout>
         <SEOHead 
           title="Azuria — Precificação Inteligente para Vender com Mais Lucro"
-          description="Precificação inteligente com IA especializada para produtos brasileiros. Aumente seus lucros em até 47% com cálculos automáticos de impostos e análise de concorrência. Teste grátis 30 dias."
+          description="Precificação inteligente com IA especializada para produtos brasileiros. Aumente seus lucros em até 47% com cálculos automáticos de impostos e análise de concorrência. Teste grátis 7 dias."
           type="website"
           url={typeof window !== "undefined" ? window.location.href : "https://azuria.app/"}
           image="/og-image.png"
@@ -97,7 +97,7 @@ export default function Index() {
         <StructuredData 
           type="faq" 
           data={[
-            { question: "Quanto custa o Azuria?", answer: "Planos Free, Pro e Premium com teste grátis de 30 dias. Sem cartão de crédito." },
+            { question: "Quanto custa o Azuria?", answer: "Planos Free, Pro e Premium com teste grátis de 7 dias. Sem cartão de crédito." },
             { question: "A calculadora usa IA?", answer: "Sim, IA especializada para produtos brasileiros com análise de custos, concorrentes e tributos." },
             { question: "Quais marketplaces são integrados?", answer: "Mercado Livre, Shopee, Amazon, Magalu, Temu, Shein e Americanas." }
           ]} 

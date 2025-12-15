@@ -99,7 +99,7 @@ const ComparisonSectionBling: React.FC = () => {
                   <th className="text-left p-6 font-bold text-[#0A1930]">Recurso</th>
                   <th className="text-center p-6 font-bold text-[#0A1930]">Planilhas</th>
                   <th className="text-center p-6 font-bold text-[#0A1930]">Outros Apps</th>
-                  <th className="text-center p-6 font-bold text-[#005BFF] bg-[#EAF6FF]">Azuria Pro</th>
+                  <th className="text-center p-6 font-semibold text-[#005BFF] bg-[#EAF6FF] text-lg tracking-tight">Azuria</th>
                 </tr>
               </thead>
               <tbody>

@@ -324,7 +324,7 @@ export default function PricingPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
-                    Os planos pagos oferecem período de teste grátis (7 a 30 dias dependendo 
+                    Os planos pagos oferecem período de teste grátis de 7 dias 
                     do plano). Durante o teste, você tem acesso completo a todas as 
                     funcionalidades. Cancele a qualquer momento sem cobranças.
                   </AccordionContent>

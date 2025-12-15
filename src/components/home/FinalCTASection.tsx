@@ -30,7 +30,7 @@ const FinalCTASection: React.FC = () => {
           </h2>
 
           <p className="text-lg md:text-xl text-primary-foreground/90 mb-10 leading-relaxed font-light">
-            Inicie seu período de teste gratuito de 30 dias. Sem necessidade de cartão de crédito e sem compromisso.
+            Inicie seu período de teste gratuito de 7 dias. Sem necessidade de cartão de crédito e sem compromisso.
           </p>
 
           <Link to="/cadastro">
@@ -46,7 +46,7 @@ const FinalCTASection: React.FC = () => {
           </Link>
 
           <p className="text-primary-foreground/80 mt-6 text-sm">
-            ✓ Teste gratuito de 30 dias • ✓ Sem necessidade de cartão de crédito • ✓ Cancele a qualquer momento
+            ✓ Teste gratuito de 7 dias • ✓ Sem necessidade de cartão de crédito • ✓ Cancele a qualquer momento
           </p>
         </motion.div>
       </div>

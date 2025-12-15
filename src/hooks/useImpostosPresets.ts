@@ -41,25 +41,30 @@ export function useImpostosPresets() {
     }
   }, [presets]);
 
-  const savePreset = (preset: ImpostosPreset) => {
+  const savePreset = async (preset: ImpostosPreset): Promise<boolean> => {
     if (isFreePlan) {
       return false;
     }
+
+    const updatedPreset = {
+      ...preset,
+      updated_at: new Date().toISOString(),
+    };
 
     setPresets((prev) => {
       const existingIndex = prev.findIndex((p) => p.id === preset.id);
       if (existingIndex >= 0) {
         const updated = [...prev];
-        updated[existingIndex] = { ...preset, updated_at: new Date().toISOString() };
+        updated[existingIndex] = updatedPreset;
         return updated;
       }
-      return [...prev, preset];
+      return [...prev, updatedPreset];
     });
 
     return true;
   };
 
-  const deletePreset = (id: string) => {
+  const deletePreset = async (id: string): Promise<void> => {
     setPresets((prev) => prev.filter((p) => p.id !== id));
   };
 

@@ -70,7 +70,7 @@ const HeroSectionBling: React.FC = () => {
                   <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/10 flex-shrink-0">
                     <Check className="h-4 w-4 text-green-600" />
                   </div>
-                  <span className="text-sm sm:text-base text-muted-foreground font-medium">Teste gratuito de 30 dias</span>
+                  <span className="text-sm sm:text-base text-muted-foreground font-medium">Teste gratuito de 7 dias</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/10 flex-shrink-0">

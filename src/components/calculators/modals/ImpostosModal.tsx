@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, FileText, Save, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { AlertCircle, Check, ChevronDown, FileText, MoreHorizontal, Save, X } from 'lucide-react';
 import { useAnalyticsTracking } from '@/hooks/useAnalytics';
 import { useImpostosPresets } from '@/hooks/useImpostosPresets';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useTaxasHistorico } from '@/hooks/useTaxasHistorico';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logger } from '@/services/logger';
 
 interface ImpostosModalProps {
   readonly isOpen: boolean;
@@ -34,7 +38,7 @@ const icmsPadrao: Record<string, number> = {
 
 export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: ImpostosModalProps) {
   const { trackEvent } = useAnalyticsTracking();
-  const { presets, savePreset, canSavePresets } = useImpostosPresets();
+  const { presets, savePreset, deletePreset, canSavePresets } = useImpostosPresets();
   const _isFreePlan = useUserPlan().isFreePlan;
   const { adicionarRegistro } = useTaxasHistorico();
   const { toast } = useToast();
@@ -47,6 +51,12 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
   const [cofins, setCofins] = useState(7.6);
   const [presetNome, setPresetNome] = useState('');
   const [showPresetInput, setShowPresetInput] = useState(false);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [presetToDelete, setPresetToDelete] = useState<string | null>(null);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const editAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -96,13 +106,15 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
     onClose();
   };
 
-  const handleSalvarPreset = () => {
+  const handleSalvarPreset = async () => {
     if (!canSavePresets) {
       return;
     }
 
+    const presetId = editingPresetId ?? Date.now().toString();
+
     const preset = {
-      id: Date.now().toString(),
+      id: presetId,
       nome: presetNome || `${ufOrigem} - ${tipoOperacao}`,
       origemUF: ufOrigem,
       destinoUF: ufDestino,
@@ -114,19 +126,32 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
       updated_at: new Date().toISOString(),
     };
 
-    savePreset(preset);
-    
-    trackEvent('impostos_preset_saved', {
-      preset_id: preset.id,
-    });
+    try {
+      const saved = await savePreset(preset);
+      
+      if (saved) {
+        trackEvent('impostos_preset_saved', {
+          preset_id: preset.id,
+        });
 
-    toast({
-      title: 'Preset salvo!',
-      description: `"${preset.nome}" salvo com sucesso.`,
-    });
+        toast({
+          title: 'Configuração salva',
+          description: `"${preset.nome}" salva com sucesso.`,
+        });
 
-    setShowPresetInput(false);
-    setPresetNome('');
+        setShowPresetInput(false);
+        setPresetNome('');
+        setEditingPresetId(null);
+        setSelectedPresetId(presetId);
+      }
+    } catch (error) {
+      logger.error('Erro ao salvar configuração:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a configuração. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -143,6 +168,9 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
       setIcms(preset.icms);
       setPis(preset.pis);
       setCofins(preset.cofins);
+      setSelectedPresetId(presetId);
+      setEditingPresetId(null);
+      setShowPresetInput(false);
       
       trackEvent('preset_selected', {
         preset_id: presetId,
@@ -183,24 +211,138 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
             />
           </div>
 
-          {/* Presets salvos */}
-          {presets.length > 0 && (
-            <div>
-              <Label>Presets salvos</Label>
-              <Select onValueChange={handlePresetSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um preset" />
-                </SelectTrigger>
-                <SelectContent>
+          {/* Configuração (sempre visível) */}
+          <div>
+            <Label>Configuração</Label>
+            <Popover open={selectOpen} onOpenChange={setSelectOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  disabled={presets.length === 0}
+                  className="w-full justify-between h-10"
+                >
+                  <div className="flex items-center gap-2">
+                    {selectedPresetId && (
+                      <Check className="h-4 w-4 text-green-600 shrink-0" />
+                    )}
+                    <span className={selectedPresetId ? "" : "text-muted-foreground"}>
+                      {selectedPresetId 
+                        ? presets.find(p => p.id === selectedPresetId)?.nome 
+                        : presets.length === 0 
+                          ? "Nenhuma Configuração cadastrada" 
+                          : "Selecione uma Configuração"}
+                    </span>
+                  </div>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-1 min-w-[300px]" align="start">
+                <div className="max-h-96 overflow-auto">
                   {presets.map((preset) => (
-                    <SelectItem key={preset.id} value={preset.id}>
-                      {preset.nome}
-                    </SelectItem>
+                    <div
+                      key={preset.id}
+                      className="group/item relative flex items-center rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (!target.closest('button')) {
+                          handlePresetSelect(preset.id);
+                          setSelectOpen(false);
+                        }
+                      }}
+                    >
+                      <span className="flex-1 pr-20">{preset.nome}</span>
+                      <div 
+                        className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2 opacity-0 group-hover/item:opacity-100 transition-opacity pointer-events-auto z-10"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                // Carregar dados do preset para edição
+                                setTipoOperacao(preset.tipoOperacao);
+                                setUfOrigem(preset.origemUF);
+                                setUfDestino(preset.destinoUF);
+                                setIcms(preset.icms);
+                                setPis(preset.pis);
+                                setCofins(preset.cofins);
+                                setPresetNome(preset.nome);
+                                setEditingPresetId(preset.id);
+                                setShowPresetInput(true);
+                                setSelectedPresetId(preset.id);
+                                setSelectOpen(false);
+                                // Scroll para área de edição
+                                setTimeout(() => {
+                                  if (editAreaRef.current) {
+                                    const dialogContent = editAreaRef.current.closest('[class*="overflow-y-auto"]') as HTMLElement;
+                                    if (dialogContent) {
+                                      const elementRect = editAreaRef.current.getBoundingClientRect();
+                                      const containerRect = dialogContent.getBoundingClientRect();
+                                      const scrollTop = dialogContent.scrollTop;
+                                      const elementTop = elementRect.top - containerRect.top + scrollTop;
+                                      const containerHeight = containerRect.height;
+                                      const elementHeight = elementRect.height;
+                                      const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2);
+                                      dialogContent.scrollTo({ top: Math.max(0, scrollPosition), behavior: 'smooth' });
+                                    } else {
+                                      editAreaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                    }
+                                  }
+                                }, 200);
+                              }}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="z-[9999]">
+                            <p>Editar</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-600 hover:bg-red-50"
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setPresetToDelete(preset.id);
+                                setDeleteConfirmOpen(true);
+                                setSelectOpen(false);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="z-[9999]">
+                            <p>Excluir</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {/* Tipo de Operação */}
           <div>
@@ -298,28 +440,28 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
           <div className="p-4 bg-muted rounded-lg space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Impostos estimados:</span>
-              <span className="text-lg font-bold text-red-600">
+              <span className="text-xl font-semibold tracking-tight text-red-600">
                 R$ {impostosEstimados.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Percentual total:</span>
-              <span className="text-lg font-bold">
+              <span className="text-xl font-semibold tracking-tight">
                 {percentualTotal.toFixed(2)}%
               </span>
             </div>
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="text-sm text-muted-foreground">Você recebe:</span>
-              <span className="text-lg font-bold text-green-600">
+              <span className="text-xl font-semibold tracking-tight text-green-600">
                 R$ {valorRecebido.toFixed(2)}
               </span>
             </div>
           </div>
 
-          {/* Salvar como preset */}
+          {/* Incluir Configuração */}
           {showPresetInput && canSavePresets && (
-            <div className="space-y-2">
-              <Label>Nome do preset</Label>
+            <div ref={editAreaRef} className="space-y-2">
+              <Label>Nome da Configuração</Label>
               <div className="flex gap-2">
                 <Input
                   value={presetNome}
@@ -343,14 +485,20 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
           {canSavePresets ? (
             <Button
               variant="outline"
-              onClick={() => setShowPresetInput(!showPresetInput)}
+              onClick={() => {
+                setShowPresetInput(!showPresetInput);
+                if (!showPresetInput) {
+                  setPresetNome('');
+                  setEditingPresetId(null);
+                }
+              }}
               className="w-full"
             >
-              {showPresetInput ? 'Cancelar preset' : 'Salvar como preset'}
+              {showPresetInput ? 'Cancelar Configuração' : 'Incluir Configuração'}
             </Button>
           ) : (
             <Button variant="outline" disabled className="w-full">
-              Salvar preset (disponível no Plano Iniciante)
+              Incluir Configuração (disponível no Plano Iniciante)
             </Button>
           )}
 
@@ -359,6 +507,59 @@ export default function ImpostosModal({ isOpen, onClose, valorVenda, onSave }: I
             Cancelar
           </Button>
         </div>
+
+        {/* Diálogo de confirmação de exclusão */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir Configuração</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir esta configuração? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setDeleteConfirmOpen(false);
+                setPresetToDelete(null);
+              }}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  if (presetToDelete) {
+                    try {
+                      await deletePreset(presetToDelete);
+                      if (selectedPresetId === presetToDelete) {
+                        setSelectedPresetId(null);
+                      }
+                      if (editingPresetId === presetToDelete) {
+                        setEditingPresetId(null);
+                        setShowPresetInput(false);
+                        setPresetNome('');
+                      }
+                      toast({
+                        title: 'Configuração excluída',
+                        description: 'A configuração foi removida com sucesso.',
+                      });
+                      setDeleteConfirmOpen(false);
+                      setPresetToDelete(null);
+                    } catch (error) {
+                      logger.error('Erro ao excluir configuração:', error);
+                      toast({
+                        title: 'Erro ao excluir',
+                        description: 'Não foi possível excluir a configuração. Tente novamente.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
