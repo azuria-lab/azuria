@@ -99,13 +99,8 @@ const HeroSectionBling: React.FC = () => {
                 {/* Personagem Azuria AI - Melhorado */}
                 <div className="relative z-10">
                   <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card/50 backdrop-blur-sm">
-                    <picture>
-                      <source 
-                        type="image/png" 
-                        srcSet="/images/azuria/avatar-optimized.png" 
-                      />
-                      <img
-                        src="/images/azuria/avatar.jpg"
+                    <img
+                        src="/halo-ai-avatar.jpg"
                         alt="Azuria AI - Assistente de Precificação Inteligente"
                         className="w-full h-auto object-cover rounded-2xl"
                         width={600}
@@ -114,7 +109,6 @@ const HeroSectionBling: React.FC = () => {
                         decoding="async"
                         style={{ imageRendering: 'auto' }}
                       />
-                    </picture>
                     
                     {/* Overlay sutil para melhor integração */}
                     <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent pointer-events-none rounded-2xl" />

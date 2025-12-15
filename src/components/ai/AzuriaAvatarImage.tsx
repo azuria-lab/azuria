@@ -33,16 +33,8 @@ export function AzuriaAvatarImage({
   };
 
   return (
-    <picture>
-      {/* PNG otimizado como fallback */}
-      <source 
-        type="image/png" 
-        srcSet="/images/azuria/avatar-optimized.png" 
-      />
-      
-      {/* JPG original como fallback final */}
       <img
-        src="/images/azuria/avatar.jpg"
+        src="/halo-ai-chat-avatar-v2.jpg"
         alt="Azuria AI"
         className={cn(
           'rounded-full',
@@ -58,6 +50,5 @@ export function AzuriaAvatarImage({
         decoding="async"
         {...props}
       />
-    </picture>
   );
 }

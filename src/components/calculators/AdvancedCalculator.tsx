@@ -79,14 +79,14 @@ interface CalculationHistory {
   marketplace: string;
 }
 
-// Marketplace Icons Mapping - Usando emojis temporariamente
-// TODO: Substituir por logos oficiais em SVG quando disponível
+// Marketplace Icons Mapping - usando identificadores textuais para consistência visual
+// Mantido simples para evitar excesso de emojis e manter foco nos dados
 const MARKETPLACE_ICONS: Record<string, string> = {
-  mercadolivre: "�", // Mercado Livre - amarelo
-  shopee: "�", // Shopee - laranja
-  amazon: "�", // Amazon - marrom/dourado
-  magalu: "🔵", // Magazine Luiza - azul
-  custom: "🏪" // Loja Própria
+  mercadolivre: "ML", // Mercado Livre
+  shopee: "SH",       // Shopee
+  amazon: "AM",       // Amazon
+  magalu: "MG",       // Magazine Luiza
+  custom: "LP"        // Loja Própria
 };
 
 // Marketplace Logos - URLs oficiais (placeholder para futuro)
@@ -117,7 +117,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
   {
     id: "mercadolivre",
     name: "Mercado Livre",
-    icon: "🛒",
+    icon: "ML",
     defaultFee: 16,
     includePaymentFee: false,
     shippingPolicy: "Taxa já inclusa na comissão",
@@ -127,7 +127,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
   {
     id: "shopee",
     name: "Shopee",
-    icon: "🛍️",
+    icon: "SH",
     defaultFee: 14,
     includePaymentFee: false,
     shippingPolicy: "Frete por conta do vendedor",
@@ -137,7 +137,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
   {
     id: "amazon",
     name: "Amazon",
-    icon: "📦",
+    icon: "AM",
     defaultFee: 15,
     includePaymentFee: false,
     shippingPolicy: "FBA disponível",
@@ -147,7 +147,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
   {
     id: "magalu",
     name: "Magazine Luiza",
-    icon: "�",
+    icon: "MG",
     defaultFee: 18,
     includePaymentFee: false,
     shippingPolicy: "Split com marketplace",
@@ -157,7 +157,7 @@ const MARKETPLACE_TEMPLATES: MarketplaceTemplate[] = [
   {
     id: "custom",
     name: "Loja Própria / ERP",
-    icon: "�🏪",
+    icon: "LP",
     defaultFee: 0,
     includePaymentFee: true,
     shippingPolicy: "Configurável",
@@ -339,7 +339,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
       }));
 
       toast({
-        title: `💾 Template "${defaultUserTemplate.template_name}"`,
+        title: `Template "${defaultUserTemplate.template_name}"`,
         description: `Template personalizado carregado com sucesso!`,
       });
     } else {
@@ -365,7 +365,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
   const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
       toast({
-        title: '⚠️ Nome Obrigatório',
+        title: 'Nome obrigatório',
         description: 'Digite um nome para o template.',
         variant: 'destructive',
       });
@@ -410,8 +410,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
       }));
 
       toast({
-        title: `💾 Template "${template.template_name}"`,
-        description: 'Template carregado com sucesso!',
+        title: `Template "${template.template_name}"`,
+        description: 'Template carregado com sucesso.',
       });
     }
   };
@@ -472,14 +472,14 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
         // Validações inteligentes
         if (cost > 0 && netProfit < 0) {
-          toast({
-            title: "⚠️ Atenção: Prejuízo Detectado",
-            description: `Seu lucro líquido é negativo (R$ ${netProfit.toFixed(2)}). Revise custos ou aumente a margem.`,
-            variant: "destructive"
-          });
+      toast({
+        title: "Prejuízo detectado",
+        description: `Seu lucro líquido é negativo (R$ ${netProfit.toFixed(2)}). Revise custos ou aumente a margem.`,
+        variant: "destructive"
+      });
         } else if (cost > 0 && totalMargin > 0 && totalMargin < 5) {
           toast({
-            title: "📊 Alerta: Margem Crítica",
+            title: "Margem crítica",
             description: `Margem total de apenas ${totalMargin.toFixed(2)}%. Considere aumentar o preço.`,
             variant: "default"
           });
@@ -606,8 +606,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
     doc.save(`azuria-calculo-${Date.now()}.pdf`);
 
     toast({
-      title: "✅ PDF Exportado",
-      description: "Seu relatório foi baixado com sucesso!",
+      title: "PDF exportado",
+      description: "Seu relatório foi baixado com sucesso.",
     });
   };
 
@@ -651,7 +651,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
           </div>
           
           <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
               <div className="p-3 bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30">
                 <Calculator className="h-8 w-8 text-white" />
               </div>
@@ -691,18 +691,16 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-sm md:text-lg shadow-lg transition-all duration-300",
                             currentStep >= step
                               ? "bg-gradient-to-br from-brand-500 to-brand-600 text-white ring-4 ring-brand-200"
-                              : "bg-gray-200 text-gray-400",
-                            step === 4 && "ring-green-200 bg-gradient-to-br from-green-500 to-emerald-600"
+                              : "bg-gray-200 text-gray-400"
                           )}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          {step === 4 ? '🏆' : step}
+                          {step}
                         </motion.div>
                         <span className={cn(
                           "text-xs font-medium hidden md:block",
-                          currentStep >= step ? "text-brand-600" : "text-gray-400",
-                          step === 4 && currentStep >= step && "text-green-600"
+                          currentStep >= step ? "text-brand-600" : "text-gray-400"
                         )}>
                           {step === 1 && "Produto"}
                           {step === 2 && "Custos"}
@@ -738,7 +736,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                       className="space-y-8"
                     >
                       {/* Header Premium */}
-                      <div className="flex items-start gap-4 p-6 bg-gradient-to-br from-brand-50 via-purple-50 to-blue-50 rounded-2xl border-2 border-brand-200 shadow-sm">
+                      <div className="flex items-start gap-4 p-6 bg-gradient-to-br from-brand-50 via-blue-50 to-cyan-50 rounded-2xl border-2 border-brand-200 shadow-sm">
                         <motion.div 
                           className="p-3 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl shadow-lg"
                           whileHover={{ scale: 1.05, rotate: 5 }}
@@ -747,7 +745,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           <Package className="h-7 w-7 text-white" />
                         </motion.div>
                         <div className="flex-1">
-                          <h3 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent mb-1">
+                          <h3 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-blue-600 bg-clip-text text-transparent mb-1">
                             Dados do Produto
                           </h3>
                           <p className="text-sm text-gray-600 leading-relaxed">
@@ -791,9 +789,9 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, repeatDelay: 3 }}
                           >
-                            <Tag className="h-6 w-6 text-purple-600" />
+                            <Tag className="h-6 w-6 text-indigo-600" />
                           </motion.div>
-                          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                          <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
                             Categoria do Produto
                           </span>
                           <span className="text-sm text-gray-400 font-normal ml-auto">(Opcional)</span>
@@ -802,13 +800,12 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           value={formData.productCategory} 
                           onValueChange={(value) => handleInputChange('productCategory', value)}
                         >
-                          <SelectTrigger id="category" className="h-16 text-xl font-semibold border-2 focus:ring-4 focus:ring-purple-100 hover:border-purple-300 transition-all duration-200">
+                          <SelectTrigger id="category" className="h-16 text-xl font-semibold border-2 focus:ring-2 focus:ring-indigo-500/20 hover:border-indigo-400 transition-all duration-200">
                             <SelectValue placeholder="Selecione a categoria do seu produto" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="eletronicos">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">📱</span>
                                 <div>
                                   <p className="font-semibold">Eletrônicos</p>
                                   <p className="text-xs text-gray-500">Smartphones, notebooks, acessórios</p>
@@ -817,7 +814,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectItem>
                             <SelectItem value="moda">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">👕</span>
                                 <div>
                                   <p className="font-semibold">Moda e Vestuário</p>
                                   <p className="text-xs text-gray-500">Roupas, calçados, acessórios</p>
@@ -826,7 +822,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectItem>
                             <SelectItem value="casa">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">🏠</span>
                                 <div>
                                   <p className="font-semibold">Casa e Decoração</p>
                                   <p className="text-xs text-gray-500">Móveis, decoração, utilidades</p>
@@ -835,7 +830,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectItem>
                             <SelectItem value="esportes">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">⚽</span>
                                 <div>
                                   <p className="font-semibold">Esportes e Fitness</p>
                                   <p className="text-xs text-gray-500">Equipamentos, roupas, suplementos</p>
@@ -844,7 +838,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectItem>
                             <SelectItem value="beleza">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">💄</span>
                                 <div>
                                   <p className="font-semibold">Beleza e Cuidados</p>
                                   <p className="text-xs text-gray-500">Cosméticos, perfumes, skincare</p>
@@ -853,7 +846,6 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectItem>
                             <SelectItem value="outros">
                               <div className="flex items-center gap-3 py-1">
-                                <span className="text-2xl">📦</span>
                                 <div>
                                   <p className="font-semibold">Outros</p>
                                   <p className="text-xs text-gray-500">Outras categorias</p>
@@ -866,9 +858,9 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           <motion.div
                             initial={{ opacity: 0, y: -5 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="p-3 bg-purple-50 rounded-lg border border-purple-200"
+                            className="p-3 bg-indigo-50 rounded-lg border border-indigo-200"
                           >
-                            <p className="text-sm text-purple-900">
+                            <p className="text-sm text-indigo-900">
                               ✓ Categoria selecionada ajuda na análise de mercado
                             </p>
                           </motion.div>
@@ -877,22 +869,22 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
                       {/* Templates Rápidos - Acesso rápido */}
                       <motion.div 
-                        className="p-6 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-2xl border-2 border-pink-200 shadow-sm"
+                        className="p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-indigo-200 shadow-sm"
                         whileHover={{ scale: 1.01 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex-shrink-0">
+                          <div className="p-2 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex-shrink-0">
                             <FolderOpen className="h-5 w-5 text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-base font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent truncate">
+                            <h4 className="text-base font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent truncate">
                               Templates Rápidos
                             </h4>
                             <p className="text-xs text-gray-600 truncate">Carregue configurações</p>
                           </div>
                           <Link to="/templates" className="flex-shrink-0">
-                            <Button variant="outline" size="sm" className="text-xs gap-1 hover:bg-purple-50">
+                            <Button variant="outline" size="sm" className="text-xs gap-1 hover:bg-indigo-50">
                               Gerenciar
                               <ExternalLink className="h-3 w-3" />
                             </Button>
@@ -918,13 +910,13 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                 }));
                                 
                                 toast({
-                                  title: `💾 Template "${template.template_name}" carregado`,
+                                  title: `Template "${template.template_name}" carregado`,
                                   description: "Configurações aplicadas com sucesso!",
                                 });
                               }
                             }}
                           >
-                            <SelectTrigger className="h-12 border-2 border-pink-300 hover:border-pink-400 bg-white">
+                            <SelectTrigger className="h-12 border-2 border-brand-300 hover:border-brand-400 bg-white">
                               <SelectValue placeholder="Selecione um template para carregar..." />
                             </SelectTrigger>
                             <SelectContent>
@@ -947,7 +939,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </SelectContent>
                           </Select>
                         ) : (
-                          <div className="text-center p-4 bg-white rounded-lg border-2 border-dashed border-pink-200">
+                          <div className="text-center p-4 bg-white rounded-lg border-2 border-dashed border-brand-200">
                             <p className="text-sm text-gray-600 mb-2">Nenhum template salvo ainda</p>
                             <Link to="/templates">
                               <Button variant="outline" size="sm" className="gap-2">
@@ -963,16 +955,15 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <Label htmlFor="cost" className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
-                            <motion.div
-                              animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }}
-                              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, repeatDelay: 2 }}
-                            >
-                              <DollarSign className="h-8 w-8 text-orange-600" />
-                            </motion.div>
-                            <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                            <div className="p-2 rounded-lg bg-[#148D8D15] border border-[#148D8D30]">
+                              <DollarSign className="h-6 w-6" style={{ color: "#148D8D" }} />
+                            </div>
+                            <span className="bg-gradient-to-r from-[#148D8D] to-blue-600 bg-clip-text text-transparent">
                               Custo do Produto
                             </span>
-                            <Badge variant="destructive" className="ml-2 text-sm">Obrigatório</Badge>
+                            <Badge variant="outline" className="ml-2 text-xs font-medium text-slate-700 border-slate-300">
+                              Obrigatório
+                            </Badge>
                           </Label>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -980,13 +971,13 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                 <Info className="h-5 w-5 text-gray-400 hover:text-brand-600 cursor-help" />
                               </motion.div>
                             </TooltipTrigger>
-                            <TooltipContent side="left" className="max-w-xs bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700">
-                              <p className="text-sm font-semibold mb-2">💰 O que incluir no custo?</p>
+                            <TooltipContent side="left" className="max-w-xs bg-slate-900 border border-slate-700">
+                              <p className="text-sm font-semibold mb-2 text-white">O que incluir no custo?</p>
                               <ul className="text-xs space-y-1">
-                                <li>• Valor pago na compra do fornecedor</li>
-                                <li>• Custo de produção (se fabricar)</li>
-                                <li>• Frete da compra (opcional)</li>
-                                <li>• Impostos na entrada (opcional)</li>
+                                <li className="text-slate-200">• Valor pago na compra do fornecedor</li>
+                                <li className="text-slate-200">• Custo de produção (se fabricar)</li>
+                                <li className="text-slate-200">• Frete da compra (opcional)</li>
+                                <li className="text-slate-200">• Impostos na entrada (opcional)</li>
                               </ul>
                             </TooltipContent>
                           </Tooltip>
@@ -1010,7 +1001,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               const numericValue = rawValue ? (Number.parseInt(rawValue, 10) / 100).toString() : '';
                               handleInputChange('cost', numericValue);
                             }}
-                            className="pl-24 pr-6 h-24 text-5xl font-bold tracking-tight border-3 border-orange-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-300 hover:border-orange-400 hover:shadow-xl bg-gradient-to-br from-white to-orange-50"
+                            className="pl-24 pr-6 h-24 text-5xl font-bold tracking-tight border-2 border-[#148D8D] focus:border-[#148D8D] focus:ring-2 focus:ring-[#148D8D]/20 transition-all duration-300 hover:border-[#148D8D] hover:shadow-xl bg-gradient-to-br from-white to-blue-50"
                             style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', letterSpacing: '0.02em' }}
                           />
                           {!formData.cost && (
@@ -1034,9 +1025,9 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               transition={{ type: "spring", stiffness: 300, damping: 20 }}
                               className="grid grid-cols-2 gap-4"
                             >
-                              <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 shadow-sm">
-                                <p className="text-xs text-orange-600 font-semibold mb-1">💰 Custo Unitário</p>
-                                <p className="text-2xl font-bold text-orange-900">
+                              <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 shadow-sm">
+                                <p className="text-xs text-blue-600 font-semibold mb-1">Custo Unitário</p>
+                                <p className="text-2xl font-bold text-slate-900">
                                   R$ {Number.parseFloat(formData.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                               </div>
@@ -1058,9 +1049,9 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               <Sparkles className="h-4 w-4 text-white" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-semibold text-blue-900 mb-2">💡 Dica Profissional</p>
+                              <p className="text-sm font-semibold text-blue-900 mb-2">Dica profissional</p>
                               <p className="text-xs text-blue-800 leading-relaxed">
-                                Para precificação precisa, considere apenas o custo direto do produto. 
+                                Para uma precificação mais precisa, considere apenas o custo direto do produto. 
                                 Custos adicionais (frete, embalagem, marketing) serão incluídos na próxima etapa.
                               </p>
                             </div>
@@ -1072,11 +1063,10 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                       <div className="flex items-center justify-between pt-6 border-t-2 border-gray-100">
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <motion.div
-                            animate={{ scale: [1, 1.2, 1] }}
+                            className="w-2 h-2 rounded-full bg-green-500"
+                            animate={{ scale: [1, 1.3, 1] }}
                             transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                          >
-                            ⚡
-                          </motion.div>
+                          />
                           {canProceedStep1 ? (
                             <span className="text-green-600 font-semibold">Pronto para continuar!</span>
                           ) : (
@@ -1126,9 +1116,9 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                       </div>
 
                       {/* Modo de Cálculo */}
-                      <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200">
+                      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border-2 border-indigo-200">
                         <Label className="flex items-center gap-2 text-base font-semibold mb-3">
-                          <Sparkles className="h-5 w-5 text-purple-600" />
+                          <Sparkles className="h-5 w-5 text-indigo-600" />
                           Modo de Cálculo
                         </Label>
                         <div className="grid grid-cols-2 gap-3">
@@ -1138,7 +1128,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             onClick={() => handleInputChange('calculationMode', 'direct')}
                             className="h-auto py-3 flex flex-col items-start gap-1"
                           >
-                            <span className="font-bold">📊 Direto</span>
+                            <span className="font-bold">Direto</span>
                             <span className="text-xs opacity-80">Definir margem → calcular preço</span>
                           </Button>
                           <Button
@@ -1147,7 +1137,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             onClick={() => handleInputChange('calculationMode', 'reverse')}
                             className="h-auto py-3 flex flex-col items-start gap-1"
                           >
-                            <span className="font-bold">🔄 Reverso</span>
+                            <span className="font-bold">Reverso</span>
                             <span className="text-xs opacity-80">Definir preço → calcular margem</span>
                           </Button>
                         </div>
@@ -1209,7 +1199,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             className="text-xl font-bold h-14 focus:ring-4 focus:ring-blue-500/20"
                           />
                           <p className="text-sm text-gray-600">
-                            💡 Digite o preço final e calcularemos sua margem real após todas as taxas.
+                            Digite o preço final e calcularemos sua margem real após todas as taxas.
                           </p>
                         </div>
                       )}
@@ -1262,16 +1252,16 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200"
+                            className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200"
                           >
                             <p className="text-sm font-medium text-blue-900 mb-1">
                               {appliedTemplate.icon} Template {appliedTemplate.name}
                             </p>
                             <p className="text-xs text-blue-700">
-                              📋 {appliedTemplate.shippingPolicy}
+                              {appliedTemplate.shippingPolicy}
                             </p>
                             <p className="text-xs text-blue-700 mt-1">
-                              💰 Taxa: {appliedTemplate.defaultFee}% | Pagamento: {appliedTemplate.includePaymentFee ? 'Separado' : 'Incluso'}
+                              Taxa: {appliedTemplate.defaultFee}% | Pagamento: {appliedTemplate.includePaymentFee ? 'Separado' : 'Incluso'}
                             </p>
                           </motion.div>
                         )}
@@ -1291,8 +1281,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>💾 Salvar Template Personalizado</DialogTitle>
+                                <DialogHeader>
+                              <DialogTitle>Salvar template personalizado</DialogTitle>
                                 <DialogDescription>
                                   Salve estas configurações para reutilizar no marketplace {formData.marketplaceId}.
                                 </DialogDescription>
@@ -1344,7 +1334,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               </DialogTrigger>
                               <DialogContent className="max-w-2xl">
                                 <DialogHeader>
-                                  <DialogTitle>📁 Templates Salvos</DialogTitle>
+                                  <DialogTitle>Templates salvos</DialogTitle>
                                   <DialogDescription>
                                     Seus templates personalizados para {formData.marketplaceId}
                                   </DialogDescription>
@@ -1404,7 +1394,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                       <div className="space-y-3">
                         <div className="flex items-center justify-between bg-yellow-50 p-3 rounded-lg border border-yellow-200">
                           <div className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-purple-600" />
+                            <CreditCard className="h-5 w-5 text-indigo-600" />
                             <div>
                               <Label className="text-base font-semibold cursor-pointer">
                                 Incluir Taxa de Meio de Pagamento
@@ -1436,14 +1426,14 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               value={formData.paymentMethod} 
                               onValueChange={(value) => handleInputChange('paymentMethod', value)}
                             >
-                              <SelectTrigger className="h-12 border-2 focus:ring-4 focus:ring-purple-100">
+                              <SelectTrigger className="h-12 border-2 focus:ring-2 focus:ring-indigo-500/20">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="credit_card">💳 Cartão de Crédito (2.5%)</SelectItem>
-                                <SelectItem value="debit_card">💳 Cartão de Débito (1.5%)</SelectItem>
-                                <SelectItem value="pix">📱 PIX (0.5%)</SelectItem>
-                                <SelectItem value="boleto">📄 Boleto (3.0%)</SelectItem>
+                                <SelectItem value="credit_card">Cartão de crédito (2,5%)</SelectItem>
+                                <SelectItem value="debit_card">Cartão de débito (1,5%)</SelectItem>
+                                <SelectItem value="pix">Pix (0,5%)</SelectItem>
+                                <SelectItem value="boleto">Boleto (3,0%)</SelectItem>
                               </SelectContent>
                             </Select>
 
@@ -1454,7 +1444,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                 value={formData.paymentFee}
                                 onChange={(e) => handleInputChange('paymentFee', e.target.value)}
                                 placeholder="Ex: 2.5"
-                                className="h-11 focus:ring-4 focus:ring-purple-100"
+                                className="h-11 focus:ring-2 focus:ring-indigo-500/20"
                               />
                             </div>
                           </motion.div>
@@ -1504,7 +1494,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
                             <div className="space-y-2">
                               <Label htmlFor="packaging" className="flex items-center gap-2 text-sm">
-                                <Package className="h-4 w-4 text-purple-600" />
+                                <Package className="h-4 w-4 text-indigo-600" />
                                 Embalagem
                               </Label>
                               <div className="relative">
@@ -1516,14 +1506,14 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   placeholder="0,00"
                                   value={formData.packaging}
                                   onChange={(e) => handleInputChange('packaging', e.target.value)}
-                                  className="pl-10 h-11 border-2 focus:ring-4 focus:ring-purple-100"
+                                  className="pl-10 h-11 border-2 focus:ring-2 focus:ring-indigo-500/20"
                                 />
                               </div>
                             </div>
 
                             <div className="space-y-2">
                               <Label htmlFor="marketing" className="flex items-center gap-2 text-sm">
-                                <Tag className="h-4 w-4 text-pink-600" />
+                                <Tag className="h-4 w-4 text-indigo-600" />
                                 Marketing
                               </Label>
                               <div className="relative">
@@ -1535,14 +1525,14 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   placeholder="0,00"
                                   value={formData.marketing}
                                   onChange={(e) => handleInputChange('marketing', e.target.value)}
-                                  className="pl-10 h-11 border-2 focus:ring-4 focus:ring-pink-100"
+                                  className="pl-10 h-11 border-2 focus:ring-2 focus:ring-indigo-500/20"
                                 />
                               </div>
                             </div>
 
                             <div className="space-y-2">
                               <Label htmlFor="other-costs" className="flex items-center gap-2 text-sm">
-                                <Calculator className="h-4 w-4 text-orange-600" />
+                                <Calculator className="h-4 w-4 text-blue-600" />
                                 Outros
                               </Label>
                               <div className="relative">
@@ -1554,7 +1544,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   placeholder="0,00"
                                   value={formData.otherCosts}
                                   onChange={(e) => handleInputChange('otherCosts', e.target.value)}
-                                  className="pl-10 h-11 border-2 focus:ring-4 focus:ring-orange-100"
+                                  className="pl-10 h-11 border-2 focus:ring-2 focus:ring-blue-500/20"
                                 />
                               </div>
                             </div>
@@ -1564,11 +1554,11 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
-                              className="mt-4 p-4 bg-orange-50 rounded-xl border border-orange-200"
+                              className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200"
                             >
                               <div className="flex justify-between items-center">
-                                <span className="text-sm font-semibold text-orange-900">Total de Custos Adicionais</span>
-                                <span className="text-lg font-bold text-orange-700">
+                                <span className="text-sm font-semibold text-slate-900">Total de Custos Adicionais</span>
+                                <span className="text-lg font-bold text-slate-700">
                                   R$ {totalAdditionalCosts.toFixed(2)}
                                 </span>
                               </div>
@@ -1649,25 +1639,25 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           </CardContent>
                         </Card>
 
-                        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
+                        <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-200">
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-purple-900">Margem Total</span>
-                              <Percent className="h-5 w-5 text-purple-600" />
+                              <span className="text-sm font-medium text-indigo-900">Margem Total</span>
+                              <Percent className="h-5 w-5 text-indigo-600" />
                             </div>
-                            <p className="text-3xl font-bold text-purple-700">
+                            <p className="text-3xl font-bold text-indigo-700">
                               <AnimatedNumber value={realtimeResults.totalMargin} />%
                             </p>
                           </CardContent>
                         </Card>
 
-                        <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200">
+                        <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200">
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-orange-900">Total de Taxas</span>
-                              <BarChart3 className="h-5 w-5 text-orange-600" />
+                              <span className="text-sm font-medium text-slate-900">Total de Taxas</span>
+                              <BarChart3 className="h-5 w-5 text-slate-600" />
                             </div>
-                            <p className="text-3xl font-bold text-orange-700">
+                            <p className="text-3xl font-bold text-slate-700">
                               R$ <AnimatedNumber value={realtimeResults.totalFees} />
                             </p>
                           </CardContent>
@@ -1698,7 +1688,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                               variant="outline"
                               size="sm"
                               onClick={() => applyScenario(-5)}
-                              className="hover:bg-orange-50 hover:border-orange-300"
+                              className="hover:bg-blue-50 hover:border-blue-300"
                             >
                               <TrendingDown className="mr-1 h-4 w-4" />
                               -5%
@@ -1807,22 +1797,22 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             size="lg"
                             className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white px-6"
                           >
-                            🏆 Comparar Todos os Marketplaces
+                            Comparar todos os marketplaces
                             <ChevronRight className="ml-2 h-5 w-5" />
                           </Button>
                           <Button
                             onClick={() => {
                               setCurrentStep(1);
                               toast({
-                                title: "✨ Novo Cálculo",
-                                description: "Preencha os dados para um novo cálculo",
+                                title: "Novo cálculo",
+                                description: "Preencha os dados para iniciar um novo cálculo.",
                               });
                             }}
                             size="lg"
                             variant="outline"
                             className="px-8"
                           >
-                            Novo Cálculo
+                            Novo cálculo
                             <Sparkles className="ml-2 h-5 w-5" />
                           </Button>
                         </div>
@@ -1848,10 +1838,10 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                            🏆 Comparação de Todos os Marketplaces
+                            Comparação entre marketplaces
                           </h3>
                           <p className="text-muted-foreground">
-                            Veja qual marketplace é mais lucrativo para seu produto
+                            Veja em qual marketplace seu produto fica mais lucrativo
                           </p>
                         </div>
                       </div>
@@ -1884,8 +1874,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                           onClick={() => {
                             setCurrentStep(1);
                             toast({
-                              title: "✨ Novo Cálculo",
-                              description: "Preencha os dados para um novo cálculo",
+                              title: "Novo cálculo",
+                              description: "Preencha os dados para iniciar um novo cálculo.",
                             });
                           }}
                           size="lg"
@@ -1909,11 +1899,11 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                   >
                     {/* Premium Features Header */}
                     <div className="mb-6 text-center">
-                      <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full text-white font-bold mb-4 shadow-lg">
+                      <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-500 rounded-full text-white font-bold mb-4 shadow-lg">
                         <Sparkles className="h-5 w-5 animate-pulse" />
                         Recursos Premium
                       </div>
-                      <h3 className="text-3xl font-extrabold bg-gradient-to-r from-brand-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-3 tracking-tight">
+                      <h3 className="text-3xl font-extrabold bg-gradient-to-r from-brand-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent mb-3 tracking-tight">
                         Recursos Premium de Precificação
                       </h3>
                       <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -1933,7 +1923,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                         </TabsTrigger>
                         <TabsTrigger 
                           value="ai" 
-                          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white py-3 px-2 text-xs flex items-center justify-center gap-1"
+                          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-blue-600 data-[state=active]:text-white py-3 px-2 text-xs flex items-center justify-center gap-1"
                         >
                           <Brain className="h-4 w-4" />
                           <span>IA</span>
@@ -1947,7 +1937,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                         </TabsTrigger>
                         <TabsTrigger 
                           value="discount" 
-                          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white py-3 px-2 text-xs flex items-center justify-center gap-1"
+                          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white py-3 px-2 text-xs flex items-center justifycenter gap-1"
                         >
                           <Tag className="h-4 w-4" />
                           <span className="hidden sm:inline">Descontos</span>
@@ -2021,8 +2011,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                 handleInputChange('manualPrice', price.toString());
                                 handleInputChange('calculationMode', 'reverse');
                                 toast({
-                                  title: "✅ Preço Aplicado",
-                                  description: `Preço de R$ ${price.toFixed(2)} aplicado com sucesso`,
+                                  title: "Preço aplicado",
+                                  description: `Preço de R$ ${price.toFixed(2)} aplicado com sucesso.`,
                                 });
                               }}
                             />
@@ -2172,7 +2162,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             {/* Header */}
                             <div className="mb-6">
                               <div className="flex items-center gap-3 mb-2">
-                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl shadow-lg">
+                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl shadow-lg">
                                   <ArrowLeftRight className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
@@ -2185,8 +2175,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             {/* Split Screen Comparison */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                               {/* ANTES - Current Scenario */}
-                              <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
-                                <CardHeader className="bg-gradient-to-r from-red-500 to-orange-500 text-white">
+                              <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-rose-50">
+                                <CardHeader className="bg-gradient-to-r from-red-500 to-rose-500 text-white">
                                   <CardTitle className="flex items-center gap-2">
                                     <TrendingDown className="h-5 w-5" />
                                     ANTES - Cenário Atual
@@ -2275,11 +2265,11 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
                                   {/* Improvements Badge */}
                                   <div className="bg-green-100 p-3 rounded-lg border-2 border-green-300">
-                                    <p className="text-sm font-semibold text-green-900 mb-2">💡 Melhorias:</p>
+                                    <p className="text-sm font-semibold text-green-900 mb-2">Resumo das melhorias</p>
                                     <ul className="text-xs space-y-1 text-green-800">
-                                      <li>✓ Margem aumentada em 10%</li>
-                                      <li>✓ Lucro R$ {(realtimeResults.suggestedPrice * 0.1).toFixed(2)} maior</li>
-                                      <li>✓ Preço ainda competitivo</li>
+                                      <li>• Margem aumentada em 10%</li>
+                                      <li>• Lucro R$ {(realtimeResults.suggestedPrice * 0.1).toFixed(2)} maior</li>
+                                      <li>• Preço ainda competitivo</li>
                                     </ul>
                                   </div>
                                 </CardContent>
@@ -2287,7 +2277,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             </div>
 
                             {/* Comparison Summary */}
-                            <Card className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200">
+                            <Card className="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200">
                               <CardContent className="p-6">
                                 <h4 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
                                   <Target className="h-5 w-5" />
@@ -2306,7 +2296,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   </div>
                                   <div className="text-center p-4 bg-white rounded-lg">
                                     <p className="text-sm text-gray-600 mb-1">ROI Estimado</p>
-                                    <p className="text-2xl font-bold text-purple-600">+25%</p>
+                                    <p className="text-2xl font-bold text-indigo-600">+25%</p>
                                   </div>
                                 </div>
                               </CardContent>
@@ -2354,7 +2344,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   {/* Interactive Sliders */}
                                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     {/* Cost Variation */}
-                                    <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
+                                    <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-rose-50">
                                       <CardHeader className="pb-3">
                                         <CardTitle className="text-lg flex items-center gap-2">
                                           <DollarSign className="h-5 w-5 text-red-600" />
@@ -2468,7 +2458,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                                   {/* Impact Summary */}
                                   <Card className={cn(
                                     "border-2",
-                                    impactOnProfit > 0 ? "border-green-400 bg-gradient-to-r from-green-50 to-emerald-50" : "border-red-400 bg-gradient-to-r from-red-50 to-orange-50"
+                                    impactOnProfit > 0 ? "border-green-400 bg-gradient-to-r from-green-50 to-emerald-50" : "border-red-400 bg-gradient-to-r from-red-50 to-rose-50"
                                   )}>
                                     <CardContent className="p-6">
                                       <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -2512,7 +2502,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
                                       {/* Insights */}
                                       <div className="mt-4 p-4 bg-white rounded-lg border-2 border-yellow-200">
-                                        <p className="font-semibold text-sm text-gray-900 mb-2">💡 Insights:</p>
+                                        <p className="font-semibold text-sm text-gray-900 mb-2">Insights de sensibilidade</p>
                                         <ul className="text-sm space-y-1 text-gray-700">
                                           {costVariation !== 0 && (
                                             <li>• Variação de {Math.abs(costVariation)}% no custo {costVariation > 0 ? 'aumenta' : 'reduz'} o preço em R$ {Math.abs(newPrice - realtimeResults.suggestedPrice).toFixed(2)}</li>
@@ -2622,14 +2612,14 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
 
                   {/* Custos Totais */}
                   <motion.div 
-                    className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border border-orange-200"
+                    className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200"
                     whileHover={{ scale: 1.02 }}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-orange-600" />
-                      <span className="text-sm font-medium text-orange-900">Custos Totais</span>
+                      <div className="w-2 h-2 rounded-full bg-blue-600" />
+                      <span className="text-sm font-medium text-slate-900">Custos Totais</span>
                     </div>
-                    <span className="text-lg font-bold text-orange-700">
+                    <span className="text-lg font-bold text-slate-800">
                       R$ <AnimatedNumber value={realtimeResults.totalCosts} />
                     </span>
                   </motion.div>
@@ -2772,8 +2762,8 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
                             setHistory(prev => [newEntry, ...prev].slice(0, 50));
                             
                             toast({
-                              title: "💾 Salvo com Sucesso!",
-                              description: `Cálculo de R$ ${realtimeResults.suggestedPrice.toFixed(2)} salvo no histórico`,
+                              title: "Cálculo salvo",
+                              description: `Cálculo de R$ ${realtimeResults.suggestedPrice.toFixed(2)} salvo no histórico.`,
                             });
                           } catch (error) {
                             toast({

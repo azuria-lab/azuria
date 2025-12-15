@@ -256,7 +256,7 @@ const MinimizedButton: React.FC<MinimizedButtonProps> = ({
   >
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
       <img
-        src="/images/azuria/avatar.jpg"
+        src="/halo-ai-chat-avatar-v2.jpg"
         alt="Azuria AI"
         className="w-full h-full object-cover"
         loading="eager"
