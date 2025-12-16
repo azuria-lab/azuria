@@ -172,6 +172,17 @@ export default function ResourcesPage() {
                       blocks={selectedFlowConfig}
                       title={selectedFlowDescription.title}
                       description={selectedFlowDescription.description}
+                      headerContent={
+                        selectedResource === 'ai' ? (
+                          <div className="relative w-48 h-48 sm:w-60 sm:h-60 rounded-full shadow-xl overflow-hidden">
+                            <img 
+                              src="/images/azuria-ai-avatar.jpg" 
+                              alt="Azuria AI Avatar" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : undefined
+                      }
                     />
                   )}
                 </motion.div>

@@ -55,10 +55,10 @@ const marketplaces = [
   },
   {
     name: "TikTok Shop",
-    logoUrl: "/images/marketplaces/3d/tiktok.png",
+    logoUrl: "/images/marketplaces/tiktok-shop-official.png",
     fallback: "TikTok",
     color: "#000000",
-    scale: 2.8,
+    scale: 1.7,
   },
 ];
 
@@ -96,7 +96,7 @@ const MarketplaceLogoCard: React.FC<{ marketplace: typeof marketplaces[0] }> = (
       ref={cardRef}
       className="flex-shrink-0 w-[200px] px-3"
     >
-      <div className={`bg-white rounded-xl p-6 md:p-8 border border-black/8 shadow-sm hover:shadow-md transition-shadow duration-200 h-[140px] flex items-center justify-center ${marketplace.name === 'TikTok Shop' ? 'bg-transparent border-none shadow-none' : ''}`}>
+      <div className="bg-white rounded-xl p-6 md:p-8 border border-black/8 shadow-sm hover:shadow-md transition-shadow duration-200 h-[140px] flex items-center justify-center">
         <div className="w-full h-full flex items-center justify-center relative">
           {(() => {
             if (!imageError && isInView) {
@@ -115,7 +115,6 @@ const MarketplaceLogoCard: React.FC<{ marketplace: typeof marketplaces[0] }> = (
                     }`}
                     style={{ 
                       transform: `scale(${marketplace.scale || 1})`,
-                      ...(marketplace.name === 'TikTok Shop' ? { maxWidth: '140%', height: 'auto', transform: 'scale(1.5)' } : {})
                     }}
                     onError={() => {
                       setImageError(true);
@@ -124,7 +123,7 @@ const MarketplaceLogoCard: React.FC<{ marketplace: typeof marketplaces[0] }> = (
                     onLoad={() => setImageLoading(false)}
                     loading="lazy"
                     decoding="async"
-                    fetchpriority="low"
+                    fetchPriority="low"
                   />
                 </>
               );

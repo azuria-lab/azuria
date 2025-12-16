@@ -21,9 +21,10 @@ interface ResourceFlowProps {
   blocks: FlowBlock[];
   title: string;
   description: string;
+  headerContent?: React.ReactNode;
 }
 
-export default function ResourceFlow({ blocks, title, description }: ResourceFlowProps) {
+export default function ResourceFlow({ blocks, title, description, headerContent }: ResourceFlowProps) {
   const [selectedBlock, setSelectedBlock] = useState<FlowBlock | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
@@ -83,6 +84,11 @@ export default function ResourceFlow({ blocks, title, description }: ResourceFlo
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
             {description}
           </p>
+          {headerContent && (
+            <div className="pt-8 flex justify-center">
+              {headerContent}
+            </div>
+          )}
         </div>
 
         <div className="w-full h-[600px] bg-muted/30 dark:bg-muted/20 rounded-xl border border-border/50 overflow-hidden">
