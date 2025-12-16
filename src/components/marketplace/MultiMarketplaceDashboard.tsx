@@ -7,12 +7,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Crown, Plus, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { ArrowLeft, Crown, Package, Plus, ShoppingBag, TrendingUp, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import AnimatedNumber from '@/components/ui/animated-number';
-import Sparkline from '@/components/ui/sparkline';
 import { type MarketplaceCard } from './MarketplaceCarousel'; // Import type from original file
 import ModernMarketplaceCarousel from './ModernMarketplaceCarousel'; // Import new Modern Carousel
 import MarketplaceDashboard from './MarketplaceDashboard';
@@ -198,433 +195,218 @@ export default function MultiMarketplaceDashboard({
   const selectedMarketplace = marketplaces.find((m) => m.id === selectedMarketplaceId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="space-y-8">
-          {/* Cabeçalho Premium com Animações */}
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+        <div className="space-y-6">
+          {/* Header Premium - Estilo Dashboard */}
           <motion.div 
-            className="text-center space-y-4 py-8"
+            className="space-y-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
           >
-            <motion.div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-sm font-medium mb-4"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            >
-              <motion.span 
-                className="w-2 h-2 bg-brand-500 rounded-full"
-                animate={{ 
-                  scale: [1, 1.5, 1],
-                  opacity: [1, 0.5, 1]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />{' '}
-              Multi-Marketplace Dashboard
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="h-4 w-4 text-brand-500" />
-              </motion.div>
-            </motion.div>
-
-            <motion.h1 
-              className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-brand-600 via-blue-600 to-purple-600 bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              Marketplaces Integrados
-            </motion.h1>
-
-            <motion.p 
-              className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              Gerencie todos os seus marketplaces em um único lugar com{' '}
-              <span className="text-brand-600 font-semibold">análises em tempo real</span>{' '}
-              e sincronização automática
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
-            >
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                  Marketplaces
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Gerencie todos os seus marketplaces em um único lugar
+                </p>
+              </div>
               <Button 
                 onClick={onConnectMarketplace}
                 data-tour="connect-button"
                 size="lg"
-                className="gap-2 shadow-lg hover:shadow-xl transition-all mt-4 group"
+                className="h-10 px-6 gap-2"
               >
-                <motion.div
-                  animate={{ rotate: [0, 90, 0] }}
-                  transition={{ duration: 0.3 }}
-                  className="group-hover:rotate-90"
-                >
-                  <Plus className="h-5 w-5" />
-                </motion.div>
-                Conectar Novo Marketplace
-                <motion.div
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <Zap className="h-4 w-4" />
-                </motion.div>
+                <Plus className="h-4 w-4" />
+                Conectar Marketplace
               </Button>
-            </motion.div>
+            </div>
           </motion.div>
 
-      {/* Estatísticas Gerais - Premium Cards com Animações */}
-      {selectedMarketplaceId === null && (
-        <TooltipProvider>
-          <motion.div 
-            className="grid gap-6 md:grid-cols-4"
-            data-tour="metrics-overview"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, staggerChildren: 0.1 }}
-          >
-            {/* Card 1 - Marketplaces */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Card className="border-2 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-white via-brand-50/30 to-gray-50 cursor-pointer group">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                      <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-brand-600 transition-colors">
-                        Total de Marketplaces
-                      </CardTitle>
-                      <motion.div 
-                        className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center shadow-sm"
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <span className="text-2xl">🏪</span>
-                      </motion.div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <AnimatedNumber 
-                        value={marketplaces.length} 
-                        className="text-4xl font-bold text-gray-900"
-                      />
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />{' '}
-                        <AnimatedNumber value={marketplaces.filter((m) => m.status.isConnected).length} />{' '}
-                        conectados ativos
-                      </p>
-                    </CardContent>
-                  </Card>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Total de integrações disponíveis</p>
-                </TooltipContent>
-              </Tooltip>
-            </motion.div>
+          {/* Métricas Principais - Estilo Dashboard Premium */}
+          {selectedMarketplaceId === null && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Total de Marketplaces
+                    </CardTitle>
+                    <ShoppingBag className="h-4 w-4 text-blue-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{marketplaces.length}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <span className="text-green-600 font-medium">
+                        {marketplaces.filter((m) => m.status.isConnected).length}
+                      </span>{' '}
+                      conectados
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-            {/* Card 2 - Vendas com Sparkline */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Card className="border-2 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-white via-blue-50/30 to-blue-50 cursor-pointer group overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                      <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-blue-600 transition-colors">
-                        Vendas Totais (30d)
-                      </CardTitle>
-                      <motion.div 
-                        className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shadow-sm"
-                        whileHover={{ scale: 1.1, rotate: -5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <span className="text-2xl">📈</span>
-                      </motion.div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <AnimatedNumber 
-                        value={1234} 
-                        className="text-4xl font-bold text-gray-900"
-                      />
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-green-600 font-medium flex items-center gap-1">
-                          <TrendingUp className="h-4 w-4" />
-                          +15% vs mês anterior
-                        </p>
-                        <Sparkline 
-                          data={[800, 950, 1050, 980, 1100, 1150, 1234]}
-                          width={60}
-                          height={20}
-                          color="#3b82f6"
-                          strokeWidth={2}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Crescimento de 15% nas vendas</p>
-                </TooltipContent>
-              </Tooltip>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                <Card className="border-l-4 border-l-green-500">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Vendas Totais (30d)
+                    </CardTitle>
+                    <TrendingUp className="h-4 w-4 text-green-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">1.234</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <span className="text-green-600 font-medium">+15%</span> vs mês anterior
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-            {/* Card 3 - Receita com Sparkline */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Card className="border-2 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-white via-green-50/30 to-green-50 cursor-pointer group overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                      <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-green-600 transition-colors">
-                        Receita Total
-                      </CardTitle>
-                      <motion.div 
-                        className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shadow-sm"
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <span className="text-2xl">💰</span>
-                      </motion.div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <AnimatedNumber 
-                        value={185432} 
-                        prefix="R$ "
-                        className="text-4xl font-bold text-gray-900"
-                      />
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-green-600 font-medium flex items-center gap-1">
-                          <TrendingUp className="h-4 w-4" />
-                          +22% vs mês anterior
-                        </p>
-                        <Sparkline 
-                          data={[120000, 140000, 155000, 148000, 170000, 175000, 185432]}
-                          width={60}
-                          height={20}
-                          color="#10b981"
-                          strokeWidth={2}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Crescimento de R$ 33.500 em 30 dias</p>
-                </TooltipContent>
-              </Tooltip>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                <Card className="border-l-4 border-l-purple-500">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Receita Total
+                    </CardTitle>
+                    <Zap className="h-4 w-4 text-purple-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">R$ 185.432</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <span className="text-green-600 font-medium">+22%</span> vs mês anterior
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-            {/* Card 4 - Produtos */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+              >
+                <Card className="border-l-4 border-l-orange-500">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Produtos Ativos
+                    </CardTitle>
+                    <Package className="h-4 w-4 text-orange-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">582</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Em todos os marketplaces
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Conteúdo Principal */}
+          <AnimatePresence mode="wait">
+            {selectedMarketplaceId === null ? (
+              // Mostrar Carrossel
+              <motion.div
+                key="carousel"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* 3D Modern Carousel */}
+                <div data-tour="marketplace-select">
+                  <ModernMarketplaceCarousel
+                    marketplaces={marketplaces}
+                    onSelectMarketplace={handleSelectMarketplace}
+                    selectedMarketplaceId={selectedMarketplaceId ?? undefined}
+                  />
+                </div>
+
+          {/* Recursos Premium - Estilo Dashboard */}
+          {!isPremium && selectedMarketplaceId === null && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Card className="border-2 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-white via-purple-50/30 to-purple-50 cursor-pointer group">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                      <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-purple-600 transition-colors">
-                        Produtos Ativos
-                      </CardTitle>
-                      <motion.div 
-                        className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shadow-sm"
-                        whileHover={{ scale: 1.1, rotate: -5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
+              <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-primary" />
+                    <CardTitle>Recursos Premium</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Desbloqueie todo o potencial do seu negócio
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {[
+                      { icon: "📊", title: "Histórico completo", desc: "Preços e vendas dos últimos 12 meses" },
+                      { icon: "🤖", title: "IA de precificação", desc: "Recomendações inteligentes automáticas" },
+                      { icon: "🔔", title: "Alertas em tempo real", desc: "Notificações configuráveis" },
+                      { icon: "📄", title: "Relatórios avançados", desc: "Exportação em PDF, Excel e CSV" },
+                      { icon: "⚡", title: "Sync ultra rápida", desc: "Atualização a cada 15 minutos" },
+                      { icon: "🎯", title: "Análise competitiva", desc: "Monitore concorrentes 24/7" },
+                    ].map((feature) => (
+                      <div
+                        key={feature.title}
+                        className="flex items-start gap-3 p-3 rounded-lg bg-background hover:bg-accent/50 transition-colors"
                       >
-                        <span className="text-2xl">📦</span>
-                      </motion.div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <AnimatedNumber 
-                        value={582} 
-                        className="text-4xl font-bold text-gray-900"
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Em todos os marketplaces
-                      </p>
-                    </CardContent>
-                  </Card>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Produtos sincronizados e ativos</p>
-                </TooltipContent>
-              </Tooltip>
-            </motion.div>
-          </motion.div>
-        </TooltipProvider>
-      )}
-
-      {/* Conteúdo Principal */}
-      <AnimatePresence mode="wait">
-        {selectedMarketplaceId === null ? (
-          // Mostrar Carrossel
-          <motion.div
-            key="carousel"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* 3D Modern Carousel */}
-            <div data-tour="marketplace-select" className="py-8">
-              <ModernMarketplaceCarousel
-                marketplaces={marketplaces}
-                onSelectMarketplace={handleSelectMarketplace}
-                selectedMarketplaceId={selectedMarketplaceId ?? undefined}
-              />
-            </div>
-
-            {/* Recursos Premium - Card Melhorado */}
-            {!isPremium && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="mt-8"
-              >
-                <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 overflow-hidden relative">
-                  {/* Efeito de brilho animado */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    animate={{
-                      x: [-1000, 1000],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      repeatDelay: 2
-                    }}
-                  />
-                  
-                  <CardHeader className="relative">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="flex items-center gap-2 text-2xl">
-                          <motion.div
-                            animate={{ 
-                              rotate: [0, 10, -10, 0],
-                              scale: [1, 1.1, 1]
-                            }}
-                            transition={{ 
-                              duration: 2,
-                              repeat: Infinity,
-                              repeatDelay: 1
-                            }}
-                          >
-                            <Crown className="h-6 w-6 text-amber-600" />
-                          </motion.div>
-                          Recursos Premium
-                        </CardTitle>
-                        <CardDescription className="text-base">
-                          Desbloqueie todo o potencial do seu negócio
-                        </CardDescription>
+                        <span className="text-xl">{feature.icon}</span>
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{feature.title}</p>
+                          <p className="text-xs text-muted-foreground">{feature.desc}</p>
+                        </div>
                       </div>
-                      <motion.div
-                        className="text-5xl"
-                        animate={{ 
-                          y: [0, -10, 0],
-                        }}
-                        transition={{ 
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      >
-                        ✨
-                      </motion.div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="relative space-y-6">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {[
-                        { icon: "📊", title: "Histórico completo", desc: "Preços e vendas dos últimos 12 meses" },
-                        { icon: "🤖", title: "IA de precificação", desc: "Recomendações inteligentes automáticas" },
-                        { icon: "🔔", title: "Alertas em tempo real", desc: "Notificações configuráveis por WhatsApp" },
-                        { icon: "📄", title: "Relatórios avançados", desc: "Exportação em PDF, Excel e CSV" },
-                        { icon: "⚡", title: "Sync ultra rápida", desc: "Atualização a cada 15 minutos" },
-                        { icon: "🎯", title: "Análise competitiva", desc: "Monitore concorrentes 24/7" },
-                      ].map((feature, index) => (
-                        <motion.div
-                          key={feature.title}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.7 + index * 0.1 }}
-                          className="flex items-start gap-3 p-3 rounded-lg bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-colors"
-                        >
-                          <span className="text-2xl">{feature.icon}</span>
-                          <div>
-                            <p className="font-semibold text-sm text-gray-900">{feature.title}</p>
-                            <p className="text-xs text-gray-600">{feature.desc}</p>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button 
-                        className="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 hover:from-amber-600 hover:via-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all group"
-                        size="lg"
-                      >
-                        <Crown className="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform" />
-                        Fazer Upgrade para Premium
-                        <motion.span
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                          className="ml-2"
-                        >
-                          →
-                        </motion.span>
-                      </Button>
-                    </motion.div>
-
-                    <p className="text-center text-xs text-gray-600">
-                      💳 Cancele quando quiser • 🔒 Dados 100% seguros • 🎁 7 dias grátis
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+                    ))}
+                  </div>
+                  <Button 
+                    className="w-full h-10"
+                    onClick={() => window.location.href = '/planos'}
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Fazer Upgrade para Premium
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
           </motion.div>
-        ) : (
-          // Mostrar Dashboard Individual
-          <motion.div
-            key="dashboard"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Button
-              variant="ghost"
-              onClick={handleBackToCarousel}
-              className="mb-4 gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar para Marketplaces
-            </Button>
+              ) : (
+                // Mostrar Dashboard Individual
+                <motion.div
+                  key="dashboard"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <Button
+                    variant="ghost"
+                    onClick={handleBackToCarousel}
+                    className="gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Voltar para Marketplaces
+                  </Button>
 
             {dashboardData && selectedMarketplace && (
               <MarketplaceDashboard
@@ -646,10 +428,10 @@ export default function MultiMarketplaceDashboard({
                 isLoading={isLoadingDashboard}
                 isPremium={isPremium}
               />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
         </div>
       </div>
     </div>

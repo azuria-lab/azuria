@@ -13,9 +13,9 @@ export const navLinks = [
     dataOnboarding: "home-button"
   },
   { 
-    to: "#recursos", 
+    to: "/recursos", 
     label: "Recursos",
-    path: "#recursos",
+    path: "/recursos",
     icon: <Layers className="h-4 w-4" />,
     dataOnboarding: "resources-button"
   },
@@ -27,9 +27,9 @@ export const navLinks = [
     dataOnboarding: "pricing-button"
   },
   { 
-    to: "#sobre", 
+    to: "/sobre", 
     label: "Sobre",
-    path: "#sobre",
+    path: "/sobre",
     icon: <Building2 className="h-4 w-4" />,
     dataOnboarding: "about-button"
   }

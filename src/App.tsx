@@ -38,6 +38,9 @@ const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const CompanyDataPage = lazy(() => import("./pages/CompanyDataPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const HelpPage = lazy(() => import("./pages/HelpPage"));
 const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
 const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
@@ -101,6 +104,8 @@ const App = () => {
                       <Route path="/login" element={<Login />} />
                       <Route path="/cadastro" element={<Login />} />
                       <Route path="/planos" element={<PricingPage />} />
+                      <Route path="/recursos" element={<ResourcesPage />} />
+                      <Route path="/sobre" element={<AboutPage />} />
                       <Route path="/pagamento/retorno" element={<PaymentReturnPage />} />
                       <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} />
                       
@@ -366,6 +371,16 @@ const App = () => {
                           <ProtectedRoute>
                             <DashboardLayout>
                               <SettingsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/ajuda"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <HelpPage />
                             </DashboardLayout>
                           </ProtectedRoute>
                         }
