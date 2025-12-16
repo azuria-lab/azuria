@@ -412,6 +412,15 @@ export interface Database {
           name: string | null;
           avatar_url: string | null;
           is_pro: boolean | null;
+          phone: string | null;
+          location: string | null;
+          cover_url: string | null;
+          bio: string | null;
+          title: string | null;
+          company: string | null;
+          experience: Json | null;
+          skills: Json | null;
+          links: Json | null;
           created_at: string;
           updated_at: string;
         };
@@ -421,6 +430,15 @@ export interface Database {
           name?: string | null;
           avatar_url?: string | null;
           is_pro?: boolean | null;
+          phone?: string | null;
+          location?: string | null;
+          cover_url?: string | null;
+          bio?: string | null;
+          title?: string | null;
+          company?: string | null;
+          experience?: Json | null;
+          skills?: Json | null;
+          links?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -430,7 +448,164 @@ export interface Database {
           name?: string | null;
           avatar_url?: string | null;
           is_pro?: boolean | null;
+          phone?: string | null;
+          location?: string | null;
+          cover_url?: string | null;
+          bio?: string | null;
+          title?: string | null;
+          company?: string | null;
+          experience?: Json | null;
+          skills?: Json | null;
+          links?: Json | null;
           created_at?: string;
+          updated_at?: string;
+        };
+      };
+      chat_rooms: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          avatar_url: string | null;
+          is_group: boolean;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+          last_message_at: string | null;
+          last_message_id: string | null;
+          last_message_text: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          avatar_url?: string | null;
+          is_group?: boolean;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+          last_message_at?: string | null;
+          last_message_id?: string | null;
+          last_message_text?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          avatar_url?: string | null;
+          is_group?: boolean;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          last_message_at?: string | null;
+          last_message_id?: string | null;
+          last_message_text?: string | null;
+        };
+      };
+      chat_room_members: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          role: 'admin' | 'member';
+          joined_at: string;
+          last_read_at: string | null;
+          is_muted: boolean;
+          is_archived: boolean;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          user_id: string;
+          role?: 'admin' | 'member';
+          joined_at?: string;
+          last_read_at?: string | null;
+          is_muted?: boolean;
+          is_archived?: boolean;
+        };
+        Update: {
+          id?: string;
+          room_id?: string;
+          user_id?: string;
+          role?: 'admin' | 'member';
+          joined_at?: string;
+          last_read_at?: string | null;
+          is_muted?: boolean;
+          is_archived?: boolean;
+        };
+      };
+      chat_messages: {
+        Row: {
+          id: string;
+          room_id: string;
+          sender_id: string;
+          content: string;
+          status: 'pending' | 'sent' | 'delivered' | 'read';
+          reply_to_id: string | null;
+          created_at: string;
+          updated_at: string | null;
+          deleted_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          sender_id: string;
+          content: string;
+          status?: 'pending' | 'sent' | 'delivered' | 'read';
+          reply_to_id?: string | null;
+          created_at?: string;
+          updated_at?: string | null;
+          deleted_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          room_id?: string;
+          sender_id?: string;
+          content?: string;
+          status?: 'pending' | 'sent' | 'delivered' | 'read';
+          reply_to_id?: string | null;
+          created_at?: string;
+          updated_at?: string | null;
+          deleted_at?: string | null;
+        };
+      };
+      chat_message_reads: {
+        Row: {
+          id: string;
+          message_id: string;
+          user_id: string;
+          read_at: string;
+        };
+        Insert: {
+          id?: string;
+          message_id: string;
+          user_id: string;
+          read_at?: string;
+        };
+        Update: {
+          id?: string;
+          message_id?: string;
+          user_id?: string;
+          read_at?: string;
+        };
+      };
+      user_status: {
+        Row: {
+          user_id: string;
+          status: 'online' | 'away' | 'offline';
+          last_seen_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          status?: 'online' | 'away' | 'offline';
+          last_seen_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          status?: 'online' | 'away' | 'offline';
+          last_seen_at?: string;
           updated_at?: string;
         };
       };
@@ -1072,9 +1247,24 @@ export interface Database {
         };
         Returns: undefined;
       };
+      get_unread_count: {
+        Args: {
+          p_room_id: string;
+          p_user_id: string;
+        };
+        Returns: number;
+      };
+      mark_messages_as_read: {
+        Args: {
+          p_room_id: string;
+          p_user_id: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
-      [_ in never]: never;
+      message_delivery_status: 'pending' | 'sent' | 'delivered' | 'read';
+      user_status_type: 'online' | 'away' | 'offline';
     };
   };
 }

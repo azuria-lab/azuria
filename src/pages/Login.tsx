@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/domains/auth";
 import Layout from "@/components/layout/Layout";
@@ -26,16 +27,28 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const REMEMBER_ME_KEY = 'azuria_remember_email';
+
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { login, register, loginWithGoogle, isAuthenticated } = useAuthContext();
+
+  // Carregar email salvo ao montar o componente
+  useEffect(() => {
+    const savedEmail = localStorage.getItem(REMEMBER_ME_KEY);
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
@@ -80,6 +93,14 @@ export default function Login() {
           sessionId: session.user.id,
           email: session.user.email 
         });
+        
+        // Salvar ou remover email baseado no checkbox "Lembrar conta"
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_ME_KEY, email);
+        } else {
+          localStorage.removeItem(REMEMBER_ME_KEY);
+        }
+        
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta ao Azuria",
@@ -223,7 +244,7 @@ export default function Login() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 via-background to-blue-50 dark:from-gray-900 dark:via-background dark:to-blue-900 flex items-center justify-center py-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -310,6 +331,20 @@ export default function Login() {
                           )}
                         </button>
                       </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="remember-me"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => setRememberMe(checked === true)}
+                        disabled={isLoading}
+                      />
+                      <Label
+                        htmlFor="remember-me"
+                        className="text-sm font-normal text-gray-700 dark:text-gray-300 cursor-pointer"
+                      >
+                        Lembrar conta
+                      </Label>
                     </div>
                     <Button 
                       type="submit" 

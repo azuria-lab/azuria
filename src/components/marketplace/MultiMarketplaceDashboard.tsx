@@ -239,12 +239,12 @@ export default function MultiMarketplaceDashboard({
                     <CardTitle className="text-sm font-medium text-muted-foreground">
                       Total de Marketplaces
                     </CardTitle>
-                    <ShoppingBag className="h-4 w-4 text-blue-500" />
+                    <ShoppingBag className="h-4 w-4 text-blue-500 dark:text-blue-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{marketplaces.length}</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-green-600 font-medium">
+                      <span className="text-green-600 dark:text-green-400 font-medium">
                         {marketplaces.filter((m) => m.status.isConnected).length}
                       </span>{' '}
                       conectados
@@ -263,12 +263,12 @@ export default function MultiMarketplaceDashboard({
                     <CardTitle className="text-sm font-medium text-muted-foreground">
                       Vendas Totais (30d)
                     </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-green-500" />
+                    <TrendingUp className="h-4 w-4 text-green-500 dark:text-green-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">1.234</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-green-600 font-medium">+15%</span> vs mês anterior
+                      <span className="text-green-600 dark:text-green-400 font-medium">+15%</span> vs mês anterior
                     </p>
                   </CardContent>
                 </Card>
@@ -284,12 +284,12 @@ export default function MultiMarketplaceDashboard({
                     <CardTitle className="text-sm font-medium text-muted-foreground">
                       Receita Total
                     </CardTitle>
-                    <Zap className="h-4 w-4 text-purple-500" />
+                    <Zap className="h-4 w-4 text-purple-500 dark:text-purple-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">R$ 185.432</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-green-600 font-medium">+22%</span> vs mês anterior
+                      <span className="text-green-600 dark:text-green-400 font-medium">+22%</span> vs mês anterior
                     </p>
                   </CardContent>
                 </Card>
@@ -305,7 +305,7 @@ export default function MultiMarketplaceDashboard({
                     <CardTitle className="text-sm font-medium text-muted-foreground">
                       Produtos Ativos
                     </CardTitle>
-                    <Package className="h-4 w-4 text-orange-500" />
+                    <Package className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">582</div>

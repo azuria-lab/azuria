@@ -52,6 +52,8 @@ const ImportPage = lazy(() => import("./pages/ImportPage"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Templates = lazy(() => import("./pages/Templates"));
 const CollaborationPage = lazy(() => import("./pages/CollaborationPage"));
+const TeamsPage = lazy(() => import("./pages/TeamsPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AutomationPage = lazy(() => import("./pages/AutomationPage"));
 const RuleDetailsPage = lazy(() => import("./pages/RuleDetailsPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
@@ -360,6 +362,28 @@ const App = () => {
                             <DashboardLayout>
                               <CollaborationPage />
                             </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Teams - Protected */}
+                      <Route
+                        path="/times"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <TeamsPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Profile - Protected */}
+                      <Route
+                        path="/perfil"
+                        element={
+                          <ProtectedRoute>
+                            <ProfilePage />
                           </ProtectedRoute>
                         }
                       />

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, Crown, LogOut, Moon, Settings, Shield, Sun, User } from "lucide-react";
+import { Building2, Crown, LogOut, Moon, Settings, Sun, User, Users } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { logger } from "@/services/logger";
 import { useTheme } from "@/components/ui/theme-provider";
@@ -164,7 +164,7 @@ const UserProfileButton: React.FC = () => {
 
         {/* Menu Items */}
         <div className="py-2">
-          <Link to="/configuracoes">
+          <Link to="/perfil">
             <DropdownMenuItem className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
               Meu Perfil
@@ -176,17 +176,19 @@ const UserProfileButton: React.FC = () => {
             Dados da empresa
           </DropdownMenuItem>
           
+          <Link to="/times">
+            <DropdownMenuItem className="cursor-pointer">
+              <Users className="mr-2 h-4 w-4" />
+              Times
+            </DropdownMenuItem>
+          </Link>
+          
           <Link to="/configuracoes">
             <DropdownMenuItem className="cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               Todas as configurações
             </DropdownMenuItem>
           </Link>
-          
-          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/configuracoes?tab=security")}>
-            <Shield className="mr-2 h-4 w-4" />
-            Consultar gestão de ações
-          </DropdownMenuItem>
         </div>
 
         <DropdownMenuSeparator />

@@ -30,7 +30,7 @@ function FlowBlockNode({ data, id }: FlowBlockNodeProps) {
     <div
       onClick={handleClick}
       className={cn(
-        "group relative bg-white rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer",
+        "group relative bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer",
         "hover:border-foreground/20",
         data.highlight && "border-primary/30 bg-primary/5",
         data.size === 'large' ? "min-w-[200px] p-6" : "min-w-[180px] p-5"
@@ -39,7 +39,7 @@ function FlowBlockNode({ data, id }: FlowBlockNodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !bg-border !border-2 !border-white"
+        className="!w-3 !h-3 !bg-border !border-2 !border-card"
       />
       
       <div className="flex flex-col items-center text-center space-y-3">
@@ -69,7 +69,7 @@ function FlowBlockNode({ data, id }: FlowBlockNodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-3 !h-3 !bg-border !border-2 !border-white"
+        className="!w-3 !h-3 !bg-border !border-2 !border-card"
       />
     </div>
   );

@@ -85,7 +85,7 @@ export default function ResourceFlow({ blocks, title, description }: ResourceFlo
           </p>
         </div>
 
-        <div className="w-full h-[600px] bg-[#F8F9FB] rounded-xl border border-border/50 overflow-hidden">
+        <div className="w-full h-[600px] bg-muted/30 dark:bg-muted/20 rounded-xl border border-border/50 overflow-hidden">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -104,7 +104,11 @@ export default function ResourceFlow({ blocks, title, description }: ResourceFlo
             elementsSelectable={false}
             className="bg-transparent"
           >
-            <Background color="#e5e7eb" gap={32} size={0.5} />
+            <Background 
+              color="hsl(var(--muted-foreground) / 0.1)" 
+              gap={32} 
+              size={0.5} 
+            />
           </ReactFlow>
         </div>
       </div>

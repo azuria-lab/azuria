@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,38 +29,8 @@ export default function ModernMarketplaceCarousel({
   selectedMarketplaceId,
   className
 }: Readonly<ModernMarketplaceCarouselProps>) {
-  // Find index of selected marketplace or default to middle
-  const initialIndex = selectedMarketplaceId 
-    ? marketplaces.findIndex(m => m.id === selectedMarketplaceId)
-    : Math.floor(marketplaces.length / 2);
-
-  const [activeIndex, setActiveIndex] = useState(Math.max(0, initialIndex));
-
-  // Sync active index if prop changes
-  useEffect(() => {
-    if (selectedMarketplaceId) {
-      const index = marketplaces.findIndex(m => m.id === selectedMarketplaceId);
-      if (index >= 0) {setActiveIndex(index);}
-    }
-  }, [selectedMarketplaceId, marketplaces]);
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % marketplaces.length);
-  };
-
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + marketplaces.length) % marketplaces.length);
-  };
-
-  const handleCardClick = (index: number, id: string) => {
-    if (index === activeIndex) {
-        // If clicking the active card, trigger selection
-        onSelectMarketplace(id);
-    } else {
-        // If clicking a side card, center it
-        setActiveIndex(index);
-    }
-  };
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Mapeamento de imagens de fundo (geradas via AI)
   const getBackgroundImage = (id: string) => {
@@ -83,6 +53,16 @@ export default function ModernMarketplaceCarousel({
     return <CheckCircle className="h-4 w-4 text-green-400" />;
   };
 
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 400;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div className={cn("relative w-full h-[600px] flex flex-col items-center justify-center bg-gradient-to-b from-background via-background/95 to-background overflow-hidden", className)}>
         
@@ -99,7 +79,7 @@ export default function ModernMarketplaceCarousel({
             variant="ghost" 
             size="icon" 
             className="absolute left-4 z-50 rounded-full bg-background/80 hover:bg-background border border-border/50 backdrop-blur-sm text-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-            onClick={handlePrev}
+            onClick={() => handleScroll('left')}
         >
             <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -107,165 +87,164 @@ export default function ModernMarketplaceCarousel({
             variant="ghost" 
             size="icon" 
             className="absolute right-4 z-50 rounded-full bg-background/80 hover:bg-background border border-border/50 backdrop-blur-sm text-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-            onClick={handleNext}
+            onClick={() => handleScroll('right')}
         >
             <ChevronRight className="h-5 w-5" />
         </Button>
 
-        {/* 3D Carousel Container */}
-        <div className="relative w-full max-w-5xl h-[450px] flex items-center justify-center">
-            <AnimatePresence>
-                {marketplaces.map((marketplace, index) => {
-                    // Calculate relative position to active index
-                    // We want circular behavior for smooth flow
-                    let offset = index - activeIndex;
-                    
-                    // Logic to handle wrapping for infinite-like feel visualization
-                    // If offset is too large, wrap it around
-                    if (offset > marketplaces.length / 2) {offset -= marketplaces.length;}
-                    if (offset < -marketplaces.length / 2) {offset += marketplaces.length;}
+        {/* Netflix-style Horizontal Carousel */}
+        <div className="relative w-full h-full flex items-center px-16">
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-4 overflow-x-auto overflow-y-hidden px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {marketplaces.map((marketplace, index) => {
+              const isHovered = hoveredIndex === index;
+              const isSelected = selectedMarketplaceId === marketplace.id;
 
-                    const isActive = index === activeIndex;
-                    
-                    // Only render cards that are visible (e.g., active + 2 on each side)
-                    // But for this specific effect we might want to render all but style them
-                    // Let's render visible range to save performance if list is huge, 
-                    // but for 8 items, rendering all is fine.
-                    const isVisible = Math.abs(offset) <= 2; 
+              return (
+                <motion.div
+                  key={marketplace.id}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  onClick={() => onSelectMarketplace(marketplace.id)}
+                  className={cn(
+                    "relative flex-shrink-0 rounded-xl overflow-hidden cursor-pointer",
+                    "bg-card shadow-lg",
+                    isHovered ? "z-50 shadow-2xl" : "z-10"
+                  )}
+                  initial={false}
+                  animate={{
+                    scale: isHovered ? 1.12 : 1,
+                    y: isHovered ? -24 : 0,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 25,
+                    mass: 0.8
+                  }}
+                  style={{
+                    width: isHovered ? '320px' : '240px',
+                    height: isHovered ? '480px' : '420px',
+                  }}
+                >
+                  {/* Background Image */}
+                  <motion.div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ 
+                      backgroundImage: `url(${getBackgroundImage(marketplace.id)})`,
+                    }}
+                    animate={{
+                      scale: isHovered ? 1.08 : 1,
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      ease: [0.4, 0, 0.2, 1]
+                    }}
+                  />
 
-                    if (!isVisible) {return null;}
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
+                  
+                  {/* Content */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
+                    <motion.div 
+                      className="flex flex-col items-center text-center space-y-3"
+                      animate={{
+                        opacity: isHovered || isSelected ? 1 : 0.85,
+                        y: isHovered || isSelected ? 0 : 8,
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
+                    >
+                      {/* Marketplace Name */}
+                      <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight drop-shadow-2xl">
+                        {marketplace.name}
+                      </h3>
 
-                    return (
+                      {/* Status Badge */}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-lg">
+                          {marketplace.region}
+                        </Badge>
+                        <div className={cn(
+                          "flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg border",
+                          marketplace.status.isConnected 
+                            ? "bg-green-500/20 text-green-100 border-green-400/30" 
+                            : "bg-orange-500/20 text-orange-100 border-orange-400/30"
+                        )}>
+                          {getStatusIcon(marketplace.status)}
+                          <span className="font-medium">{marketplace.status.isConnected ? 'Conectado' : 'Conectar'}</span>
+                        </div>
+                      </div>
+
+                      {/* Action Button - Visible on hover */}
+                      {(isHovered || isSelected) && (
                         <motion.div
-                            key={marketplace.id}
-                            layout
-                            initial={false}
-                            animate={{
-                                x: offset * 220, // Horizontal spacing
-                                y: Math.abs(offset) * 10, // Slight curve downwards for side items if desired, or 0
-                                scale: 1 - Math.abs(offset) * 0.15, // Scale down side cards
-                                zIndex: 50 - Math.abs(offset), // Depth sorting
-                                rotateY: offset * -25, // Rotate inwards
-                                opacity: 1 - Math.abs(offset) * 0.25, // Fade out side cards
-                                filter: isActive ? 'blur(0px)' : 'blur(1px)', // Subtle blur for inactive cards
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 25
-                            }}
-                            onClick={() => handleCardClick(index, marketplace.id)}
-                            className={cn(
-                                "absolute w-[300px] h-[420px] rounded-2xl overflow-hidden cursor-pointer origin-bottom",
-                                isActive 
-                                    ? "cursor-default shadow-2xl ring-2 ring-primary/20" 
-                                    : "cursor-pointer shadow-lg hover:shadow-xl hover:ring-1 hover:ring-border/50 transition-all duration-300"
-                            )}
-                            style={{
-                                transformStyle: 'preserve-3d',
-                            }}
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ 
+                            delay: 0.15,
+                            duration: 0.3,
+                            ease: [0.4, 0, 0.2, 1]
+                          }}
                         >
-                            {/* Card Content - Reusing the clean design */}
-                            
-                            {/* Background Image */}
-                            <div 
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{ 
-                                    backgroundImage: `url(${getBackgroundImage(marketplace.id)})`,
-                                    transform: 'scale(1.05)' // Slight zoom to avoid edges
-                                }}
-                            />
-
-                            {/* Premium Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10" />
-                            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
-
-                            {/* Content */}
-                            <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
-                                <motion.div 
-                                    className="flex flex-col items-center text-center space-y-3"
-                                    animate={{
-                                        opacity: isActive ? 1 : 0,
-                                        y: isActive ? 0 : 20
-                                    }}
-                                >
-                                    {/* Marketplace Name */}
-                                    <h3 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight drop-shadow-2xl">
-                                        {marketplace.name}
-                                    </h3>
-
-                                    {/* Status Badge */}
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="secondary" className="bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-lg">
-                                            {marketplace.region}
-                                        </Badge>
-                                        <div className={cn(
-                                            "flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg border",
-                                            marketplace.status.isConnected 
-                                                ? "bg-green-500/20 text-green-100 border-green-400/30" 
-                                                : "bg-orange-500/20 text-orange-100 border-orange-400/30"
-                                        )}>
-                                            {getStatusIcon(marketplace.status)}
-                                            <span className="font-medium">{marketplace.status.isConnected ? 'Conectado' : 'Conectar'}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Action Button - Only visible on active card */}
-                                    {isActive && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.2 }}
-                                        >
-                                            <Button 
-                                                size="sm"
-                                                className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] min-h-[44px]"
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Prevent card click
-                                                    onSelectMarketplace(marketplace.id);
-                                                }}
-                                            >
-                                                Acessar
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </motion.div>
-                                    )}
-                                </motion.div>
-                            </div>
-                        
-                            {/* Logo "Reflection" or Glass effect could go here if requested, 
-                                but user wanted clean visuals. */}
-                            
-                            {/* Premium Active Indicator */}
-                            {isActive && (
-                                <motion.div 
-                                    className="absolute inset-0 border-2 border-primary/30 rounded-2xl pointer-events-none"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.3 }}
-                                />
-                            )}
+                          <Button 
+                            size="sm"
+                            className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] min-h-[44px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectMarketplace(marketplace.id);
+                            }}
+                          >
+                            Acessar
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
                         </motion.div>
-                    );
-                })}
-            </AnimatePresence>
+                      )}
+                    </motion.div>
+                  </div>
+
+                  {/* Hover Border Effect */}
+                  {isHovered && (
+                    <motion.div 
+                      className="absolute inset-0 border-2 border-primary/50 rounded-xl pointer-events-none"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ 
+                        duration: 0.3,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
+                    />
+                  )}
+                  
+                  {/* Hover Glow Effect */}
+                  {isHovered && (
+                    <motion.div 
+                      className="absolute inset-0 rounded-xl pointer-events-none"
+                      style={{
+                        boxShadow: '0 0 40px rgba(59, 130, 246, 0.3)',
+                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ 
+                        duration: 0.4,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
+                    />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Premium Dots Indicator */}
-        <div className="absolute bottom-6 flex items-center gap-2 z-10 px-4 py-2 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-lg">
-            {marketplaces.map((_, index) => (
-                <button
-                    key={index}
-                    onClick={() => setActiveIndex(index)}
-                    className={cn(
-                        "rounded-full transition-all duration-300 ease-out",
-                        index === activeIndex 
-                            ? "w-8 h-2 bg-primary shadow-md" 
-                            : "w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                    )}
-                    aria-label={`Ir para marketplace ${index + 1}`}
-                />
-            ))}
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2 z-10 px-4 py-2 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-lg">
+          <span className="text-xs text-muted-foreground">Deslize para ver mais</span>
         </div>
     </div>
   );
