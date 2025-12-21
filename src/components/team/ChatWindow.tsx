@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import MessageBubble from "./MessageBubble";
 import { TeamMember } from "@/types/team";
 import { MessageDeliveryStatus } from "./MessageStatus";
+import UserStatus, { type UserStatus as UserStatusType } from "./UserStatus";
 
 interface Message {
   id: string;
