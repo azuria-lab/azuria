@@ -41,13 +41,32 @@ function handleEvent(event: AzuriaEvent) {
   const merged = getGlobalState();
   // Update some slices if present
   if (event.tipo === 'ai:signal-quality') {
-    updateGlobalState({ operational: { ...(merged.operational || {}), signalQuality: event.payload?.signalQuality } });
+    updateGlobalState({
+      operational: {
+        ...(merged.operational || {}),
+        signalQuality: event.payload?.signalQuality,
+      },
+    });
   }
   if (event.tipo === 'ai:evolution-score-updated') {
-    updateGlobalState({ evolution: { ...(merged.evolution || {}), evolutionScore: event.payload?.evolutionScore } });
+    updateGlobalState({
+      evolution: {
+        ...(merged.evolution || {}),
+        evolutionScore: event.payload?.evolutionScore,
+      },
+    });
   }
-  if (event.tipo === 'ai:trend-detected' || event.tipo === 'ai:future-state-predicted') {
-    updateGlobalState({ temporal: { ...(merged.temporal || {}), trend: event.payload?.trend, expected: event.payload?.expected } });
+  if (
+    event.tipo === 'ai:trend-detected' ||
+    event.tipo === 'ai:future-state-predicted'
+  ) {
+    updateGlobalState({
+      temporal: {
+        ...(merged.temporal || {}),
+        trend: event.payload?.trend,
+        expected: event.payload?.expected,
+      },
+    });
   }
 
   computeUnifiedInference();
@@ -80,8 +99,16 @@ function emitUnifiedInsight() {
 
   emitEvent(
     'insight:generated',
-    actionResult.allowed ? validated : { ...validated, severity: 'high', message: 'Ação bloqueada: ' + (actionResult.decision?.reason || validated.message) },
+    actionResult.allowed
+      ? validated
+      : {
+          ...validated,
+          severity: 'high',
+          message:
+            'Ação bloqueada: ' +
+            ((actionResult.decision as { reason?: string })?.reason ||
+              validated.message),
+        },
     { source: 'integratedOrchestrator', priority: 5 }
   );
 }
-
