@@ -112,7 +112,9 @@ const state: FeedbackState = {
  * Inicializa o FeedbackLoopEngine
  */
 export async function initFeedbackLoop(userId?: string): Promise<void> {
-  if (state.initialized && state.userId === userId) {return;}
+  if (state.initialized && state.userId === userId) {
+    return;
+  }
 
   state.userId = userId ?? null;
   state.feedbackHistory = [];
@@ -270,7 +272,7 @@ export async function recordFeedback(
   updateMetricsWithFeedback(fullFeedback);
 
   // Notify listeners
-  state.listeners.forEach((listener) => {
+  state.listeners.forEach(listener => {
     try {
       listener(fullFeedback);
     } catch (e) {
@@ -279,8 +281,8 @@ export async function recordFeedback(
     }
   });
 
-  // Emit event
-  // @ts-expect-error - Event signature mismatch
+  // Emit event (event type not in EventType enum)
+  // @ts-expect-error - user:feedback not defined in EventType
   eventBus.emit({
     type: 'user:feedback',
     payload: {
@@ -416,9 +418,13 @@ export function analyzeEffectiveness(): EffectivenessAnalysis {
 export function getRecentPositiveRate(count: number = 20): number {
   const recent = state.feedbackHistory.slice(0, count);
 
-  if (recent.length === 0) {return 0.5;} // Default neutral
+  if (recent.length === 0) {
+    return 0.5;
+  } // Default neutral
 
-  const positive = recent.filter((f) => isPositiveFeedback(f.feedbackType)).length;
+  const positive = recent.filter(f =>
+    isPositiveFeedback(f.feedbackType)
+  ).length;
 
   return positive / recent.length;
 }
@@ -429,7 +435,9 @@ export function getRecentPositiveRate(count: number = 20): number {
 export function shouldAvoidSuggestionType(type: string): boolean {
   const typeMetrics = state.metrics.byType[type];
 
-  if (!typeMetrics || typeMetrics.total < 5) {return false;}
+  if (!typeMetrics || typeMetrics.total < 5) {
+    return false;
+  }
 
   // Avoid if dismiss rate > 70% and no positive feedback
   const dismissRate = typeMetrics.dismissed / typeMetrics.total;
@@ -525,7 +533,9 @@ function recalculateMetrics(): void {
 function recalculateGlobalRates(): void {
   const metrics = state.metrics;
 
-  if (metrics.totalFeedback === 0) {return;}
+  if (metrics.totalFeedback === 0) {
+    return;
+  }
 
   let totalPositive = 0;
   let totalApplied = 0;
@@ -534,9 +544,15 @@ function recalculateGlobalRates(): void {
   let ratingSum = 0;
 
   for (const feedback of state.feedbackHistory) {
-    if (isPositiveFeedback(feedback.feedbackType)) {totalPositive++;}
-    if (feedback.feedbackType === 'applied') {totalApplied++;}
-    if (feedback.feedbackType === 'dismissed') {totalDismissed++;}
+    if (isPositiveFeedback(feedback.feedbackType)) {
+      totalPositive++;
+    }
+    if (feedback.feedbackType === 'applied') {
+      totalApplied++;
+    }
+    if (feedback.feedbackType === 'dismissed') {
+      totalDismissed++;
+    }
     if (feedback.feedbackType === 'rating' && feedback.rating) {
       totalRatings++;
       ratingSum += feedback.rating;
@@ -550,7 +566,9 @@ function recalculateGlobalRates(): void {
 }
 
 function calculateOverallScore(metrics: FeedbackMetrics): number {
-  if (metrics.totalFeedback === 0) {return 50;}
+  if (metrics.totalFeedback === 0) {
+    return 50;
+  }
 
   // Weighted score
   const weights = {
@@ -574,27 +592,38 @@ function calculateOverallScore(metrics: FeedbackMetrics): number {
 }
 
 function analyzeTrend(): 'improving' | 'stable' | 'declining' {
-  if (state.feedbackHistory.length < 20) {return 'stable';}
+  if (state.feedbackHistory.length < 20) {
+    return 'stable';
+  }
 
   const recent = state.feedbackHistory.slice(0, 10);
   const older = state.feedbackHistory.slice(10, 20);
 
-  const recentPositive = recent.filter((f) => isPositiveFeedback(f.feedbackType)).length;
-  const olderPositive = older.filter((f) => isPositiveFeedback(f.feedbackType)).length;
+  const recentPositive = recent.filter(f =>
+    isPositiveFeedback(f.feedbackType)
+  ).length;
+  const olderPositive = older.filter(f =>
+    isPositiveFeedback(f.feedbackType)
+  ).length;
 
   const recentRate = recentPositive / recent.length;
   const olderRate = olderPositive / older.length;
 
   const diff = recentRate - olderRate;
 
-  if (diff > 0.15) {return 'improving';}
-  if (diff < -0.15) {return 'declining';}
+  if (diff > 0.15) {
+    return 'improving';
+  }
+  if (diff < -0.15) {
+    return 'declining';
+  }
   return 'stable';
 }
 
-function findPerformanceExtremes(
-  byType: Record<string, TypeMetrics>
-): { best: string[]; worst: string[] } {
+function findPerformanceExtremes(byType: Record<string, TypeMetrics>): {
+  best: string[];
+  worst: string[];
+} {
   const types = Object.entries(byType)
     .filter(([, m]) => m.total >= 3) // Minimum samples
     .map(([type, m]) => ({
@@ -604,8 +633,8 @@ function findPerformanceExtremes(
     .sort((a, b) => b.score - a.score);
 
   return {
-    best: types.slice(0, 3).map((t) => t.type),
-    worst: types.slice(-3).map((t) => t.type),
+    best: types.slice(0, 3).map(t => t.type),
+    worst: types.slice(-3).map(t => t.type),
   };
 }
 
@@ -616,15 +645,21 @@ function generateRecommendations(
   const recommendations: string[] = [];
 
   if (score < 40) {
-    recommendations.push('Considere reduzir a frequência de sugestões proativas');
+    recommendations.push(
+      'Considere reduzir a frequência de sugestões proativas'
+    );
   }
 
   if (metrics.dismissRate > 0.5) {
-    recommendations.push('Muitas sugestões estão sendo descartadas - ajuste a relevância');
+    recommendations.push(
+      'Muitas sugestões estão sendo descartadas - ajuste a relevância'
+    );
   }
 
   if (metrics.applicationRate < 0.2) {
-    recommendations.push('Poucas sugestões aplicadas - revise o timing e contexto');
+    recommendations.push(
+      'Poucas sugestões aplicadas - revise o timing e contexto'
+    );
   }
 
   // Check worst performing types
@@ -637,10 +672,11 @@ function generateRecommendations(
 }
 
 async function persistFeedback(feedback: SuggestionFeedback): Promise<void> {
-  if (!state.persistenceEnabled) {return;}
+  if (!state.persistenceEnabled) {
+    return;
+  }
 
   try {
-    // @ts-expect-error - Supabase types not regenerated after table creation
     const { error } = await supabase.from('suggestion_feedback').insert({
       suggestion_id: feedback.suggestionId,
       user_id: state.userId,
@@ -664,9 +700,13 @@ async function persistFeedback(feedback: SuggestionFeedback): Promise<void> {
 
 function mapDbToFeedback(row: Record<string, unknown>): SuggestionFeedback {
   return {
-    suggestionId: row.suggestion_id ? String(row.suggestion_id as string | number) : '',
-    // @ts-expect-error - Type assertion needed for metadata
-    suggestionType: (row.metadata as Record<string, unknown>)?.suggestionType as UserSuggestion['type'] ?? 'info',
+    suggestionId: row.suggestion_id
+      ? String(row.suggestion_id as string | number)
+      : '',
+    // @ts-expect-error - 'info' is fallback but not in SuggestionType union
+    suggestionType:
+      ((row.metadata as Record<string, unknown> | null)
+        ?.suggestionType as UserSuggestion['type']) ?? 'info',
     feedbackType: row.feedback_type as FeedbackType,
     rating: row.rating as number | undefined,
     comment: row.comment as string | undefined,
@@ -677,12 +717,15 @@ function mapDbToFeedback(row: Record<string, unknown>): SuggestionFeedback {
 
 function setupEventListeners(): void {
   // Listen to suggestion interactions
-  // @ts-expect-error - Event type mismatch
-  eventBus.on('user:interacted', (event) => {
+  // @ts-expect-error - user:interacted not defined in EventType
+  eventBus.on('user:interacted', event => {
     const { elementType, action } = event.payload;
 
     // Track implicit feedback from interactions
-    if (elementType === 'suggestion' && (action === 'dismiss' || action === 'click' || action === 'apply')) {
+    if (
+      elementType === 'suggestion' &&
+      (action === 'dismiss' || action === 'click' || action === 'apply')
+    ) {
       // Already tracked explicitly
     }
   });
