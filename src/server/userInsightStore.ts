@@ -65,9 +65,8 @@ const memoryCache = {
 let tablesAvailable: boolean | null = null;
 let tablesCheckPromise: Promise<boolean> | null = null;
 
-// Desabilita persistência completamente (tabelas de IA não criadas ainda)
-// TODO: Mudar para false quando tabela user_suggestions for criada
-const AI_TABLES_DISABLED = true;
+// Tabelas de IA agora estão disponíveis
+const AI_TABLES_DISABLED = false;
 
 function getSupabaseClient() {
   // SEGURANÇA: Frontend usa apenas ANON_KEY, nunca SERVICE_ROLE_KEY
