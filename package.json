@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/load-env.mjs",
+    "dev": "vite",
     "dev:vite": "vite",
     "dev:local": "node scripts/switch-env.mjs local && vite",
     "dev:hybrid": "node scripts/switch-env.mjs hybrid && vite",
