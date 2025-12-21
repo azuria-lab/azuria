@@ -1,4 +1,3 @@
-
 export interface CalculationTemplate {
   id: string;
   name: string;
@@ -19,7 +18,7 @@ export interface CalculationTemplate {
   updated_at: string;
 }
 
-export type TemplateCategory = 
+export type TemplateCategory =
   | 'ecommerce'
   | 'restaurante'
   | 'servicos'
@@ -28,6 +27,8 @@ export type TemplateCategory =
   | 'varejo'
   | 'industria'
   | 'consultoria'
+  | 'b2b'
+  | 'importacao'
   | 'outros';
 
 export type TemplateStatus = 'draft' | 'published' | 'archived';
@@ -75,5 +76,7 @@ export const TEMPLATE_CATEGORIES = [
   { value: 'varejo', label: 'Varejo' },
   { value: 'industria', label: 'Indústria' },
   { value: 'consultoria', label: 'Consultoria' },
-  { value: 'outros', label: 'Outros' }
+  { value: 'b2b', label: 'B2B Corporativo' },
+  { value: 'importacao', label: 'Importação' },
+  { value: 'outros', label: 'Outros' },
 ] as const;
