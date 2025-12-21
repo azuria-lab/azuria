@@ -4,6 +4,7 @@ import {
   ConnectionMode,
   type Edge,
   type Node,
+  type NodeTypes,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -13,7 +14,21 @@ import FlowBlockNode from './FlowBlockNode';
 import SidePanel from './SidePanel';
 import { FlowBlock } from '@/types/resources';
 
-const nodeTypes = {
+// Tipo para os dados do node customizado
+interface FlowBlockNodeData extends Record<string, unknown> {
+  label: string;
+  description: string;
+  icon: string;
+  highlight?: boolean;
+  size?: 'normal' | 'large';
+  onNodeClick?: (id: string) => void;
+}
+
+// Tipo do node customizado
+type FlowBlockNodeType = Node<FlowBlockNodeData, 'flowBlock'>;
+
+// NodeTypes tipado corretamente
+const nodeTypes: NodeTypes = {
   flowBlock: FlowBlockNode,
 };
 
@@ -36,11 +51,11 @@ export default function ResourceFlow({ blocks, title, description, headerContent
     }
   }, [blocks]);
 
-  const initialNodes: Node[] = useMemo(
+  const initialNodes: FlowBlockNodeType[] = useMemo(
     () =>
       blocks.map((block) => ({
         id: block.id,
-        type: 'flowBlock',
+        type: 'flowBlock' as const,
         position: block.position,
         data: {
           label: block.label,
@@ -106,7 +121,6 @@ export default function ResourceFlow({ blocks, title, description, headerContent
             defaultViewport={{ x: -200, y: 100, zoom: 0.8 }}
             nodesDraggable={false}
             nodesConnectable={false}
-            edgesUpdatable={false}
             elementsSelectable={false}
             className="bg-transparent"
           >
