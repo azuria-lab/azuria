@@ -1,24 +1,54 @@
 # Security Policy
 
-Este software é proprietário. Relatos de vulnerabilidades devem ser feitos de forma privada. Não são aceitas divulgações públicas sem coordenação prévia.
+Este software é proprietário. Relatos de vulnerabilidades devem ser feitos de forma privada.
 
-## Versões Suportadas
+## ⚠️ Incidente de Segurança - 2024-12-21
 
-Mantemos ativamente a branch `main`. Correções de segurança têm prioridade.
+Este projeto passou por remediação de segurança após exposição acidental de API keys.
+
+### Ações Realizadas
+- ✅ Todas as chaves foram rotacionadas
+- ✅ Histórico Git foi reescrito (arquivos .env removidos)
+- ✅ Código frontend limpo de `VITE_*_API_KEY`
+- ✅ Chamadas de IA migradas para Edge Functions
+
+---
+
+## 🚫 Regras para Desenvolvedores e Agentes de IA
+
+### NUNCA FAZER
+- ❌ Criar ou editar arquivos `.env` diretamente
+- ❌ Commitar segredos, API keys ou tokens
+- ❌ Usar prefixo `VITE_` para chaves de API sensíveis
+- ❌ Expor API keys no código frontend
+- ❌ Logar API keys ou tokens
+
+### SEMPRE FAZER
+- ✅ Usar `.env.example` apenas como template
+- ✅ Armazenar segredos em Supabase Dashboard → Settings → Secrets
+- ✅ Chamar serviços de IA via Edge Functions (ex: `azuria-chat`)
+- ✅ Usar `Deno.env.get()` em Edge Functions para segredos
+
+---
+
+## Variáveis de Ambiente
+
+### Frontend (Seguro)
+```
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ... (chave pública)
+```
+
+### Backend ONLY (NUNCA no Frontend)
+```
+GEMINI_API_KEY=AIza... (NUNCA expor!)
+SUPABASE_SERVICE_ROLE_KEY=eyJ... (NUNCA expor!)
+```
+
+---
 
 ## Reporte de Vulnerabilidade
 
-- Envie o relato de forma privada via [GitHub Security Advisories](https://docs.github.com/code-security/security-advisories) ou e-mail: [security@azuria.com](mailto:security@azuria.com)
-- Inclua passos de reprodução, impacto potencial e qualquer mitigação conhecida.
-- Responderemos em até 72 horas úteis com confirmação de recebimento.
-- Forneceremos atualizações de status até a correção ou decisão final.
-
-## Exposição de Segredos
-
-- Não inclua chaves privadas, tokens ou credenciais em issues ou PRs.
-- Caso um segredo seja exposto, revogue/rote imediatamente e notifique a equipe de segurança.
-
-## Divulgação Coordenada
-
-- Não publique detalhes técnicos antes de correção ou autorização.
-- Após o patch, podemos coordenar nota pública resumida (sem PoC explorável).
+- Envie via [GitHub Security Advisories](https://docs.github.com/code-security/security-advisories)
+- Responderemos em até 72 horas úteis
+- Não publique detalhes técnicos antes de correção

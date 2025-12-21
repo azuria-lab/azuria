@@ -1,0 +1,42 @@
+# Gitleaks Configuration
+# Blocks commits with secrets
+
+title = "Gitleaks Config for Azuria"
+
+[extend]
+# Use default rules
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''\.env\.example''',
+  '''node_modules''',
+  '''dist'''
+]
+
+# Block these patterns
+[[rules]]
+id = "gemini-api-key"
+description = "Google Gemini API Key"
+regex = '''AIza[0-9A-Za-z-_]{35}'''
+tags = ["key", "google", "gemini"]
+
+[[rules]]
+id = "supabase-service-role"
+description = "Supabase Service Role Key"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'''
+tags = ["key", "supabase", "jwt"]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key in env"
+regex = '''(?i)(api[_-]?key|apikey|secret[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_-]{20,}['\"]?'''
+tags = ["key", "api"]
+
+[[rules]]
+id = "vite-gemini-key"
+description = "VITE Gemini API Key (should not exist in code)"
+regex = '''VITE_GEMINI_API_KEY'''
+tags = ["key", "vite", "gemini"]
+keywords = ["VITE_GEMINI_API_KEY"]
