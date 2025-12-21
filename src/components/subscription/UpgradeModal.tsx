@@ -104,3 +104,4 @@ export function UpgradeModal({ open, onOpenChange, currentLimit, used }: Upgrade
   );
 }
 
+export default UpgradeModal;
