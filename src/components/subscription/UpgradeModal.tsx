@@ -16,7 +16,7 @@ interface UpgradeModalProps {
   used: number;
 }
 
-export function UpgradeModal({ open, onOpenChange, currentLimit, used }: UpgradeModalProps) {
+export function UpgradeModal({ open, onOpenChange, currentLimit, used: _used }: UpgradeModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto">
