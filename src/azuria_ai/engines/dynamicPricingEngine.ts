@@ -3,14 +3,14 @@
  * AZURIA v2.0 - DYNAMIC PRICING ENGINE
  * =====================================================
  * Engine inteligente de precificação dinâmica automática
- * 
+ *
  * Funcionalidades:
  * - Criação e gestão de regras de precificação
  * - Execução automática baseada em condições
  * - Estratégias pré-configuradas (aggressive, competitive, premium)
  * - Simulação de impacto de mudanças de preço
  * - Otimização de margem vs volume
- * 
+ *
  * @module dynamicPricingEngine
  * @created 13/12/2024
  * =====================================================
@@ -39,7 +39,13 @@ export interface PricingRule {
   ruleName: string;
   description?: string;
   priority: number;
-  ruleType: 'margin_based' | 'competitor_based' | 'demand_based' | 'time_based' | 'inventory_based' | 'custom';
+  ruleType:
+    | 'margin_based'
+    | 'competitor_based'
+    | 'demand_based'
+    | 'time_based'
+    | 'inventory_based'
+    | 'custom';
   conditions: Record<string, unknown>;
   actions: Record<string, unknown>;
   applyTo: 'all' | 'category' | 'product' | 'marketplace' | 'tag';
@@ -59,7 +65,13 @@ export interface PricingStrategy {
   userId: string;
   strategyName: string;
   description?: string;
-  strategyType: 'aggressive' | 'competitive' | 'premium' | 'value' | 'dynamic' | 'custom';
+  strategyType:
+    | 'aggressive'
+    | 'competitive'
+    | 'premium'
+    | 'value'
+    | 'dynamic'
+    | 'custom';
   baseMargin: number;
   minMargin: number;
   maxMargin?: number;
@@ -82,7 +94,12 @@ export interface PriceAdjustment {
   newPrice: number;
   priceChange: number;
   priceChangePercent: number;
-  source: 'rule' | 'suggestion' | 'manual' | 'ai_recommendation' | 'competitor_match';
+  source:
+    | 'rule'
+    | 'suggestion'
+    | 'manual'
+    | 'ai_recommendation'
+    | 'competitor_match';
   sourceId?: string;
   marketplace?: string;
   status: 'pending' | 'applied' | 'failed' | 'reverted';
@@ -104,7 +121,11 @@ export interface PriceSimulation {
   }>;
   recommendedPrice: number;
   recommendationReason: string;
-  simulationType: 'demand_curve' | 'competitor_response' | 'margin_optimization' | 'sensitivity_analysis';
+  simulationType:
+    | 'demand_curve'
+    | 'competitor_response'
+    | 'margin_optimization'
+    | 'sensitivity_analysis';
   optimalMargin?: number;
   estimatedImpact: 'revenue_max' | 'volume_max' | 'margin_max' | 'balanced';
 }
@@ -129,13 +150,15 @@ class DynamicPricingEngine {
   private readonly isAutoExecuting = false;
 
   /**
-   * Inicializa o engine com a API key do Gemini
+   * Inicializa o engine - NOTA: Em produção, use Edge Functions
+   * Este engine requer que a API key seja passada explicitamente
    */
-  initDynamicPricing(): void {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
+  initDynamicPricing(apiKey?: string): void {
+    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
     if (!apiKey) {
-      console.warn('[DynamicPricing] Gemini API key não encontrada');
+      console.warn(
+        '[DynamicPricing] ⚠️ Engine não inicializado - API key deve ser passada via backend/Edge Function'
+      );
       return;
     }
 
@@ -149,7 +172,9 @@ class DynamicPricingEngine {
    */
   private checkInitialized(): void {
     if (!this.isInitialized || !this.genAI) {
-      throw new Error('DynamicPricing engine não inicializado. Chame initDynamicPricing() primeiro.');
+      throw new Error(
+        'DynamicPricing engine não inicializado. Chame initDynamicPricing() primeiro.'
+      );
     }
   }
 
@@ -160,7 +185,9 @@ class DynamicPricingEngine {
   /**
    * Cria uma nova regra de precificação
    */
-  async createRule(rule: Omit<PricingRule, 'id' | 'executionCount' | 'lastExecutedAt'>): Promise<PricingRule> {
+  async createRule(
+    rule: Omit<PricingRule, 'id' | 'executionCount' | 'lastExecutedAt'>
+  ): Promise<PricingRule> {
     const { data, error } = await untypedFrom('pricing_rules')
       .insert({
         user_id: rule.userId,
@@ -193,7 +220,10 @@ class DynamicPricingEngine {
   /**
    * Lista regras do usuário
    */
-  async getRules(userId: string, activeOnly: boolean = false): Promise<PricingRule[]> {
+  async getRules(
+    userId: string,
+    activeOnly: boolean = false
+  ): Promise<PricingRule[]> {
     let query = untypedFrom('pricing_rules')
       .select('*')
       .eq('user_id', userId)
@@ -227,7 +257,9 @@ class DynamicPricingEngine {
 
     try {
       // Buscar regra
-      const { data: ruleData, error: ruleError } = await untypedFrom('pricing_rules')
+      const { data: ruleData, error: ruleError } = await untypedFrom(
+        'pricing_rules'
+      )
         .select('*')
         .eq('id', ruleId)
         .single();
@@ -242,7 +274,9 @@ class DynamicPricingEngine {
 
       // Buscar produtos aplicáveis
       const products = await this.getApplicableProducts(rule);
-      console.log(`[DynamicPricing] 📦 ${products.length} produtos encontrados`);
+      console.log(
+        `[DynamicPricing] 📦 ${products.length} produtos encontrados`
+      );
 
       const adjustments: PriceAdjustment[] = [];
 
@@ -254,8 +288,12 @@ class DynamicPricingEngine {
             adjustments.push(adjustment);
           }
         } catch (error) {
-          const productName = typeof product.name === 'string' ? product.name : 'unknown';
-          console.error(`[DynamicPricing] Erro ao aplicar regra no produto ${productName}:`, error);
+          const productName =
+            typeof product.name === 'string' ? product.name : 'unknown';
+          console.error(
+            `[DynamicPricing] Erro ao aplicar regra no produto ${productName}:`,
+            error
+          );
         }
       }
 
@@ -284,7 +322,9 @@ class DynamicPricingEngine {
         },
       });
 
-      console.log(`[DynamicPricing] ✅ Regra executada: ${adjustments.length} ajustes aplicados`);
+      console.log(
+        `[DynamicPricing] ✅ Regra executada: ${adjustments.length} ajustes aplicados`
+      );
 
       return {
         success: true,
@@ -307,10 +347,13 @@ class DynamicPricingEngine {
   /**
    * Aplica regra em um produto específico
    */
-  private async applyRuleToProduct(rule: PricingRule, product: Record<string, unknown>): Promise<PriceAdjustment | null> {
+  private async applyRuleToProduct(
+    rule: PricingRule,
+    product: Record<string, unknown>
+  ): Promise<PriceAdjustment | null> {
     // Avaliar condições
     const conditionsMet = this.evaluateConditions(rule.conditions, product);
-    
+
     if (!conditionsMet) {
       return null; // Condições não atendidas
     }
@@ -359,13 +402,16 @@ class DynamicPricingEngine {
   /**
    * Avalia condições da regra
    */
-  private evaluateConditions(conditions: Record<string, unknown>, product: Record<string, unknown>): boolean {
+  private evaluateConditions(
+    conditions: Record<string, unknown>,
+    product: Record<string, unknown>
+  ): boolean {
     // Implementação simplificada - expandir conforme necessário
     const currentPrice = product.currentPrice as number;
     const cost = product.cost as number;
     const competitorsCount = product.competitorsCount as number | undefined;
     const stock = product.stock as number | undefined;
-    
+
     if (conditions.min_margin !== undefined) {
       const margin = ((currentPrice - cost) / currentPrice) * 100;
       if (margin < (conditions.min_margin as number)) {
@@ -373,7 +419,10 @@ class DynamicPricingEngine {
       }
     }
 
-    if (conditions.max_competitors !== undefined && competitorsCount !== undefined) {
+    if (
+      conditions.max_competitors !== undefined &&
+      competitorsCount !== undefined
+    ) {
       if (competitorsCount > (conditions.max_competitors as number)) {
         return true;
       }
@@ -392,16 +441,21 @@ class DynamicPricingEngine {
   /**
    * Calcula novo preço baseado nas ações da regra
    */
-  private calculateNewPrice(rule: PricingRule, product: Record<string, unknown>): number {
+  private calculateNewPrice(
+    rule: PricingRule,
+    product: Record<string, unknown>
+  ): number {
     const actions = rule.actions;
     const currentPrice = product.currentPrice as number;
     const cost = product.cost as number | undefined;
-    const lowestCompetitorPrice = product.lowestCompetitorPrice as number | undefined;
+    const lowestCompetitorPrice = product.lowestCompetitorPrice as
+      | number
+      | undefined;
     let newPrice = currentPrice;
 
     if (actions.price_adjustment !== undefined) {
       const adjustment = actions.price_adjustment as number;
-      
+
       if (actions.adjustment_type === 'percentage') {
         newPrice = currentPrice * (1 + adjustment / 100);
       } else if (actions.adjustment_type === 'fixed') {
@@ -426,7 +480,11 @@ class DynamicPricingEngine {
   /**
    * Aplica limites de segurança no preço
    */
-  private applySafeLimits(price: number, rule: PricingRule, product: Record<string, unknown>): number {
+  private applySafeLimits(
+    price: number,
+    rule: PricingRule,
+    product: Record<string, unknown>
+  ): number {
     const currentPrice = product.currentPrice as number;
     const cost = product.cost as number | undefined;
     let safePrice = price;
@@ -444,7 +502,7 @@ class DynamicPricingEngine {
     // Limite de ajuste percentual
     const maxChange = (currentPrice * rule.maxAdjustmentPercent) / 100;
     const change = safePrice - currentPrice;
-    
+
     if (Math.abs(change) > maxChange) {
       safePrice = currentPrice + (change > 0 ? maxChange : -maxChange);
     }
@@ -465,7 +523,9 @@ class DynamicPricingEngine {
   /**
    * Cria estratégia de precificação
    */
-  async createStrategy(strategy: Omit<PricingStrategy, 'id'>): Promise<PricingStrategy> {
+  async createStrategy(
+    strategy: Omit<PricingStrategy, 'id'>
+  ): Promise<PricingStrategy> {
     const { data, error } = await untypedFrom('pricing_strategies')
       .insert({
         user_id: strategy.userId,
@@ -490,7 +550,9 @@ class DynamicPricingEngine {
       throw new Error(`Erro ao criar estratégia: ${error.message}`);
     }
 
-    console.log(`[DynamicPricing] ✅ Estratégia "${strategy.strategyName}" criada`);
+    console.log(
+      `[DynamicPricing] ✅ Estratégia "${strategy.strategyName}" criada`
+    );
     return this.mapStrategyFromDB(data);
   }
 
@@ -514,11 +576,16 @@ class DynamicPricingEngine {
   /**
    * Aplica estratégia pré-configurada
    */
-  async applyStrategy(strategyId: string, productIds: string[]): Promise<PriceAdjustment[]> {
+  async applyStrategy(
+    strategyId: string,
+    productIds: string[]
+  ): Promise<PriceAdjustment[]> {
     this.checkInitialized();
 
     // Buscar estratégia
-    const { data: strategyData, error } = await untypedFrom('pricing_strategies')
+    const { data: strategyData, error } = await untypedFrom(
+      'pricing_strategies'
+    )
       .select('*')
       .eq('id', strategyId)
       .single();
@@ -528,7 +595,9 @@ class DynamicPricingEngine {
     }
 
     const strategy = this.mapStrategyFromDB(strategyData);
-    console.log(`[DynamicPricing] 📊 Aplicando estratégia: ${strategy.strategyName}`);
+    console.log(
+      `[DynamicPricing] 📊 Aplicando estratégia: ${strategy.strategyName}`
+    );
 
     const adjustments: PriceAdjustment[] = [];
 
@@ -537,16 +606,16 @@ class DynamicPricingEngine {
       try {
         // Buscar dados do produto (implementar conforme necessário)
         const product = await this.getProductData(productId);
-        
+
         if (product) {
           const newPrice = this.calculatePriceWithStrategy(strategy, product);
-          
+
           // Type assertions para propriedades do produto
           const productIdStr = product.id as string;
           const productName = product.name as string;
           const productSku = product.sku as string;
           const productCurrentPrice = product.currentPrice as number;
-          
+
           const adjustment = await this.createAdjustment({
             userId: strategy.userId,
             productId: productIdStr,
@@ -561,21 +630,29 @@ class DynamicPricingEngine {
           adjustments.push(adjustment);
         }
       } catch (error) {
-        console.error(`[DynamicPricing] Erro ao aplicar estratégia no produto ${productId}:`, error);
+        console.error(
+          `[DynamicPricing] Erro ao aplicar estratégia no produto ${productId}:`,
+          error
+        );
       }
     }
 
-    console.log(`[DynamicPricing] ✅ Estratégia aplicada em ${adjustments.length} produtos`);
+    console.log(
+      `[DynamicPricing] ✅ Estratégia aplicada em ${adjustments.length} produtos`
+    );
     return adjustments;
   }
 
   /**
    * Aplica multiplicadores temporais ao preço
    */
-  private applyTimeMultipliers(price: number, multipliers: Record<string, number>): number {
+  private applyTimeMultipliers(
+    price: number,
+    multipliers: Record<string, number>
+  ): number {
     const now = new Date();
     const dayOfWeek = now.getDay();
-    
+
     // Aumentar preço no fim de semana
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       return price * (multipliers.weekend || 1);
@@ -603,7 +680,10 @@ class DynamicPricingEngine {
   /**
    * Calcula preço usando estratégia
    */
-  private calculatePriceWithStrategy(strategy: PricingStrategy, product: Record<string, unknown>): number {
+  private calculatePriceWithStrategy(
+    strategy: PricingStrategy,
+    product: Record<string, unknown>
+  ): number {
     const cost = (product.cost as number) || 0;
     let price: number = this.calculateBasePrice(strategy, product, cost);
 
@@ -682,13 +762,20 @@ class DynamicPricingEngine {
 
     // Aplicar multiplicadores temporais
     if (strategy.timeBasedMultipliers) {
-      adjustedPrice = this.applyTimeMultipliers(adjustedPrice, strategy.timeBasedMultipliers);
+      adjustedPrice = this.applyTimeMultipliers(
+        adjustedPrice,
+        strategy.timeBasedMultipliers
+      );
     }
-    
+
     // Ajustes por estoque
     if (strategy.inventoryBasedAdjustments && product.stock !== undefined) {
       const stock = product.stock as number;
-      adjustedPrice = this.applyInventoryAdjustments(adjustedPrice, stock, strategy.inventoryBasedAdjustments);
+      adjustedPrice = this.applyInventoryAdjustments(
+        adjustedPrice,
+        stock,
+        strategy.inventoryBasedAdjustments
+      );
     }
 
     return adjustedPrice;
@@ -709,7 +796,9 @@ class DynamicPricingEngine {
   ): Promise<PriceSimulation> {
     this.checkInitialized();
 
-    console.log(`[DynamicPricing] 🔮 Simulando mudanças de preço para ${productName}`);
+    console.log(
+      `[DynamicPricing] 🔮 Simulando mudanças de preço para ${productName}`
+    );
 
     if (!this.genAI) {
       throw new Error('GenAI not initialized');
@@ -723,10 +812,14 @@ Você é um especialista em precificação e análise de demanda.
 Produto: ${productName}
 Preço Atual: R$ ${currentPrice.toFixed(2)}
 Custo: R$ ${costPrice.toFixed(2)}
-Range de Simulação: R$ ${priceRange.min.toFixed(2)} - R$ ${priceRange.max.toFixed(2)}
+Range de Simulação: R$ ${priceRange.min.toFixed(
+      2
+    )} - R$ ${priceRange.max.toFixed(2)}
 
 Simule o impacto de diferentes preços nas vendas, considerando elasticidade de demanda.
-Gere cenários realistas variando o preço de ${priceRange.min} até ${priceRange.max} em steps de ${priceRange.step}.
+Gere cenários realistas variando o preço de ${priceRange.min} até ${
+      priceRange.max
+    } em steps de ${priceRange.step}.
 
 Para cada cenário, estime:
 - Vendas esperadas (unidades)
@@ -776,7 +869,9 @@ Retorne APENAS um JSON:
       console.error('[DynamicPricing] Erro ao salvar simulação:', error);
     }
 
-    console.log(`[DynamicPricing] ✅ Simulação completa: ${simData.scenarios.length} cenários`);
+    console.log(
+      `[DynamicPricing] ✅ Simulação completa: ${simData.scenarios.length} cenários`
+    );
 
     return {
       id: data?.id ?? '',
@@ -816,10 +911,14 @@ Retorne APENAS um JSON:
 
     const getObjectiveText = (obj: string): string => {
       switch (obj) {
-        case 'revenue': return 'RECEITA';
-        case 'margin': return 'MARGEM';
-        case 'volume': return 'VOLUME';
-        default: return 'EQUILÍBRIO';
+        case 'revenue':
+          return 'RECEITA';
+        case 'margin':
+          return 'MARGEM';
+        case 'volume':
+          return 'VOLUME';
+        default:
+          return 'EQUILÍBRIO';
       }
     };
 
@@ -830,7 +929,11 @@ Produto: ${product.name}
 Preço Atual: R$ ${product.currentPrice.toFixed(2)}
 Custo: R$ ${product.cost.toFixed(2)}
 Vendas Médias: ${product.avgSales} un/mês
-Preço Médio Concorrentes: ${product.competitorAvgPrice ? `R$ ${product.competitorAvgPrice.toFixed(2)}` : 'N/A'}
+Preço Médio Concorrentes: ${
+      product.competitorAvgPrice
+        ? `R$ ${product.competitorAvgPrice.toFixed(2)}`
+        : 'N/A'
+    }
 
 Objetivo: Maximizar ${getObjectiveText(objective)}
 
@@ -857,7 +960,11 @@ Retorne APENAS um JSON:
 
     const optData = JSON.parse(jsonMatch[0]);
 
-    console.log(`[DynamicPricing] 🎯 Preço otimizado: R$ ${optData.optimalPrice.toFixed(2)}`);
+    console.log(
+      `[DynamicPricing] 🎯 Preço otimizado: R$ ${optData.optimalPrice.toFixed(
+        2
+      )}`
+    );
 
     return {
       optimalPrice: optData.optimalPrice,
@@ -877,7 +984,9 @@ Retorne APENAS um JSON:
    * Busca produtos aplicáveis para uma regra (placeholder para implementação futura)
    * Esta função será integrada com o sistema de catálogo de produtos
    */
-  private async getApplicableProducts(_rule: PricingRule): Promise<Record<string, unknown>[]> {
+  private async getApplicableProducts(
+    _rule: PricingRule
+  ): Promise<Record<string, unknown>[]> {
     // Placeholder: retorna array vazio até integração com catálogo
     return [];
   }
@@ -886,7 +995,9 @@ Retorne APENAS um JSON:
    * Busca dados de um produto (placeholder para implementação futura)
    * Esta função será integrada com o sistema de catálogo de produtos
    */
-  private async getProductData(_productId: string): Promise<Record<string, unknown> | null> {
+  private async getProductData(
+    _productId: string
+  ): Promise<Record<string, unknown> | null> {
     // Placeholder: retorna null até integração com catálogo
     return null;
   }
@@ -947,12 +1058,20 @@ Retorne APENAS um JSON:
       applyTo: data.apply_to as PricingRule['applyTo'],
       applyToIds: (data.apply_to_ids as string[]) || [],
       targetMarketplaces: (data.target_marketplaces as string[]) || [],
-      minPriceLimit: data.min_price_limit ? Number.parseFloat(data.min_price_limit as string) : undefined,
-      maxPriceLimit: data.max_price_limit ? Number.parseFloat(data.max_price_limit as string) : undefined,
-      maxAdjustmentPercent: Number.parseFloat(data.max_adjustment_percent as string),
+      minPriceLimit: data.min_price_limit
+        ? Number.parseFloat(data.min_price_limit as string)
+        : undefined,
+      maxPriceLimit: data.max_price_limit
+        ? Number.parseFloat(data.max_price_limit as string)
+        : undefined,
+      maxAdjustmentPercent: Number.parseFloat(
+        data.max_adjustment_percent as string
+      ),
       isActive: data.is_active as boolean,
       isAutomatic: data.is_automatic as boolean,
-      lastExecutedAt: data.last_executed_at ? new Date(data.last_executed_at as string) : undefined,
+      lastExecutedAt: data.last_executed_at
+        ? new Date(data.last_executed_at as string)
+        : undefined,
       executionCount: data.execution_count as number,
     };
   }
@@ -969,12 +1088,20 @@ Retorne APENAS um JSON:
       strategyType: data.strategy_type as PricingStrategy['strategyType'],
       baseMargin: Number.parseFloat(data.base_margin as string),
       minMargin: Number.parseFloat(data.min_margin as string),
-      maxMargin: data.max_margin ? Number.parseFloat(data.max_margin as string) : undefined,
-      competitorMatchThreshold: Number.parseFloat(data.competitor_match_threshold as string),
+      maxMargin: data.max_margin
+        ? Number.parseFloat(data.max_margin as string)
+        : undefined,
+      competitorMatchThreshold: Number.parseFloat(
+        data.competitor_match_threshold as string
+      ),
       undercutBy: Number.parseFloat(data.undercut_by as string),
       demandSensitivity: Number.parseFloat(data.demand_sensitivity as string),
-      timeBasedMultipliers: data.time_based_multipliers as Record<string, number> | undefined,
-      inventoryBasedAdjustments: data.inventory_based_adjustments as Record<string, number> | undefined,
+      timeBasedMultipliers: data.time_based_multipliers as
+        | Record<string, number>
+        | undefined,
+      inventoryBasedAdjustments: data.inventory_based_adjustments as
+        | Record<string, number>
+        | undefined,
       isDefault: data.is_default as boolean,
       applyToCategories: (data.apply_to_categories as string[]) || [],
     };
@@ -993,7 +1120,9 @@ Retorne APENAS um JSON:
       oldPrice: Number.parseFloat(data.old_price as string),
       newPrice: Number.parseFloat(data.new_price as string),
       priceChange: Number.parseFloat(data.price_change as string),
-      priceChangePercent: Number.parseFloat(data.price_change_percent as string),
+      priceChangePercent: Number.parseFloat(
+        data.price_change_percent as string
+      ),
       source: data.source as PriceAdjustment['source'],
       sourceId: data.source_id as string | undefined,
       marketplace: data.marketplace as string | undefined,

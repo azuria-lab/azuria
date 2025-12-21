@@ -28,9 +28,9 @@ Thumbs.db
 !.vscode/settings.json
 .vscode-test
 
-# Env / Secrets
+# Env / Secrets - CRITICAL: Never commit secrets!
 .env
-.env.*.local
+.env.*
 !.env.example
 
 # TypeScript

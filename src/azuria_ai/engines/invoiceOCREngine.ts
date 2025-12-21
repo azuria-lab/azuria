@@ -3,13 +3,13 @@
  * AZURIA v2.0 - INVOICE OCR ENGINE
  * =====================================================
  * Engine de OCR/Vision para extração automática de dados de Notas Fiscais
- * 
+ *
  * Funcionalidades:
  * - Fotografa/upload de nota fiscal
  * - Extração via Gemini Vision
  * - Reconhecimento de produtos, quantidades, valores
  * - Preenchimento automático da calculadora
- * 
+ *
  * @module invoiceOCREngine
  * @created 13/12/2024
  * =====================================================
@@ -41,13 +41,13 @@ export interface InvoiceData {
   supplierName: string;
   supplierCnpj: string;
   supplierAddress?: string;
-  
+
   // Nota Fiscal
   invoiceNumber: string;
   invoiceSeries?: string;
   invoiceDate: string;
   invoiceKey?: string;
-  
+
   // Valores
   items: InvoiceItem[];
   subtotal: number;
@@ -55,13 +55,13 @@ export interface InvoiceData {
   shipping: number;
   totalTaxes: number;
   totalAmount: number;
-  
+
   // Impostos agregados
   totalIcms: number;
   totalIpi: number;
   totalPis: number;
   totalCofins: number;
-  
+
   // Metadata
   confidence: number; // 0-100
   extractedAt: Date;
@@ -91,13 +91,15 @@ class InvoiceOCREngine {
   private isInitialized = false;
 
   /**
-   * Inicializa o engine com a API key do Gemini
+   * Inicializa o engine - NOTA: Em produção, use Edge Functions
+   * Este engine requer que a API key seja passada explicitamente
    */
-  initInvoiceOCR(): void {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
+  initInvoiceOCR(apiKey?: string): void {
+    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
     if (!apiKey) {
-      console.warn('[InvoiceOCR] Gemini API key não encontrada');
+      console.warn(
+        '[InvoiceOCR] ⚠️ Engine não inicializado - API key deve ser passada via backend/Edge Function'
+      );
       return;
     }
 
@@ -111,7 +113,9 @@ class InvoiceOCREngine {
    */
   private checkInitialized(): void {
     if (!this.isInitialized || !this.genAI) {
-      throw new Error('InvoiceOCR engine não inicializado. Chame initInvoiceOCR() primeiro.');
+      throw new Error(
+        'InvoiceOCR engine não inicializado. Chame initInvoiceOCR() primeiro.'
+      );
     }
   }
 
@@ -157,13 +161,18 @@ class InvoiceOCREngine {
 
       // Validar dados extraídos
       const validation = this.validateInvoiceData(invoiceData);
-      
+
       if (!validation.isValid) {
-        console.warn('[InvoiceOCR] ⚠️ Dados extraídos contêm erros:', validation.errors);
+        console.warn(
+          '[InvoiceOCR] ⚠️ Dados extraídos contêm erros:',
+          validation.errors
+        );
       }
 
       const processingTime = Date.now() - startTime;
-      console.log(`[InvoiceOCR] ✅ Nota fiscal processada em ${processingTime}ms`);
+      console.log(
+        `[InvoiceOCR] ✅ Nota fiscal processada em ${processingTime}ms`
+      );
 
       return {
         success: true,
@@ -175,7 +184,10 @@ class InvoiceOCREngine {
       console.error('[InvoiceOCR] ❌ Erro ao processar nota fiscal:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido ao processar nota fiscal',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erro desconhecido ao processar nota fiscal',
         confidence: 0,
         processingTime: Date.now() - startTime,
       };
@@ -185,7 +197,10 @@ class InvoiceOCREngine {
   /**
    * Extrai dados da nota fiscal usando Gemini Vision
    */
-  private async extractInvoiceData(base64Data: string, mimeType: string): Promise<InvoiceData> {
+  private async extractInvoiceData(
+    base64Data: string,
+    mimeType: string
+  ): Promise<InvoiceData> {
     this.checkInitialized();
 
     if (!this.genAI) {
@@ -269,7 +284,8 @@ IMPORTANTE:
       supplierAddress: parsedData.supplierAddress,
       invoiceNumber: parsedData.invoiceNumber || '',
       invoiceSeries: parsedData.invoiceSeries,
-      invoiceDate: parsedData.invoiceDate || new Date().toISOString().split('T')[0],
+      invoiceDate:
+        parsedData.invoiceDate || new Date().toISOString().split('T')[0],
       invoiceKey: parsedData.invoiceKey,
       items: parsedData.items || [],
       subtotal: Number.parseFloat(parsedData.subtotal) || 0,
@@ -320,16 +336,26 @@ IMPORTANTE:
     }
 
     // Validações de consistência
-    const calculatedSubtotal = data.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const calculatedSubtotal = data.items.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
     const diff = Math.abs(calculatedSubtotal - data.subtotal);
-    
-    if (diff > 0.1) { // Tolerância de R$ 0,10
-      warnings.push(`Subtotal calculado (R$ ${calculatedSubtotal.toFixed(2)}) difere do extraído (R$ ${data.subtotal.toFixed(2)})`);
+
+    if (diff > 0.1) {
+      // Tolerância de R$ 0,10
+      warnings.push(
+        `Subtotal calculado (R$ ${calculatedSubtotal.toFixed(
+          2
+        )}) difere do extraído (R$ ${data.subtotal.toFixed(2)})`
+      );
     }
 
     // Avisos de confiança
     if (data.confidence < 70) {
-      warnings.push('Confiança baixa na extração. Revise os dados manualmente.');
+      warnings.push(
+        'Confiança baixa na extração. Revise os dados manualmente.'
+      );
     }
 
     return {
@@ -345,7 +371,7 @@ IMPORTANTE:
   private isValidCnpj(cnpj: string): boolean {
     // Remove caracteres não numéricos
     const cleaned = cnpj.replaceAll(/\D/g, '');
-    
+
     // CNPJ deve ter 14 dígitos
     if (cleaned.length !== 14) {
       return false;
@@ -382,18 +408,18 @@ IMPORTANTE:
   private fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = () => {
         const result = reader.result as string;
         // Remove o prefixo "data:image/png;base64," ou similar
         const base64 = result.split(',')[1];
         resolve(base64);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Erro ao ler arquivo'));
       };
-      
+
       reader.readAsDataURL(file);
     });
   }
@@ -447,15 +473,18 @@ IMPORTANTE:
 
     try {
       const base64Data = await this.fileToBase64(file);
-      
+
       if (!this.genAI) {
         throw new Error('GenAI not initialized');
       }
-      
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-      const prompt = 'Extraia todo o texto visível nesta imagem, preservando a formatação.';
-      
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+      });
+
+      const prompt =
+        'Extraia todo o texto visível nesta imagem, preservando a formatação.';
+
       const imagePart = {
         inlineData: {
           data: base64Data,
@@ -475,21 +504,25 @@ IMPORTANTE:
    * Processa múltiplas notas fiscais em lote
    */
   async processBatch(files: File[]): Promise<OCRResult[]> {
-    console.log(`[InvoiceOCR] 📦 Processando ${files.length} notas fiscais em lote...`);
-    
+    console.log(
+      `[InvoiceOCR] 📦 Processando ${files.length} notas fiscais em lote...`
+    );
+
     const results: OCRResult[] = [];
-    
+
     for (const file of files) {
       const result = await this.processInvoice(file);
       results.push(result);
-      
+
       // Delay entre requisições para evitar rate limit
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    
+
     const successCount = results.filter(r => r.success).length;
-    console.log(`[InvoiceOCR] ✅ ${successCount}/${files.length} notas fiscais processadas com sucesso`);
-    
+    console.log(
+      `[InvoiceOCR] ✅ ${successCount}/${files.length} notas fiscais processadas com sucesso`
+    );
+
     return results;
   }
 
@@ -508,7 +541,10 @@ IMPORTANTE:
     const shippingCost = invoiceData.shipping;
     const taxesCost = invoiceData.totalTaxes;
     const totalCost = invoiceData.totalAmount;
-    const itemsCount = invoiceData.items.reduce((sum, item) => sum + item.quantity, 0);
+    const itemsCount = invoiceData.items.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
     const avgUnitCost = itemsCount > 0 ? totalCost / itemsCount : 0;
 
     return {
@@ -524,7 +560,10 @@ IMPORTANTE:
   /**
    * Gera sugestão de markup baseado nos custos
    */
-  suggestMarkup(invoiceData: InvoiceData, targetMargin: number = 30): {
+  suggestMarkup(
+    invoiceData: InvoiceData,
+    targetMargin: number = 30
+  ): {
     costPerUnit: number;
     suggestedPrice: number;
     markup: number;

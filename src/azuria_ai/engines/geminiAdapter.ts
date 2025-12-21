@@ -35,13 +35,18 @@ export class GeminiAdapter {
   private readonly temperature: number;
 
   constructor(config: GeminiConfig = {}) {
-    this.apiKey = config.apiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
-    this.model =
-      config.model ||
-      import.meta.env.VITE_GEMINI_MODEL ||
-      'gemini-2.0-flash-exp';
+    // SEGURANÇA: API key NUNCA deve vir de variáveis de ambiente do frontend
+    // Em produção, usar Edge Function azuria-chat
+    this.apiKey = config.apiKey || '';
+    this.model = config.model || 'gemini-2.5-flash';
     this.maxTokens = config.maxTokens || 1024;
     this.temperature = config.temperature || 0.7;
+
+    if (!config.apiKey && typeof window !== 'undefined') {
+      console.warn(
+        '[GeminiAdapter] ⚠️ Em produção, use Edge Function. API key não deve estar no frontend.'
+      );
+    }
   }
 
   /**

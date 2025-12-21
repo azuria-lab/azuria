@@ -168,12 +168,11 @@ async function callLocal(
   // Respostas determinísticas baseadas no tipo de tarefa
   const responses: Record<string, string> = {
     'explain-simple':
-      'Esta funcionalidade requer configuração da IA. Configure VITE_GEMINI_API_KEY no arquivo .env',
-    'suggest-quick':
-      'Sugestão automática indisponível. Verifique suas configurações de IA.',
-    chat: 'Chat IA temporariamente indisponível.',
-    'analyze-pricing': 'Análise automática requer configuração da IA.',
-    default: 'Processamento local: aguardando configuração da IA.',
+      'Esta funcionalidade requer IA via Edge Function azuria-chat.',
+    'suggest-quick': 'Sugestão automática indisponível. Use a Edge Function.',
+    chat: 'Chat IA: use a Edge Function azuria-chat.',
+    'analyze-pricing': 'Análise automática requer IA via Edge Function.',
+    default: 'Processamento local: IA disponível apenas via Edge Function.',
   };
 
   return {

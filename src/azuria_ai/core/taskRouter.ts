@@ -209,11 +209,13 @@ export function autoRoute(
  * Verifica se um engine está disponível
  */
 export function isEngineAvailable(engine: AIEngine): boolean {
+  // SEGURANÇA: Em produção, engines remotos funcionam via Edge Function
+  // O frontend não deve ter acesso às API keys
   switch (engine) {
     case 'gemini':
-      return Boolean(import.meta.env.VITE_GEMINI_API_KEY);
+      return true; // Disponível via Edge Function azuria-chat
     case 'nim':
-      return Boolean(import.meta.env.VITE_NIM_API_KEY);
+      return false; // Desabilitado - requer Edge Function
     case 'local':
       return true;
     default:

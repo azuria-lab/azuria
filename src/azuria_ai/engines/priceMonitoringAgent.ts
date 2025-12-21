@@ -3,13 +3,13 @@
  * AZURIA v2.0 - PRICE MONITORING AGENT ENGINE
  * =====================================================
  * Engine autÃ´nomo que monitora preÃ§os de concorrentes 24/7
- * 
+ *
  * Funcionalidades:
  * - Scraping de marketplaces (ML, Shopee, Amazon, etc)
  * - ComparaÃ§Ã£o com preÃ§os do usuÃ¡rio
  * - GeraÃ§Ã£o de alertas e sugestÃµes
  * - AnÃ¡lise de posicionamento de mercado
- * 
+ *
  * @module priceMonitoringAgent
  * @created 13/12/2024
  * =====================================================
@@ -95,7 +95,13 @@ export interface PriceAlert {
   id: string;
   userId: string;
   monitoredProductId: string;
-  alertType: 'competitor_lower' | 'margin_risk' | 'price_drop' | 'price_spike' | 'stock_out' | 'new_competitor';
+  alertType:
+    | 'competitor_lower'
+    | 'margin_risk'
+    | 'price_drop'
+    | 'price_spike'
+    | 'stock_out'
+    | 'new_competitor';
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   message: string;
@@ -157,19 +163,21 @@ class PriceMonitoringAgentEngine {
   };
 
   /**
-   * Inicializa o engine com a API key do Gemini
+   * Inicializa o engine - NOTA: Em produção, use Edge Functions
+   * Este engine requer que a API key seja passada explicitamente
    */
-  initPriceMonitoring(): void {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
+  initPriceMonitoring(apiKey?: string): void {
+    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
     if (!apiKey) {
-      console.warn('[PriceMonitoring] Gemini API key nÃ£o encontrada');
+      console.warn(
+        '[PriceMonitoring] ⚠️ Engine não inicializado - API key deve ser passada via backend/Edge Function'
+      );
       return;
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.isInitialized = true;
-    console.log('[PriceMonitoring] âœ… Engine inicializado');
+    console.log('[PriceMonitoring] ✅ Engine inicializado');
   }
 
   /**
@@ -177,7 +185,9 @@ class PriceMonitoringAgentEngine {
    */
   private checkInitialized(): void {
     if (!this.isInitialized || !this.genAI) {
-      throw new Error('PriceMonitoring engine nÃ£o inicializado. Chame initPriceMonitoring() primeiro.');
+      throw new Error(
+        'PriceMonitoring engine nÃ£o inicializado. Chame initPriceMonitoring() primeiro.'
+      );
     }
   }
 
@@ -211,7 +221,11 @@ class PriceMonitoringAgentEngine {
 
     this.isMonitoring = true;
     this.stats.isRunning = true;
-    console.log(`[PriceMonitoring] âœ… Monitoramento iniciado (intervalo: ${options?.intervalMinutes || 60}min)`);
+    console.log(
+      `[PriceMonitoring] âœ… Monitoramento iniciado (intervalo: ${
+        options?.intervalMinutes || 60
+      }min)`
+    );
   }
 
   /**
@@ -232,16 +246,20 @@ class PriceMonitoringAgentEngine {
    */
   private async runMonitoringCycle(userId?: string): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       console.log('[PriceMonitoring] ðŸ”„ Iniciando ciclo de monitoramento...');
 
       // 1. Buscar produtos para monitorar
       const products = await this.getProductsToMonitor(userId);
-      console.log(`[PriceMonitoring] ðŸ“¦ ${products.length} produtos para monitorar`);
+      console.log(
+        `[PriceMonitoring] ðŸ“¦ ${products.length} produtos para monitorar`
+      );
 
       if (products.length === 0) {
-        console.log('[PriceMonitoring] Nenhum produto configurado para monitoramento');
+        console.log(
+          '[PriceMonitoring] Nenhum produto configurado para monitoramento'
+        );
         return;
       }
 
@@ -250,7 +268,10 @@ class PriceMonitoringAgentEngine {
         try {
           await this.monitorProduct(product);
         } catch (error) {
-          console.error(`[PriceMonitoring] Erro ao monitorar produto ${product.id}:`, error);
+          console.error(
+            `[PriceMonitoring] Erro ao monitorar produto ${product.id}:`,
+            error
+          );
         }
       }
 
@@ -273,9 +294,11 @@ class PriceMonitoringAgentEngine {
     try {
       // 1. Coletar preÃ§os de concorrentes
       const competitorPrices = await this.collectCompetitorPrices(product);
-      
+
       if (competitorPrices.length === 0) {
-        console.log(`[PriceMonitoring] Nenhum preÃ§o encontrado para ${product.productName}`);
+        console.log(
+          `[PriceMonitoring] Nenhum preÃ§o encontrado para ${product.productName}`
+        );
         return;
       }
 
@@ -296,7 +319,10 @@ class PriceMonitoringAgentEngine {
       this.stats.productsMonitored++;
       console.log(`[PriceMonitoring] âœ… ${product.productName} monitorado`);
     } catch (error) {
-      console.error(`[PriceMonitoring] Erro ao monitorar ${product.productName}:`, error);
+      console.error(
+        `[PriceMonitoring] Erro ao monitorar ${product.productName}:`,
+        error
+      );
     }
   }
 
@@ -309,7 +335,9 @@ class PriceMonitoringAgentEngine {
    * NOTA: ImplementaÃ§Ã£o simplificada usando Gemini AI para simular
    * Em produÃ§Ã£o, usar APIs oficiais ou scraping real
    */
-  private async collectCompetitorPrices(product: MonitoredProduct): Promise<CompetitorPrice[]> {
+  private async collectCompetitorPrices(
+    product: MonitoredProduct
+  ): Promise<CompetitorPrice[]> {
     this.checkInitialized();
 
     if (!this.genAI) {
@@ -345,7 +373,7 @@ Retorne APENAS um JSON array no formato:
 
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
-      
+
       // Extrair JSON da resposta
       const jsonMatch = /[\s\S]*/.exec(text);
       if (!jsonMatch) {
@@ -356,7 +384,7 @@ Retorne APENAS um JSON array no formato:
 
       // Salvar preços no banco
       const competitorPrices: CompetitorPrice[] = [];
-      
+
       for (const data of competitorsData) {
         const { data: saved, error } = await untypedFrom('competitor_prices')
           .insert({
@@ -409,20 +437,28 @@ Retorne APENAS um JSON array no formato:
     competitorPrices: CompetitorPrice[]
   ): Promise<MarketAnalysis> {
     const prices = competitorPrices.map(cp => cp.totalPrice);
-    
-    const marketAvgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+
+    const marketAvgPrice =
+      prices.reduce((sum, p) => sum + p, 0) / prices.length;
     const lowestPrice = Math.min(...prices);
     const highestPrice = Math.max(...prices);
 
     // Calcular posiÃ§Ã£o
     let pricePosition: MarketAnalysis['pricePosition'];
-    if (product.currentPrice <= lowestPrice) {pricePosition = 'lowest';}
-    else if (product.currentPrice <= marketAvgPrice * 0.95) {pricePosition = 'competitive';}
-    else if (product.currentPrice >= highestPrice) {pricePosition = 'highest';}
-    else if (product.currentPrice > marketAvgPrice * 1.05) {pricePosition = 'high';}
-    else {pricePosition = 'average';}
+    if (product.currentPrice <= lowestPrice) {
+      pricePosition = 'lowest';
+    } else if (product.currentPrice <= marketAvgPrice * 0.95) {
+      pricePosition = 'competitive';
+    } else if (product.currentPrice >= highestPrice) {
+      pricePosition = 'highest';
+    } else if (product.currentPrice > marketAvgPrice * 1.05) {
+      pricePosition = 'high';
+    } else {
+      pricePosition = 'average';
+    }
 
-    const priceAdvantage = ((marketAvgPrice - product.currentPrice) / marketAvgPrice) * 100;
+    const priceAdvantage =
+      ((marketAvgPrice - product.currentPrice) / marketAvgPrice) * 100;
 
     // Gerar recomendaÃ§Ã£o usando IA
     const recommendation = await this.generateRecommendation(product, {
@@ -538,17 +574,28 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
         monitoredProductId: product.id,
         alertType: 'competitor_lower',
         severity: 'high',
-        title: `Concorrente com preÃ§o ${((1 - analysis.lowestPrice / product.currentPrice) * 100).toFixed(0)}% menor`,
-        message: `O produto "${product.productName}" tem concorrentes vendendo por R$ ${analysis.lowestPrice.toFixed(2)}, enquanto seu preÃ§o Ã© R$ ${product.currentPrice.toFixed(2)}.`,
-        actionRequired: 'Considere ajustar seu preÃ§o para manter competitividade',
+        title: `Concorrente com preÃ§o ${(
+          (1 - analysis.lowestPrice / product.currentPrice) *
+          100
+        ).toFixed(0)}% menor`,
+        message: `O produto "${
+          product.productName
+        }" tem concorrentes vendendo por R$ ${analysis.lowestPrice.toFixed(
+          2
+        )}, enquanto seu preÃ§o Ã© R$ ${product.currentPrice.toFixed(2)}.`,
+        actionRequired:
+          'Considere ajustar seu preÃ§o para manter competitividade',
       });
     }
 
     // Alerta: Risco de margem
     if (product.costPrice && product.minPrice) {
-      const currentMargin = ((product.currentPrice - product.costPrice) / product.currentPrice) * 100;
-      const minMargin = ((product.minPrice - product.costPrice) / product.minPrice) * 100;
-      
+      const currentMargin =
+        ((product.currentPrice - product.costPrice) / product.currentPrice) *
+        100;
+      const minMargin =
+        ((product.minPrice - product.costPrice) / product.minPrice) * 100;
+
       if (currentMargin < minMargin + 5) {
         alerts.push({
           userId: product.userId,
@@ -556,7 +603,9 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
           alertType: 'margin_risk',
           severity: 'critical',
           title: 'Margem abaixo do limite',
-          message: `A margem atual de ${currentMargin.toFixed(1)}% estÃ¡ prÃ³xima do mÃ­nimo de ${minMargin.toFixed(1)}%.`,
+          message: `A margem atual de ${currentMargin.toFixed(
+            1
+          )}% estÃ¡ prÃ³xima do mÃ­nimo de ${minMargin.toFixed(1)}%.`,
           actionRequired: 'Revise seus custos ou ajuste o preÃ§o mÃ­nimo',
         });
       }
@@ -587,19 +636,29 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
     let suggestedPrice = product.currentPrice;
     let reason: PriceSuggestion['reason'] = 'market_average';
 
-    if (analysis.pricePosition === 'highest' || analysis.pricePosition === 'high') {
+    if (
+      analysis.pricePosition === 'highest' ||
+      analysis.pricePosition === 'high'
+    ) {
       // Sugerir reduÃ§Ã£o
       suggestedPrice = analysis.marketAvgPrice * 0.95; // 5% abaixo da mÃ©dia
       reason = 'competitor_lower';
     } else if (analysis.pricePosition === 'lowest') {
       // Sugerir aumento
-      suggestedPrice = Math.min(analysis.marketAvgPrice, product.maxPrice || Infinity);
+      suggestedPrice = Math.min(
+        analysis.marketAvgPrice,
+        product.maxPrice || Infinity
+      );
       reason = 'margin_optimization';
     }
 
     // Garantir que estÃ¡ dentro dos limites
-    if (product.minPrice) {suggestedPrice = Math.max(suggestedPrice, product.minPrice);}
-    if (product.maxPrice) {suggestedPrice = Math.min(suggestedPrice, product.maxPrice);}
+    if (product.minPrice) {
+      suggestedPrice = Math.max(suggestedPrice, product.minPrice);
+    }
+    if (product.maxPrice) {
+      suggestedPrice = Math.min(suggestedPrice, product.maxPrice);
+    }
 
     const priceChange = suggestedPrice - product.currentPrice;
     const priceChangePercent = (priceChange / product.currentPrice) * 100;
@@ -607,7 +666,8 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
     // Calcular margem estimada
     let estimatedMargin: number | undefined;
     if (product.costPrice) {
-      estimatedMargin = ((suggestedPrice - product.costPrice) / suggestedPrice) * 100;
+      estimatedMargin =
+        ((suggestedPrice - product.costPrice) / suggestedPrice) * 100;
     }
 
     // Salvar sugestÃ£o
@@ -647,7 +707,9 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
   /**
    * Busca produtos para monitorar
    */
-  private async getProductsToMonitor(userId?: string): Promise<MonitoredProduct[]> {
+  private async getProductsToMonitor(
+    userId?: string
+  ): Promise<MonitoredProduct[]> {
     let query = untypedFrom('monitored_products')
       .select('*')
       .eq('monitor_enabled', true);
@@ -673,14 +735,18 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
       brand: p.brand,
       currentPrice: Number.parseFloat(p.current_price),
       costPrice: p.cost_price ? Number.parseFloat(p.cost_price) : undefined,
-      targetMargin: p.target_margin ? Number.parseFloat(p.target_margin) : undefined,
+      targetMargin: p.target_margin
+        ? Number.parseFloat(p.target_margin)
+        : undefined,
       minPrice: p.min_price ? Number.parseFloat(p.min_price) : undefined,
       maxPrice: p.max_price ? Number.parseFloat(p.max_price) : undefined,
       marketplaces: p.marketplaces || [],
       monitorEnabled: p.monitor_enabled,
       checkInterval: p.check_interval,
       alertThreshold: Number.parseFloat(p.alert_threshold),
-      lastCheckedAt: p.last_checked_at ? new Date(p.last_checked_at) : undefined,
+      lastCheckedAt: p.last_checked_at
+        ? new Date(p.last_checked_at)
+        : undefined,
     }));
   }
 
@@ -749,11 +815,19 @@ Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
       priceChangePercent: Number.parseFloat(s.price_change_percent),
       reason: s.reason,
       analysis: s.analysis,
-      marketAvgPrice: s.market_avg_price ? Number.parseFloat(s.market_avg_price) : undefined,
-      lowestCompetitorPrice: s.lowest_competitor_price ? Number.parseFloat(s.lowest_competitor_price) : undefined,
-      highestCompetitorPrice: s.highest_competitor_price ? Number.parseFloat(s.highest_competitor_price) : undefined,
+      marketAvgPrice: s.market_avg_price
+        ? Number.parseFloat(s.market_avg_price)
+        : undefined,
+      lowestCompetitorPrice: s.lowest_competitor_price
+        ? Number.parseFloat(s.lowest_competitor_price)
+        : undefined,
+      highestCompetitorPrice: s.highest_competitor_price
+        ? Number.parseFloat(s.highest_competitor_price)
+        : undefined,
       competitorsCount: s.competitors_count,
-      estimatedMargin: s.estimated_margin ? Number.parseFloat(s.estimated_margin) : undefined,
+      estimatedMargin: s.estimated_margin
+        ? Number.parseFloat(s.estimated_margin)
+        : undefined,
       estimatedSalesImpact: s.estimated_sales_impact,
       confidenceScore: Number.parseFloat(s.confidence_score),
       status: s.status,

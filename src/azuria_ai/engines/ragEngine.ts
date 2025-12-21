@@ -15,7 +15,8 @@ import { structuredLogger } from '../../services/structuredLogger';
 import { supabase } from '@/lib/supabase';
 
 // Helper para tabelas não tipadas (dynamic table access)
-const untypedFrom = (table: string) => supabase.from(table as never) as ReturnType<typeof supabase.from>;
+const untypedFrom = (table: string) =>
+  supabase.from(table as never) as ReturnType<typeof supabase.from>;
 
 // ============================================================================
 // Constants
@@ -186,17 +187,21 @@ function generateChunkId(documentId: string, index: number): string {
 /**
  * Divide texto em chunks com overlap
  */
-function chunkText(text: string, chunkSize: number = CHUNK_SIZE, overlap: number = CHUNK_OVERLAP): string[] {
+function chunkText(
+  text: string,
+  chunkSize: number = CHUNK_SIZE,
+  overlap: number = CHUNK_OVERLAP
+): string[] {
   const words = text.split(/\s+/);
   const chunks: string[] = [];
-  
+
   for (let i = 0; i < words.length; i += chunkSize - overlap) {
     const chunk = words.slice(i, i + chunkSize).join(' ');
     if (chunk.trim().length > 0) {
       chunks.push(chunk);
     }
   }
-  
+
   return chunks;
 }
 
@@ -207,20 +212,24 @@ async function generateEmbedding(text: string): Promise<number[]> {
   try {
     // NOTE: Integrar com Gemini Embedding API quando disponível
     // Por enquanto, retorna embedding fake para estrutura
-    
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': import.meta.env.VITE_GEMINI_API_KEY || '',
-      },
-      body: JSON.stringify({
-        model: 'models/embedding-001',
-        content: {
-          parts: [{ text }]
-        }
-      })
-    });
+
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // SEGURANÇA: API key deve ser passada via backend/Edge Function
+          'x-goog-api-key': '', // Requer API key via backend
+        },
+        body: JSON.stringify({
+          model: 'models/embedding-001',
+          content: {
+            parts: [{ text }],
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Embedding API error: ${response.statusText}`);
@@ -228,9 +237,11 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
     const data = await response.json();
     return data.embedding.values;
-    
   } catch (error) {
-    structuredLogger.error('[RAGEngine] Error generating embedding', error instanceof Error ? error : new Error(String(error)));
+    structuredLogger.error(
+      '[RAGEngine] Error generating embedding',
+      error instanceof Error ? error : new Error(String(error))
+    );
     // Fallback: embedding aleatório (desenvolvimento)
     return Array.from({ length: EMBEDDING_DIMENSION }, () => Math.random());
   }
@@ -267,42 +278,52 @@ function cosineSimilarity(a: number[], b: number[]): number {
 /**
  * Reranking de resultados usando heurísticas
  */
-function rerankResults(results: SearchResult[], _query: string): SearchResult[] {
-  return results.map(result => {
-    let score = result.similarity;
+function rerankResults(
+  results: SearchResult[],
+  _query: string
+): SearchResult[] {
+  return results
+    .map(result => {
+      let score = result.similarity;
 
-    // Boost por tipo de documento (legislação tem mais peso)
-    if (result.chunk.metadata.type === 'legislation') {
-      score *= 1.2;
-    } else if (result.chunk.metadata.type === 'jurisprudence') {
-      score *= 1.1;
-    }
-
-    // Boost por recência (documentos mais novos são melhores)
-    if (result.chunk.metadata.publishedAt) {
-      const ageInYears = (Date.now() - result.chunk.metadata.publishedAt.getTime()) / (365 * 24 * 60 * 60 * 1000);
-      if (ageInYears < 1) {
-        score *= 1.15;
-      } else if (ageInYears < 3) {
-        score *= 1.05;
+      // Boost por tipo de documento (legislação tem mais peso)
+      if (result.chunk.metadata.type === 'legislation') {
+        score *= 1.2;
+      } else if (result.chunk.metadata.type === 'jurisprudence') {
+        score *= 1.1;
       }
-    }
 
-    // Boost por autoridade (TCU tem mais peso que orientações genéricas)
-    if (result.chunk.metadata.authority === 'TCU') {
-      score *= 1.3;
-    }
+      // Boost por recência (documentos mais novos são melhores)
+      if (result.chunk.metadata.publishedAt) {
+        const ageInYears =
+          (Date.now() - result.chunk.metadata.publishedAt.getTime()) /
+          (365 * 24 * 60 * 60 * 1000);
+        if (ageInYears < 1) {
+          score *= 1.15;
+        } else if (ageInYears < 3) {
+          score *= 1.05;
+        }
+      }
 
-    // Penalidade por chunks muito curtos
-    if (result.chunk.content.length < 100) {
-      score *= 0.8;
-    }
+      // Boost por autoridade (TCU tem mais peso que orientações genéricas)
+      if (result.chunk.metadata.authority === 'TCU') {
+        score *= 1.3;
+      }
 
-    return {
-      ...result,
-      rerankedScore: Math.min(score, 1), // Cap at 1
-    };
-  }).sort((a, b) => (b.rerankedScore || b.similarity) - (a.rerankedScore || a.similarity));
+      // Penalidade por chunks muito curtos
+      if (result.chunk.content.length < 100) {
+        score *= 0.8;
+      }
+
+      return {
+        ...result,
+        rerankedScore: Math.min(score, 1), // Cap at 1
+      };
+    })
+    .sort(
+      (a, b) =>
+        (b.rerankedScore || b.similarity) - (a.rerankedScore || a.similarity)
+    );
 }
 
 /**
@@ -311,7 +332,7 @@ function rerankResults(results: SearchResult[], _query: string): SearchResult[] 
 function extractHighlights(content: string, query: string): string[] {
   const queryWords = query.toLowerCase().split(/\s+/);
   const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  
+
   const highlights = sentences
     .filter(sentence => {
       const lowerSentence = sentence.toLowerCase();
@@ -338,15 +359,18 @@ export async function indexDocument(
   try {
     // 1. Dividir em chunks
     const chunks = chunkText(content);
-    
+
     if (chunks.length > MAX_CHUNKS_PER_DOC) {
-      structuredLogger.warn('[RAGEngine] Document has too many chunks, truncating', {
-        data: {
-          documentId,
-          chunks: chunks.length,
-          max: MAX_CHUNKS_PER_DOC,
-        },
-      });
+      structuredLogger.warn(
+        '[RAGEngine] Document has too many chunks, truncating',
+        {
+          data: {
+            documentId,
+            chunks: chunks.length,
+            max: MAX_CHUNKS_PER_DOC,
+          },
+        }
+      );
     }
 
     const chunksToIndex = chunks.slice(0, MAX_CHUNKS_PER_DOC);
@@ -372,8 +396,8 @@ export async function indexDocument(
     }
 
     // 3. Inserir no Supabase (usando pgvector)
-    const { error } = await untypedFrom('rag_documents')
-      .upsert(documentChunks.map(chunk => ({
+    const { error } = await untypedFrom('rag_documents').upsert(
+      documentChunks.map(chunk => ({
         id: chunk.id,
         document_id: chunk.documentId,
         content: chunk.content,
@@ -381,7 +405,8 @@ export async function indexDocument(
         chunk_index: chunk.chunkIndex,
         metadata: chunk.metadata,
         created_at: new Date(chunk.createdAt).toISOString(),
-      })));
+      }))
+    );
 
     if (error) {
       throw error;
@@ -404,11 +429,14 @@ export async function indexDocument(
         type: metadata.type,
       },
     });
-
   } catch (error) {
-    structuredLogger.error('[RAGEngine] Error indexing document', error instanceof Error ? error : new Error(String(error)), {
-      data: { documentId },
-    });
+    structuredLogger.error(
+      '[RAGEngine] Error indexing document',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: { documentId },
+      }
+    );
     throw error;
   }
 }
@@ -431,10 +459,8 @@ export async function semanticSearch(
     // 2. Buscar no Supabase usando pgvector
     // NOTE: Usar função RPC do Supabase para busca por similaridade quando disponível
     // Por enquanto, busca todos e calcula similaridade local (ineficiente mas funciona)
-    
-    let supabaseQuery = untypedFrom('rag_documents')
-      .select('*')
-      .limit(100); // Limite temporário
+
+    let supabaseQuery = untypedFrom('rag_documents').select('*').limit(100); // Limite temporário
 
     // Aplicar filtros
     if (filters?.types && filters.types.length > 0) {
@@ -485,16 +511,21 @@ export async function semanticSearch(
       data: {
         query,
         resultsFound: finalResults.length,
-        avgSimilarity: finalResults.reduce((sum, r) => sum + r.similarity, 0) / finalResults.length,
+        avgSimilarity:
+          finalResults.reduce((sum, r) => sum + r.similarity, 0) /
+          finalResults.length,
       },
     });
 
     return finalResults;
-
   } catch (error) {
-    structuredLogger.error('[RAGEngine] Error in semantic search', error instanceof Error ? error : new Error(String(error)), {
-      data: { query },
-    });
+    structuredLogger.error(
+      '[RAGEngine] Error in semantic search',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: { query },
+      }
+    );
     throw error;
   }
 }
@@ -516,7 +547,8 @@ export async function generateAnswer(
 
     if (searchResults.length === 0) {
       return {
-        answer: 'Desculpe, não encontrei informações relevantes sobre isso na base de conhecimento.',
+        answer:
+          'Desculpe, não encontrei informações relevantes sobre isso na base de conhecimento.',
         sources: [],
         confidence: 0,
         query,
@@ -530,7 +562,9 @@ export async function generateAnswer(
     const context = searchResults
       .slice(0, 5) // Top 5 chunks
       .map((result, idx) => {
-        return `[FONTE ${idx + 1}] ${result.chunk.metadata.title}:\n${result.chunk.content}\n`;
+        return `[FONTE ${idx + 1}] ${result.chunk.metadata.title}:\n${
+          result.chunk.content
+        }\n`;
       })
       .join('\n');
 
@@ -554,10 +588,15 @@ RESPOSTA:`;
 
     // NOTE: Integrar com Gemini API quando disponível
     // Por enquanto, resposta mock
-    const answer = `Com base na legislação vigente, especialmente a Lei 8.666/93 e orientações do TCU, ${searchResults[0].chunk.content.substring(0, 200)}... [FONTE 1]`;
+    const answer = `Com base na legislação vigente, especialmente a Lei 8.666/93 e orientações do TCU, ${searchResults[0].chunk.content.substring(
+      0,
+      200
+    )}... [FONTE 1]`;
 
     // Calcular confiança baseado na similaridade média
-    const avgSimilarity = searchResults.reduce((sum, r) => sum + r.similarity, 0) / searchResults.length;
+    const avgSimilarity =
+      searchResults.reduce((sum, r) => sum + r.similarity, 0) /
+      searchResults.length;
     const confidence = Math.min(avgSimilarity * 1.2, 1); // Boost de 20%
 
     const response: RAGResponse = {
@@ -586,11 +625,14 @@ RESPOSTA:`;
     });
 
     return response;
-
   } catch (error) {
-    structuredLogger.error('[RAGEngine] Error generating answer', error instanceof Error ? error : new Error(String(error)), {
-      data: { query },
-    });
+    structuredLogger.error(
+      '[RAGEngine] Error generating answer',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: { query },
+      }
+    );
     throw error;
   }
 }
@@ -618,9 +660,13 @@ export async function batchIndexDocuments(
       successful++;
     } catch (error) {
       failed++;
-      structuredLogger.error('[RAGEngine] Failed to index document in batch', error instanceof Error ? error : new Error(String(error)), {
-        data: { documentId: doc.id },
-      });
+      structuredLogger.error(
+        '[RAGEngine] Failed to index document in batch',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          data: { documentId: doc.id },
+        }
+      );
     }
   }
 
@@ -649,11 +695,14 @@ export async function deleteDocument(documentId: string): Promise<void> {
     structuredLogger.info('[RAGEngine] Document deleted from index', {
       data: { documentId },
     });
-
   } catch (error) {
-    structuredLogger.error('[RAGEngine] Error deleting document', error instanceof Error ? error : new Error(String(error)), {
-      data: { documentId },
-    });
+    structuredLogger.error(
+      '[RAGEngine] Error deleting document',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: { documentId },
+      }
+    );
     throw error;
   }
 }
@@ -671,7 +720,10 @@ export function getRAGStats(): {
   return {
     documentsIndexed: state.documentsIndexed,
     totalChunks: state.totalChunks,
-    avgChunksPerDoc: state.documentsIndexed > 0 ? state.totalChunks / state.documentsIndexed : 0,
+    avgChunksPerDoc:
+      state.documentsIndexed > 0
+        ? state.totalChunks / state.documentsIndexed
+        : 0,
     lastIndexedAt: state.lastIndexedAt,
     config: state.config,
   };
@@ -717,7 +769,7 @@ export function initRAGEngine(config?: Partial<RAGConfig>): void {
  */
 export function updateRAGConfig(config: Partial<RAGConfig>): void {
   state.config = { ...state.config, ...config };
-  
+
   structuredLogger.info('[RAGEngine] Configuration updated', {
     data: { config: state.config },
   });

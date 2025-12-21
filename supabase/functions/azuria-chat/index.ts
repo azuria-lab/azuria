@@ -3,12 +3,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 import { withSecurityMiddleware } from '../_shared/security-config.ts';
 
+// Configurações do Gemini via Supabase Secrets
 const GEMINI_API_KEY = (Deno.env.get('GEMINI_API_KEY') || '').trim();
-const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 if (!GEMINI_API_KEY) {
-  console.error('GEMINI_API_KEY is missing');
+  console.error('GEMINI_API_KEY is missing in Supabase Secrets');
 }
 
 // Prompt System da Azuria

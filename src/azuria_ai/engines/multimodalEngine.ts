@@ -19,7 +19,12 @@ import { structuredLogger } from '../../services/structuredLogger';
 // ============================================================================
 
 /** Formatos de imagem suportados */
-const SUPPORTED_IMAGE_FORMATS = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']);
+const SUPPORTED_IMAGE_FORMATS = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+]);
 
 /** Formatos de documento suportados */
 const SUPPORTED_DOC_FORMATS = new Set(['application/pdf']);
@@ -229,7 +234,9 @@ const state: MultimodalEngineState = {
  * Valida formato de arquivo
  */
 function validateFileFormat(mimeType: string): boolean {
-  return SUPPORTED_IMAGE_FORMATS.has(mimeType) || SUPPORTED_DOC_FORMATS.has(mimeType);
+  return (
+    SUPPORTED_IMAGE_FORMATS.has(mimeType) || SUPPORTED_DOC_FORMATS.has(mimeType)
+  );
 }
 
 /**
@@ -266,7 +273,7 @@ async function preprocessImage(imageData: string): Promise<string> {
   // - Noise removal
   // - Perspective correction
   // - Binarization
-  
+
   // Currently returns image without modification
   return imageData;
 }
@@ -274,32 +281,38 @@ async function preprocessImage(imageData: string): Promise<string> {
 /**
  * Detecta tipo de documento pela estrutura
  */
-function detectDocumentType(text: string, fields: ExtractedField[]): DocumentType {
+function detectDocumentType(
+  text: string,
+  fields: ExtractedField[]
+): DocumentType {
   const lowerText = text.toLowerCase();
-  
+
   // Palavras-chave para cada tipo
-  if (lowerText.includes('edital') && (lowerText.includes('licitação') || lowerText.includes('pregão'))) {
+  if (
+    lowerText.includes('edital') &&
+    (lowerText.includes('licitação') || lowerText.includes('pregão'))
+  ) {
     return 'edital';
   }
-  
+
   if (lowerText.includes('nota fiscal') || lowerText.includes('nf-e')) {
     return 'invoice';
   }
-  
+
   if (lowerText.includes('contrato') && lowerText.includes('partes')) {
     return 'contract';
   }
-  
+
   if (lowerText.includes('proposta') && lowerText.includes('comercial')) {
     return 'proposal';
   }
-  
+
   // Verifica campos estruturados
   const fieldNames = fields.map(f => f.name.toLowerCase());
   if (fieldNames.some(name => name.includes('cnpj') || name.includes('ie'))) {
     return 'invoice';
   }
-  
+
   return 'other';
 }
 
@@ -315,19 +328,25 @@ function validateExtractedFields(fields: ExtractedField[]): boolean {
 /**
  * Normaliza valores extraídos
  */
-function normalizeValue(value: string, type: 'text' | 'number' | 'date' | 'currency'): string | number | Date {
+function normalizeValue(
+  value: string,
+  type: 'text' | 'number' | 'date' | 'currency'
+): string | number | Date {
   if (type === 'number') {
     // Remove pontos de milhar, substitui vírgula por ponto
     const cleaned = value.replaceAll('.', '').replace(',', '.');
     return Number.parseFloat(cleaned) || 0;
   }
-  
+
   if (type === 'currency') {
     // Remove R$, espaços, pontos de milhar
-    const cleaned = value.replaceAll(/R\$\s?/g, '').replaceAll('.', '').replace(',', '.');
+    const cleaned = value
+      .replaceAll(/R\$\s?/g, '')
+      .replaceAll('.', '')
+      .replace(',', '.');
     return Number.parseFloat(cleaned) || 0;
   }
-  
+
   if (type === 'date') {
     // Tenta parsear data no formato brasileiro
     const match = /(\d{2})\/(\d{2})\/(\d{4})/.exec(value);
@@ -337,7 +356,7 @@ function normalizeValue(value: string, type: 'text' | 'number' | 'date' | 'curre
     }
     return new Date(value);
   }
-  
+
   return value.trim();
 }
 
@@ -348,12 +367,16 @@ function normalizeValue(value: string, type: 'text' | 'number' | 'date' | 'curre
 /**
  * OCR usando Gemini Vision
  */
-async function performGeminiVisionOCR(imageData: string): Promise<OCRResult> {
+async function performGeminiVisionOCR(
+  imageData: string,
+  apiKey?: string
+): Promise<OCRResult> {
   try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
+    // SEGURANÇA: API key deve vir explicitamente, não de variáveis de ambiente do frontend
     if (!apiKey) {
-      throw new Error('Gemini API key not configured');
+      throw new Error(
+        'Gemini API key must be provided via backend/Edge Function'
+      );
     }
 
     const response = await fetch(
@@ -364,10 +387,11 @@ async function performGeminiVisionOCR(imageData: string): Promise<OCRResult> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: `Extraia TODO o texto deste documento de forma estruturada. 
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Extraia TODO o texto deste documento de forma estruturada. 
                 
 INSTRUÇÕES:
 1. Extraia o texto completo preservando a estrutura
@@ -395,54 +419,65 @@ Responda em JSON com esta estrutura:
     "hasSignature": true/false,
     "hasStamp": true/false
   }
-}`
-              },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: imageData
-                }
-              }
-            ]
-          }],
+}`,
+                },
+                {
+                  inline_data: {
+                    mime_type: 'image/jpeg',
+                    data: imageData,
+                  },
+                },
+              ],
+            },
+          ],
           generationConfig: {
             temperature: 0.1, // Baixa para precisão
             topK: 1,
             topP: 1,
             maxOutputTokens: 8192,
-          }
-        })
+          },
+        }),
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini API error: ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `Gemini API error: ${response.statusText} - ${errorText}`
+      );
     }
 
     const data = await response.json();
-    
+
     // Parse resposta do Gemini
     const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
+
     // Tenta extrair JSON da resposta
     const jsonMatch = textContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       // Normaliza valores
-      const normalizedFields = parsed.fields?.map((f: ParsedField) => ({
-        name: f.name,
-        value: normalizeValue(f.value, 'text'),
-        confidence: f.confidence || 0.8,
-      })) || [];
+      const normalizedFields =
+        parsed.fields?.map((f: ParsedField) => ({
+          name: f.name,
+          value: normalizeValue(f.value, 'text'),
+          confidence: f.confidence || 0.8,
+        })) || [];
 
       const result: OCRResult = {
         fullText: parsed.fullText || textContent,
         fields: normalizedFields,
         tables: parsed.tables || [],
-        documentType: detectDocumentType(parsed.fullText || textContent, normalizedFields),
-        confidence: parsed.fields?.reduce((sum: number, f: ParsedField) => sum + (f.confidence || 0.8), 0) / (parsed.fields?.length || 1),
+        documentType: detectDocumentType(
+          parsed.fullText || textContent,
+          normalizedFields
+        ),
+        confidence:
+          parsed.fields?.reduce(
+            (sum: number, f: ParsedField) => sum + (f.confidence || 0.8),
+            0
+          ) / (parsed.fields?.length || 1),
         language: parsed.language || 'pt-BR',
         pages: 1,
         metadata: parsed.metadata || {},
@@ -462,9 +497,11 @@ Responda em JSON com esta estrutura:
       pages: 1,
       metadata: {},
     };
-
   } catch (error) {
-    structuredLogger.error('[MultimodalEngine] Gemini Vision OCR error', error instanceof Error ? error : new Error(String(error)));
+    structuredLogger.error(
+      '[MultimodalEngine] Gemini Vision OCR error',
+      error instanceof Error ? error : new Error(String(error))
+    );
     throw error;
   }
 }
@@ -480,7 +517,9 @@ export async function processDocument(file: File): Promise<OCRResult> {
     }
 
     if (!validateFileSize(file.size)) {
-      throw new Error(`File too large: ${file.size} bytes (max ${MAX_FILE_SIZE})`);
+      throw new Error(
+        `File too large: ${file.size} bytes (max ${MAX_FILE_SIZE})`
+      );
     }
 
     // 2. Converter para base64
@@ -493,23 +532,28 @@ export async function processDocument(file: File): Promise<OCRResult> {
 
     // 4. OCR
     let result: OCRResult;
-    
+
     switch (state.config.ocrProvider) {
       case 'gemini-vision':
         result = await performGeminiVisionOCR(processedData);
         break;
-      
+
       // NOTE: Implement other OCR providers when ready
       case 'google-vision':
       case 'tesseract':
-        throw new Error(`OCR provider ${state.config.ocrProvider} not implemented yet`);
-      
+        throw new Error(
+          `OCR provider ${state.config.ocrProvider} not implemented yet`
+        );
+
       default:
         throw new Error(`Unknown OCR provider: ${state.config.ocrProvider}`);
     }
 
     // 5. Validação (se habilitada)
-    if (state.config.validateExtraction && !validateExtractedFields(result.fields)) {
+    if (
+      state.config.validateExtraction &&
+      !validateExtractedFields(result.fields)
+    ) {
       structuredLogger.warn('[MultimodalEngine] Extraction validation failed', {
         data: {
           fileName: file.name,
@@ -546,13 +590,16 @@ export async function processDocument(file: File): Promise<OCRResult> {
     });
 
     return result;
-
   } catch (error) {
-    structuredLogger.error('[MultimodalEngine] Error processing document', error instanceof Error ? error : new Error(String(error)), {
-      data: {
-        fileName: file.name,
-      },
-    });
+    structuredLogger.error(
+      '[MultimodalEngine] Error processing document',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: {
+          fileName: file.name,
+        },
+      }
+    );
     throw error;
   }
 }
@@ -567,11 +614,12 @@ export async function extractEdital(file: File): Promise<EditalExtraction> {
 
     // 2. Extrair campos específicos de edital
     const text = ocrResult.fullText.toLowerCase();
-    
+
     // Regex patterns para campos comuns
     const numeroMatch = /edital\s+n[º°]?\s*(\d+\/\d+)/i.exec(text);
     const orgaoMatch = /órgão[:\s]+([^\n]+)/i.exec(text);
-    const modalidadeMatch = /(pregão|concorrência|tomada de preço|convite|leilão)/i.exec(text);
+    const modalidadeMatch =
+      /(pregão|concorrência|tomada de preço|convite|leilão)/i.exec(text);
     const dataAberturaMatch = /abertura[:\s]+(\d{2}\/\d{2}\/\d{4})/i.exec(text);
     const valorMatch = /valor\s+estimado[:\s]+r\$\s*([\d.,]+)/i.exec(text);
 
@@ -584,16 +632,26 @@ export async function extractEdital(file: File): Promise<EditalExtraction> {
       orgao: orgaoMatch?.[1]?.trim(),
       modalidade: modalidadeMatch?.[1]?.toLowerCase(),
       objeto: objetoMatch?.[1]?.trim(),
-      dataAbertura: dataAberturaMatch ? new Date(dataAberturaMatch[1].split('/').reverse().join('-')) : undefined,
-      valorEstimado: valorMatch ? Number.parseFloat(valorMatch[1].replaceAll('.', '').replace(',', '.')) : undefined,
-      itens: ocrResult.tables.length > 0 ? ocrResult.tables[0].rows.map((row, idx) => ({
-        numero: String(idx + 1),
-        descricao: String(row.descricao || row.item || row.especificacao || ''),
-        quantidade: Number(row.quantidade || row.qtd) || undefined,
-        unidade: String(row.unidade || row.un) || undefined,
-        valorUnitario: Number(row.valor_unitario || row.preco_unitario) || undefined,
-        valorTotal: Number(row.valor_total || row.total) || undefined,
-      })) : [],
+      dataAbertura: dataAberturaMatch
+        ? new Date(dataAberturaMatch[1].split('/').reverse().join('-'))
+        : undefined,
+      valorEstimado: valorMatch
+        ? Number.parseFloat(valorMatch[1].replaceAll('.', '').replace(',', '.'))
+        : undefined,
+      itens:
+        ocrResult.tables.length > 0
+          ? ocrResult.tables[0].rows.map((row, idx) => ({
+              numero: String(idx + 1),
+              descricao: String(
+                row.descricao || row.item || row.especificacao || ''
+              ),
+              quantidade: Number(row.quantidade || row.qtd) || undefined,
+              unidade: String(row.unidade || row.un) || undefined,
+              valorUnitario:
+                Number(row.valor_unitario || row.preco_unitario) || undefined,
+              valorTotal: Number(row.valor_total || row.total) || undefined,
+            }))
+          : [],
       confidence: ocrResult.confidence,
     };
 
@@ -607,26 +665,52 @@ export async function extractEdital(file: File): Promise<EditalExtraction> {
     });
 
     return extraction;
-
   } catch (error) {
-    structuredLogger.error('[MultimodalEngine] Error extracting edital', error instanceof Error ? error : new Error(String(error)), {
-      data: {
-        fileName: file.name,
-      },
-    });
+    structuredLogger.error(
+      '[MultimodalEngine] Error extracting edital',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: {
+          fileName: file.name,
+        },
+      }
+    );
     throw error;
   }
 }
 
 /**
  * Análise visual de documento
+ * NOTA: Em produção, use via Edge Function
  */
-export async function analyzeDocumentVisually(file: File): Promise<VisualAnalysis> {
+export async function analyzeDocumentVisually(
+  file: File,
+  apiKey?: string
+): Promise<VisualAnalysis> {
+  // SEGURANÇA: API key deve vir explicitamente, não de variáveis de ambiente
+  if (!apiKey) {
+    structuredLogger.warn(
+      '[MultimodalEngine] analyzeDocumentVisually requires API key via Edge Function'
+    );
+    // Retorna fallback quando não há API key
+    return {
+      documentType: 'other',
+      layout: { hasHeader: false, hasFooter: false, columns: 1, sections: 1 },
+      elements: { logos: 0, signatures: 0, stamps: 0, barcodes: 0, qrCodes: 0 },
+      quality: { resolution: 150, brightness: 50, contrast: 50, sharpness: 50 },
+      issues: [
+        {
+          type: 'incomplete',
+          severity: 'high',
+          message: 'API key not configured',
+        },
+      ],
+    };
+  }
+
   try {
     const imageData = await imageToBase64(file);
-    
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
@@ -635,10 +719,11 @@ export async function analyzeDocumentVisually(file: File): Promise<VisualAnalysi
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: `Analise visualmente este documento e responda em JSON:
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Analise visualmente este documento e responda em JSON:
 
 {
   "documentType": "tipo do documento",
@@ -664,24 +749,25 @@ export async function analyzeDocumentVisually(file: File): Promise<VisualAnalysi
   "issues": [
     {"type": "blur|low_contrast|skew|noise|incomplete", "severity": "low|medium|high", "message": "descrição"}
   ]
-}`
-              },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: imageData
-                }
-              }
-            ]
-          }]
-        })
+}`,
+                },
+                {
+                  inline_data: {
+                    mime_type: 'image/jpeg',
+                    data: imageData,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
       }
     );
 
     const data = await response.json();
     const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     const jsonMatch = /\{[\s\S]*\}/.exec(textContent);
-    
+
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
@@ -694,13 +780,16 @@ export async function analyzeDocumentVisually(file: File): Promise<VisualAnalysi
       quality: { resolution: 150, brightness: 50, contrast: 50, sharpness: 50 },
       issues: [],
     };
-
   } catch (error) {
-    structuredLogger.error('[MultimodalEngine] Error in visual analysis', error instanceof Error ? error : new Error(String(error)), {
-      data: {
-        fileName: file.name,
-      },
-    });
+    structuredLogger.error(
+      '[MultimodalEngine] Error in visual analysis',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        data: {
+          fileName: file.name,
+        },
+      }
+    );
     throw error;
   }
 }
@@ -738,10 +827,10 @@ export function initMultimodalEngine(config?: Partial<MultimodalConfig>): void {
     state.config = { ...state.config, ...config };
   }
 
-  // Verificar se API key está configurada
-  if (!import.meta.env.VITE_GEMINI_API_KEY) {
-    structuredLogger.warn('[MultimodalEngine] Gemini API key not configured');
-  }
+  // NOTA: API key deve ser passada via Edge Function em produção
+  structuredLogger.info(
+    '[MultimodalEngine] Engine initialized - use Edge Functions for API calls'
+  );
 
   state.initialized = true;
 
