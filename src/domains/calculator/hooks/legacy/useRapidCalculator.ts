@@ -1,28 +1,29 @@
-
-import { useCallback, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useCalculationHistory } from "@/hooks/useCalculationHistory";
-import { useCalculatorInputs } from "../useCalculatorInputs";
-import { useCalculatorResult } from "../useCalculatorResult";
-import { useManualPricing } from "../useManualPricing";
-import { formatCurrency } from "../../utils/formatCurrency";
-import { parseInputValue } from "../../utils/parseInputValue";
-import { useOfflineCalculator } from "@/hooks/useOfflineCalculator";
-import type { CalculationHistory } from "../../types/calculator";
+import { useCallback, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useCalculationHistory } from '@/hooks/useCalculationHistory';
+import { useCalculatorInputs } from '../useCalculatorInputs';
+import { useCalculatorResult } from '../useCalculatorResult';
+import { useManualPricing } from '../useManualPricing';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { parseInputValue } from '../../utils/parseInputValue';
+import { useOfflineCalculator } from '@/hooks/useOfflineCalculator';
+import type { CalculationHistory } from '../../types/calculator';
 
 export interface RapidCalculatorOptions {
-  onAfterCalculation?: (historyItem: CalculationHistory) => void | Promise<void>;
+  onAfterCalculation?: (
+    historyItem: CalculationHistory
+  ) => void | Promise<void>;
 }
 
 export const useRapidCalculator = (
   isPro: boolean = false,
   userId?: string,
-  options: SimpleCalculatorOptions = {}
+  options: RapidCalculatorOptions = {}
 ) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { onAfterCalculation } = options;
-  
+
   // Use specialized hooks for different concerns
   const {
     cost,
@@ -44,49 +45,64 @@ export const useRapidCalculator = (
     setTaxValue,
     setCardFeeValue,
     setOtherCostsValue,
-    setShippingValue
+    setShippingValue,
   } = useCalculatorInputs(userId);
 
-  const {
-    result,
-    setResult,
-    preview,
-    setPreview,
-    calculatePrice
-  } = useCalculatorResult(cost, margin, tax, cardFee, otherCosts, shipping, includeShipping, setIsLoading, toast);
+  const { result, setResult, preview, setPreview, calculatePrice } =
+    useCalculatorResult(
+      cost,
+      margin,
+      tax,
+      cardFee,
+      otherCosts,
+      shipping,
+      includeShipping,
+      setIsLoading,
+      toast
+    );
 
   const {
     isManualMode,
     manualPrice,
     togglePriceMode,
-    handleManualPriceChange
-  } = useManualPricing(result, setResult, setMargin, cost, tax, cardFee, otherCosts, shipping, includeShipping);
+    handleManualPriceChange,
+  } = useManualPricing(
+    result,
+    setResult,
+    setMargin,
+    cost,
+    tax,
+    cardFee,
+    otherCosts,
+    shipping,
+    includeShipping
+  );
 
-  const { 
+  const {
     history,
     addToHistory,
-  // clearHistory,
-  // deleteItem,
-    loading: historyLoading, 
+    // clearHistory,
+    // deleteItem,
+    loading: historyLoading,
     error: historyError,
-    isSupabaseConfigured 
+    isSupabaseConfigured,
   } = useCalculationHistory();
-  
+
   const { saveCalculationOffline } = useOfflineCalculator();
 
   const resetCalculator = () => {
-    setCostValue("");
+    setCostValue('');
     setMargin(30);
-    setTaxValue("");
-    setCardFeeValue("");
-    setOtherCostsValue("");
-    setShippingValue("");
+    setTaxValue('');
+    setCardFeeValue('');
+    setOtherCostsValue('');
+    setShippingValue('');
     setIncludeShipping(false);
     setResult(null);
     setPreview(null);
     toast({
-      title: "Valores limpos",
-      description: "Todos os campos foram resetados para um novo cálculo.",
+      title: 'Valores limpos',
+      description: 'Todos os campos foram resetados para um novo cálculo.',
     });
   };
 
@@ -101,10 +117,11 @@ export const useRapidCalculator = (
     // Calcular os valores das taxas baseados no preço de venda
     const taxAmount = manualPriceValue * (taxValue / 100);
     const cardFeeAmount = manualPriceValue * (cardFeeValue / 100);
-    
+
     // CORREÇÃO: Custo total agora inclui TODAS as taxas
-    const totalCost = costValue + otherCostsValue + shippingValue + taxAmount + cardFeeAmount;
-    
+    const totalCost =
+      costValue + otherCostsValue + shippingValue + taxAmount + cardFeeAmount;
+
     // Lucro = Preço de venda - Custo total (já incluindo todas as taxas)
     const profit = manualPriceValue - totalCost;
     const realMarginPercent = (profit / manualPriceValue) * 100;
@@ -123,7 +140,7 @@ export const useRapidCalculator = (
         realMarginPercent,
         taxAmount,
         cardFeeAmount,
-      }
+      },
     };
   };
 
@@ -135,9 +152,9 @@ export const useRapidCalculator = (
 
       if (manualPriceValue <= 0) {
         toast({
-          title: "Valor inválido",
-          description: "O preço de venda deve ser maior que zero.",
-          variant: "destructive",
+          title: 'Valor inválido',
+          description: 'O preço de venda deve ser maior que zero.',
+          variant: 'destructive',
         });
         return;
       }
@@ -146,16 +163,16 @@ export const useRapidCalculator = (
 
       if (costValue <= 0) {
         toast({
-          title: "Valor inválido",
-          description: "O custo do produto deve ser maior que zero.",
-          variant: "destructive",
+          title: 'Valor inválido',
+          description: 'O custo do produto deve ser maior que zero.',
+          variant: 'destructive',
         });
         return;
       }
 
       setIsLoading(true);
-      const meta = import.meta as (ImportMeta & { vitest?: unknown });
-      const delay = ("vitest" in meta) ? 0 : 400;
+      const meta = import.meta as ImportMeta & { vitest?: unknown };
+      const delay = 'vitest' in meta ? 0 : 400;
       setTimeout(async () => {
         const manualResult = calculateManualResult(manualPriceValue);
         setResult(manualResult);
@@ -177,7 +194,7 @@ export const useRapidCalculator = (
         onAfterCalculation?.(newHistoryItem);
 
         await saveCalculationOffline(
-          "simple",
+          'simple',
           { cost, margin, tax, cardFee, otherCosts, shipping, includeShipping },
           manualResult
         );
@@ -185,7 +202,7 @@ export const useRapidCalculator = (
         setIsLoading(false);
 
         toast({
-          title: "Cálculo processado!",
+          title: 'Cálculo processado!',
           description: `Preço mantido: R$ ${formatCurrency(manualPriceValue)}`,
         });
       }, delay);
@@ -199,7 +216,7 @@ export const useRapidCalculator = (
         otherCosts,
         shipping,
         includeShipping,
-        (historyItem) => {
+        historyItem => {
           addToHistory(historyItem);
           onAfterCalculation?.(historyItem);
         }
@@ -208,37 +225,50 @@ export const useRapidCalculator = (
   };
 
   // Função para aplicar templates - definir setState para permitir aplicação de templates
-  const setState = useCallback((newState: Partial<{
-    cost: string | number;
-    margin: number;
-    tax: string | number;
-    cardFee: string | number;
-    otherCosts: string | number;
-    shipping: string | number;
-    includeShipping: boolean;
-  }>) => {
-    if (newState.cost !== undefined) {
-      setCostValue(String(newState.cost));
-    }
-    if (newState.margin !== undefined) {
-      setMargin(newState.margin);
-    }
-    if (newState.tax !== undefined) {
-      setTaxValue(String(newState.tax));
-    }
-    if (newState.cardFee !== undefined) {
-      setCardFeeValue(String(newState.cardFee));
-    }
-    if (newState.otherCosts !== undefined) {
-      setOtherCostsValue(String(newState.otherCosts));
-    }
-    if (newState.shipping !== undefined) {
-      setShippingValue(String(newState.shipping));
-    }
-    if (newState.includeShipping !== undefined) {
-      setIncludeShipping(newState.includeShipping);
-    }
-  }, [setCostValue, setMargin, setTaxValue, setCardFeeValue, setOtherCostsValue, setShippingValue, setIncludeShipping]);
+  const setState = useCallback(
+    (
+      newState: Partial<{
+        cost: string | number;
+        margin: number;
+        tax: string | number;
+        cardFee: string | number;
+        otherCosts: string | number;
+        shipping: string | number;
+        includeShipping: boolean;
+      }>
+    ) => {
+      if (newState.cost !== undefined) {
+        setCostValue(String(newState.cost));
+      }
+      if (newState.margin !== undefined) {
+        setMargin(newState.margin);
+      }
+      if (newState.tax !== undefined) {
+        setTaxValue(String(newState.tax));
+      }
+      if (newState.cardFee !== undefined) {
+        setCardFeeValue(String(newState.cardFee));
+      }
+      if (newState.otherCosts !== undefined) {
+        setOtherCostsValue(String(newState.otherCosts));
+      }
+      if (newState.shipping !== undefined) {
+        setShippingValue(String(newState.shipping));
+      }
+      if (newState.includeShipping !== undefined) {
+        setIncludeShipping(newState.includeShipping);
+      }
+    },
+    [
+      setCostValue,
+      setMargin,
+      setTaxValue,
+      setCardFeeValue,
+      setOtherCostsValue,
+      setShippingValue,
+      setIncludeShipping,
+    ]
+  );
 
   return {
     // Inputs
@@ -249,21 +279,21 @@ export const useRapidCalculator = (
     otherCosts,
     shipping,
     includeShipping,
-    
+
     // Results
     result,
     preview,
-    
+
     // History
     history,
     historyLoading,
     historyError,
     isSupabaseConfigured,
-    
+
     // Status
     isPro,
     isLoading,
-    
+
     // Input handlers - both event handlers and direct value setters
     setCost,
     setMargin,
@@ -272,29 +302,29 @@ export const useRapidCalculator = (
     setOtherCosts,
     setShipping,
     setIncludeShipping,
-    
+
     // Direct value setters
     setCostValue,
     setTaxValue,
     setCardFeeValue,
     setOtherCostsValue,
     setShippingValue,
-    
+
     // Actions
     calculatePrice: handleCalculatePrice,
     resetCalculator,
-    
+
     // Utilities
     formatCurrency,
     parseInputValue,
-    
+
     // Manual pricing
     manualPrice,
     isManualMode,
     handleManualPriceChange,
     togglePriceMode,
-    
+
     // Adicionar setState para templates
-    setState
+    setState,
   };
 };
