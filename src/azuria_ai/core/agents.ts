@@ -10,11 +10,23 @@
  * - Validação de disponibilidade de agentes
  */
 
+export type AgentCapability =
+  | 'calculation'
+  | 'tax'
+  | 'pricing'
+  | 'marketplace'
+  | 'bidding'
+  | 'risk'
+  | 'opportunity'
+  | 'analytics'
+  | 'ui'
+  | 'general';
+
 export interface Agent {
   id: string;
   name: string;
   description: string;
-  capabilities: string[];
+  capabilities: AgentCapability[];
   endpoint?: string;
   priority: number;
 }
@@ -24,33 +36,47 @@ export interface AgentRegistry {
   agents?: Agent[];
 }
 
-// Placeholder para registro de agentes
-export const agentRegistry: Agent[] = [];
+// Registro de agentes
+const agentMap = new Map<string, Agent>();
 
 /**
  * Registra um novo agente no sistema
- * @param _agent - Configuração do agente
+ * @param agent - Configuração do agente
  */
-export function registerAgent(_agent: Agent): void {
-  // Stub: registro de agentes será implementado quando necessário
-}
-
-/**
- * Busca agentes por capacidade
- * @param _capability - Capacidade desejada
- * @returns Lista de agentes que possuem a capacidade
- */
-export function findAgentsByCapability(_capability: string): Agent[] {
-  // Stub: busca por capacidade será implementada quando necessário
-  return [];
+export function registerAgent(agent: Agent): void {
+  agentMap.set(agent.id, agent);
 }
 
 /**
  * Obtém um agente por ID
- * @param _agentId - ID do agente
+ * @param agentId - ID do agente
  * @returns Agente encontrado ou undefined
  */
-export function getAgentById(_agentId: string): Agent | undefined {
-  // Stub: busca por ID será implementada quando necessário
-  return undefined;
+export function getAgent(agentId: string): Agent | undefined {
+  return agentMap.get(agentId);
+}
+
+/**
+ * Lista todos os agentes registrados
+ * @returns Array de agentes
+ */
+export function listAgents(): Agent[] {
+  return Array.from(agentMap.values());
+}
+
+/**
+ * Busca agentes por capacidade
+ * @param capability - Capacidade desejada
+ * @returns Lista de agentes que possuem a capacidade
+ */
+export function findAgentsByCapability(capability: AgentCapability): Agent[] {
+  return listAgents().filter(agent => agent.capabilities.includes(capability));
+}
+
+/**
+ * Obtém um agente por ID (alias para compatibilidade)
+ * @deprecated Use getAgent instead
+ */
+export function getAgentById(agentId: string): Agent | undefined {
+  return getAgent(agentId);
 }
