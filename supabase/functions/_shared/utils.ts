@@ -1,4 +1,4 @@
-/* eslint-disable no-console, @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-console */
 /**
  * Utilitários compartilhados entre as Edge Functions
  */
@@ -9,9 +9,16 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
  * Cria cliente Supabase com credenciais de serviço
  */
 export function createSupabaseClient(authHeader: string) {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+  // Validação em runtime (não em build time)
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error(
+      'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured'
+    );
+  }
+
   return createClient(supabaseUrl, supabaseKey, {
     global: {
       headers: {
@@ -30,7 +37,10 @@ export async function validateAuth(authHeader: string | null) {
   }
 
   const supabase = createSupabaseClient(authHeader);
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
   if (error || !user) {
     throw new Error('Invalid authentication token');
@@ -47,17 +57,17 @@ export async function mercadoPagoRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const accessToken = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN');
-  
+
   if (!accessToken) {
     throw new Error('MERCADOPAGO_ACCESS_TOKEN not configured');
   }
 
   const url = `https://api.mercadopago.com${endpoint}`;
-  
+
   const response = await fetch(url, {
     ...options,
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -86,7 +96,7 @@ export async function logError(
   metadata?: Record<string, unknown>
 ) {
   console.error(`[${context}] Error:`, error, metadata);
-  
+
   // Opcional: salvar logs em tabela de logs (se existir)
   try {
     // await supabase.from('error_logs').insert({
@@ -104,7 +114,9 @@ export async function logError(
 /**
  * Gera URL de retorno para o frontend
  */
-export function getReturnUrl(status: 'success' | 'failure' | 'pending'): string {
+export function getReturnUrl(
+  status: 'success' | 'failure' | 'pending'
+): string {
   const frontendUrl = Deno.env.get('FRONTEND_URL') || 'http://localhost:5173';
   return `${frontendUrl}/pagamento/retorno?status=${status}`;
 }
