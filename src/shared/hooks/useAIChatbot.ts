@@ -1,8 +1,7 @@
-
-import { useCallback, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { ChatMessage, ChatSession } from "@/types/ai";
+import { useCallback, useState } from 'react';
+import { ChatMessage, ChatSession } from '@/types/ai';
 import { logger } from '@/services/logger';
+import { geminiAdapter } from '@/azuria_ai/engines/geminiAdapter';
 
 export const useAIChatbot = (userId?: string) => {
   const [session, setSession] = useState<ChatSession | null>(null);
@@ -17,7 +16,8 @@ export const useAIChatbot = (userId?: string) => {
       messages: [
         {
           id: 'welcome',
-          content: 'Olá! Sou seu assistente de IA para precificação. Como posso ajudar você hoje?',
+          content:
+            'Olá! Sou a Azúria, sua assistente de IA para precificação e gestão comercial. Como posso ajudar você hoje?',
           role: 'assistant',
           timestamp: new Date(),
           metadata: {
@@ -26,10 +26,10 @@ export const useAIChatbot = (userId?: string) => {
             suggestedActions: [
               'Como calcular preço de venda?',
               'Análise de margem de lucro',
-              'Comparar com concorrentes'
-            ]
-          }
-        }
+              'Comparar com concorrentes',
+            ],
+          },
+        },
       ],
       startedAt: new Date(),
       status: 'active',
@@ -38,9 +38,9 @@ export const useAIChatbot = (userId?: string) => {
         conversationHistory: [],
         preferences: {
           domain: 'pricing',
-          language: 'pt-BR'
-        }
-      }
+          language: 'pt-BR',
+        },
+      },
     };
 
     setSession(newSession);
@@ -48,87 +48,105 @@ export const useAIChatbot = (userId?: string) => {
     setError(null);
   }, [userId]);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!session) {
-      startSession();
-      return;
-    }
-
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: `msg_${Date.now()}`,
-      content,
-      role: 'user',
-      timestamp: new Date()
-    };
-
-    setSession(prev => prev ? {
-      ...prev,
-      messages: [...prev.messages, userMessage]
-    } : null);
-
-    setIsTyping(true);
-    setError(null);
-
-    try {
-      // Call Gemini API via Supabase Edge Function
-      const { data, error: apiError } = await supabase.functions.invoke('ai-gemini-chat', {
-        body: {
-          message: content,
-          context: 'pricing',
-          userId: userId
-        }
-      });
-
-      if (apiError) {
-        throw new Error(apiError.message || 'Erro na API');
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!session) {
+        startSession();
+        return;
       }
 
-      // Create assistant response
-      const assistantMessage: ChatMessage = {
-        id: `msg_${Date.now() + 1}`,
-        content: data.response,
-        role: 'assistant',
+      // Add user message
+      const userMessage: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        content,
+        role: 'user',
         timestamp: new Date(),
-        metadata: {
-          intent: 'pricing_assistance',
-          confidence: data.cached ? 100 : 85,
-          suggestedActions: extractSuggestedActions(data.response)
-        }
       };
 
-      setSession(prev => prev ? {
-        ...prev,
-        messages: [...prev.messages, assistantMessage]
-      } : null);
+      setSession(prev =>
+        prev
+          ? {
+              ...prev,
+              messages: [...prev.messages, userMessage],
+            }
+          : null
+      );
 
-    } catch (err) {
-  logger.error('Error sending message:', err);
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
-      
-      // Add error message
-      const errorMessage: ChatMessage = {
-        id: `msg_${Date.now() + 1}`,
-        content: 'Desculpe, ocorreu um erro. Tente novamente em alguns instantes.',
-        role: 'assistant',
-        timestamp: new Date(),
-        metadata: {
-          intent: 'error',
-          confidence: 0
-        }
-      };
+      setIsTyping(true);
+      setError(null);
 
-      setSession(prev => prev ? {
-        ...prev,
-        messages: [...prev.messages, errorMessage]
-      } : null);
-    } finally {
-      setIsTyping(false);
-    }
-  }, [session, startSession, userId]);
+      try {
+        // Call Gemini directly via local adapter
+        const response = await geminiAdapter.callModel({
+          prompt: content,
+          systemPrompt: `Você é a Azúria, assistente inteligente de precificação e gestão comercial.
+Você ajuda usuários brasileiros com:
+- Cálculos de preço de venda, margem, markup
+- Análise de custos e impostos (ICMS, PIS, COFINS)
+- Estratégias de precificação para e-commerce e marketplace
+- Licitações e pregões eletrônicos
+
+Seja concisa, profissional e útil. Responda sempre em português brasileiro.
+Use exemplos práticos quando apropriado.`,
+          temperature: 0.7,
+          maxTokens: 1024,
+        });
+
+        // Create assistant response
+        const assistantMessage: ChatMessage = {
+          id: `msg_${Date.now() + 1}`,
+          content: response.text,
+          role: 'assistant',
+          timestamp: new Date(),
+          metadata: {
+            intent: 'pricing_assistance',
+            confidence: 85,
+            suggestedActions: extractSuggestedActions(response.text),
+          },
+        };
+
+        setSession(prev =>
+          prev
+            ? {
+                ...prev,
+                messages: [...prev.messages, assistantMessage],
+              }
+            : null
+        );
+      } catch (err) {
+        logger.error('Error sending message:', err);
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+
+        // Add error message
+        const errorMessage: ChatMessage = {
+          id: `msg_${Date.now() + 1}`,
+          content:
+            'Desculpe, ocorreu um erro. Verifique se a API Key do Gemini está configurada corretamente.',
+          role: 'assistant',
+          timestamp: new Date(),
+          metadata: {
+            intent: 'error',
+            confidence: 0,
+          },
+        };
+
+        setSession(prev =>
+          prev
+            ? {
+                ...prev,
+                messages: [...prev.messages, errorMessage],
+              }
+            : null
+        );
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [session, startSession]
+  );
 
   const closeSession = useCallback(() => {
-    setSession(prev => prev ? { ...prev, status: 'closed' } : null);
+    setSession(prev => (prev ? { ...prev, status: 'closed' } : null));
     setIsOpen(false);
     setError(null);
   }, []);
@@ -149,14 +167,14 @@ export const useAIChatbot = (userId?: string) => {
     startSession,
     sendMessage,
     closeSession,
-    toggleChat
+    toggleChat,
   };
 };
 
 // Helper function to extract suggested actions from AI response
 function extractSuggestedActions(response: string): string[] {
   const suggestions = [];
-  
+
   if (response.toLowerCase().includes('margem')) {
     suggestions.push('Calcular margem ideal');
   }
@@ -169,6 +187,6 @@ function extractSuggestedActions(response: string): string[] {
   if (response.toLowerCase().includes('preço')) {
     suggestions.push('Simular cenários de preço');
   }
-  
+
   return suggestions.slice(0, 3); // Limit to 3 suggestions
 }

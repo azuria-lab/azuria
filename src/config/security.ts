@@ -12,7 +12,7 @@ export const SECURITY_CONFIG = {
     IMG_SRC: "'self' data: https:",
     FONT_SRC: "'self' data:",
     CONNECT_SRC:
-      "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co https://vercel.live https://vercel.com",
+      "'self' http://localhost:54321 http://127.0.0.1:54321 https://crpzkppsriranmeumfqs.supabase.co wss://crpzkppsriranmeumfqs.supabase.co https://vercel.live https://vercel.com https://generativelanguage.googleapis.com https://integrate.api.nvidia.com",
     FRAME_SRC: "'self' https://vercel.live https://vercel.com",
     OBJECT_SRC: "'none'",
     BASE_URI: "'self'",

@@ -6,51 +6,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalculationTemplate, TEMPLATE_CATEGORIES } from '@/types/templates';
-import { Download, FileText, Star } from 'lucide-react';
+import { Download, FileText, Loader2, Star } from 'lucide-react';
 import { logger } from '@/services/logger';
 import { getNumberField } from '@/utils/templateFields';
-
-// Mock data temporário (valores corrigidos)
-const mockTemplates: CalculationTemplate[] = [
-  {
-    id: '1',
-    name: 'E-commerce Básico',
-    description: 'Template otimizado para lojas online',
-    category: 'ecommerce',
-    sector_specific_config: {},
-    default_values: { margin: 40, tax: '7', cardFee: '3.5' },
-    custom_formulas: null,
-    image_url: null,
-    price: 0,
-    is_premium: false,
-    is_public: true,
-    status: 'published',
-    created_by: null,
-    downloads_count: 150,
-    rating: 4.5,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Restaurante',
-    description: 'Para pratos e bebidas',
-    category: 'restaurante',
-    sector_specific_config: {},
-    default_values: { margin: 30, tax: '7', cardFee: '2.5' },
-    custom_formulas: null,
-    image_url: null,
-    price: 29.90,
-    is_premium: true,
-    is_public: true,
-    status: 'published',
-    created_by: null,
-    downloads_count: 89,
-    rating: 4.8,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
+import { useTemplatesShared } from '@/hooks/useTemplatesShared';
+import { Link } from 'react-router-dom';
 
 interface TemplateSelectorProps {
   onSelectTemplate: (template: CalculationTemplate) => void;
@@ -60,10 +20,7 @@ interface TemplateSelectorProps {
 export default function TemplateSelector({ onSelectTemplate, className }: TemplateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
-  // Usar dados mock por enquanto
-  const templates = mockTemplates;
-  const isLoading = false;
+  const { templates, loading: isLoading, incrementDownloads } = useTemplatesShared();
 
   // Memoizar templates filtrados para performance
   const filteredTemplates = useMemo(() => {
@@ -79,9 +36,12 @@ export default function TemplateSelector({ onSelectTemplate, className }: Templa
       return;
     }
     
+    // Incrementar contador de downloads
+    incrementDownloads(template.id);
+    
     onSelectTemplate(template);
     setIsOpen(false);
-  }, [onSelectTemplate]);
+  }, [onSelectTemplate, incrementDownloads]);
 
   // Callback para mudança de categoria
   const handleCategoryChange = useCallback((value: string) => {
@@ -135,9 +95,17 @@ export default function TemplateSelector({ onSelectTemplate, className }: Templa
             </Select>
           </div>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          )}
+
           {/* Grid de templates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredTemplates.map(template => (
+          {!isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredTemplates.map(template => (
               <Card 
                 key={template.id} 
                 className="cursor-pointer hover:shadow-md transition-shadow"
@@ -186,8 +154,9 @@ export default function TemplateSelector({ onSelectTemplate, className }: Templa
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {filteredTemplates.length === 0 && !isLoading && (
             <div className="text-center py-8 text-gray-500">
@@ -199,9 +168,11 @@ export default function TemplateSelector({ onSelectTemplate, className }: Templa
           <div className="pt-4 border-t">
             <p className="text-sm text-gray-600 text-center">
               Quer ver mais opções?{' '}
-              <Button variant="link" className="p-0 h-auto text-sm" onClick={() => setIsOpen(false)}>
-                Visite o Marketplace
-              </Button>
+              <Link to="/templates">
+                <Button variant="link" className="p-0 h-auto text-sm" onClick={() => setIsOpen(false)}>
+                  Visite o Marketplace
+                </Button>
+              </Link>
             </p>
           </div>
         </div>

@@ -18,7 +18,6 @@ export class NimAdapter {
     try {
       const res = await fetch(`${this.config.baseUrl}/health`, {
         headers: { Authorization: `Bearer ${this.config.apiKey}` },
-        // @ts-expect-error node-fetch timeout
         timeout: 5000,
       });
       return res.ok;
@@ -50,7 +49,6 @@ export class NimAdapter {
         Authorization: `Bearer ${this.config.apiKey}`,
       },
       body: JSON.stringify(body),
-      // @ts-expect-error node-fetch timeout
       timeout: this.config.timeoutMs ?? 30000,
     });
 
@@ -63,9 +61,7 @@ export class NimAdapter {
 
     const raw = await res.json();
     const text =
-      raw.output?.[0]?.content ||
-      raw.generated_text ||
-      JSON.stringify(raw);
+      raw.output?.[0]?.content || raw.generated_text || JSON.stringify(raw);
 
     const tokensUsed = raw.usage?.total_tokens || 0;
 
@@ -78,4 +74,3 @@ export class NimAdapter {
     };
   }
 }
-

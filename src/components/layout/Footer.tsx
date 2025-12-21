@@ -105,7 +105,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link 
-                  to="#sobre" 
+                  to="/sobre" 
                   className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   Sobre o Azuria
@@ -113,7 +113,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
-                  to="#sobre" 
+                  to="/sobre" 
                   className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   Nossa missão
@@ -128,20 +128,20 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="/terms" 
+                <Link 
+                  to="/terms" 
                   className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   Termos
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/privacy" 
+                <Link 
+                  to="/privacy" 
                   className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   Privacidade
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -198,14 +198,12 @@ export default function Footer() {
             <h4 className="font-bold mb-6 text-[#0A1930] text-lg">Contato / Suporte</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a 
-                  href="https://docs.lovable.dev" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <Link 
+                  to="/central-ajuda" 
                   className="text-gray-600 hover:text-[#005BFF] transition-colors"
                 >
                   Central de ajuda
-                </a>
+                </Link>
               </li>
               <li>
                 <a 
@@ -231,20 +229,20 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
           <p>© 2025 Azuria. Todos os direitos reservados.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a 
-              href="/privacy" 
-              className="hover:text-[#005BFF] transition-colors"
-            >
-              Política de Privacidade
-            </a>
-            <a 
-              href="/terms" 
-              className="hover:text-[#005BFF] transition-colors"
-            >
-              Termos de Uso
-            </a>
-          </div>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link 
+                to="/privacy" 
+                className="hover:text-[#005BFF] transition-colors"
+              >
+                Política de Privacidade
+              </Link>
+              <Link 
+                to="/terms" 
+                className="hover:text-[#005BFF] transition-colors"
+              >
+                Termos de Uso
+              </Link>
+            </div>
         </div>
       </div>
     </footer>

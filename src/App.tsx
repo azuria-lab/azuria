@@ -41,6 +41,9 @@ const PricingPage = lazy(() => import("./pages/PricingPage"));
 const ResourcesPage = lazy(() => import("./pages/ResourcesPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const HelpPage = lazy(() => import("./pages/HelpPage"));
+const HelpCenterPage = lazy(() => import("./pages/HelpCenterPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const SubscriptionManagementPage = lazy(() => import("./pages/SubscriptionManagementPage"));
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
 const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
@@ -55,6 +58,7 @@ const CollaborationPage = lazy(() => import("./pages/CollaborationPage"));
 const TeamsPage = lazy(() => import("./pages/TeamsPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AutomationPage = lazy(() => import("./pages/AutomationPage"));
+const MeuNegocioPage = lazy(() => import("./pages/MeuNegocioPage"));
 const RuleDetailsPage = lazy(() => import("./pages/RuleDetailsPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const SupabaseDebug = lazy(() => import("./pages/SupabaseDebug"));
@@ -108,6 +112,9 @@ const App = () => {
                       <Route path="/planos" element={<PricingPage />} />
                       <Route path="/recursos" element={<ResourcesPage />} />
                       <Route path="/sobre" element={<AboutPage />} />
+                      <Route path="/central-ajuda" element={<HelpCenterPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
+                      <Route path="/privacy" element={<PrivacyPage />} />
                       <Route path="/pagamento/retorno" element={<PaymentReturnPage />} />
                       <Route path="/pagamento/sucesso" element={<PaymentSuccessPage />} />
                       
@@ -507,6 +514,18 @@ const App = () => {
                           <ProtectedRoute>
                             <DashboardLayout>
                               <Welcome />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Meu Negócio Routes - Protected */}
+                      <Route
+                        path="/meu-negocio"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <MeuNegocioPage />
                             </DashboardLayout>
                           </ProtectedRoute>
                         }

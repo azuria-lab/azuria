@@ -23,20 +23,23 @@ import {
   Brain,
   Calculator,
   ChevronRight,
-  FileCheck,
   FileText,
   Flag,
+  Gauge,
   Gavel,
   History,
   Home,
   MoreHorizontal,
+  Package2,
   Plus,
   Puzzle,
+  Scale,
   Search as SearchIcon,
   Settings,
   ShoppingBag,
-  TrendingUp,
+  Thermometer,
   Users,
+  Workflow,
   X,
   Zap,
 } from "lucide-react";
@@ -107,10 +110,13 @@ export default function DashboardSidebar() {
     Home,
     BarChart3,
     Calculator,
-    TrendingUp,
-    FileCheck,
+    Gauge,
+    Scale,
     Gavel,
     Zap,
+    Package2,
+    Thermometer,
+    Workflow,
     Brain,
     FileText,
     ShoppingBag,
@@ -121,32 +127,71 @@ export default function DashboardSidebar() {
     Flag,
   };
 
+  // Mapeamento de URLs para ícones corretos (para migração)
+  const urlToIconMap: Record<string, string> = {
+    "/calculadora-rapida": "Gauge",
+    "/calculadora-avancada": "Calculator",
+    "/calculadora-tributaria": "Scale",
+    "/calculadora-licitacao": "Gavel",
+    "/marketplace": "ShoppingBag",
+    "/azuria-ia": "Brain",
+    "/dashboard": "Home",
+    "/analytics": "BarChart3",
+    "/templates": "FileText",
+    "/calculadora-lotes": "Package2",
+    "/analise-sensibilidade": "Thermometer",
+    "/historico": "History",
+    "/integracoes": "Puzzle",
+    "/api": "Puzzle",
+    "/colaboracao": "Users",
+    "/cenarios": "BarChart3",
+    "/importacao": "FileText",
+    "/automacoes": "Workflow",
+  };
+
   // Atalhos favoritos (salvos no localStorage)
   const [favoriteShortcuts, setFavoriteShortcuts] = useState<Array<{ title: string; url: string; iconName: string }>>(() => {
     const saved = localStorage.getItem('azuria-favorite-shortcuts');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Se for formato antigo (com icon como objeto), converter
-        if (parsed.length > 0 && parsed[0].icon && typeof parsed[0].icon !== 'string') {
-          // Converter formato antigo para novo
-          return parsed.map((item: any) => {
-            // Tentar identificar o ícone pelo nome do componente
+        let needsUpdate = false;
+        
+        // Migrar ícones antigos para novos
+        const migrated = parsed.map((item: any) => {
+          // Se for formato antigo (com icon como objeto), converter
+          if (item.icon && typeof item.icon !== 'string') {
+            needsUpdate = true;
             const iconName = Object.keys(iconMap).find(
               key => iconMap[key] === item.icon
-            ) || 'Flag';
+            ) || urlToIconMap[item.url] || 'Flag';
             return { title: item.title, url: item.url, iconName };
-          });
+          }
+          
+          // Migrar ícones antigos baseado na URL
+          const correctIcon = urlToIconMap[item.url];
+          if (correctIcon && item.iconName !== correctIcon) {
+            needsUpdate = true;
+            return { ...item, iconName: correctIcon };
+          }
+          
+          return item;
+        });
+        
+        // Salvar versão migrada se houver mudanças
+        if (needsUpdate) {
+          localStorage.setItem('azuria-favorite-shortcuts', JSON.stringify(migrated));
         }
-        return parsed;
+        
+        return migrated;
       } catch {
         return [];
       }
     }
     // Atalhos padrão
     return [
-      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Calculator" },
-      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "TrendingUp" },
+      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Gauge" },
+      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "Calculator" },
       { title: "Marketplace", url: "/marketplace", iconName: "ShoppingBag" },
           { title: "Azuria AI", url: "/azuria-ia", iconName: "Brain" },
     ];
@@ -202,12 +247,12 @@ export default function DashboardSidebar() {
       { title: "Dashboard", url: "/dashboard", iconName: "Home", icon: Home },
       { title: "Analytics", url: "/analytics", iconName: "BarChart3", icon: BarChart3 },
       { title: "Templates", url: "/templates", iconName: "FileText", icon: FileText },
-      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Calculator", icon: Calculator },
-      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "TrendingUp", icon: TrendingUp },
-      { title: "Calculadora Tributária", url: "/calculadora-tributaria", iconName: "FileCheck", icon: FileCheck },
+      { title: "Calculadora Rápida", url: "/calculadora-rapida", iconName: "Gauge", icon: Gauge },
+      { title: "Calculadora Avançada", url: "/calculadora-avancada", iconName: "Calculator", icon: Calculator },
+      { title: "Calculadora Tributária", url: "/calculadora-tributaria", iconName: "Scale", icon: Scale },
       { title: "Calculadora de Licitações", url: "/calculadora-licitacao", iconName: "Gavel", icon: Gavel },
-      { title: "Calculadora de Lotes", url: "/calculadora-lotes", iconName: "Zap", icon: Zap },
-      { title: "Análise de Sensibilidade", url: "/analise-sensibilidade", iconName: "BarChart3", icon: BarChart3 },
+      { title: "Calculadora de Lotes", url: "/calculadora-lotes", iconName: "Package2", icon: Package2 },
+      { title: "Análise de Sensibilidade", url: "/analise-sensibilidade", iconName: "Thermometer", icon: Thermometer },
       { title: "Azuria AI", url: "/azuria-ia", iconName: "Brain", icon: Brain },
       { title: "Marketplaces", url: "/marketplace", iconName: "ShoppingBag", icon: ShoppingBag },
       { title: "Comparador de Marketplaces", url: "/comparador-marketplaces", iconName: "ShoppingBag", icon: ShoppingBag },
@@ -223,7 +268,7 @@ export default function DashboardSidebar() {
       { title: "Colaboração", url: "/colaboracao", iconName: "Users", icon: Users },
       { title: "Cenários", url: "/cenarios", iconName: "BarChart3", icon: BarChart3 },
       { title: "Importação", url: "/importacao", iconName: "FileText", icon: FileText },
-      { title: "Automações", url: "/automacoes", iconName: "Zap", icon: Zap },
+      { title: "Automações", url: "/automacoes", iconName: "Workflow", icon: Workflow },
     ];
     
     return allItems;

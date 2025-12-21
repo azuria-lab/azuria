@@ -23,10 +23,11 @@ export default function ResourceSelector({ resources, selectedId, onSelect }: Re
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
+            whileHover={{ scale: 1.05 }}
             onClick={() => onSelect(resource.id)}
             className={cn(
               "group relative text-left p-6 rounded-xl border transition-all duration-200",
-              "bg-background hover:bg-accent/50",
+              "bg-background",
               "border-border hover:border-foreground/20",
               "hover:shadow-md",
               isSelected && "border-primary/50 bg-primary/5 shadow-md"

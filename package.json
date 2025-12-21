@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:cloud": "node scripts/switch-env.mjs cloud && vite",
+    "dev": "node scripts/load-env.mjs",
+    "dev:vite": "vite",
     "dev:local": "node scripts/switch-env.mjs local && vite",
     "dev:hybrid": "node scripts/switch-env.mjs hybrid && vite",
     "prebuild": "node -e \"try { require('fs').rmSync('dist', { recursive: true, force: true }); } catch (e) {}\"",

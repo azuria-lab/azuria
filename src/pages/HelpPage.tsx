@@ -30,7 +30,6 @@ import {
   Clock,
   CreditCard,
   FileText,
-  Filter,
   Globe,
   HelpCircle,
   Mail,
@@ -48,27 +47,6 @@ import {
 } from "lucide-react";
 import { useAuthContext } from "@/domains/auth";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.1,
-      staggerChildren: 0.05
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4 }
-  }
-};
 
 type TicketStatus = "aberto" | "em_andamento" | "resolvido" | "fechado";
 type TicketPriority = "baixa" | "media" | "alta" | "urgente";
@@ -237,7 +215,7 @@ const helpArticles = [
 
 export default function HelpPage() {
   const { userProfile } = useAuthContext();
-  const reduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion();
   const [activeTab, setActiveTab] = useState("faq");
   const [searchQuery, setSearchQuery] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -272,8 +250,6 @@ export default function HelpPage() {
 
     setIsLoading(true);
     try {
-      // Aqui você integraria com sua API de tickets
-      // Por enquanto, vamos simular criando um ticket local
       const newTicket: Ticket = {
         id: `ticket_${Date.now()}`,
         title: ticketForm.title,
@@ -347,56 +323,61 @@ export default function HelpPage() {
   })).filter(category => category.questions.length > 0);
 
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 max-w-7xl">
       <motion.div
-        variants={reduceMotion ? undefined : containerVariants}
-        initial={reduceMotion ? false : "hidden"}
-        animate={reduceMotion ? undefined : "visible"}
-        className="space-y-6"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="space-y-12"
       >
         {/* Header */}
-        <motion.div variants={reduceMotion ? undefined : itemVariants} className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <HelpCircle className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                Central de Ajuda
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Encontre respostas rápidas ou entre em contato com nosso suporte
-              </p>
-            </div>
-          </div>
-        </motion.div>
+        <div className="space-y-6">
+          <motion.div
+            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="space-y-4"
+          >
+            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-foreground">
+              Central de Ajuda
+            </h1>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+              Encontre respostas rápidas ou entre em contato com nosso suporte.
+            </p>
+          </motion.div>
 
-        {/* Search Bar */}
-        <motion.div variants={reduceMotion ? undefined : itemVariants}>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Pesquisar na central de ajuda..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-base"
-            />
-          </div>
-        </motion.div>
+          {/* Search Bar */}
+          <motion.div
+            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-2xl"
+          >
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar na central de ajuda..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-14 text-base border-2 focus:border-primary/50"
+              />
+            </div>
+          </motion.div>
+        </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
-            <TabsTrigger value="faq" className="flex items-center gap-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex h-12">
+            <TabsTrigger value="faq" className="flex items-center gap-2 text-base">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Perguntas Frequentes</span>
               <span className="sm:hidden">FAQ</span>
             </TabsTrigger>
-            <TabsTrigger value="tickets" className="flex items-center gap-2">
+            <TabsTrigger value="tickets" className="flex items-center gap-2 text-base">
               <MessageSquare className="h-4 w-4" />
               Meus Tickets
             </TabsTrigger>
-            <TabsTrigger value="articles" className="flex items-center gap-2">
+            <TabsTrigger value="articles" className="flex items-center gap-2 text-base">
               <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Artigos</span>
               <span className="sm:hidden">Guias</span>
@@ -404,12 +385,12 @@ export default function HelpPage() {
           </TabsList>
 
           {/* FAQ Tab */}
-          <TabsContent value="faq" className="space-y-6">
+          <TabsContent value="faq" className="space-y-12 mt-8">
             {filteredFAQ.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
+              <Card className="border-2">
+                <CardContent className="py-16 text-center">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-lg font-medium text-foreground mb-2">
+                  <p className="text-lg font-semibold text-foreground mb-2">
                     Nenhum resultado encontrado
                   </p>
                   <p className="text-muted-foreground">
@@ -423,32 +404,37 @@ export default function HelpPage() {
                 return (
                   <motion.div
                     key={category.title}
-                    variants={reduceMotion ? undefined : itemVariants}
+                    initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+                    whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
+                    className="space-y-6"
                   >
-                    <Card>
-                      <CardHeader>
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <Icon className="h-5 w-5 text-primary" />
-                          </div>
-                          <CardTitle className="text-xl">{category.title}</CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
-                          {category.questions.map((faq, index) => (
-                            <AccordionItem key={index} value={`item-${categoryIndex}-${index}`}>
-                              <AccordionTrigger className="text-left hover:no-underline">
-                                {faq.question}
-                              </AccordionTrigger>
-                              <AccordionContent className="text-muted-foreground leading-relaxed">
-                                {faq.answer}
-                              </AccordionContent>
-                            </AccordionItem>
-                          ))}
-                        </Accordion>
-                      </CardContent>
-                    </Card>
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-muted/50">
+                        <Icon className="h-6 w-6 text-foreground/70" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-foreground">
+                        {category.title}
+                      </h2>
+                    </div>
+                    
+                    <Accordion type="single" collapsible className="space-y-3">
+                      {category.questions.map((faq, index) => (
+                        <AccordionItem
+                          key={index}
+                          value={`item-${categoryIndex}-${index}`}
+                          className="border rounded-lg px-6 py-2 border-border hover:border-foreground/20 transition-colors"
+                        >
+                          <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline py-4">
+                            {faq.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-muted-foreground leading-relaxed pb-4">
+                            {faq.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
                   </motion.div>
                 );
               })
@@ -456,16 +442,18 @@ export default function HelpPage() {
           </TabsContent>
 
           {/* Tickets Tab */}
-          <TabsContent value="tickets" className="space-y-6">
-            <div className="grid lg:grid-cols-3 gap-6">
+          <TabsContent value="tickets" className="space-y-8 mt-8">
+            <div className="grid lg:grid-cols-3 gap-8">
               {/* Create Ticket Form */}
               <motion.div
-                variants={reduceMotion ? undefined : itemVariants}
+                initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+                animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
                 className="lg:col-span-1"
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                <Card className="border-2">
+                  <CardHeader className="space-y-2">
+                    <CardTitle className="flex items-center gap-2 text-xl">
                       <Plus className="h-5 w-5" />
                       Novo Ticket
                     </CardTitle>
@@ -473,24 +461,24 @@ export default function HelpPage() {
                       Crie um ticket de suporte e nossa equipe te ajudará
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Título *</Label>
+                      <Label htmlFor="title" className="text-sm font-medium">Título *</Label>
                       <Input
                         id="title"
                         placeholder="Descreva brevemente o problema"
                         value={ticketForm.title}
                         onChange={(e) => setTicketForm({ ...ticketForm, title: e.target.value })}
-                        className="h-10"
+                        className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category">Categoria</Label>
+                      <Label htmlFor="category" className="text-sm font-medium">Categoria</Label>
                       <Select
                         value={ticketForm.category}
                         onValueChange={(value) => setTicketForm({ ...ticketForm, category: value as TicketCategory })}
                       >
-                        <SelectTrigger id="category" className="h-10">
+                        <SelectTrigger id="category" className="h-11">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -504,12 +492,12 @@ export default function HelpPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="priority">Prioridade</Label>
+                      <Label htmlFor="priority" className="text-sm font-medium">Prioridade</Label>
                       <Select
                         value={ticketForm.priority}
                         onValueChange={(value) => setTicketForm({ ...ticketForm, priority: value as TicketPriority })}
                       >
-                        <SelectTrigger id="priority" className="h-10">
+                        <SelectTrigger id="priority" className="h-11">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -521,19 +509,19 @@ export default function HelpPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="description">Descrição *</Label>
+                      <Label htmlFor="description" className="text-sm font-medium">Descrição *</Label>
                       <Textarea
                         id="description"
                         placeholder="Descreva seu problema ou dúvida em detalhes..."
                         value={ticketForm.description}
                         onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
-                        className="min-h-[120px] resize-none"
+                        className="min-h-[140px] resize-none"
                       />
                     </div>
                     <Button
                       onClick={handleCreateTicket}
                       disabled={isLoading}
-                      className="w-full h-10"
+                      className="w-full h-11 text-base"
                     >
                       <Send className="mr-2 h-4 w-4" />
                       {isLoading ? "Enviando..." : "Criar Ticket"}
@@ -544,21 +532,23 @@ export default function HelpPage() {
 
               {/* Tickets List */}
               <motion.div
-                variants={reduceMotion ? undefined : itemVariants}
+                initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+                animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
                 className="lg:col-span-2"
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Meus Tickets</CardTitle>
+                <Card className="border-2">
+                  <CardHeader className="space-y-2">
+                    <CardTitle className="text-xl">Meus Tickets</CardTitle>
                     <CardDescription>
                       Acompanhe o status dos seus tickets de suporte
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {tickets.length === 0 ? (
-                      <div className="py-12 text-center">
+                      <div className="py-16 text-center">
                         <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-lg font-medium text-foreground mb-2">
+                        <p className="text-lg font-semibold text-foreground mb-2">
                           Nenhum ticket criado
                         </p>
                         <p className="text-muted-foreground">
@@ -568,20 +558,20 @@ export default function HelpPage() {
                     ) : (
                       <div className="space-y-4">
                         {tickets.map((ticket) => (
-                          <Card key={ticket.id} className="border-2">
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between gap-4 mb-3">
-                                <div className="flex-1">
-                                  <h3 className="font-semibold text-foreground mb-1">
+                          <Card key={ticket.id} className="border-2 hover:border-foreground/20 transition-colors">
+                            <CardContent className="p-6">
+                              <div className="flex items-start justify-between gap-4 mb-4">
+                                <div className="flex-1 space-y-2">
+                                  <h3 className="font-semibold text-foreground text-lg">
                                     {ticket.title}
                                   </h3>
-                                  <p className="text-sm text-muted-foreground line-clamp-2">
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
                                     {ticket.description}
                                   </p>
                                 </div>
                                 {getStatusBadge(ticket.status)}
                               </div>
-                              <div className="flex items-center justify-between flex-wrap gap-2">
+                              <div className="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-border">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   {getPriorityBadge(ticket.priority)}
                                   <Badge variant="outline" className="text-xs">
@@ -604,34 +594,37 @@ export default function HelpPage() {
           </TabsContent>
 
           {/* Articles Tab */}
-          <TabsContent value="articles" className="space-y-6">
+          <TabsContent value="articles" className="space-y-8 mt-8">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {helpArticles.map((article, index) => {
                 const Icon = article.icon;
                 return (
                   <motion.div
                     key={index}
-                    variants={reduceMotion ? undefined : itemVariants}
-                    whileHover={reduceMotion ? undefined : { y: -4 }}
-                    transition={{ duration: 0.2 }}
+                    initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+                    whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className="h-full cursor-pointer hover:border-primary/50 transition-colors">
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <Icon className="h-5 w-5 text-primary" />
+                    <Card className="h-full border-2 hover:border-foreground/20 hover:shadow-md transition-all cursor-pointer group">
+                      <CardHeader className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div className="p-3 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                            <Icon className="h-6 w-6 text-foreground/70 group-hover:text-primary transition-colors" />
                           </div>
                           <Badge variant="secondary" className="text-xs">
                             {article.category}
                           </Badge>
                         </div>
-                        <CardTitle className="text-lg">{article.title}</CardTitle>
-                        <CardDescription>{article.description}</CardDescription>
+                        <div className="space-y-2">
+                          <CardTitle className="text-lg">{article.title}</CardTitle>
+                          <CardDescription className="leading-relaxed">{article.description}</CardDescription>
+                        </div>
                       </CardHeader>
                       <CardContent>
-                        <Button variant="ghost" className="w-full justify-between group">
+                        <Button variant="ghost" className="w-full justify-between group/btn">
                           Ler artigo
-                          <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          <ChevronRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Button>
                       </CardContent>
                     </Card>
@@ -643,30 +636,36 @@ export default function HelpPage() {
         </Tabs>
 
         {/* Contact Options */}
-        <motion.div variants={reduceMotion ? undefined : itemVariants}>
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader>
-              <CardTitle>Outras formas de contato</CardTitle>
+        <motion.div
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="pt-8 border-t border-border"
+        >
+          <Card className="bg-muted/30 border-2">
+            <CardHeader className="space-y-2">
+              <CardTitle className="text-xl">Outras formas de contato</CardTitle>
               <CardDescription>
                 Escolha a forma de contato que preferir
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <Mail className="h-5 w-5" />
-                  <span className="font-medium">Email</span>
-                  <span className="text-xs text-muted-foreground">suporte@azuria.app</span>
+                <Button variant="outline" className="h-auto py-6 flex-col gap-3 border-2 hover:border-foreground/20">
+                  <Mail className="h-6 w-6" />
+                  <span className="font-semibold text-base">Email</span>
+                  <span className="text-sm text-muted-foreground">suporte@azuria.app</span>
                 </Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <MessageCircle className="h-5 w-5" />
-                  <span className="font-medium">Chat Online</span>
-                  <span className="text-xs text-muted-foreground">Disponível 24/7</span>
+                <Button variant="outline" className="h-auto py-6 flex-col gap-3 border-2 hover:border-foreground/20">
+                  <MessageCircle className="h-6 w-6" />
+                  <span className="font-semibold text-base">Chat Online</span>
+                  <span className="text-sm text-muted-foreground">Disponível 24/7</span>
                 </Button>
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <Video className="h-5 w-5" />
-                  <span className="font-medium">Agendar Reunião</span>
-                  <span className="text-xs text-muted-foreground">Para clientes Enterprise</span>
+                <Button variant="outline" className="h-auto py-6 flex-col gap-3 border-2 hover:border-foreground/20">
+                  <Video className="h-6 w-6" />
+                  <span className="font-semibold text-base">Agendar Reunião</span>
+                  <span className="text-sm text-muted-foreground">Para clientes Enterprise</span>
                 </Button>
               </div>
             </CardContent>
@@ -676,4 +675,3 @@ export default function HelpPage() {
     </div>
   );
 }
-

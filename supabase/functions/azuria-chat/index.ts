@@ -5,7 +5,7 @@ import { withSecurityMiddleware } from '../_shared/security-config.ts';
 
 const GEMINI_API_KEY = (Deno.env.get('GEMINI_API_KEY') || '').trim();
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 if (!GEMINI_API_KEY) {
   console.error('GEMINI_API_KEY is missing');

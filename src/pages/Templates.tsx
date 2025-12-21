@@ -1,256 +1,177 @@
-import { useCallback, useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Download, Filter, Search, Star } from "lucide-react";
 import { useRapidCalculator } from "@/hooks/useRapidCalculator";
 import { logger } from "@/services/logger";
-import type { Database } from "@/types/supabase";
-
-interface TemplateDefaults {
-  cost?: string | number;
-  margin?: number;
-  tax?: string | number;
-  cardFee?: string | number;
-  otherCosts?: string | number;
-  shipping?: string | number;
-  includeShipping?: boolean;
-}
-
-interface TemplateSectorConfig {
-  [key: string]: unknown;
-}
-
-interface Template {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string;
-  default_values: TemplateDefaults | null;
-  sector_specific_config: TemplateSectorConfig | null;
-  rating: number | null;
-  downloads_count: number | null;
-  is_premium: boolean | null;
-  image_url?: string | null;
-}
-
-type DBTemplate = Omit<Template, 'default_values' | 'sector_specific_config'> & {
-  default_values: unknown;
-  sector_specific_config: unknown;
-};
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
+import { useNavigate } from "react-router-dom";
+import { CalculationTemplate } from "@/types/templates";
+import { useTemplatesShared } from "@/hooks/useTemplatesShared";
+import RapidTemplateCard from "@/components/templates/RapidTemplateCard";
+import AdvancedTemplateCard from "@/components/templates/AdvancedTemplateCard";
+import AppleCarousel from "@/components/templates/AppleCarousel";
+import { RAPID_TEMPLATES } from "@/data/rapidTemplates";
+import { ERP_INTEGRATIONS, MARKETPLACE_TEMPLATES } from "@/data/advancedTemplates";
 
 const Templates = () => {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("todos");
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { setState } = useRapidCalculator();
+  const { incrementDownloads } = useTemplatesShared();
 
-  const categories = [
-    { value: "todos", label: "Todos os Setores" },
-    { value: "ecommerce", label: "E-commerce" },
-    { value: "restaurante", label: "Restaurante" },
-    { value: "servicos", label: "Serviços" },
-    { value: "artesanal", label: "Artesanal" },
-    { value: "varejo", label: "Varejo" },
-    { value: "saas", label: "SaaS" },
-    { value: "industria", label: "Indústria" },
-    { value: "consultoria", label: "Consultoria" },
-    { value: "outros", label: "Outros" }
-  ];
-
-  const fetchTemplates = useCallback(async () => {
+  const applyRapidTemplate = useCallback(async (template: CalculationTemplate) => {
     try {
-      const { data, error } = await supabase
-        .from('calculation_templates')
-        .select('*')
-        .eq('is_public', true)
-        .eq('status', 'published')
-        .order('downloads_count', { ascending: false });
-
-      if (error) {throw error;}
-      const safe = (data as unknown as DBTemplate[] | null) ?? [];
-      const mapped: Template[] = safe.map((row) => ({
-        ...row,
-        default_values: isObject(row.default_values) ? (row.default_values as TemplateDefaults) : null,
-        sector_specific_config: isObject(row.sector_specific_config) ? (row.sector_specific_config as TemplateSectorConfig) : null,
-      }));
-      setTemplates(mapped);
-    } catch (error) {
-  logger.error('Erro ao carregar templates:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os templates.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    fetchTemplates();
-  }, [fetchTemplates]);
-
-  const applyTemplate = async (template: Template) => {
-    try {
-      // Aplicar valores do template na calculadora
+      // Aplicar valores do template na calculadora rápida
       setState({
-  cost: template.default_values?.cost ?? "",
-  margin: template.default_values?.margin ?? 30,
-  tax: template.default_values?.tax ?? "",
-  cardFee: template.default_values?.cardFee ?? "",
-  otherCosts: template.default_values?.otherCosts ?? "",
-  shipping: template.default_values?.shipping ?? "",
-  includeShipping: template.default_values?.includeShipping ?? false,
+        cost: (template.default_values as any)?.cost ?? "",
+        margin: (template.default_values as any)?.margin ?? 30,
+        tax: (template.default_values as any)?.tax ?? "",
+        cardFee: (template.default_values as any)?.cardFee ?? "",
+        otherCosts: (template.default_values as any)?.otherCosts ?? "",
+        shipping: (template.default_values as any)?.shipping ?? "",
+        includeShipping: (template.default_values as any)?.includeShipping ?? false,
       });
-
-      // Incrementar contador de downloads
-      await supabase
-        .from('calculation_templates')
-        .update({ downloads_count: (template.downloads_count ?? 0) + 1 } satisfies Database['public']['Tables']['calculation_templates']['Update'])
-        .eq('id', template.id);
 
       toast({
         title: "Template aplicado!",
-        description: `Template "${template.name}" foi aplicado na calculadora.`,
+        description: `Template "${template.name}" foi aplicado na calculadora rápida.`,
       });
 
       // Redirecionar para a calculadora
-      globalThis.location.href = "/";
+      navigate("/calculadora-rapida");
     } catch (error) {
-  logger.error('Erro ao aplicar template:', error);
+      logger.error('Erro ao aplicar template:', error);
       toast({
         title: "Erro",
         description: "Não foi possível aplicar o template.",
         variant: "destructive",
       });
     }
-  };
+  }, [setState, navigate, toast]);
 
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "todos" || template.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const applyAdvancedTemplate = useCallback(async (templateName: string) => {
+    try {
+      // Para templates avançados, navegar para calculadora avançada
+      navigate("/calculadora-avancada", {
+        state: { templateName }
+      });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-primary/5">
-        <div className="container mx-auto px-4 pt-24 pb-20">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Carregando templates...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+      toast({
+        title: "Template selecionado!",
+        description: `Template "${templateName}" será aplicado na calculadora avançada.`,
+      });
+    } catch (error) {
+      logger.error('Erro ao aplicar template:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível aplicar o template.",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background">
-      
-      <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Header da página */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4">
-            Templates por Setor
+    <div className="min-h-screen bg-white w-full">
+      {/* Hero Section - Minimalista */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 max-w-7xl">
+        <div className="text-center mb-16">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold text-gray-900 mb-3 tracking-tight">
+            Templates
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Escolha um template pré-configurado para seu setor e acelere seus cálculos de precificação
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+            Escolha um modelo, ajuste em segundos e siga vendendo.
           </p>
         </div>
 
-        {/* Filtros */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar templates..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="border rounded-md px-3 py-2 bg-background text-foreground"
-            >
-              {categories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Grid de Templates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTemplates.map((template) => (
-            <Card key={template.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <Badge variant={template.is_premium ? "default" : "secondary"}>
-                    {template.category}
-                  </Badge>
-                  {(template.is_premium ?? false) && (
-                    <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">PRO</Badge>
-                  )}
-                </div>
-                <CardTitle className="text-lg">{template.name}</CardTitle>
-                <CardDescription className="text-sm">
-                  {template.description}
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span>{template.rating?.toFixed(1) || "0.0"}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Download className="h-4 w-4" />
-                    <span>{template.downloads_count ?? 0}</span>
-                  </div>
-                </div>
-
-                <Button 
-                  onClick={() => applyTemplate(template)}
-                  className="w-full"
-                  variant={(template.is_premium ?? false) ? "default" : "outline"}
-                >
-                  {(template.is_premium ?? false) ? "Usar Template PRO" : "Usar Template"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredTemplates.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              Nenhum template encontrado para os filtros selecionados.
+        {/* Seção 1 - Calculadora Rápida */}
+        <section className="mb-20">
+          <div className="mb-6">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-1.5">
+              Calculadora Rápida
+            </h2>
+            <p className="text-base text-gray-600">
+              Modelos prontos para decisões rápidas.
             </p>
           </div>
-        )}
-      </main>
+
+          <AppleCarousel>
+            {RAPID_TEMPLATES.map((rapidTemplate) => (
+              <RapidTemplateCard
+                key={rapidTemplate.template.id}
+                icon={rapidTemplate.icon}
+                name={rapidTemplate.name}
+                description={rapidTemplate.description}
+                onClick={() => applyRapidTemplate(rapidTemplate.template)}
+              />
+            ))}
+          </AppleCarousel>
+        </section>
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 my-16" />
+
+        {/* Seção 2 - Avançado */}
+        <section className="mb-20">
+          <div className="mb-6">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-1.5">
+              Avançado
+            </h2>
+            <p className="text-base text-gray-600">
+              Precificação completa, integrada ao seu negócio.
+            </p>
+          </div>
+
+          {/* Integrações ERP */}
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-gray-900 mb-5">
+              Integrações ERP
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ERP_INTEGRATIONS.map((integration, index) => (
+                <AdvancedTemplateCard
+                  key={index}
+                  icon={integration.icon}
+                  name={integration.name}
+                  description={integration.description}
+                  badge={integration.badge}
+                  variant={integration.variant}
+                  onClick={integration.onClick}
+                />
+              ))}
+              {/* Card "Em breve" para futuras integrações */}
+              <div className="relative rounded-2xl border border-gray-100 bg-gray-50/50 p-6 flex items-center justify-center min-h-[180px]">
+                <div className="text-center">
+                  <p className="text-sm text-gray-400 font-medium">Em breve</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Templates Marketplace */}
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-5">
+              Templates Marketplace
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {MARKETPLACE_TEMPLATES.map((marketplace, index) => (
+                <AdvancedTemplateCard
+                  key={index}
+                  icon={marketplace.icon}
+                  name={marketplace.name}
+                  description={marketplace.description}
+                  variant={marketplace.variant}
+                  onClick={() => applyAdvancedTemplate(marketplace.name)}
+                />
+              ))}
+              {/* Card "Em breve" para Magalu */}
+              <div className="relative rounded-2xl border border-gray-100 bg-gray-50/50 p-6 flex items-center justify-center min-h-[180px]">
+                <div className="text-center">
+                  <p className="text-sm text-gray-500 font-semibold mb-1">Magalu</p>
+                  <p className="text-xs text-gray-400">Em breve</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
     </div>
   );
 };

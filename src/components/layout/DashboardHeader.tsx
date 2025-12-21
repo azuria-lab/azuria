@@ -34,16 +34,19 @@ import {
   Brain,
   Calculator,
   ChevronDown,
-  FileCheck,
   FileText,
+  Gauge,
   Gavel,
   HelpCircle,
   History,
   Home,
+  Package2,
   Puzzle,
+  Scale,
   Search,
   Settings,
   ShoppingBag,
+  Thermometer,
   Zap,
 } from "lucide-react";
 
@@ -59,12 +62,12 @@ export default function DashboardHeader() {
     {
       label: "Precificação",
       items: [
-        { label: "Calculadora Rápida", icon: Calculator, path: "/calculadora-rapida" },
+        { label: "Calculadora Rápida", icon: Gauge, path: "/calculadora-rapida" },
         { label: "Calculadora Avançada", icon: Calculator, path: "/calculadora-avancada" },
-        { label: "Calculadora Tributária", icon: FileCheck, path: "/calculadora-tributaria" },
+        { label: "Calculadora Tributária", icon: Scale, path: "/calculadora-tributaria" },
         { label: "Calculadora de Licitações", icon: Gavel, path: "/calculadora-licitacao" },
-        { label: "Calculadora de Lotes", icon: Zap, path: "/calculadora-lotes" },
-        { label: "Análise de Sensibilidade", icon: BarChart3, path: "/analise-sensibilidade" },
+        { label: "Calculadora de Lotes", icon: Package2, path: "/calculadora-lotes" },
+        { label: "Análise de Sensibilidade", icon: Thermometer, path: "/analise-sensibilidade" },
       ],
     },
   ];
@@ -72,7 +75,7 @@ export default function DashboardHeader() {
   // Itens de busca rápida
   const searchItems = [
     { label: "Dashboard", path: "/dashboard", icon: Home },
-    { label: "Calculadora Rápida", path: "/calculadora-rapida", icon: Calculator },
+    { label: "Calculadora Rápida", path: "/calculadora-rapida", icon: Gauge },
     { label: "Azuria AI", path: "/azuria-ia", icon: Brain },
     { label: "Analytics", path: "/analytics", icon: BarChart3 },
     { label: "Marketplaces", path: "/marketplace", icon: ShoppingBag },
@@ -97,6 +100,32 @@ export default function DashboardHeader() {
 
         {/* Menu de Funcionalidades - CÍRCULO AMARELO */}
         <div className="flex items-center gap-1">
+          {/* Meu Negócio - Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-9 px-3 text-sm font-medium hover:bg-accent"
+              >
+                Meu Negócio
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>Meu Negócio</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => navigate("/meu-negocio")}
+                  className="cursor-pointer"
+                >
+                  <Package2 className="mr-2 h-4 w-4" />
+                  Produtos
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
           {/* Precificação - Dropdown */}
           {functionalMenus.map((menu) => (
             <DropdownMenu key={menu.label}>

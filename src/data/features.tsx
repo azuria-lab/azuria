@@ -5,10 +5,11 @@ import {
   Brain, 
   Calculator, 
   ChartBar,
-  CircleDollarSign,
   FileText,
   FileUp,
+  Gauge,
   Package2,
+  Scale,
   ShoppingBag,
   Thermometer,
   Users,
@@ -21,21 +22,21 @@ export const features: FeatureItem[] = [
   {
     title: "Calculadora Rápida",
     description: "Cálculo rápido de custo, impostos de NF e taxas de maquininha",
-    icon: <Calculator className="w-10 h-10 text-brand-600" />,
+    icon: <Gauge className="w-10 h-10 text-brand-600" />,
     link: "/calculadora-rapida",
     available: true
   },
   {
     title: "Calculadora Avançada",
     description: "Análise completa com regimes tributários e custos de marketplace",
-    icon: <CircleDollarSign className="w-10 h-10 text-brand-600" />,
+    icon: <Calculator className="w-10 h-10 text-brand-600" />,
     link: "/calculadora-avancada",
     available: true
   },
   {
     title: "Calculadora Tributária",
     description: "Compare regimes tributários brasileiros: Simples, MEI, Lucro Presumido e Real",
-    icon: <FileText className="w-10 h-10 text-brand-600" />,
+    icon: <Scale className="w-10 h-10 text-brand-600" />,
     link: "/calculadora-tributaria",
     available: true
   },
