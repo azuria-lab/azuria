@@ -14,7 +14,7 @@ export default function ResourceSelector({ resources, selectedId, onSelect }: Re
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {resources.map((resource, index) => {
-        const IconComponent = (Icons as Record<string, LucideIcon>)[resource.icon] || Icons.Circle;
+        const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[resource.icon] || Icons.Circle;
         const isSelected = selectedId === resource.id;
 
         return (
