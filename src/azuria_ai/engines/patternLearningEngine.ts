@@ -108,7 +108,9 @@ const CONFIG = {
  * Inicializa o PatternLearningEngine
  */
 export async function initPatternLearning(userId?: string): Promise<void> {
-  if (state.initialized && state.userId === userId) {return;}
+  if (state.initialized && state.userId === userId) {
+    return;
+  }
 
   state.userId = userId ?? null;
   state.patterns.clear();
@@ -251,7 +253,9 @@ export function recordAction(
   action: string,
   context?: Record<string, unknown>
 ): void {
-  if (!state.learningEnabled) {return;}
+  if (!state.learningEnabled) {
+    return;
+  }
 
   const sequence: ActionSequence = {
     actions: [action],
@@ -277,7 +281,9 @@ export function recordActionSequence(
   actions: string[],
   context?: Record<string, unknown>
 ): void {
-  if (!state.learningEnabled || actions.length === 0) {return;}
+  if (!state.learningEnabled || actions.length === 0) {
+    return;
+  }
 
   const sequence: ActionSequence = {
     actions,
@@ -327,8 +333,8 @@ export function analyzePatterns(): DetectedPattern[] {
  */
 function detectNavigationPatterns(): DetectedPattern[] {
   const patterns: DetectedPattern[] = [];
-  const navActions = state.actionBuffer.filter((s) =>
-    s.actions.some((a) => a.startsWith('navigate:') || a.startsWith('view:'))
+  const navActions = state.actionBuffer.filter(s =>
+    s.actions.some(a => a.startsWith('navigate:') || a.startsWith('view:'))
   );
 
   // Group by sequences
@@ -346,10 +352,16 @@ function detectNavigationPatterns(): DetectedPattern[] {
   for (const [sequence, count] of sequences) {
     if (count >= CONFIG.minOccurrencesForPattern) {
       const confidence = Math.min(0.95, count / 10);
-      const pattern = createOrUpdatePattern('navigation', sequence, {
+      const pattern = createOrUpdatePattern(
+        'navigation',
         sequence,
-        count,
-      }, confidence, count);
+        {
+          sequence,
+          count,
+        },
+        confidence,
+        count
+      );
 
       patterns.push(pattern);
     }
@@ -374,7 +386,9 @@ function detectTimingPatterns(): DetectedPattern[] {
 
   // Find peak hours
   const totalActions = state.actionBuffer.length;
-  if (totalActions < 10) {return patterns;}
+  if (totalActions < 10) {
+    return patterns;
+  }
 
   const sortedHours = [...hourCounts.entries()].sort((a, b) => b[1] - a[1]);
 
@@ -386,12 +400,18 @@ function detectTimingPatterns(): DetectedPattern[] {
       const timeOfDay = getTimeOfDay(hour);
       const confidence = Math.min(0.9, percentage * 2);
 
-      const pattern = createOrUpdatePattern('timing', `peak_hour_${hour}`, {
-        hour,
-        timeOfDay,
-        percentage,
-        actionCount: count,
-      }, confidence, count);
+      const pattern = createOrUpdatePattern(
+        'timing',
+        `peak_hour_${hour}`,
+        {
+          hour,
+          timeOfDay,
+          percentage,
+          actionCount: count,
+        },
+        confidence,
+        count
+      );
 
       patterns.push(pattern);
     }
@@ -406,16 +426,21 @@ function detectTimingPatterns(): DetectedPattern[] {
 function detectCalculationPatterns(): DetectedPattern[] {
   const patterns: DetectedPattern[] = [];
 
-  const calcActions = state.actionBuffer.filter((s) =>
-    s.actions.some((a) => a.startsWith('calculate:'))
+  const calcActions = state.actionBuffer.filter(s =>
+    s.actions.some(a => a.startsWith('calculate:'))
   );
 
   // Group by calculation type
-  const calcTypes = new Map<string, { count: number; contexts: Record<string, unknown>[] }>();
+  const calcTypes = new Map<
+    string,
+    { count: number; contexts: Record<string, unknown>[] }
+  >();
 
   for (const seq of calcActions) {
-    const calcAction = seq.actions.find((a) => a.startsWith('calculate:'));
-    if (!calcAction) {continue;}
+    const calcAction = seq.actions.find(a => a.startsWith('calculate:'));
+    if (!calcAction) {
+      continue;
+    }
 
     const calcType = calcAction.replace('calculate:', '');
     const existing = calcTypes.get(calcType) ?? { count: 0, contexts: [] };
@@ -433,11 +458,17 @@ function detectCalculationPatterns(): DetectedPattern[] {
     if (data.count >= CONFIG.minOccurrencesForPattern) {
       const confidence = Math.min(0.95, data.count / 15);
 
-      const pattern = createOrUpdatePattern('calculation', `frequent_${calcType}`, {
-        calculationType: calcType,
-        frequency: data.count,
-        avgValues: analyzeContextValues(data.contexts),
-      }, confidence, data.count);
+      const pattern = createOrUpdatePattern(
+        'calculation',
+        `frequent_${calcType}`,
+        {
+          calculationType: calcType,
+          frequency: data.count,
+          avgValues: analyzeContextValues(data.contexts),
+        },
+        confidence,
+        data.count
+      );
 
       patterns.push(pattern);
     }
@@ -452,16 +483,21 @@ function detectCalculationPatterns(): DetectedPattern[] {
 function detectErrorPatterns(): DetectedPattern[] {
   const patterns: DetectedPattern[] = [];
 
-  const errorActions = state.actionBuffer.filter((s) =>
-    s.actions.some((a) => a.startsWith('error:'))
+  const errorActions = state.actionBuffer.filter(s =>
+    s.actions.some(a => a.startsWith('error:'))
   );
 
   // Group by error type
-  const errorTypes = new Map<string, { count: number; contexts: Record<string, unknown>[] }>();
+  const errorTypes = new Map<
+    string,
+    { count: number; contexts: Record<string, unknown>[] }
+  >();
 
   for (const seq of errorActions) {
-    const errorAction = seq.actions.find((a) => a.startsWith('error:'));
-    if (!errorAction) {continue;}
+    const errorAction = seq.actions.find(a => a.startsWith('error:'));
+    if (!errorAction) {
+      continue;
+    }
 
     const errorType = errorAction.replace('error:', '');
     const existing = errorTypes.get(errorType) ?? { count: 0, contexts: [] };
@@ -480,11 +516,17 @@ function detectErrorPatterns(): DetectedPattern[] {
       // Lower threshold for errors
       const confidence = Math.min(0.9, data.count / 5);
 
-      const pattern = createOrUpdatePattern('error_prone', `frequent_${errorType}`, {
-        errorType,
-        frequency: data.count,
-        commonContext: findCommonContext(data.contexts),
-      }, confidence, data.count);
+      const pattern = createOrUpdatePattern(
+        'error_prone',
+        `frequent_${errorType}`,
+        {
+          errorType,
+          frequency: data.count,
+          commonContext: findCommonContext(data.contexts),
+        },
+        confidence,
+        data.count
+      );
 
       patterns.push(pattern);
     }
@@ -497,7 +539,9 @@ function detectErrorPatterns(): DetectedPattern[] {
  * Detecta padrões de sequência
  */
 function detectSequencePatterns(actions: string[]): void {
-  if (actions.length < 2) {return;}
+  if (actions.length < 2) {
+    return;
+  }
 
   const key = actions.join('->');
   const existingKey = `feature_usage:${key}`;
@@ -508,10 +552,16 @@ function detectSequencePatterns(actions: string[]): void {
     existing.confidence = Math.min(0.95, existing.occurrences / 10);
     existing.lastDetected = new Date();
   } else if (actions.length >= 2) {
-    createOrUpdatePattern('feature_usage', key, {
-      sequence: actions,
-      length: actions.length,
-    }, 0.3, 1);
+    createOrUpdatePattern(
+      'feature_usage',
+      key,
+      {
+        sequence: actions,
+        length: actions.length,
+      },
+      0.3,
+      1
+    );
   }
 }
 
@@ -525,19 +575,31 @@ function checkImmediatePatterns(
   // Check for preference patterns
   if (action.startsWith('prefer:')) {
     const preference = action.replace('prefer:', '');
-    createOrUpdatePattern('preference', preference, {
+    createOrUpdatePattern(
+      'preference',
       preference,
-      value: context?.value,
-    }, 0.7, 1);
+      {
+        preference,
+        value: context?.value,
+      },
+      0.7,
+      1
+    );
   }
 
   // Check for skill progression
   if (action.startsWith('skill:')) {
     const skill = action.replace('skill:', '');
-    createOrUpdatePattern('skill_progression', skill, {
+    createOrUpdatePattern(
+      'skill_progression',
       skill,
-      level: context?.level,
-    }, 0.8, 1);
+      {
+        skill,
+        level: context?.level,
+      },
+      0.8,
+      1
+    );
   }
 }
 
@@ -556,7 +618,7 @@ export function getAllPatterns(): DetectedPattern[] {
  * Retorna padrões por tipo
  */
 export function getPatternsByType(type: PatternType): DetectedPattern[] {
-  return [...state.patterns.values()].filter((p) => p.type === type);
+  return [...state.patterns.values()].filter(p => p.type === type);
 }
 
 /**
@@ -566,7 +628,7 @@ export function getHighConfidencePatterns(
   minConfidence: number = 0.7
 ): DetectedPattern[] {
   return [...state.patterns.values()]
-    .filter((p) => p.confidence >= minConfidence)
+    .filter(p => p.confidence >= minConfidence)
     .sort((a, b) => b.confidence - a.confidence);
 }
 
@@ -580,7 +642,10 @@ export function hasPattern(type: PatternType, key: string): boolean {
 /**
  * Retorna um padrão específico
  */
-export function getPattern(type: PatternType, key: string): DetectedPattern | null {
+export function getPattern(
+  type: PatternType,
+  key: string
+): DetectedPattern | null {
   return state.patterns.get(`${type}:${key}`) ?? null;
 }
 
@@ -629,10 +694,12 @@ export function getPatternStats(): PatternStats {
  */
 export function getTypicalUsageTime(): string | null {
   const timingPatterns = getPatternsByType('timing')
-    .filter((p) => p.key.startsWith('peak_hour_'))
+    .filter(p => p.key.startsWith('peak_hour_'))
     .sort((a, b) => b.confidence - a.confidence);
 
-  if (timingPatterns.length === 0) {return null;}
+  if (timingPatterns.length === 0) {
+    return null;
+  }
 
   const topPattern = timingPatterns[0];
   return (topPattern.data as { timeOfDay?: string }).timeOfDay ?? null;
@@ -643,10 +710,10 @@ export function getTypicalUsageTime(): string | null {
  */
 export function getMostUsedCalculators(): string[] {
   return getPatternsByType('calculation')
-    .filter((p) => p.key.startsWith('frequent_'))
+    .filter(p => p.key.startsWith('frequent_'))
     .sort((a, b) => b.occurrences - a.occurrences)
     .slice(0, 5)
-    .map((p) => (p.data as { calculationType?: string }).calculationType ?? '')
+    .map(p => (p.data as { calculationType?: string }).calculationType ?? '')
     .filter(Boolean);
 }
 
@@ -657,7 +724,7 @@ export function getFrequentErrors(): Array<{ type: string; count: number }> {
   return getPatternsByType('error_prone')
     .sort((a, b) => b.occurrences - a.occurrences)
     .slice(0, 5)
-    .map((p) => ({
+    .map(p => ({
       type: (p.data as { errorType?: string }).errorType ?? '',
       count: p.occurrences,
     }));
@@ -729,8 +796,8 @@ function createOrUpdatePattern(
     persistPattern(pattern).catch(console.error);
   }
 
-  // Emit event
-  // @ts-expect-error - Event signature mismatch
+  // Emit event (event type not in EventType enum)
+  // @ts-expect-error - user:preference_detected not defined in EventType
   eventBus.emit({
     type: 'user:preference_detected',
     payload: {
@@ -744,16 +811,24 @@ function createOrUpdatePattern(
 }
 
 function getTimeOfDay(hour: number): string {
-  if (hour >= 5 && hour < 12) {return 'morning';}
-  if (hour >= 12 && hour < 17) {return 'afternoon';}
-  if (hour >= 17 && hour < 21) {return 'evening';}
+  if (hour >= 5 && hour < 12) {
+    return 'morning';
+  }
+  if (hour >= 12 && hour < 17) {
+    return 'afternoon';
+  }
+  if (hour >= 17 && hour < 21) {
+    return 'evening';
+  }
   return 'night';
 }
 
 function analyzeContextValues(
   contexts: Record<string, unknown>[]
 ): Record<string, unknown> {
-  if (contexts.length === 0) {return {};}
+  if (contexts.length === 0) {
+    return {};
+  }
 
   // Find numeric fields and calculate averages
   const numericFields = new Map<string, number[]>();
@@ -784,7 +859,9 @@ function analyzeContextValues(
 function findCommonContext(
   contexts: Record<string, unknown>[]
 ): Record<string, unknown> {
-  if (contexts.length === 0) {return {};}
+  if (contexts.length === 0) {
+    return {};
+  }
 
   // Find fields that appear in most contexts with same value
   const fieldCounts = new Map<string, Map<string, number>>();
@@ -814,23 +891,27 @@ function findCommonContext(
 }
 
 async function persistPattern(pattern: DetectedPattern): Promise<void> {
-  if (!state.userId || !state.persistenceEnabled) {return;}
+  if (!state.userId || !state.persistenceEnabled) {
+    return;
+  }
 
   try {
-    // @ts-expect-error - Supabase types not regenerated after table creation
-    const { error } = await supabase.from('user_behavior_patterns').upsert({
-      user_id: state.userId,
-      pattern_type: pattern.type,
-      pattern_key: pattern.key,
-      pattern_data: pattern.data,
-      confidence: pattern.confidence,
-      occurrences: pattern.occurrences,
-      first_detected_at: pattern.firstDetected.toISOString(),
-      last_detected_at: pattern.lastDetected.toISOString(),
-      metadata: pattern.metadata ?? {},
-    }, {
-      onConflict: 'user_id,pattern_type,pattern_key',
-    });
+    const { error } = await supabase.from('user_behavior_patterns').upsert(
+      {
+        user_id: state.userId,
+        pattern_type: pattern.type as string,
+        pattern_key: pattern.key,
+        pattern_data: pattern.data,
+        confidence: pattern.confidence,
+        occurrences: pattern.occurrences,
+        first_detected_at: pattern.firstDetected.toISOString(),
+        last_detected_at: pattern.lastDetected.toISOString(),
+        metadata: pattern.metadata ?? {},
+      },
+      {
+        onConflict: 'user_id,pattern_type,pattern_key',
+      }
+    );
 
     // Se tabela não existe, desabilitar persistência silenciosamente
     if (error) {
@@ -861,7 +942,7 @@ function mapDbToPattern(row: Record<string, unknown>): DetectedPattern {
 function setupEventListeners(): void {
   // Listen to user actions
   // @ts-expect-error - Event type mismatch
-  eventBus.on('user:interacted', (event) => {
+  eventBus.on('user:interacted', event => {
     recordAction(`interact:${event.payload.elementType}`, {
       action: event.payload.action,
       ...event.payload.metadata,
@@ -869,20 +950,20 @@ function setupEventListeners(): void {
   });
 
   // @ts-expect-error - Event type mismatch
-  eventBus.on('user:navigated', (event) => {
+  eventBus.on('user:navigated', event => {
     recordAction(`navigate:${event.payload.to}`, {
       from: event.payload.from,
     });
   });
 
-  eventBus.on('user:calculation', (event) => {
+  eventBus.on('user:calculation', event => {
     recordAction(`calculate:${event.payload.calculatorType}`, {
       inputs: event.payload.inputs,
       result: event.payload.result,
     });
   });
 
-  eventBus.on('user:error', (event) => {
+  eventBus.on('user:error', event => {
     recordAction(`error:${event.payload.errorType}`, {
       message: event.payload.message,
       context: event.payload.context,
