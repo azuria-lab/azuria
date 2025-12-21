@@ -22,12 +22,12 @@ import {
 // CONFIGURAÇÃO DOS ADAPTERS
 // =============================================================================
 
-// NIM Adapter (configurado para NVIDIA API)
+// NIM Adapter (desabilitado - requer Edge Function)
+// SEGURANÇA: API key não deve estar no frontend
 const nimAdapter = new NimAdapter({
-  apiKey: import.meta.env.VITE_NIM_API_KEY || '',
+  apiKey: '', // Desabilitado
   baseUrl: 'https://integrate.api.nvidia.com/v1',
-  defaultModel:
-    import.meta.env.VITE_NIM_MODEL || 'nvidia/nemotron-3-nano-30b-a3b',
+  defaultModel: 'nvidia/nemotron-3-nano-30b-a3b',
 });
 
 // =============================================================================
@@ -234,11 +234,12 @@ export async function analyze(
 
 /**
  * Verifica status dos engines
+ * NOTA: Em produção, engines remotos funcionam via Edge Function
  */
 export async function getEngineStatus(): Promise<Record<AIEngine, boolean>> {
   return {
-    gemini: geminiAdapter.isConfigured(),
-    nim: Boolean(import.meta.env.VITE_NIM_API_KEY),
+    gemini: true, // Disponível via Edge Function
+    nim: false, // Desabilitado - requer Edge Function
     local: true,
   };
 }

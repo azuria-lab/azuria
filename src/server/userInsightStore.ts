@@ -1,17 +1,17 @@
 /**
  * User Insight Store - Persistência de sugestões do Co-Piloto
- * 
+ *
  * Armazena sugestões enviadas ao usuário e feedback recebido.
  * Permite análise de eficácia e melhoria contínua do Co-Piloto.
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { structuredLogger } from '@/services/structuredLogger';
-import type { 
+import type {
   CoPilotMetrics,
-  Suggestion, 
-  SuggestionFeedback, 
-  SuggestionType 
+  Suggestion,
+  SuggestionFeedback,
+  SuggestionType,
 } from '@/azuria_ai/types/operational';
 
 const logger = structuredLogger.withContext({ module: 'userInsightStore' });
@@ -69,15 +69,20 @@ let tablesCheckPromise: Promise<boolean> | null = null;
 const AI_TABLES_DISABLED = false;
 
 function getSupabaseClient() {
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  
+  // SEGURANÇA: Frontend usa apenas ANON_KEY, nunca SERVICE_ROLE_KEY
+  const url = process.env.VITE_SUPABASE_URL;
+  const key =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
   if (!url || !key) {
     // eslint-disable-next-line no-console
-    console.warn('[userInsightStore] Supabase não configurado, usando cache em memória');
+    console.warn(
+      '[userInsightStore] Supabase não configurado, usando cache em memória'
+    );
     return null;
   }
-  
+
   return createClient(url, key);
 }
 
@@ -164,10 +169,10 @@ export async function saveSuggestion(
   sessionId?: string
 ): Promise<PersistenceResult> {
   const supabase = getSupabaseClient();
-  
+
   // Salvar em memória primeiro
   memoryCache.suggestions.set(suggestion.id, suggestion);
-  
+
   if (!supabase) {
     return 'memory';
   }
@@ -177,35 +182,33 @@ export async function saveSuggestion(
   if (!available) {
     return 'memory';
   }
-  
+
   try {
-    const { error } = await supabase
-      .from('user_suggestions')
-      .upsert({
-        id: suggestion.id,
-        user_id: userId || null,
-        session_id: sessionId || 'anonymous',
-        type: suggestion.type,
-        priority: suggestion.priority,
-        category: suggestion.category,
-        title: suggestion.title,
-        message: suggestion.message,
-        details: suggestion.details || null,
-        context: suggestion.context || null,
-        status: suggestion.status,
-        confidence: suggestion.metadata.confidence,
-        created_at: new Date(suggestion.metadata.createdAt).toISOString(),
-        expires_at: suggestion.metadata.expiresAt 
-          ? new Date(suggestion.metadata.expiresAt).toISOString() 
-          : null,
-      });
-    
+    const { error } = await supabase.from('user_suggestions').upsert({
+      id: suggestion.id,
+      user_id: userId || null,
+      session_id: sessionId || 'anonymous',
+      type: suggestion.type,
+      priority: suggestion.priority,
+      category: suggestion.category,
+      title: suggestion.title,
+      message: suggestion.message,
+      details: suggestion.details || null,
+      context: suggestion.context || null,
+      status: suggestion.status,
+      confidence: suggestion.metadata.confidence,
+      created_at: new Date(suggestion.metadata.createdAt).toISOString(),
+      expires_at: suggestion.metadata.expiresAt
+        ? new Date(suggestion.metadata.expiresAt).toISOString()
+        : null,
+    });
+
     if (error) {
       // Desabilitar persistência para próximas chamadas
       tablesAvailable = false;
       return 'memory';
     }
-    
+
     return 'persisted';
   } catch {
     // Desabilitar persistência silenciosamente
@@ -228,32 +231,34 @@ export async function updateSuggestionStatus(
   if (cached) {
     cached.status = status;
   }
-  
+
   const supabase = getSupabaseClient();
   if (!supabase || !tablesAvailable) {
     return 'memory';
   }
-  
+
   try {
     const updateData: Record<string, unknown> = {
       status,
       ...(status === 'shown' && { shown_at: new Date().toISOString() }),
-      ...((['accepted', 'dismissed'] as const).includes(status as 'accepted' | 'dismissed') && {
+      ...((['accepted', 'dismissed'] as const).includes(
+        status as 'accepted' | 'dismissed'
+      ) && {
         action_at: new Date().toISOString(),
         action_type: actionType || status,
       }),
     };
-    
+
     const { error } = await supabase
       .from('user_suggestions')
       .update(updateData)
       .eq('id', suggestionId);
-    
+
     if (error) {
       tablesAvailable = false;
       return 'memory';
     }
-    
+
     return 'persisted';
   } catch {
     tablesAvailable = false;
@@ -273,43 +278,46 @@ export async function getSuggestions(
   }
 ): Promise<Suggestion[]> {
   const supabase = getSupabaseClient();
-  
+
   if (!supabase) {
     // Retornar do cache em memória
     return Array.from(memoryCache.suggestions.values())
       .filter(s => !options?.status || s.status === options.status)
       .slice(0, options?.limit || 50);
   }
-  
+
   try {
     let query = supabase
       .from('user_suggestions')
       .select('*')
       .eq('session_id', sessionId)
       .order('created_at', { ascending: false });
-    
+
     if (options?.status) {
       query = query.eq('status', options.status);
     }
-    
+
     if (options?.userId) {
       query = query.eq('user_id', options.userId);
     }
-    
+
     if (options?.limit) {
       query = query.limit(options.limit);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       logger.error('Erro ao buscar sugestões: ' + error.message);
       return [];
     }
-    
+
     return (data || []).map(mapStoredToSuggestion);
   } catch (err) {
-    logger.error('Exceção ao buscar sugestões', err instanceof Error ? err : new Error(String(err)));
+    logger.error(
+      'Exceção ao buscar sugestões',
+      err instanceof Error ? err : new Error(String(err))
+    );
     return [];
   }
 }
@@ -327,33 +335,31 @@ export async function saveFeedback(
   userId?: string
 ): Promise<PersistenceResult> {
   const feedbackId = `fb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  
+
   // Salvar em memória
   memoryCache.feedback.set(feedbackId, feedback);
-  
+
   const supabase = getSupabaseClient();
   if (!supabase || !tablesAvailable) {
     return 'memory';
   }
-  
+
   try {
-    const { error } = await supabase
-      .from('user_suggestion_feedback')
-      .insert({
-        id: feedbackId,
-        suggestion_id: feedback.suggestionId,
-        user_id: userId || null,
-        type: feedback.type,
-        comment: feedback.comment || null,
-        context: feedback.context || null,
-        created_at: new Date(feedback.createdAt).toISOString(),
-      });
-    
+    const { error } = await supabase.from('user_suggestion_feedback').insert({
+      id: feedbackId,
+      suggestion_id: feedback.suggestionId,
+      user_id: userId || null,
+      type: feedback.type,
+      comment: feedback.comment || null,
+      context: feedback.context || null,
+      created_at: new Date(feedback.createdAt).toISOString(),
+    });
+
     if (error) {
       tablesAvailable = false;
       return 'memory';
     }
-    
+
     return 'persisted';
   } catch {
     tablesAvailable = false;
@@ -368,16 +374,14 @@ export async function saveFeedback(
 /**
  * Calcula métricas do Co-Piloto para um período
  */
-export async function getMetrics(
-  options?: {
-    userId?: string;
-    sessionId?: string;
-    startDate?: Date;
-    endDate?: Date;
-  }
-): Promise<CoPilotMetrics> {
+export async function getMetrics(options?: {
+  userId?: string;
+  sessionId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}): Promise<CoPilotMetrics> {
   const supabase = getSupabaseClient();
-  
+
   // Métricas padrão (vazio)
   const emptyMetrics: CoPilotMetrics = {
     totalSuggestions: 0,
@@ -390,45 +394,46 @@ export async function getMetrics(
     byType: {} as Record<SuggestionType, number>,
     acceptanceByType: {} as Record<SuggestionType, number>,
   };
-  
+
   if (!supabase) {
     // Calcular do cache em memória
     const suggestions = Array.from(memoryCache.suggestions.values());
     return calculateMetricsFromSuggestions(suggestions);
   }
-  
+
   try {
-    let query = supabase
-      .from('user_suggestions')
-      .select('*');
-    
+    let query = supabase.from('user_suggestions').select('*');
+
     if (options?.userId) {
       query = query.eq('user_id', options.userId);
     }
-    
+
     if (options?.sessionId) {
       query = query.eq('session_id', options.sessionId);
     }
-    
+
     if (options?.startDate) {
       query = query.gte('created_at', options.startDate.toISOString());
     }
-    
+
     if (options?.endDate) {
       query = query.lte('created_at', options.endDate.toISOString());
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       logger.error('Erro ao buscar métricas: ' + error.message);
       return emptyMetrics;
     }
-    
+
     const suggestions = (data || []).map(mapStoredToSuggestion);
     return calculateMetricsFromSuggestions(suggestions);
   } catch (err) {
-    logger.error('Exceção ao calcular métricas', err instanceof Error ? err : new Error(String(err)));
+    logger.error(
+      'Exceção ao calcular métricas',
+      err instanceof Error ? err : new Error(String(err))
+    );
     return emptyMetrics;
   }
 }
@@ -436,7 +441,9 @@ export async function getMetrics(
 /**
  * Busca taxa de aceitação por tipo de sugestão
  */
-export async function getAcceptanceRateByType(): Promise<Record<SuggestionType, number>> {
+export async function getAcceptanceRateByType(): Promise<
+  Record<SuggestionType, number>
+> {
   const metrics = await getMetrics();
   return metrics.acceptanceByType;
 }
@@ -453,7 +460,7 @@ export async function cleanupOldSuggestions(
 ): Promise<number> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
-  
+
   const supabase = getSupabaseClient();
   if (!supabase) {
     // Limpar cache em memória
@@ -466,22 +473,25 @@ export async function cleanupOldSuggestions(
     }
     return removed;
   }
-  
+
   try {
     const { data, error } = await supabase
       .from('user_suggestions')
       .delete()
       .lt('created_at', cutoffDate.toISOString())
       .select('id');
-    
+
     if (error) {
       logger.error('Erro ao limpar sugestões antigas: ' + error.message);
       return 0;
     }
-    
+
     return data?.length || 0;
   } catch (err) {
-    logger.error('Exceção ao limpar sugestões', err instanceof Error ? err : new Error(String(err)));
+    logger.error(
+      'Exceção ao limpar sugestões',
+      err instanceof Error ? err : new Error(String(err))
+    );
     return 0;
   }
 }
@@ -511,7 +521,9 @@ function mapStoredToSuggestion(stored: StoredSuggestion): Suggestion {
     context: stored.context as Suggestion['context'],
     metadata: {
       createdAt: new Date(stored.created_at).getTime(),
-      expiresAt: stored.expires_at ? new Date(stored.expires_at).getTime() : undefined,
+      expiresAt: stored.expires_at
+        ? new Date(stored.expires_at).getTime()
+        : undefined,
       source: 'operational-ai',
       confidence: stored.confidence,
     },
@@ -519,48 +531,58 @@ function mapStoredToSuggestion(stored: StoredSuggestion): Suggestion {
   };
 }
 
-function calculateMetricsFromSuggestions(suggestions: Suggestion[]): CoPilotMetrics {
+function calculateMetricsFromSuggestions(
+  suggestions: Suggestion[]
+): CoPilotMetrics {
   const byType: Record<string, number> = {};
   const acceptedByType: Record<string, number> = {};
   const shownByType: Record<string, number> = {};
-  
+
   let totalShown = 0;
   let totalAccepted = 0;
   let totalDismissed = 0;
   let totalExpired = 0;
   const totalTimeToAction = 0;
   const actionsWithTime = 0;
-  
+
   for (const s of suggestions) {
     byType[s.type] = (byType[s.type] || 0) + 1;
-    
-    if (s.status === 'shown' || s.status === 'accepted' || s.status === 'dismissed') {
+
+    if (
+      s.status === 'shown' ||
+      s.status === 'accepted' ||
+      s.status === 'dismissed'
+    ) {
       totalShown++;
       shownByType[s.type] = (shownByType[s.type] || 0) + 1;
     }
-    
+
     if (s.status === 'accepted') {
       totalAccepted++;
       acceptedByType[s.type] = (acceptedByType[s.type] || 0) + 1;
     }
-    
+
     if (s.status === 'dismissed') {
       totalDismissed++;
     }
-    
+
     if (s.status === 'expired') {
       totalExpired++;
     }
   }
-  
+
   // Calcular taxa de aceitação por tipo
-  const acceptanceByType: Record<SuggestionType, number> = {} as Record<SuggestionType, number>;
+  const acceptanceByType: Record<SuggestionType, number> = {} as Record<
+    SuggestionType,
+    number
+  >;
   for (const type of Object.keys(shownByType)) {
     const shown = shownByType[type] || 0;
     const accepted = acceptedByType[type] || 0;
-    acceptanceByType[type as SuggestionType] = shown > 0 ? (accepted / shown) * 100 : 0;
+    acceptanceByType[type as SuggestionType] =
+      shown > 0 ? (accepted / shown) * 100 : 0;
   }
-  
+
   return {
     totalSuggestions: suggestions.length,
     totalShown,
@@ -568,7 +590,8 @@ function calculateMetricsFromSuggestions(suggestions: Suggestion[]): CoPilotMetr
     totalDismissed,
     totalExpired,
     acceptanceRate: totalShown > 0 ? (totalAccepted / totalShown) * 100 : 0,
-    avgTimeToAction: actionsWithTime > 0 ? totalTimeToAction / actionsWithTime : 0,
+    avgTimeToAction:
+      actionsWithTime > 0 ? totalTimeToAction / actionsWithTime : 0,
     byType: byType as Record<SuggestionType, number>,
     acceptanceByType,
   };
