@@ -66,21 +66,19 @@ let tablesAvailable: boolean | null = null;
 let tablesCheckPromise: Promise<boolean> | null = null;
 
 // Desabilita persistência completamente (tabelas de IA não criadas ainda)
-const AI_TABLES_DISABLED = false;
+// TODO: Mudar para false quando tabela user_suggestions for criada
+const AI_TABLES_DISABLED = true;
 
 function getSupabaseClient() {
   // SEGURANÇA: Frontend usa apenas ANON_KEY, nunca SERVICE_ROLE_KEY
-  const url = process.env.VITE_SUPABASE_URL;
+  // Usar import.meta.env para Vite (browser), não process.env
+  const url = import.meta.env?.VITE_SUPABASE_URL;
   const key =
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    import.meta.env?.VITE_SUPABASE_ANON_KEY ||
+    import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !key) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      '[userInsightStore] Supabase não configurado, usando cache em memória'
-    );
-    return null;
+    return null; // Silenciosamente retorna null - cache em memória será usado
   }
 
   return createClient(url, key);
