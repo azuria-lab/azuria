@@ -111,19 +111,6 @@ export const InsightToast: React.FC<InsightToastProps> = ({
           {/* Content */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">{message}</p>
-            {toast.affectiveMessage && (
-              <p className="text-xs text-gray-700 mt-1">{toast.affectiveMessage}</p>
-            )}
-            {(toast.emotion || toast.brandTone || toast.persona) && (
-              <div className="text-[11px] text-gray-600 mt-1 flex gap-2 flex-wrap">
-                {toast.emotion && <span>Emoção: {toast.emotion}</span>}
-                {toast.emotionConfidence !== undefined && (
-                  <span>Conf.: {Math.round((toast.emotionConfidence || 0) * 100)}%</span>
-                )}
-                {toast.brandTone && <span>Tom: {toast.brandTone}</span>}
-                {toast.persona && <span>Persona: {toast.persona}</span>}
-              </div>
-            )}
             
             {/* Action button */}
             {actionLabel && onAction && (
@@ -456,16 +443,8 @@ export function useInsightToasts() {
       setToasts(prev => [...prev, toast]);
     });
 
-    const futurePredSub = on('ai:future-predicted', (event: AzuriaEvent) => {
-      const toast: ToastItem = {
-        id: `fut-${Date.now()}`,
-        message: 'Estado futuro previsto (cenário).',
-        type: 'forecast',
-        duration: 5000,
-        timestamp: event.timestamp,
-      };
-      setToasts(prev => [...prev, toast]);
-    });
+    // ai:future-predicted removido - não existe no EventType
+    // Use ai:future-state-predicted ao invés
 
     const engagementSub = on('ai:engagement-progress', (event: AzuriaEvent) => {
       const toast: ToastItem = {
@@ -656,7 +635,7 @@ export function useInsightToasts() {
       unsubscribeFromEvent(silentFailureSub);
       unsubscribeFromEvent(strategicPlanSub);
       unsubscribeFromEvent(strategicRiskSub);
-      unsubscribeFromEvent(futurePredSub);
+      // futurePredSub removido
       unsubscribeFromEvent(engagementSub);
       unsubscribeFromEvent(dropSub);
       unsubscribeFromEvent(achievementSub);
