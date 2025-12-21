@@ -13,20 +13,11 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck Este arquivo usa tabelas (alerts, portals) que ainda não existem no banco de dados
-// Remover esta diretiva quando as tabelas forem criadas e os tipos regenerados
+// @ts-nocheck Tipos locais incompatíveis com schema Supabase - refatoração pendente
 
 import { eventBus } from '../core/eventBus';
 import { structuredLogger } from '../../services/structuredLogger';
 import { supabase } from '@/lib/supabase';
-
-// ============================================================================
-// Supabase Helper (para tabelas sem tipagem)
-// ============================================================================
-
-// Helper para operações em tabelas não tipadas
-const untypedFrom = (table: string) =>
-  supabase.from(table as never) as ReturnType<typeof supabase.from>;
 
 // ============================================================================
 // Constants
@@ -686,7 +677,8 @@ async function scrapePortalByType(
  * Verifica se edital já existe no banco
  */
 async function editalExists(numero: string, orgao: string): Promise<boolean> {
-  const { data } = await untypedFrom('detected_editais')
+  const { data } = await supabase
+    .from('detected_editais')
     .select('id')
     .eq('numero', numero)
     .eq('orgao', orgao)
@@ -702,7 +694,7 @@ async function saveAndEmitAlert(
   edital: DetectedEdital,
   score: number
 ): Promise<void> {
-  await untypedFrom('alerts').insert({
+  await supabase.from('alerts').insert({
     id: alert.id,
     edital_id: alert.editalId,
     user_id: alert.userId,
@@ -736,7 +728,7 @@ async function saveAndEmitAlert(
  * Salva edital no banco de dados
  */
 async function saveEditalToDatabase(edital: DetectedEdital): Promise<void> {
-  await untypedFrom('detected_editais').insert({
+  await supabase.from('detected_editais').insert({
     id: edital.id,
     portal_id: edital.portalId,
     numero: edital.numero,
@@ -809,7 +801,8 @@ async function processPortal(
     await saveEditalToDatabase(edital);
   }
 
-  await untypedFrom('portals')
+  await supabase
+    .from('portals')
     .update({ last_sync_at: new Date().toISOString() })
     .eq('id', portal.id);
 }
@@ -860,7 +853,8 @@ async function runMonitoringCycle(): Promise<void> {
   structuredLogger.info('[PortalMonitor] Starting monitoring cycle');
 
   try {
-    const { data: profiles } = await untypedFrom('user_interest_profiles')
+    const { data: profiles } = await supabase
+      .from('user_interest_profiles')
       .select('*')
       .eq('enabled', true);
 
@@ -993,7 +987,7 @@ export async function addPortal(portal: LicitacaoPortal): Promise<void> {
   ).length;
 
   // Salvar no banco
-  await untypedFrom('portals').insert({
+  await supabase.from('portals').insert({
     id: portal.id,
     name: portal.name,
     base_url: portal.baseUrl,
@@ -1016,7 +1010,7 @@ export async function removePortal(portalId: string): Promise<void> {
     p => p.enabled
   ).length;
 
-  await untypedFrom('portals').delete().eq('id', portalId);
+  await supabase.from('portals').delete().eq('id', portalId);
 
   structuredLogger.info('[PortalMonitor] Portal removed', {
     data: { portalId },
@@ -1037,7 +1031,8 @@ export async function getUserAlerts(
   userId: string,
   limit = 50
 ): Promise<GeneratedAlert[]> {
-  const { data } = await untypedFrom('alerts')
+  const { data } = await supabase
+    .from('alerts')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
@@ -1065,7 +1060,7 @@ export async function getUserAlerts(
  * Marca alerta como lido
  */
 export async function markAlertAsRead(alertId: string): Promise<void> {
-  await untypedFrom('alerts').update({ read: true }).eq('id', alertId);
+  await supabase.from('alerts').update({ read: true }).eq('id', alertId);
 }
 
 // ============================================================================
