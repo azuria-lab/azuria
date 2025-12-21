@@ -1,7 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import {
   EvolutionInsight,
-  EvolutionLearning,
   EvolutionMemory,
   EvolutionPattern,
   EvolutionQuery,
@@ -27,7 +26,7 @@ export function registerPattern(pattern: EvolutionPattern) {
     source: 'cognitiveExpansionEngine',
     priority: 5,
   });
-  addEvolutionEvent('pattern', pattern);
+  addEvolutionEvent('pattern', { ...pattern });
 }
 
 export function registerDecision(decision: {
@@ -80,7 +79,7 @@ export function generateInsights(): EvolutionInsight[] {
     source: 'cognitiveExpansionEngine',
     priority: 4,
   });
-  addEvolutionEvent('insight', insight);
+  addEvolutionEvent('insight', { ...insight });
   return [insight];
 }
 
@@ -118,7 +117,7 @@ export function handleQuery(q: EvolutionQuery) {
     source: 'cognitiveExpansionEngine',
     priority: 2,
   });
-  addEvolutionEvent('query', q);
+  addEvolutionEvent('query', { ...q });
 }
 
 export function captureMemory(m: EvolutionMemory) {
@@ -126,7 +125,7 @@ export function captureMemory(m: EvolutionMemory) {
     source: 'cognitiveExpansionEngine',
     priority: 3,
   });
-  addEvolutionEvent('memory', m);
+  addEvolutionEvent('memory', { ...m });
 }
 
 // Export recordHistory for tests
