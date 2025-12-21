@@ -1,10 +1,10 @@
 import { memo } from 'react';
-import { Handle, NodeProps, Position } from '@xyflow/react';
+import { Handle, type Node, type NodeProps, Position } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as Icons from 'lucide-react';
 
-interface FlowBlockNodeData {
+interface FlowBlockNodeData extends Record<string, unknown> {
   label: string;
   description: string;
   icon: string;
@@ -13,12 +13,10 @@ interface FlowBlockNodeData {
   onNodeClick?: (id: string) => void;
 }
 
-interface FlowBlockNodeProps extends NodeProps {
-  data: FlowBlockNodeData;
-}
+type FlowBlockNodeType = Node<FlowBlockNodeData, 'flowBlock'>;
 
-function FlowBlockNode({ data, id }: FlowBlockNodeProps) {
-  const IconComponent = (Icons as Record<string, LucideIcon>)[data.icon] || Icons.Circle;
+function FlowBlockNode({ data, id }: NodeProps<FlowBlockNodeType>) {
+  const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[data.icon] || Icons.Circle;
 
   const handleClick = () => {
     if (data.onNodeClick) {
