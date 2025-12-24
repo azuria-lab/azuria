@@ -12,15 +12,19 @@ export default function NotificationsCenter() {
   const { data: notifications = [] } = useCollaborationNotifications();
   const markAsReadMutation = useMarkNotificationAsRead();
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
+  const getNotificationIcon = (notificationType: string | null) => {
+    switch (notificationType) {
       case 'share':
+      case 'calculation_shared':
         return <Share2 className="h-4 w-4 text-blue-600" />;
       case 'comment':
+      case 'comment_added':
         return <MessageCircle className="h-4 w-4 text-green-600" />;
       case 'approval_request':
+      case 'approval_requested':
         return <UserCheck className="h-4 w-4 text-orange-600" />;
       case 'approval_response':
+      case 'approval_completed':
         return <CheckCircle className="h-4 w-4 text-purple-600" />;
       case 'mention':
         return <AtSign className="h-4 w-4 text-red-600" />;
@@ -55,7 +59,7 @@ export default function NotificationsCenter() {
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3 flex-1">
-                {getNotificationIcon(notification.type)}
+                {getNotificationIcon(notification.notification_type)}
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-medium text-sm">{notification.title}</h4>

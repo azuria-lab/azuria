@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : 'new';
 
   try {
-    const updated = await updateAlertStatus(id, status as any);
+    const updated = await updateAlertStatus(id, status);
     await logAdminAction({ adminId: adminId || 'admin', action, details: { id, status } });
     // Emitir evento SSE para clientes conectados
     notifySSE({
@@ -29,8 +29,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: { id, status, action, adminId: adminId || 'admin' },
     });
     res.status(200).json({ ok: true, alert: updated });
-  } catch (err: any) {
-    res.status(500).json({ error: err?.message || 'Failed to ack alert' });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to ack alert';
+    res.status(500).json({ error: message });
   }
 }
 

@@ -9,8 +9,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const data = await listAlerts({ limit });
     res.status(200).json({ data });
-  } catch (err: any) {
-    res.status(500).json({ error: err?.message || 'Failed to list alerts' });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to list alerts';
+    res.status(500).json({ error: message });
   }
 }
 

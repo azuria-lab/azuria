@@ -1,10 +1,16 @@
-import { BaseAgent } from './baseAgent';
+import { AgentState, BaseAgent } from './baseAgent';
+
+interface MarketplaceAgentState extends AgentState {
+  marketplaceFees?: number;
+  category?: string;
+  policyViolation?: boolean;
+}
 
 export class MarketplaceAgent extends BaseAgent {
-  analyze(state: any): void {
+  analyze(state: MarketplaceAgentState): void {
     this.reset();
-    const fees = state?.marketplaceFees ?? 0;
-    const category = state?.category || 'general';
+    const fees = state.marketplaceFees ?? 0;
+    const category = state.category || 'general';
     if (fees > 0.2) {
       this.recommendations.push({
         message: 'Tarifas elevadas no marketplace, avaliar alternativas.',
@@ -13,7 +19,7 @@ export class MarketplaceAgent extends BaseAgent {
       });
     }
 
-    if (state?.policyViolation) {
+    if (state.policyViolation) {
       this.recommendations.push({
         message: 'Possível violação de política de listing.',
         severity: 'high',

@@ -1,11 +1,17 @@
-import { BaseAgent } from './baseAgent';
+import { AgentState, BaseAgent } from './baseAgent';
+
+interface PricingAgentState extends AgentState {
+  margin?: number;
+  cost?: number;
+  price?: number;
+}
 
 export class PricingAgent extends BaseAgent {
-  analyze(state: any): void {
+  analyze(state: PricingAgentState): void {
     this.reset();
-    const margin = state?.margin ?? 0;
-    const cost = state?.cost ?? 0;
-    const price = state?.price ?? 0;
+    const margin = state.margin ?? 0;
+    const cost = state.cost ?? 0;
+    const price = state.price ?? 0;
 
     if (margin < 0.1) {
       this.recommendations.push({

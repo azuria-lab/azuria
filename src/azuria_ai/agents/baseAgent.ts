@@ -3,16 +3,20 @@ import { emitEvent } from '../core/eventBus';
 export interface AgentRecommendation {
   message: string;
   severity?: 'low' | 'medium' | 'high' | 'critical';
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
+}
+
+export interface AgentState {
+  [key: string]: unknown;
 }
 
 export abstract class BaseAgent {
   protected recommendations: AgentRecommendation[] = [];
   protected threshold = 0.5;
 
-  abstract analyze(state: any): void;
+  abstract analyze(state: AgentState): void;
 
-  emit(eventType: any, payload: any, priority = 5) {
+  emit(eventType: string, payload: unknown, priority = 5) {
     emitEvent(eventType, payload, { source: this.constructor.name, priority });
   }
 

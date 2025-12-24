@@ -1,10 +1,16 @@
-import { BaseAgent } from './baseAgent';
+import { AgentState, BaseAgent } from './baseAgent';
+
+interface OpportunityAgentState extends AgentState {
+  stock?: number;
+  demand?: number;
+  bundleOpportunity?: boolean;
+}
 
 export class OpportunityAgent extends BaseAgent {
-  analyze(state: any): void {
+  analyze(state: OpportunityAgentState): void {
     this.reset();
-    const stock = state?.stock ?? 0;
-    const demand = state?.demand ?? 0;
+    const stock = state.stock ?? 0;
+    const demand = state.demand ?? 0;
     if (demand > stock && stock > 0) {
       this.recommendations.push({
         message: 'Demanda alta vs estoque; oportunidade de ajuste de preço.',
@@ -12,7 +18,7 @@ export class OpportunityAgent extends BaseAgent {
         data: { stock, demand },
       });
     }
-    if (state?.bundleOpportunity) {
+    if (state.bundleOpportunity) {
       this.recommendations.push({
         message: 'Sugestão: criar bundle promocional.',
         severity: 'low',

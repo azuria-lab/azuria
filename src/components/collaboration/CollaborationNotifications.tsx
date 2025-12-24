@@ -13,30 +13,38 @@ export default function CollaborationNotifications() {
   const { data: notifications = [], isLoading } = useCollaborationNotifications();
   const markAsRead = useMarkNotificationAsRead();
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
+  const getNotificationIcon = (notificationType: string | null) => {
+    switch (notificationType) {
       case 'calculation_shared':
+      case 'share':
         return <Share2 className="h-4 w-4 text-blue-500" />;
       case 'comment_added':
+      case 'comment':
         return <MessageSquare className="h-4 w-4 text-green-500" />;
       case 'approval_requested':
+      case 'approval_request':
         return <UserCheck className="h-4 w-4 text-amber-500" />;
       case 'approval_completed':
+      case 'approval_response':
         return <Check className="h-4 w-4 text-purple-500" />;
       default:
         return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
+  const getNotificationColor = (notificationType: string | null) => {
+    switch (notificationType) {
       case 'calculation_shared':
+      case 'share':
         return 'bg-blue-50 border-blue-200';
       case 'comment_added':
+      case 'comment':
         return 'bg-green-50 border-green-200';
       case 'approval_requested':
+      case 'approval_request':
         return 'bg-amber-50 border-amber-200';
       case 'approval_completed':
+      case 'approval_response':
         return 'bg-purple-50 border-purple-200';
       default:
         return 'bg-gray-50 border-gray-200';
@@ -100,11 +108,11 @@ export default function CollaborationNotifications() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
-                  className={`p-4 rounded-lg border ${getNotificationColor(notification.type)}`}
+                  className={`p-4 rounded-lg border ${getNotificationColor(notification.notification_type)}`}
                 >
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
+                      {getNotificationIcon(notification.notification_type)}
                     </div>
                     
                     <div className="flex-1 min-w-0">
@@ -129,10 +137,10 @@ export default function CollaborationNotifications() {
                               variant="secondary" 
                               className="text-xs"
                             >
-                              {notification.type === 'calculation_shared' && 'Compartilhamento'}
-                              {notification.type === 'comment_added' && 'Comentário'}
-                              {notification.type === 'approval_requested' && 'Aprovação'}
-                              {notification.type === 'approval_completed' && 'Aprovado'}
+                              {notification.notification_type === 'calculation_shared' && 'Compartilhamento'}
+                              {notification.notification_type === 'comment_added' && 'Comentário'}
+                              {notification.notification_type === 'approval_requested' && 'Aprovação'}
+                              {notification.notification_type === 'approval_completed' && 'Aprovado'}
                             </Badge>
                           </div>
                         </div>
@@ -149,12 +157,12 @@ export default function CollaborationNotifications() {
                       
                       {/* Ações rápidas baseadas no tipo */}
                       <div className="flex gap-2 mt-3">
-                        {notification.type === 'calculation_shared' && (
+                        {notification.notification_type === 'calculation_shared' && (
                           <Button size="sm" variant="outline">
                             Ver Cálculo
                           </Button>
                         )}
-                        {notification.type === 'approval_requested' && (
+                        {notification.notification_type === 'approval_requested' && (
                           <>
                             <Button size="sm" variant="outline">
                               Revisar
@@ -164,7 +172,7 @@ export default function CollaborationNotifications() {
                             </Button>
                           </>
                         )}
-                        {notification.type === 'comment_added' && (
+                        {notification.notification_type === 'comment_added' && (
                           <Button size="sm" variant="outline">
                             Responder
                           </Button>

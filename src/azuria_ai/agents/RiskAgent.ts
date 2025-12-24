@@ -1,10 +1,15 @@
-import { BaseAgent } from './baseAgent';
+import { AgentState, BaseAgent } from './baseAgent';
+
+interface RiskAgentState extends AgentState {
+  anomalyScore?: number;
+  predictedLoss?: number;
+}
 
 export class RiskAgent extends BaseAgent {
-  analyze(state: any): void {
+  analyze(state: RiskAgentState): void {
     this.reset();
-    const anomaly = state?.anomalyScore ?? 0;
-    const loss = state?.predictedLoss ?? 0;
+    const anomaly = state.anomalyScore ?? 0;
+    const loss = state.predictedLoss ?? 0;
 
     if (anomaly > 0.7) {
       this.recommendations.push({

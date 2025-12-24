@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
         
     const sanitizedAdminId = adminId || 'admin';
-    const updated = await updateAlertStatus(id, status as any);
+    const updated = await updateAlertStatus(id, status);
     await logAdminAction({ adminId: sanitizedAdminId, action: action as AllowedAction, details: { id, status } });
     
     // Notificar outros clientes SSE
