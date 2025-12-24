@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "path": "C:/Projects/azuria"
+    }
+  ],
+  "settings": {
+    "terminal.integrated.cwd": "C:/Projects/azuria",
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.automationProfile.windows": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    },
+    "git.openRepositoryInParentFolders": "never",
+    "git.autoRepositoryDetection": "openEditors",
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 500,
+    "files.hotExit": "onExitAndWindowClose",
+    "window.restoreWindows": "folders",
+    "explorer.confirmDelete": true,
+    "explorer.confirmDragAndDrop": true
+  }
+}
+
