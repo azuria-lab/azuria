@@ -37,7 +37,7 @@ import { processSocialPresence } from '../engines/socialPresenceEngine';
 import { proposeAdaptiveUX } from '../engines/adaptiveUXEngine';
 import { analyzeRevenueOpportunity } from '../engines/revenueIntelligenceEngine';
 import { runPaywallExperiment } from '../engines/smartPaywallEngine';
-import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
+import { type PersonaKey, rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
 import {
   getEmotionState,
   inferUserEmotion,
@@ -831,7 +831,21 @@ function generateInsight(insight: GenerateInsightParam): void {
   }
   let affectiveMessage: string | undefined;
   const emotionType = emotionState.type;
-  const persona = typeof insight.persona === 'string' ? insight.persona : undefined;
+  
+  // Type guard para validar se persona é um PersonaKey válido
+  const isValidPersonaKey = (value: unknown): value is PersonaKey => {
+    if (typeof value !== 'string') {return false;}
+    const validKeys: PersonaKey[] = [
+      'iniciante-inseguro',
+      'intermediario-crescimento',
+      'avancado-lucro',
+      'comercial-agressivo',
+      'operador-analitico',
+    ];
+    return validKeys.includes(value as PersonaKey);
+  };
+  
+  const persona = isValidPersonaKey(insight.persona) ? insight.persona : undefined;
   if (emotionType && persona) {
     switch (emotionType) {
       case 'frustration':
