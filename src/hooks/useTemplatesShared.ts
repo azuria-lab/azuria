@@ -183,9 +183,10 @@ export function useTemplatesShared() {
         rating: 0,
       };
 
+       
       const { data, error } = await supabase
         .from('calculation_templates')
-        .insert(payload)
+        .insert(payload as any)
         .select()
         .single();
 

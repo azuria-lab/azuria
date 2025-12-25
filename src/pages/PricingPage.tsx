@@ -82,9 +82,9 @@ export default function PricingPage() {
       <motion.div 
         className="flex flex-col min-h-screen bg-background"
         variants={reduceMotion ? undefined : containerVariants}
-        initial={reduceMotion ? false : "hidden"}
+        initial={reduceMotion ? undefined : "hidden"}
         animate={reduceMotion ? undefined : "visible"}
-        exit={reduceMotion ? false : "exit"}
+        exit={reduceMotion ? undefined : "exit"}
       >
         <Header />
       

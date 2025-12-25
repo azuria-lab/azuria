@@ -111,7 +111,7 @@ export default function ProfilePage() {
           bio: profileData.bio || "",
           title: profileData.title || "",
           company: profileData.company || "",
-          experience: (profileData.experience as Experience[]) || [],
+          experience: (Array.isArray(profileData.experience) ? profileData.experience as Experience[] : []),
           skills: (profileData.skills as string[]) || [],
           links: (profileData.links as { linkedin?: string; github?: string; website?: string }) || {},
         });
@@ -126,12 +126,14 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
+       
       const { error: profileError } = await supabase
         .from("user_profiles")
         .upsert({
           id: userProfile.id,
           name: profileData.name,
           email: profileData.email,
+        } as any, {
           phone: profileData.phone || null,
           location: profileData.location || null,
           avatar_url: profileData.avatar_url || null,

@@ -157,8 +157,10 @@ export default function CompanyDataPage() {
       if (data && !error && data.data && typeof data.data === 'object') {
         const companyData = data.data as Record<string, unknown>;
         setFormData({
-          ...companyData as CompanyData,
-          inscricoesEstaduais: (companyData.inscricoesEstaduais as InscricaoEstadual[]) || []
+          ...(companyData as unknown as CompanyData),
+          inscricoesEstaduais: (Array.isArray(companyData.inscricoesEstaduais) 
+            ? companyData.inscricoesEstaduais 
+            : []) as Array<{ estado: string; inscricao: string; }>
         });
       }
     } catch (error) {
@@ -275,13 +277,14 @@ export default function CompanyDataPage() {
     setIsSubmitting(true);
 
     try {
+       
       const { error } = await supabase
         .from("company_data")
         .upsert({
           user_id: userId,
-          data: formData,
+          data: formData as any,
           updated_at: new Date().toISOString()
-        }, {
+        } as any, {
           onConflict: "user_id"
         });
 

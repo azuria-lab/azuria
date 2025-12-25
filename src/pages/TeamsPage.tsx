@@ -601,7 +601,7 @@ export default function TeamsPage() {
                       ? (avatarUrl) => handleEditRoomAvatar(selectedChatId, avatarUrl)
                       : undefined
                   }
-                  userStatus={selectedChat?.userStatus}
+                  userStatus={undefined}
                   onSendMessage={handleSendMessage}
                   onLoadMessages={handleLoadMessages}
                   onMarkAsRead={handleMarkAsRead}

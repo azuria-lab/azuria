@@ -120,15 +120,18 @@ export async function listAlerts(): Promise<AutomationAlert[]> {
   return (data ?? []).map((r) => mapAlert(r as z.infer<typeof automationAlertRow>));
 }
 
-export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
-  // Usar função auxiliar para evitar erro de profundidade de tipo
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result: any = await supabase
+// Função auxiliar para evitar erro de profundidade de tipo
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAlertsByRule(ruleId: string): Promise<any> {
+  return await supabase
     .from("automation_alerts")
     .select("*")
     .eq("rule_id", ruleId)
     .order("created_at", { ascending: false });
-  
+}
+
+export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
+  const result = await fetchAlertsByRule(ruleId);
   if (result.error) { throw result.error; }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (result.data ?? []).map((r: any) => mapAlert(r));
