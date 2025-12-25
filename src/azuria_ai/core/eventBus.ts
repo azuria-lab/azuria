@@ -5,6 +5,8 @@
  * Permite que a IA reaja a eventos do sistema em tempo real.
  */
 
+import { logger } from '@/services/logger';
+
 export type EventType =
   | 'calc:started'
   | 'calc:completed'
@@ -252,11 +254,9 @@ export function emitEvent(
   const handlers = eventSubscriptions.get(tipo) || [];
 
   // Executar handlers (ordenados por prioridade se necessário)
-  const sortedHandlers = [...handlers].sort((a, b) => {
-    const priorityA = event.priority || 0;
-    const priorityB = event.priority || 0;
-    return priorityB - priorityA; // Maior prioridade primeiro
-  });
+  // Como todos os handlers têm a mesma prioridade do evento, não precisamos ordenar
+  // Mas mantemos a estrutura para futuras melhorias
+  const sortedHandlers = handlers;
 
   sortedHandlers.forEach(subscription => {
     try {
@@ -265,8 +265,8 @@ export function emitEvent(
 
       // Se retornar Promise, tratar erros
       if (result instanceof Promise) {
-        result.catch(error => {
-          console.error(`Error in event handler for ${tipo}:`, error);
+        result.catch((error) => {
+          logger.error(`Error in event handler for ${tipo}:`, error);
         });
       }
 
@@ -275,7 +275,7 @@ export function emitEvent(
         unsubscribeFromEvent(subscription.id);
       }
     } catch (error) {
-      console.error(`Error executing handler for ${tipo}:`, error);
+      logger.error(`Error executing handler for ${tipo}:`, error);
     }
   });
 }

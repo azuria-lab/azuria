@@ -32,7 +32,7 @@ export function getCurrentScreen(): string {
 /**
  * Atualiza o contexto de uma tela específica
  */
-export function updateContext(screen: string, data: any): void {
+export function updateContext(screen: string, data: Record<string, unknown>): void {
   const context: ScreenContextData = {
     screen,
     data,

@@ -9,11 +9,11 @@ export interface FunctionParameter {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array' | 'any';
   description?: string;
   required?: boolean;
-  default?: any;
-  enum?: any[];
+  default?: string | number | boolean | Record<string, unknown> | unknown[];
+  enum?: (string | number | boolean)[];
 }
 
-export type FunctionHandler = (params: any) => Promise<any>;
+export type FunctionHandler = (params: Record<string, unknown>) => Promise<unknown>;
 
 export interface FunctionDefinition {
   name: string;
@@ -62,7 +62,7 @@ export function listFunctions(): FunctionDefinition[] {
 
 export function validateFunctionParams(
   functionName: string,
-  params: Record<string, any>
+  params: Record<string, unknown>
 ): { valid: boolean; missing: string[]; invalid: string[] } {
   const def = getFunction(functionName);
   if (!def) {
@@ -93,7 +93,7 @@ export function validateFunctionParams(
   return { valid: missing.length === 0 && invalid.length === 0, missing, invalid };
 }
 
-export async function callFunction(functionName: string, params: any): Promise<any> {
+export async function callFunction(functionName: string, params: Record<string, unknown>): Promise<unknown> {
   const def = getFunction(functionName);
   if (!def) {
     throw new Error(`Function ${functionName} not registered`);

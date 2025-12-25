@@ -9,6 +9,7 @@
  * @module azuria_ai/core/engineFacade
  */
 
+import { logger } from '@/services/logger';
 import { geminiAdapter } from '../engines/geminiAdapter';
 import { NimAdapter } from '../engines/nimAdapter';
 import {
@@ -88,11 +89,11 @@ export async function callEngine(
         break;
     }
   } catch (error) {
-    console.error(`[EngineFacade] Erro no engine ${engine}:`, error);
+    logger.error(`[EngineFacade] Erro no engine ${engine}:`, error);
 
     // Fallback
     if (engine !== 'local') {
-      console.log(`[EngineFacade] Tentando fallback para: ${route.fallback}`);
+      logger.info(`[EngineFacade] Tentando fallback para: ${route.fallback}`);
       return callEngine(taskType, prompt, {
         ...opts,
         forceEngine: route.fallback,

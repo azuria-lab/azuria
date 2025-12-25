@@ -59,33 +59,26 @@ async function evaluateDashboardProactive(): Promise<any[]> {
   if (!context) {return [];}
 
   const insights: any[] = [];
+  const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar queda de lucro
-  if (
-    context.data?.variacaoLucro !== undefined &&
-    context.data.variacaoLucro < -10
-  ) {
+  const variacaoLucroValue = data?.variacaoLucro;
+  if (typeof variacaoLucroValue === 'number' && variacaoLucroValue < -10) {
     insights.push({
       type: 'proactive',
       severity: 'high',
-      message: `Lucro caiu ${Math.abs(context.data.variacaoLucro).toFixed(
-        1
-      )}% recentemente. Revise custos e precificação.`,
+      message: `Lucro caiu ${Math.abs(variacaoLucroValue).toFixed(1)}% recentemente. Revise custos e precificação.`,
       sourceModule: 'dashboard',
     });
   }
 
   // Verificar tempo economizado alto
-  if (
-    context.data?.tempoEconomizado !== undefined &&
-    context.data.tempoEconomizado > 300
-  ) {
+  const tempoEconomizadoValue = data?.tempoEconomizado;
+  if (typeof tempoEconomizadoValue === 'number' && tempoEconomizadoValue > 300) {
     insights.push({
       type: 'proactive',
       severity: 'low',
-      message: `Você economizou ${(context.data.tempoEconomizado / 60).toFixed(
-        0
-      )} horas com a IA. Continue usando automações.`,
+      message: `Você economizou ${(tempoEconomizadoValue / 60).toFixed(0)} horas com a IA. Continue usando automações.`,
       sourceModule: 'dashboard',
     });
   }
@@ -116,19 +109,24 @@ async function evaluateLotProactive(): Promise<any[]> {
   if (!context) {return [];}
 
   const insights: any[] = [];
+  const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar produtos críticos
-  if (context.data?.produtosCriticos && context.data?.totalProdutos) {
-    const percentual =
-      (context.data.produtosCriticos / context.data.totalProdutos) * 100;
+  const produtosCriticosValue = data?.produtosCriticos;
+  const totalProdutosValue = data?.totalProdutos;
+  
+  if (
+    typeof produtosCriticosValue === 'number' && 
+    typeof totalProdutosValue === 'number' && 
+    totalProdutosValue > 0
+  ) {
+    const percentual = (produtosCriticosValue / totalProdutosValue) * 100;
 
     if (percentual > 30) {
       insights.push({
         type: 'proactive',
         severity: 'high',
-        message: `${percentual.toFixed(
-          0
-        )}% dos produtos no lote têm margem crítica. Otimização em massa recomendada.`,
+        message: `${percentual.toFixed(0)}% dos produtos no lote têm margem crítica. Otimização em massa recomendada.`,
         sourceModule: 'smart_lot',
       });
     }
@@ -145,13 +143,15 @@ async function evaluatePricingAIProactive(): Promise<any[]> {
   if (!context) {return [];}
 
   const insights: any[] = [];
+  const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar sugestões pendentes
-  if (context.data?.sugestoesPendentes && context.data.sugestoesPendentes > 5) {
+  const sugestoesPendentesValue = data?.sugestoesPendentes;
+  if (typeof sugestoesPendentesValue === 'number' && sugestoesPendentesValue > 5) {
     insights.push({
       type: 'proactive',
       severity: 'medium',
-      message: `${context.data.sugestoesPendentes} sugestões de precificação aguardando revisão. Aplicá-las pode aumentar margem.`,
+      message: `${sugestoesPendentesValue} sugestões de precificação aguardando revisão. Aplicá-las pode aumentar margem.`,
       sourceModule: 'pricing_ai',
     });
   }
@@ -167,18 +167,15 @@ async function evaluateAnalyticsProactive(): Promise<any[]> {
   if (!context) {return [];}
 
   const insights: any[] = [];
+  const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar queda abrupta
-  if (
-    context.data?.quedaDiaria !== undefined &&
-    context.data.quedaDiaria > 15
-  ) {
+  const quedaDiariaValue = data?.quedaDiaria;
+  if (typeof quedaDiariaValue === 'number' && quedaDiariaValue > 15) {
     insights.push({
       type: 'proactive',
       severity: 'critical',
-      message: `Queda abrupta de ${context.data.quedaDiaria.toFixed(
-        1
-      )}% na margem hoje. Ação imediata necessária.`,
+      message: `Queda abrupta de ${quedaDiariaValue.toFixed(1)}% na margem hoje. Ação imediata necessária.`,
       sourceModule: 'analytics',
     });
   }
@@ -194,15 +191,15 @@ async function evaluateMarketplaceProactive(): Promise<any[]> {
   if (!context) {return [];}
 
   const insights: any[] = [];
+  const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar taxas altas
-  if (context.data?.taxaAtual !== undefined && context.data.taxaAtual > 20) {
+  const taxaAtualValue = data?.taxaAtual;
+  if (typeof taxaAtualValue === 'number' && taxaAtualValue > 20) {
     insights.push({
       type: 'proactive',
       severity: 'high',
-      message: `Taxa de marketplace de ${context.data.taxaAtual.toFixed(
-        1
-      )}% está impactando significativamente o lucro.`,
+      message: `Taxa de marketplace de ${taxaAtualValue.toFixed(1)}% está impactando significativamente o lucro.`,
       sourceModule: 'marketplace',
     });
   }
