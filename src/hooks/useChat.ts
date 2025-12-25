@@ -293,14 +293,10 @@ export function useChat() {
   const loadMessages = useCallback(
     async (roomId: string, limit: number = 50): Promise<ChatMessage[]> => {
       try {
+        // Buscar mensagens sem join (relação pode não existir)
         const { data, error } = await supabase
           .from("chat_messages")
-          .select(
-            `
-            *,
-            sender:user_profiles!chat_messages_sender_id_fkey(id, name, avatar_url)
-          `
-          )
+          .select("*")
           .eq("room_id", roomId)
           .is("deleted_at", null)
           .order("created_at", { ascending: false })
@@ -319,11 +315,7 @@ export function useChat() {
           created_at: row.created_at,
           updated_at: row.updated_at ?? undefined,
           deleted_at: row.deleted_at ?? undefined,
-          sender: row.sender ? {
-            id: (row.sender as { id: string; name: string; avatar_url?: string }).id,
-            name: (row.sender as { id: string; name: string; avatar_url?: string }).name,
-            avatar_url: (row.sender as { id: string; name: string; avatar_url?: string }).avatar_url,
-          } : undefined,
+          sender: undefined, // Sender info can be fetched separately if needed
         }));
         return messages.reverse();
       } catch (error) {

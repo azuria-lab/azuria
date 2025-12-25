@@ -127,7 +127,8 @@ export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[
     .eq("rule_id", ruleId)
     .order("created_at", { ascending: false });
   if (error) { throw error; }
-  return (data ?? []).map((r) => mapAlert(r as z.infer<typeof automationAlertRow>));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((r: any) => mapAlert(r));
 }
 
 export async function listWorkflows(): Promise<AutomationWorkflow[]> {

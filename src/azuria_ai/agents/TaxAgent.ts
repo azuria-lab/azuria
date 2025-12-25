@@ -1,9 +1,15 @@
 import { AgentState, BaseAgent } from './baseAgent';
 
+interface TaxData {
+  icms?: number;
+  origin?: string;
+  destination?: string;
+}
+
 export class TaxAgent extends BaseAgent {
   analyze(state: AgentState): void {
     this.reset();
-    const taxes = state?.taxes || {};
+    const taxes = (state?.taxes as TaxData) || {};
     if (taxes.icms && taxes.icms > 0.3) {
       this.recommendations.push({
         message: 'ICMS acima de 30%, revisar alíquota.',
