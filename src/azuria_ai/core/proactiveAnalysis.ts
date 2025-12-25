@@ -5,12 +5,18 @@
  * Avaliam contexto e geram insights de forma autônoma.
  */
 
-import { getContext, getCurrentScreen } from './contextStore';
-import { getEventHistory } from './eventBus';
+import { getContext } from './contextStore';
+
+interface ProactiveInsight {
+  type: string;
+  severity: string;
+  message: string;
+  sourceModule: string;
+}
 
 export interface ProactiveAnalysisResult {
   shouldGenerateInsight: boolean;
-  insights: any[];
+  insights: ProactiveInsight[];
 }
 
 /**
@@ -18,8 +24,7 @@ export interface ProactiveAnalysisResult {
  * Chamada pelo proactiveEngine
  */
 export async function evaluateProactiveRules(): Promise<ProactiveAnalysisResult> {
-  const insights: any[] = [];
-  const currentScreen = getCurrentScreen();
+  const insights: ProactiveInsight[] = [];
 
   // Dashboard - Tendências perigosas
   const dashboardInsights = await evaluateDashboardProactive();
@@ -54,11 +59,11 @@ export async function evaluateProactiveRules(): Promise<ProactiveAnalysisResult>
 /**
  * Avalia regras proativas do Dashboard
  */
-async function evaluateDashboardProactive(): Promise<any[]> {
+async function evaluateDashboardProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('dashboard');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
   const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar queda de lucro
@@ -89,11 +94,11 @@ async function evaluateDashboardProactive(): Promise<any[]> {
 /**
  * Avalia regras proativas do Histórico
  */
-async function evaluateHistoryProactive(): Promise<any[]> {
+async function evaluateHistoryProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('history');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
 
   // TODO: Implementar detecção de padrões repetidos
   // Verificar erros recorrentes de margem baixa
@@ -104,11 +109,11 @@ async function evaluateHistoryProactive(): Promise<any[]> {
 /**
  * Avalia regras proativas do Lote Inteligente
  */
-async function evaluateLotProactive(): Promise<any[]> {
+async function evaluateLotProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('smart_lot');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
   const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar produtos críticos
@@ -138,11 +143,11 @@ async function evaluateLotProactive(): Promise<any[]> {
 /**
  * Avalia regras proativas da IA de Precificação
  */
-async function evaluatePricingAIProactive(): Promise<any[]> {
+async function evaluatePricingAIProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('pricing_ai');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
   const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar sugestões pendentes
@@ -162,11 +167,11 @@ async function evaluatePricingAIProactive(): Promise<any[]> {
 /**
  * Avalia regras proativas do Analytics
  */
-async function evaluateAnalyticsProactive(): Promise<any[]> {
+async function evaluateAnalyticsProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('analytics');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
   const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar queda abrupta
@@ -186,11 +191,11 @@ async function evaluateAnalyticsProactive(): Promise<any[]> {
 /**
  * Avalia regras proativas do Marketplace
  */
-async function evaluateMarketplaceProactive(): Promise<any[]> {
+async function evaluateMarketplaceProactive(): Promise<ProactiveInsight[]> {
   const context = getContext('marketplace');
   if (!context) {return [];}
 
-  const insights: any[] = [];
+  const insights: ProactiveInsight[] = [];
   const data = context.data as Record<string, unknown> | undefined;
 
   // Verificar taxas altas

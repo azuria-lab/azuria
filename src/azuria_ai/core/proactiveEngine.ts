@@ -119,8 +119,8 @@ const proactiveRules: ProactiveRule[] = [
 
       // STUB: Verificação de queda consecutiva não implementada
       // Verificar se lucro caiu por 3 períodos consecutivos
-      const lucroOtimizado = context.data.lucroOtimizado;
-      if (lucroOtimizado < 0) {
+      const lucroOtimizadoValue = context.data.lucroOtimizado;
+      if (typeof lucroOtimizadoValue === 'number' && lucroOtimizadoValue < 0) {
         return {
           severity: 'high' as const,
           title: 'Lucro negativo detectado',
@@ -139,19 +139,20 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 600000,
     check: async () => {
       const context = getContext('dashboard');
-      if (!context?.data?.variacaoMargem) {return null;}
+      if (!context?.data) {return null;}
 
-      const variacaoMargem = context.data.variacaoMargem;
+      const variacaoMargemValue = context.data.variacaoMargem;
+      if (typeof variacaoMargemValue !== 'number') {return null;}
 
-      if (variacaoMargem < -10) {
+      if (variacaoMargemValue < -10) {
         return {
-          severity: 'high',
+          severity: 'high' as const,
           title: 'Queda significativa de margem',
-          message: `Margem caiu ${Math.abs(variacaoMargem).toFixed(
+          message: `Margem caiu ${Math.abs(variacaoMargemValue).toFixed(
             1
           )}% na última semana. Revise sua estratégia de precificação.`,
           suggestion: 'Analise custos e ajuste preços para recuperar margem',
-          values: { variacaoMargem },
+          values: { variacaoMargem: variacaoMargemValue },
           sourceModule: 'dashboard',
         };
       }
@@ -192,23 +193,31 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 900000, // 15 minutos
     check: async () => {
       const context = getContext('smart_lot');
-      if (!context?.data?.produtosCriticos) {return null;}
+      if (!context?.data) {return null;}
 
-      const totalProdutos = context.data.totalProdutos || 0;
-      const produtosCriticos = context.data.produtosCriticos || 0;
+      const totalProdutosValue = context.data.totalProdutos;
+      const produtosCriticosValue = context.data.produtosCriticos;
 
-      if (totalProdutos > 0) {
-        const percentualCritico = (produtosCriticos / totalProdutos) * 100;
+      if (
+        typeof totalProdutosValue === 'number' && 
+        typeof produtosCriticosValue === 'number' && 
+        totalProdutosValue > 0
+      ) {
+        const percentualCritico = (produtosCriticosValue / totalProdutosValue) * 100;
 
         if (percentualCritico > 40) {
           return {
-            severity: 'high',
+            severity: 'high' as const,
             title: 'Lote com muitos produtos críticos',
             message: `${percentualCritico.toFixed(
               0
             )}% dos produtos no lote têm margem abaixo de 10%. Considere otimização em massa.`,
             suggestion: 'Use a IA de Precificação para otimizar todo o lote',
-            values: { percentualCritico, produtosCriticos, totalProdutos },
+            values: { 
+              percentualCritico, 
+              produtosCriticos: produtosCriticosValue, 
+              totalProdutos: totalProdutosValue 
+            },
             sourceModule: 'smart_lot',
           };
         }
@@ -224,19 +233,20 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 900000,
     check: async () => {
       const context = getContext('smart_lot');
-      if (!context?.data?.markupMedio) {return null;}
+      if (!context?.data) {return null;}
 
-      const markupMedio = context.data.markupMedio;
+      const markupMedioValue = context.data.markupMedio;
+      if (typeof markupMedioValue !== 'number') {return null;}
 
-      if (markupMedio < 15) {
+      if (markupMedioValue < 15) {
         return {
-          severity: 'medium',
+          severity: 'medium' as const,
           title: 'Markup médio do lote está baixo',
-          message: `Markup médio de ${markupMedio.toFixed(
+          message: `Markup médio de ${markupMedioValue.toFixed(
             1
           )}% pode não cobrir custos operacionais. Recomendamos pelo menos 20%.`,
           suggestion: 'Ajuste preços em massa para aumentar markup',
-          values: { markupMedio },
+          values: { markupMedio: markupMedioValue },
           sourceModule: 'smart_lot',
         };
       }
