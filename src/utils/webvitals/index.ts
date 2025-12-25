@@ -20,7 +20,7 @@ class Reporter {
     if (!webVitals) { return; }
     this.isReporting = true;
     subscribeToVitals(webVitals, this.onMetric);
-    this.timer = globalThis.setInterval(() => this.sendBatch(), 30000);
+    this.timer = globalThis.setInterval(() => this.sendBatch(), 30000) as unknown as number;
     globalThis.addEventListener('beforeunload', () => this.flushFinal());
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { this.flushFinal(); } });
   }

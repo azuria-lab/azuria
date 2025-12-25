@@ -199,16 +199,16 @@ export async function loadChatHistory(
   sessionId: string
 ): Promise<ChatMessage[]> {
   try {
-     
-    const query = supabase.from('chat_history').select('*');
+    // Função auxiliar para evitar erro de profundidade de tipo
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filtered1 = (query as any).eq('user_id', userId);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filtered2 = (filtered1 as any).eq('session_id', sessionId);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ordered = (filtered2 as any).order('timestamp', { ascending: true });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (ordered as any);
+    const result: any = await (supabase
+      .from('chat_history')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('session_id', sessionId)
+      .order('timestamp', { ascending: true }) as any);
+    
+    const { data, error } = result;
 
     if (error) {
       throw error;
