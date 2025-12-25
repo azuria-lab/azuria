@@ -6,7 +6,7 @@ import { validateRecommendation } from './consciousOrchestrator';
 import { detectContradictions, explainDecision, generateRationale, validateLogic } from './coherenceEngine';
 import { getPersonalityProfile } from './personalityEngine';
 
-type AnyState = Record<string, any>;
+type AnyState = Record<string, unknown>;
 
 interface UnifiedState {
   contextual: AnyState;
@@ -58,7 +58,7 @@ export function updateGlobalState(delta: Partial<UnifiedState>) {
   emitEvent('ai:core-sync', { state: getGlobalState() }, { source: 'integratedCoreEngine', priority: 6 });
 }
 
-export function routeEvent(event: { tipo: string; payload: any; timestamp: number }) {
+export function routeEvent(event: { tipo: string; payload: Record<string, unknown>; timestamp: number }) {
   unifiedState.lastEvents.push({ tipo: event.tipo, timestamp: event.timestamp });
   if (unifiedState.lastEvents.length > 50) {unifiedState.lastEvents.shift();}
   emitEvent('ai:core-sync', { state: getGlobalState() }, { source: 'integratedCoreEngine', priority: 6 });
@@ -122,14 +122,21 @@ export function runSelfEvolutionStep() {
   emitEvent('ai:core-sync', { state: getGlobalState(), evolutionScore: newScore }, { source: 'integratedCoreEngine', priority: 5 });
 }
 
-export function runCoherenceCheck(state: any) {
+export function runCoherenceCheck(state: Record<string, unknown>) {
   const ok = validateLogic(state);
   const contradictions = detectContradictions(state);
   const rationale = generateRationale({ tipo: 'core-sync', payload: state });
   return { ok, contradictions, rationale };
 }
 
-export function updateCognitiveMap(snapshot: any) {
+interface CognitiveSnapshot {
+  state?: Record<string, unknown>;
+  confidenceMap?: Record<string, number>;
+  healthScore?: number;
+  [key: string]: unknown;
+}
+
+export function updateCognitiveMap(snapshot: CognitiveSnapshot | Record<string, unknown>) {
   unifiedState.mindSnapshot = snapshot?.state;
   unifiedState.confidenceMap = snapshot?.confidenceMap;
   if (snapshot?.healthScore !== undefined) {
@@ -139,7 +146,17 @@ export function updateCognitiveMap(snapshot: any) {
   emitEvent('ai:core-sync', { state: getGlobalState(), snapshot }, { source: 'integratedCoreEngine', priority: 7 });
 }
 
-export function runSafeActionPipeline(action: any, context: any) {
+interface Action {
+  type?: string;
+  [key: string]: unknown;
+}
+
+interface ActionContext {
+  intent?: string;
+  [key: string]: unknown;
+}
+
+export function runSafeActionPipeline(action: Action | Record<string, unknown>, context: ActionContext | Record<string, unknown>) {
   const policyCheck = validateActionAgainstPolicy(action);
   const safeResult = executeActionSafely(action, context);
   const allowed = policyCheck.allowed && safeResult.approved;
@@ -160,7 +177,12 @@ export function runSafeActionPipeline(action: any, context: any) {
     decision,
   });
 
-  detectGovernanceViolations({ action, policy: { forbiddenActions: getForbidden(policyCheck) } as any });
+  detectGovernanceViolations({ 
+    action, 
+    policy: { 
+      forbiddenActions: getForbidden(policyCheck).map((type: string) => ({ type })) 
+    } 
+  });
 
   const validated = validateRecommendation({
     type: allowed ? 'insight' : 'warning',
@@ -174,7 +196,7 @@ export function runSafeActionPipeline(action: any, context: any) {
   return { allowed, decision, validated };
 }
 
-function getForbidden(policy: any) {
+function getForbidden(policy: { forbiddenActions?: string[]; [key: string]: unknown }) {
   return policy?.forbiddenActions || [];
 }
 
