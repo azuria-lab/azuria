@@ -205,8 +205,8 @@ export async function loadChatHistory(
     const selectQuery = queryBuilder.select('*');
     // @ts-expect-error - Type instantiation is excessively deep
     const filtered1 = selectQuery.eq('user_id', userId);
-    const filtered2 = filtered1.eq('session_id', sessionId);
     // @ts-expect-error - Type instantiation is excessively deep
+    const filtered2 = filtered1.eq('session_id', sessionId);
     const ordered = filtered2.order('timestamp', { ascending: true });
     const result = await ordered;
     const { data, error } = result;

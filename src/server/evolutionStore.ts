@@ -8,8 +8,8 @@
 import { supabase } from '../integrations/supabase/client';
 
 // Helper para tabelas não tipadas no schema
-// @ts-expect-error - No overload matches this call
 const untypedFrom = (table: string) => {
+  // @ts-expect-error - No overload matches this call
   return supabase.from(table);
 };
 
