@@ -201,13 +201,17 @@ export async function loadChatHistory(
   try {
     // Função auxiliar para evitar erro de profundidade de tipo
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = await (supabase
-      .from('chat_history')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('session_id', sessionId)
-      .order('timestamp', { ascending: true }) as any);
-    
+    const queryBuilder: any = supabase.from('chat_history');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const selectQuery: any = queryBuilder.select('*');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered1: any = selectQuery.eq('user_id', userId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered2: any = filtered1.eq('session_id', sessionId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ordered: any = filtered2.order('timestamp', { ascending: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = await ordered;
     const { data, error } = result;
 
     if (error) {
