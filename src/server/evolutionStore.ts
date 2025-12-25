@@ -8,9 +8,10 @@
 import { supabase } from '../integrations/supabase/client';
 
 // Helper para tabelas não tipadas no schema
-// @ts-expect-error - Table may not exist in generated types
-const untypedFrom = (table: string) => {
-  return supabase.from(table);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const untypedFrom = (table: string): any => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (supabase.from(table) as any);
 };
 
 // ============================================================================
@@ -168,18 +169,21 @@ export async function loadEventsFromStorage(limit = 100): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
-    const { data, error } = await untypedFrom('evolution_events')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = await untypedFrom('evolution_events')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
     
-    if (error) {
-      if (error.code === '42P01') {
+    if (result.error) {
+      if (result.error.code === '42P01') {
         useSupabase = false;
       }
       return;
     }
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = result.data as any[];
     if (data && data.length > 0) {
       // Limpar cache e carregar do storage
       eventsCache.length = 0;
