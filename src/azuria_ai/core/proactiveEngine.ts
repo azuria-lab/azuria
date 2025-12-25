@@ -333,7 +333,6 @@ const proactiveRules: ProactiveRule[] = [
 
       if (typeof taxaAtualValue !== 'number') {return null;}
 
-      const taxaAnterior = typeof taxaAnteriorValue === 'number' ? taxaAnteriorValue : taxaAtualValue;
       const variacao = typeof taxaAnteriorValue === 'number' ? taxaAtualValue - taxaAnteriorValue : 0;
 
       if (taxaAtualValue > 20 || variacao > 5) {

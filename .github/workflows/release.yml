@@ -26,7 +26,7 @@ jobs:
   validate:
     name: Validate CI Status
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10  # Aumentado para permitir espera do CI
     outputs:
       ci-passed: ${{ steps.check-ci.outputs.passed }}
     steps:
@@ -36,41 +36,65 @@ jobs:
         with:
           script: |
             const commitSha = context.sha;
+            const maxWaitTime = 8 * 60 * 1000; // 8 minutos em ms
+            const checkInterval = 15 * 1000; // Verificar a cada 15 segundos
+            const startTime = Date.now();
             
             console.log(`🔍 Verificando status do CI para commit: ${commitSha}`);
             
-            // Buscar o workflow run do CI mais recente para este commit
-            const { data: runs } = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci.yml',
-              head_sha: commitSha,
-              per_page: 1
-            });
+            // Função para buscar e verificar o status do CI
+            const checkCIStatus = async () => {
+              const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'ci.yml',
+                head_sha: commitSha,
+                per_page: 1
+              });
+              
+              if (runs.workflow_runs.length === 0) {
+                console.log(`⚠️ Nenhum workflow de CI encontrado para o commit ${commitSha}`);
+                return { found: false, status: null, conclusion: null };
+              }
+              
+              const ciRun = runs.workflow_runs[0];
+              return {
+                found: true,
+                status: ciRun.status,
+                conclusion: ciRun.conclusion,
+                runId: ciRun.id
+              };
+            };
             
-            if (runs.workflow_runs.length === 0) {
-              console.log(`⚠️ Nenhum workflow de CI encontrado para o commit ${commitSha}`);
-              console.log(`✅ Prosseguindo com release (CI pode estar em execução)`);
-              core.setOutput('passed', 'true');
-              return;
+            // Loop de espera até o CI terminar ou timeout
+            while (Date.now() - startTime < maxWaitTime) {
+              const result = await checkCIStatus();
+              
+              if (!result.found) {
+                console.log(`⏳ CI ainda não iniciado. Aguardando...`);
+                await new Promise(resolve => setTimeout(resolve, checkInterval));
+                continue;
+              }
+              
+              console.log(`📊 Status do CI: ${result.status} | Conclusão: ${result.conclusion || 'N/A'}`);
+              
+              if (result.status === 'completed') {
+                if (result.conclusion === 'success') {
+                  console.log(`✅ CI passou com sucesso! Release pode prosseguir.`);
+                  core.setOutput('passed', 'true');
+                  return;
+                } else {
+                  throw new Error(`❌ ERRO: CI falhou (conclusão: ${result.conclusion}). O release só pode ser executado se o CI estiver 100% verde.`);
+                }
+              }
+              
+              // CI ainda está rodando, aguardar e verificar novamente
+              console.log(`⏳ CI ainda em execução (${result.status}). Aguardando conclusão...`);
+              await new Promise(resolve => setTimeout(resolve, checkInterval));
             }
             
-            const ciRun = runs.workflow_runs[0];
-            const status = ciRun.status;
-            const conclusion = ciRun.conclusion;
-            
-            console.log(`📊 Status do CI: ${status} | Conclusão: ${conclusion}`);
-            
-            if (status !== 'completed') {
-              throw new Error(`❌ ERRO: CI ainda está em execução (status: ${status}). Aguarde a conclusão.`);
-            }
-            
-            if (conclusion !== 'success') {
-              throw new Error(`❌ ERRO: CI falhou (conclusão: ${conclusion}). O release só pode ser executado se o CI estiver 100% verde.`);
-            }
-            
-            console.log(`✅ CI passou com sucesso! Release pode prosseguir.`);
-            core.setOutput('passed', 'true');
+            // Timeout - CI não terminou a tempo
+            throw new Error(`❌ ERRO: Timeout aguardando CI concluir. O CI deve terminar antes do release prosseguir.`);
 
   # Job principal de release - Usa semantic-release para versionamento automático
   release:
