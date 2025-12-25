@@ -41,9 +41,11 @@ export function predictExternalForces(data: Record<string, unknown> = {}) {
 }
 
 export function updateRealityModel(payload: Record<string, unknown> = {}) {
-  captureContext(payload.context || {});
+  const contextValue = payload.context;
+  const forcesValue = payload.forces;
+  captureContext(typeof contextValue === 'object' && contextValue !== null ? contextValue as Record<string, unknown> : {});
   inferState();
-  predictExternalForces(payload.forces || {});
+  predictExternalForces(typeof forcesValue === 'object' && forcesValue !== null ? forcesValue as Record<string, unknown> : {});
   const confidence = clamp(0.5 + Object.keys(realityState.context).length * 0.02);
   realityState.confidence = confidence;
   emitEvent(

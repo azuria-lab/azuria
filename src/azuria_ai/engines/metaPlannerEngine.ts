@@ -59,9 +59,11 @@ export function executePlan() {
 export function adjustPlan(feedbackScore: number) {
   if (!currentPlan) {return;}
   currentPlan.status = 'adjusted';
+  const sensibilidadeValue = currentPlan.parameters.sensibilidade;
+  const sensibilidade = typeof sensibilidadeValue === 'number' ? sensibilidadeValue : 0.5;
   currentPlan.parameters.sensibilidade = Math.min(
     1,
-    Math.max(0, currentPlan.parameters.sensibilidade + (feedbackScore - 0.5) * 0.2)
+    Math.max(0, sensibilidade + (feedbackScore - 0.5) * 0.2)
   );
   emitEvent(
     'ai:planner-plan-adjusted',

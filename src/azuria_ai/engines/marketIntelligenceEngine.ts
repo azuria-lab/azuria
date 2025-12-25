@@ -63,8 +63,10 @@ export function emitMarketInsight(insight: MarketInsight) {
 export function detectExternalRisksAndOpportunities(input: MarketData) {
   const risksInput = input?.risks as { list?: unknown[] } | undefined;
   const oppsInput = input?.opportunities as { list?: unknown[] } | undefined;
-  const risks = detectExternalRisks(risksInput || {});
-  const opps = identifyMarketOpportunities(oppsInput || {});
+  const risksData = risksInput || {};
+  const oppsData = oppsInput || {};
+  const risks = detectExternalRisks(risksData as MarketData);
+  const opps = identifyMarketOpportunities(oppsData as MarketData);
   if (opps.length > 0) {
     emitMarketInsight({
       topic: 'market-opportunity',

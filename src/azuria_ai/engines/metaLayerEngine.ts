@@ -31,11 +31,16 @@ function clamp(v: number, min = 0, max = 1) {
 }
 
 export function processMetaLayers(input: MetaLayerInput | Record<string, unknown>): MetaLayerOutput {
-  const perception = { signals: input?.signals || [], metrics: input?.metrics || {} };
-  const context = { ...input?.context, inferred: input?.context?.trend || 'estável' };
+  const inputData = input as MetaLayerInput;
+  const perception = { signals: inputData?.signals || [], metrics: inputData?.metrics || {} };
+  const contextData = inputData?.context;
+  const contextObj = typeof contextData === 'object' && contextData !== null ? contextData as { trend?: string; [key: string]: unknown } : {};
+  const context = { ...contextObj, inferred: contextObj.trend || 'estável' };
   const reasoning = { coherent: true, contradictions: [] };
-  const consciousness = { goals: input?.goals || ['melhorar margem'], risks: input?.risks || [] };
-  const scenarios = { options: input?.scenarios || ['baseline'], confidence: clamp(input?.scenarioConfidence ?? 0.7) };
+  const consciousness = { goals: inputData?.goals || ['melhorar margem'], risks: inputData?.risks || [] };
+  const scenarioConfidenceValue = inputData?.scenarioConfidence;
+  const scenarioConfidence = typeof scenarioConfidenceValue === 'number' ? scenarioConfidenceValue : 0.7;
+  const scenarios = { options: inputData?.scenarios || ['baseline'], confidence: clamp(scenarioConfidence) };
   const decision = { intent: input?.intent || 'analisar', priority: 'medium' };
   const executionPlan = { steps: ['validar', 'simular', 'emitir-insight'], target: input?.target || 'orchestrator' };
 

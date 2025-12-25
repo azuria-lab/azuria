@@ -212,8 +212,11 @@ export function runSafeActionPipeline(action: Action | Record<string, unknown>, 
   return { allowed, decision, validated };
 }
 
-function getForbidden(policy: { forbiddenActions?: string[]; [key: string]: unknown }) {
-  return policy?.forbiddenActions || [];
+function getForbidden(policy: { forbiddenActions?: string[]; [key: string]: unknown } | { allowed: boolean; reason?: string; [key: string]: unknown }) {
+  if ('forbiddenActions' in policy) {
+    return policy.forbiddenActions || [];
+  }
+  return [];
 }
 
 export const _internals = {

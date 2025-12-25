@@ -1,4 +1,4 @@
-import { emitEvent } from '../core/eventBus';
+import { emitEvent, type EventType } from '../core/eventBus';
 
 const eventCount: Record<string, number> = {};
 const MAX_EVENTS_PER_WINDOW = 50;
@@ -18,7 +18,7 @@ export function resetCounts() {
 
 export function safePropagate(eventType: string, payload: Record<string, unknown>, options?: { source?: string; priority?: number }) {
   if (!guardEventLoop(eventType)) {return;}
-  emitEvent(eventType, payload, options);
+  emitEvent(eventType as EventType, payload, options);
 }
 
 export function emitFallback(reason: string) {
