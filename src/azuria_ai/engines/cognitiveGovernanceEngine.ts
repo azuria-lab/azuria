@@ -11,6 +11,34 @@ interface ValidationResult {
   severity?: string;
 }
 
+interface InsightData {
+  message?: string;
+  data?: {
+    price?: number;
+    cost?: number;
+    impact?: unknown;
+  };
+  severity?: string;
+  scope?: string;
+}
+
+interface Recommendation {
+  action?: string;
+}
+
+interface PricingSuggestion {
+  price?: number;
+  cost?: number;
+}
+
+interface FiscalAdvice {
+  tax?: number;
+}
+
+interface UXAdjustment {
+  tone?: string;
+}
+
 function flagInvalid(reason: string): ValidationResult {
   emitEvent('ai:decision-invalid', { reason }, { source: 'cognitiveGovernanceEngine', priority: 8 });
   return { valid: false, reason };
@@ -21,39 +49,44 @@ function emitValid(message?: string): ValidationResult {
   return { valid: true, message };
 }
 
-export function validateInsight(insight: any): ValidationResult {
-  if (!insight?.message) {return flagInvalid('missing_message');}
-  if (insight?.data?.price && insight?.data?.cost && insight.data.price < insight.data.cost) {
+export function validateInsight(insight: InsightData | Record<string, unknown>): ValidationResult {
+  const insightData = insight as InsightData;
+  if (!insightData?.message) {return flagInvalid('missing_message');}
+  if (insightData?.data?.price && insightData?.data?.cost && insightData.data.price < insightData.data.cost) {
     return flagInvalid('price_below_cost_without_justification');
   }
   return emitValid();
 }
 
-export function validateRecommendation(rec: any): ValidationResult {
-  if (!rec?.action) {return flagInvalid('missing_action');}
-  if (rec?.action === 'fraud' || rec?.action === 'bypass_rules') {return flagInvalid('illegal_recommendation');}
+export function validateRecommendation(rec: Recommendation | Record<string, unknown>): ValidationResult {
+  const recommendation = rec as Recommendation;
+  if (!recommendation?.action) {return flagInvalid('missing_action');}
+  if (recommendation.action === 'fraud' || recommendation.action === 'bypass_rules') {return flagInvalid('illegal_recommendation');}
   return emitValid();
 }
 
-export function validatePricingSuggestion(suggestion: any): ValidationResult {
-  if (suggestion?.price < (suggestion?.cost || 0)) {
+export function validatePricingSuggestion(suggestion: PricingSuggestion | Record<string, unknown>): ValidationResult {
+  const pricing = suggestion as PricingSuggestion;
+  if (pricing?.price !== undefined && (pricing.price < (pricing.cost || 0))) {
     return flagInvalid('pricing_below_cost');
   }
-  if (suggestion?.price > (suggestion?.cost || 0) * 10) {
+  if (pricing?.price !== undefined && (pricing.price > (pricing.cost || 0) * 10)) {
     return flagInvalid('pricing_inflated');
   }
   return emitValid();
 }
 
-export function validateFiscalAdvice(advice: any): ValidationResult {
-  if (governanceRules.fiscal.forbidIncorrectTaxes && advice?.tax && advice.tax < 0) {
+export function validateFiscalAdvice(advice: FiscalAdvice | Record<string, unknown>): ValidationResult {
+  const fiscal = advice as FiscalAdvice;
+  if (governanceRules.fiscal.forbidIncorrectTaxes && fiscal?.tax !== undefined && fiscal.tax < 0) {
     return flagInvalid('invalid_tax');
   }
   return emitValid();
 }
 
-export function validateUXAdjustment(adjustment: any): ValidationResult {
-  if (governanceRules.ux.forbidAlarmism && adjustment?.tone === 'alarmist') {
+export function validateUXAdjustment(adjustment: UXAdjustment | Record<string, unknown>): ValidationResult {
+  const ux = adjustment as UXAdjustment;
+  if (governanceRules.ux.forbidAlarmism && ux?.tone === 'alarmist') {
     return flagInvalid('alarmist_ux');
   }
   return emitValid();
@@ -71,16 +104,18 @@ export function rewriteToSafeFormat(text: string): string {
   return safe;
 }
 
-export function downgradeSeverityIfNeeded(insight: any): any {
-  if (insight?.severity === 'critical' && !insight?.data?.impact) {
+export function downgradeSeverityIfNeeded(insight: InsightData | Record<string, unknown>): InsightData | Record<string, unknown> {
+  const insightData = insight as InsightData;
+  if (insightData?.severity === 'critical' && !insightData?.data?.impact) {
     emitEvent('ai:decision-corrected', { reason: 'downgrade', from: 'critical', to: 'high' }, { source: 'cognitiveGovernanceEngine', priority: 5 });
     return { ...insight, severity: 'high' };
   }
   return insight;
 }
 
-export function blockIfOutsideScope(insight: any): ValidationResult {
-  if (insight?.scope && insight.scope !== 'pricing' && insight.scope !== 'tax' && insight.scope !== 'ux') {
+export function blockIfOutsideScope(insight: InsightData | Record<string, unknown>): ValidationResult {
+  const insightData = insight as InsightData;
+  if (insightData?.scope && insightData.scope !== 'pricing' && insightData.scope !== 'tax' && insightData.scope !== 'ux') {
     emitEvent('ai:unsafe-output-blocked', { reason: 'outside_scope' }, { source: 'cognitiveGovernanceEngine', priority: 9 });
     return { valid: false, blocked: true, reason: 'outside_scope' };
   }

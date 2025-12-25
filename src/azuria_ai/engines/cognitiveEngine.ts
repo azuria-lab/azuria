@@ -6,15 +6,16 @@ type MemoryCategory = 'calc' | 'intent' | 'prediction' | 'action' | 'pattern' | 
 interface MemoryEntry {
   category: MemoryCategory;
   source?: string;
-  payload: any;
+  payload: Record<string, unknown>;
   timestamp: number;
 }
 
 const MEMORY_LIMIT = 50;
 const memoryBuffer: MemoryEntry[] = [];
 
-function sanitizePayload(payload: any) {
-  if (!payload || typeof payload !== 'object') {return {};}
+function sanitizePayload(payload: unknown): Record<string, unknown> {
+  if (!payload || typeof payload !== 'object' || payload === null) {return {};}
+  const payloadObj = payload as Record<string, unknown>;
   const allowedKeys = [
     'margemLucro',
     'custoProduto',
@@ -29,9 +30,9 @@ function sanitizePayload(payload: any) {
     'riskLevel',
     'predictiveScore',
   ];
-  const sanitized: Record<string, any> = {};
+  const sanitized: Record<string, unknown> = {};
   allowedKeys.forEach(key => {
-    if (payload[key] !== undefined) {sanitized[key] = payload[key];}
+    if (payloadObj[key] !== undefined) {sanitized[key] = payloadObj[key];}
   });
   return sanitized;
 }
@@ -44,7 +45,7 @@ function pushMemory(entry: MemoryEntry) {
   emitEvent('ai:memory-updated', { entry }, { source: 'cognitiveEngine', priority: 3 });
 }
 
-export function updateMemory(category: MemoryCategory, payload: any, source?: string) {
+export function updateMemory(category: MemoryCategory, payload: unknown, source?: string) {
   pushMemory({
     category,
     source,
