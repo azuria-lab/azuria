@@ -36,27 +36,31 @@ interface Payload {
 }
 
 function detectRiskOrOpportunity(payload: Payload | Record<string, unknown>) {
+  const payloadData = payload as Payload;
   const alerts: { risk?: string; opportunity?: string } = {};
 
-  if (payload?.margemLucro !== undefined) {
-    if (payload.margemLucro < 0) {
+  const margemLucro = payloadData?.margemLucro;
+  if (typeof margemLucro === 'number') {
+    if (margemLucro < 0) {
       alerts.risk = 'lucro_negativo';
-    } else if (payload.margemLucro < 10) {
+    } else if (margemLucro < 10) {
       alerts.risk = 'margem_critica';
-    } else if (payload.margemLucro >= 25) {
+    } else if (margemLucro >= 25) {
       alerts.opportunity = 'margem_otima';
     }
   }
 
-  if (payload?.custoOperacional && payload?.precoVenda) {
-    const impactoFrete =
-      ((payload.custoOperacional || 0) / (payload.precoVenda || 1)) * 100;
+  const custoOperacional = payloadData?.custoOperacional;
+  const precoVenda = payloadData?.precoVenda;
+  if (typeof custoOperacional === 'number' && typeof precoVenda === 'number' && precoVenda > 0) {
+    const impactoFrete = (custoOperacional / precoVenda) * 100;
     if (impactoFrete > 35) {
       alerts.risk = alerts.risk || 'frete_excessivo';
     }
   }
 
-  if (payload?.taxasMarketplace && payload.taxasMarketplace > 20) {
+  const taxasMarketplace = payloadData?.taxasMarketplace;
+  if (typeof taxasMarketplace === 'number' && taxasMarketplace > 20) {
     alerts.risk = alerts.risk || 'taxa_marketplace_alta';
   }
 
@@ -64,11 +68,12 @@ function detectRiskOrOpportunity(payload: Payload | Record<string, unknown>) {
 }
 
 export function detectIntent(event: Payload | { payload?: Payload } | Record<string, unknown>, context: Record<string, unknown> = {}): IntentResult {
-  const payload = event?.payload || event || {};
+  const eventData = event as { payload?: Payload } | Payload | Record<string, unknown>;
+  const payload = (eventData?.payload || eventData || {}) as Payload | Record<string, unknown>;
   const signals: string[] = [];
   let category: IntentCategory = 'pricing';
 
-  const alerts = detectRiskOrOpportunity(payload);
+  const alerts = detectRiskOrOpportunity(payload as Payload | Record<string, unknown>);
 
   if (alerts.risk) {
     category = 'risk';
@@ -82,7 +87,8 @@ export function detectIntent(event: Payload | { payload?: Payload } | Record<str
     logOpportunity({ alert: alerts.opportunity, payload, context });
   }
 
-  if (payload?.impostos || payload?.aliquotaICMS) {
+  const payloadData = payload as Payload;
+  if (payloadData?.impostos !== undefined || payloadData?.aliquotaICMS !== undefined) {
     category = 'tax';
     signals.push('tax_context');
   }

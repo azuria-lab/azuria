@@ -77,7 +77,10 @@ export function ensureTruthBeforeAction(context: CoherenceState | Record<string,
 }
 
 export function ensureTruthAfterAction(context: CoherenceState | Record<string, unknown>): boolean {
-  const validation = validateRealityModel(context?.reality, context?.perceived);
+  const contextData = context as CoherenceState;
+  const reality = contextData?.reality as { version?: string; [key: string]: unknown } | undefined;
+  const perceived = contextData?.perceived as { version?: string; [key: string]: unknown } | undefined;
+  const validation = validateRealityModel(reality, perceived);
   return validation.ok;
 }
 
