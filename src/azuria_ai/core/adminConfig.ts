@@ -23,10 +23,8 @@ export const ADMIN_UID = ADMIN_UIDS.size > 0
 
 // Validação em runtime - alertar se não configurado
 if (ADMIN_UIDS.size === 0) {
-  console.warn(
-    '[SECURITY WARNING] ADMIN_UID/ADMIN_UIDS não configurado. ' +
-    'Defina a variável de ambiente ADMIN_UID ou ADMIN_UIDS para habilitar acesso admin.'
-  );
+  // eslint-disable-next-line no-console
+  console.warn('[SECURITY WARNING] ADMIN_UID/ADMIN_UIDS não configurado. Defina a variável de ambiente ADMIN_UID ou ADMIN_UIDS para habilitar acesso admin.');
 }
 
 /**

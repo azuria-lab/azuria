@@ -62,9 +62,8 @@ function getClientIP(req: GenericRequest): string {
 export function isAdminRequest(req: GenericRequest): boolean {
   // Se não há admins configurados, bloquear tudo
   if (ADMIN_UIDS.size === 0) {
-    console.warn(
-      '[SECURITY] Admin access attempted but no ADMIN_UID configured'
-    );
+    // eslint-disable-next-line no-console
+    console.warn('[SECURITY] Admin access attempted but no ADMIN_UID configured');
     return false;
   }
 
@@ -94,15 +93,15 @@ export function requireAdmin(
 
   // Rate limiting
   if (isRateLimited(clientIP)) {
+    // eslint-disable-next-line no-console
     console.warn(`[SECURITY] Rate limit exceeded for IP: ${clientIP}`);
     res.status(429).json({ error: 'Too many requests. Try again later.' });
     return false;
   }
 
   if (!isAdminRequest(req)) {
-    console.warn(
-      `[SECURITY] Unauthorized admin access attempt from IP: ${clientIP}`
-    );
+    // eslint-disable-next-line no-console
+    console.warn(`[SECURITY] Unauthorized admin access attempt from IP: ${clientIP}`);
     res.status(401).json({ error: 'Unauthorized' });
     return false;
   }

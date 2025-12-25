@@ -12,7 +12,7 @@ import { emitEvent } from '../core/eventBus';
 export interface ScreenContext {
   screen: string;
   path: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -94,8 +94,8 @@ export function useScreenContextWatcher() {
  * Função para emitir atualização de dados da tela atual
  */
 export function emitScreenDataUpdate(
-  data: any,
-  metadata?: Record<string, any>
+  data: unknown,
+  metadata?: Record<string, unknown>
 ) {
   const context = {
     data,

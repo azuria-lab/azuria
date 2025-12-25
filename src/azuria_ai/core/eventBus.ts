@@ -176,11 +176,11 @@ export type EventType =
  */
 export interface AzuriaEvent {
   tipo: EventType;
-  payload: any;
+  payload: unknown;
   timestamp: number;
   source?: string;
   priority?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export type EventHandler = (event: AzuriaEvent) => void | Promise<void>;
@@ -225,11 +225,11 @@ export function registerEvent(event: AzuriaEvent): void {
  */
 export function emitEvent(
   tipo: EventType,
-  payload: any,
+  payload: unknown,
   options?: {
     source?: string;
     priority?: number;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }
 ): void {
   const event: AzuriaEvent = {

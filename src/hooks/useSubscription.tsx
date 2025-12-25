@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { PlanId, Subscription } from '@/types/subscription';
+import type { BillingInterval, PlanId, Subscription, SubscriptionStatus } from '@/types/subscription';
 import type { Database } from '@/types/supabase';
 import { logger } from '@/services/logger';
 
@@ -49,8 +49,8 @@ export const useSubscription = () => {
         id: subscriptionData.id,
         userId: subscriptionData.user_id,
         planId: subscriptionData.plan_id as PlanId,
-        status: subscriptionData.status,
-        billingInterval: subscriptionData.billing_interval,
+        status: subscriptionData.status as SubscriptionStatus,
+        billingInterval: subscriptionData.billing_interval as BillingInterval,
         currentPeriodStart: new Date(subscriptionData.current_period_start),
         currentPeriodEnd: new Date(subscriptionData.current_period_end),
         cancelAtPeriodEnd: subscriptionData.cancel_at_period_end,

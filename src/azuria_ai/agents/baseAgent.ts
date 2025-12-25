@@ -1,4 +1,4 @@
-import { emitEvent } from '../core/eventBus';
+import { emitEvent, EventType } from '../core/eventBus';
 
 export interface AgentRecommendation {
   message: string;
@@ -16,7 +16,7 @@ export abstract class BaseAgent {
 
   abstract analyze(state: AgentState): void;
 
-  emit(eventType: string, payload: unknown, priority = 5) {
+  emit(eventType: EventType, payload: unknown, priority = 5) {
     emitEvent(eventType, payload, { source: this.constructor.name, priority });
   }
 

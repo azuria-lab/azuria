@@ -15,7 +15,6 @@ export default function HeaderLogo() {
         height={96}
         loading="eager"
         decoding="async"
-        fetchpriority="high"
         onError={(e) => {
           // Fallback em caso de erro
           const target = e.target as HTMLImageElement;

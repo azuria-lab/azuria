@@ -1,9 +1,9 @@
 interface AgentMemoryEntry {
-  action?: any;
+  action?: unknown;
   outcome?: 'success' | 'failure';
   reason?: string;
   metrics?: Record<string, number>;
-  context?: any;
+  context?: unknown;
   timestamp: number;
 }
 
