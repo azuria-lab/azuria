@@ -6,7 +6,18 @@ function pickProfile(userLevel: string) {
   return storyProfiles[userLevel as keyof typeof storyProfiles] || storyProfiles.iniciante;
 }
 
-export function generateContextStory(event: any, state: any) {
+interface StoryEvent {
+  tipo?: string;
+  payload?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface StoryState {
+  userLevel?: string;
+  [key: string]: unknown;
+}
+
+export function generateContextStory(event: StoryEvent | Record<string, unknown>, state: StoryState | Record<string, unknown>) {
   const profile = pickProfile(state?.userLevel || 'iniciante');
   const raw = `(${profile.tone}) ${event?.tipo || 'evento'} processado. Contexto: ${Object.keys(
     event?.payload || {}
@@ -23,7 +34,14 @@ export function generateContextStory(event: any, state: any) {
   return spoken.message;
 }
 
-export function explainInsight(insight: any) {
+interface Insight {
+  action?: string;
+  reason?: string;
+  persona?: string;
+  [key: string]: unknown;
+}
+
+export function explainInsight(insight: Insight | Record<string, unknown>) {
   const raw = `Sugerimos ${insight?.action || 'essa ação'} porque observamos ${insight?.reason || 'padrões recentes'}.`;
   const tone = adaptToneProfileFromPersona(insight?.persona || 'iniciante-inseguro');
   const refined = rewriteWithBrandVoice(raw, tone);
@@ -39,7 +57,13 @@ export function educateUser(topic: string, level: 'iniciante' | 'intermediario' 
   return refined;
 }
 
-export function createMicroStory(data: any) {
+interface MicroStoryData {
+  message?: string;
+  tone?: string;
+  [key: string]: unknown;
+}
+
+export function createMicroStory(data: MicroStoryData | Record<string, unknown>) {
   const msg = data?.message || 'História não especificada.';
   const refined = rewriteWithBrandVoice(msg, data?.tone || 'padrao');
   emitEvent('ai:story-generated', { story: refined, brandTone: data?.tone || 'padrao' }, { source: 'storytellingEngine', priority: 4 });
@@ -91,7 +115,7 @@ export function stabilizeImaginations() {
   return 'Imaginação estabilizada para evitar deriva.';
 }
 
-export function hallucinateForContext(event: any, state: any) {
+export function hallucinateForContext(event: StoryEvent | Record<string, unknown>, state: StoryState | Record<string, unknown>) {
   const story = generateContextStory(event, state);
   return story;
 }

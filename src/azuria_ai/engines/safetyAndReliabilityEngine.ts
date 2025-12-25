@@ -16,9 +16,9 @@ export function resetCounts() {
   Object.keys(eventCount).forEach(k => delete eventCount[k]);
 }
 
-export function safePropagate(eventType: string, payload: any, options?: any) {
+export function safePropagate(eventType: string, payload: Record<string, unknown>, options?: { source?: string; priority?: number }) {
   if (!guardEventLoop(eventType)) {return;}
-  emitEvent(eventType as any, payload, options);
+  emitEvent(eventType, payload, options);
 }
 
 export function emitFallback(reason: string) {

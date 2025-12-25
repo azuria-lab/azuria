@@ -3,14 +3,24 @@ import { validateActionAgainstPolicy } from './policyEngine';
 import { logGovernance } from '../logs/modeDeus_conscious';
 import { logSafeAction } from '../logs/ai.safeAction';
 
+interface Action {
+  type?: string;
+  riskLevel?: 'low' | 'medium' | 'high';
+  [key: string]: unknown;
+}
+
+interface ActionContext {
+  [key: string]: unknown;
+}
+
 interface SafeResult {
   approved: boolean;
-  action?: any;
+  action?: Action;
   reason?: string;
   riskLevel?: 'low' | 'medium' | 'high';
 }
 
-export function executeActionSafely(action: any, context: any): SafeResult {
+export function executeActionSafely(action: Action | Record<string, unknown>, context: ActionContext | Record<string, unknown>): SafeResult {
   const policyResult = validateActionAgainstPolicy(action);
   if (!policyResult.allowed) {
     return { approved: false, reason: policyResult.reason, riskLevel: 'high' };
@@ -25,7 +35,7 @@ export function executeActionSafely(action: any, context: any): SafeResult {
   return { approved: true, action, reason: 'Policy compliant' };
 }
 
-export function applyAction(action: any) {
+export function applyAction(action: Action | Record<string, unknown>) {
   // No real mutation; simulate execution and emit event
   const result = { success: true, details: { action } };
   emitEvent('ai:action-executed', result, { source: 'safeActionEngine', priority: 6 });

@@ -1,7 +1,7 @@
 import { emitEvent } from '../core/eventBus';
 
 type Scope = 'user' | 'calculation' | 'session' | 'global';
-type TemporalEntry = { event: string; payload: any; timestamp: number };
+type TemporalEntry = { event: string; payload: Record<string, unknown>; timestamp: number };
 
 const MAX_ENTRIES = 300;
 
@@ -18,7 +18,7 @@ function push(scope: Scope, entry: TemporalEntry) {
   if (list.length > MAX_ENTRIES) {list.shift();}
 }
 
-export function recordTemporalEvent(scope: Scope, eventName: string, payload: any) {
+export function recordTemporalEvent(scope: Scope, eventName: string, payload: Record<string, unknown>) {
   const entry: TemporalEntry = { event: eventName, payload, timestamp: Date.now() };
   push(scope, entry);
   emitEvent('ai:temporal-event', { scope, entry }, { source: 'temporalEngine', priority: 6 });

@@ -1,8 +1,8 @@
 import { emitEvent } from '../core/eventBus';
 
 interface RealityState {
-  context: Record<string, any>;
-  forces: Record<string, any>;
+  context: Record<string, unknown>;
+  forces: Record<string, unknown>;
   confidence: number;
 }
 
@@ -16,7 +16,7 @@ function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));
 }
 
-export function captureContext(context: any = {}) {
+export function captureContext(context: Record<string, unknown> = {}) {
   realityState.context = { ...realityState.context, ...context };
   return realityState.context;
 }
@@ -30,7 +30,7 @@ export function inferState() {
   return inferred;
 }
 
-export function predictExternalForces(data: any = {}) {
+export function predictExternalForces(data: Record<string, unknown> = {}) {
   const forces = {
     competition: data.competition || 'médio',
     seasonality: data.seasonality || 'neutro',
@@ -40,7 +40,7 @@ export function predictExternalForces(data: any = {}) {
   return forces;
 }
 
-export function updateRealityModel(payload: any = {}) {
+export function updateRealityModel(payload: Record<string, unknown> = {}) {
   captureContext(payload.context || {});
   inferState();
   predictExternalForces(payload.forces || {});

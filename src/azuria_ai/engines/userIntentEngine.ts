@@ -20,7 +20,22 @@ function clampConfidence(value: number) {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 }
 
-function detectRiskOrOpportunity(payload: any) {
+interface Payload {
+  margemLucro?: number;
+  custoOperacional?: number;
+  precoVenda?: number;
+  taxasMarketplace?: number;
+  impostos?: unknown;
+  aliquotaICMS?: unknown;
+  frete?: unknown;
+  erro?: unknown;
+  error?: unknown;
+  acaoSolicitada?: unknown;
+  requestAction?: unknown;
+  [key: string]: unknown;
+}
+
+function detectRiskOrOpportunity(payload: Payload | Record<string, unknown>) {
   const alerts: { risk?: string; opportunity?: string } = {};
 
   if (payload?.margemLucro !== undefined) {
@@ -48,7 +63,7 @@ function detectRiskOrOpportunity(payload: any) {
   return alerts;
 }
 
-export function detectIntent(event: any, context: any = {}): IntentResult {
+export function detectIntent(event: Payload | { payload?: Payload } | Record<string, unknown>, context: Record<string, unknown> = {}): IntentResult {
   const payload = event?.payload || event || {};
   const signals: string[] = [];
   let category: IntentCategory = 'pricing';
@@ -92,7 +107,15 @@ export function detectIntent(event: any, context: any = {}): IntentResult {
   return { category, intentConfidence, signals };
 }
 
-export function predictNextStep(context: any = {}): { nextStep: string; intentConfidence: number } {
+interface NextStepContext {
+  margemLucro?: number;
+  precoVenda?: number;
+  custoProduto?: number;
+  payload?: Payload;
+  [key: string]: unknown;
+}
+
+export function predictNextStep(context: NextStepContext | Record<string, unknown> = {}): { nextStep: string; intentConfidence: number } {
   // Heurística simples baseada em margem e custo
   const margem = context?.margemLucro ?? context?.payload?.margemLucro;
   const preco = context?.precoVenda ?? context?.payload?.precoVenda;
@@ -126,7 +149,7 @@ export const intentCategories: IntentCategory[] = [
   'request_action',
 ];
 
-export function logConflictSignal(details: any) {
+export function logConflictSignal(details: Record<string, unknown>) {
   logConflict(details);
 }
 

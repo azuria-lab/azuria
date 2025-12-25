@@ -60,7 +60,7 @@ export function getPersonalityProfile(): AzuriaPersonalityProfile {
   return profile;
 }
 
-export function emitPersonalityEscalation(details: any) {
+export function emitPersonalityEscalation(details: Record<string, unknown>) {
   emitEvent(
     'ai:personality-escalation',
     { details, severity: 'warning' },

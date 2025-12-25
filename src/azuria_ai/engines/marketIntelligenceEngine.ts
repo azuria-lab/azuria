@@ -3,7 +3,7 @@ import { emitEvent } from '../core/eventBus';
 export interface MarketInsight {
   topic: string;
   confidence: number;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   impactScore: number;
 }
 
@@ -11,29 +11,45 @@ function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));
 }
 
-export function scanMarketSignals(input: any) {
+interface CompetitorData {
+  name?: string;
+  strength?: string;
+  [key: string]: unknown;
+}
+
+interface MarketData {
+  list?: CompetitorData[];
+  gaps?: string[];
+  differentiators?: string[];
+  positioning?: string;
+  risks?: { list?: unknown[] };
+  opportunities?: { list?: unknown[] };
+  [key: string]: unknown;
+}
+
+export function scanMarketSignals(input: unknown) {
   const signals = Array.isArray(input) ? input : [input];
   return signals.filter(Boolean);
 }
 
-export function analyzeCompetitors(data: any = {}) {
+export function analyzeCompetitors(data: MarketData = {}) {
   const competitors = data.list || [];
-  return competitors.map((c: any) => ({ name: c.name || 'competidor', strength: c.strength || 'médio' }));
+  return competitors.map((c: CompetitorData) => ({ name: c.name || 'competidor', strength: c.strength || 'médio' }));
 }
 
-export function compareFeatureSets(features: any = {}) {
+export function compareFeatureSets(features: MarketData = {}) {
   return { gaps: features.gaps || [], differentiators: features.differentiators || [] };
 }
 
-export function detectExternalRisks(risks: any = {}) {
-  return risks.list || [];
+export function detectExternalRisks(risks: MarketData = {}) {
+  return risks.risks?.list || [];
 }
 
-export function identifyMarketOpportunities(opps: any = {}) {
-  return opps.list || [];
+export function identifyMarketOpportunities(opps: MarketData = {}) {
+  return opps.opportunities?.list || [];
 }
 
-export function suggestStrategicPositioning(data: any = {}) {
+export function suggestStrategicPositioning(data: MarketData = {}) {
   return data.positioning || 'foco em valor/automação';
 }
 
@@ -44,7 +60,7 @@ export function emitMarketInsight(insight: MarketInsight) {
   return payload;
 }
 
-export function detectExternalRisksAndOpportunities(input: any) {
+export function detectExternalRisksAndOpportunities(input: MarketData) {
   const risks = detectExternalRisks(input?.risks);
   const opps = identifyMarketOpportunities(input?.opportunities);
   if (opps.length > 0) {

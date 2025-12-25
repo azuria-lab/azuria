@@ -5,8 +5,8 @@ interface SocialEventPayload {
   tipo?: string;
   action?: string;
   timestamp?: number;
-  metadata?: Record<string, any>;
-  context?: any;
+  metadata?: Record<string, unknown>;
+  context?: Record<string, unknown>;
 }
 
 function clamp(val: number, min = 0, max = 1) {
@@ -35,17 +35,17 @@ function mapEmotion(score: number): UserModel['emotionalState'] {
   return 'neutral';
 }
 
-function adjustSkill(meta: Record<string, any>) {
+function adjustSkill(meta: Record<string, unknown>) {
   if (meta.advancedFlows) {userModel.skillLevel = 'advanced';}
   if (meta.requiresHelp) {userModel.skillLevel = 'beginner';}
 }
 
-function adjustRisk(meta: Record<string, any>) {
+function adjustRisk(meta: Record<string, unknown>) {
   if (meta.riskAverse) {userModel.riskTolerance = 'low';}
   if (meta.aggressivePricing) {userModel.riskTolerance = 'high';}
 }
 
-function adjustPace(meta: Record<string, any>) {
+function adjustPace(meta: Record<string, unknown>) {
   if (meta.slowInputs) {userModel.preferredPace = 'slow';}
   if (meta.fastInputs) {userModel.preferredPace = 'fast';}
 }

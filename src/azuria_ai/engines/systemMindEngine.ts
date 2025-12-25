@@ -1,7 +1,7 @@
 import { emitEvent } from '../core/eventBus';
 
 type MindState = {
-  globalState: Record<string, any>;
+  globalState: Record<string, unknown>;
   confidenceMap: Record<string, number>;
   anomalies: string[];
   healthScore: number;
@@ -18,21 +18,31 @@ function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));
 }
 
-export function computeGlobalState(sources: Record<string, any> = {}) {
+export function computeGlobalState(sources: Record<string, unknown> = {}) {
   mindState.globalState = { ...mindState.globalState, ...sources };
   mindState.healthScore = clamp(0.6 + Object.keys(sources).length * 0.02);
   emitGlobalMindSnapshot();
   return mindState.globalState;
 }
 
-export function harmonizeSignals(signals: Record<string, any> = {}) {
-  const conflicts = Object.values(signals).filter((s: any) => s?.conflict).length;
+interface Signal {
+  conflict?: boolean;
+  [key: string]: unknown;
+}
+
+export function harmonizeSignals(signals: Record<string, Signal | unknown> = {}) {
+  const conflicts = Object.values(signals).filter((s): s is Signal => typeof s === 'object' && s !== null && 'conflict' in s && s.conflict === true).length;
   mindState.healthScore = clamp(mindState.healthScore - conflicts * 0.05);
   emitGlobalMindSnapshot();
   return { conflicts };
 }
 
-export function detectInternalAnomalies(inputs: Record<string, any> = {}) {
+interface AnomalyInput {
+  health?: number;
+  [key: string]: unknown;
+}
+
+export function detectInternalAnomalies(inputs: Record<string, AnomalyInput | unknown> = {}) {
   const anomalies: string[] = [];
   Object.entries(inputs).forEach(([k, v]) => {
     if (v && v.health && v.health < 0.3) {anomalies.push(`low-health:${k}`);}

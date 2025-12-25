@@ -8,17 +8,28 @@ interface SignalSample {
   contrastSignals: string[];
 }
 
-function simulateSensors(state: any): SignalSample {
+interface SystemState {
+  logs?: {
+    anomalies?: string[];
+    [key: string]: unknown;
+  };
+  silent?: string[];
+  contrast?: string[];
+  [key: string]: unknown;
+}
+
+function simulateSensors(state: SystemState | Record<string, unknown>): SignalSample {
+  const stateData = state as SystemState;
   return {
     eventFrequency: Math.random() * 10,
     avgLatency: Math.random() * 200,
-    logAnomalies: state?.logs?.anomalies || [],
-    silentComponents: state?.silent || [],
-    contrastSignals: state?.contrast || [],
+    logAnomalies: stateData?.logs?.anomalies || [],
+    silentComponents: stateData?.silent || [],
+    contrastSignals: stateData?.contrast || [],
   };
 }
 
-export function sampleSignals(state: any) {
+export function sampleSignals(state: SystemState | Record<string, unknown>) {
   const sample = simulateSensors(state);
   emitEvent('ai:virtual-signal', { sample }, { source: 'perceptionEngine', priority: 5 });
   return sample;

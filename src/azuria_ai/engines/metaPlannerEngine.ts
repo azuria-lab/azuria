@@ -10,7 +10,7 @@ export interface PlannerGoal {
 export interface PlannerPlan {
   goalId: string;
   steps: string[];
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   status: 'generated' | 'executing' | 'completed' | 'adjusted';
   score?: number;
 }

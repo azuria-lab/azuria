@@ -1,20 +1,36 @@
 import { emitEvent } from '../core/eventBus';
 
+interface MetaLayerInput {
+  signals?: unknown[];
+  metrics?: Record<string, unknown>;
+  context?: {
+    trend?: string;
+    [key: string]: unknown;
+  };
+  goals?: string[];
+  risks?: unknown[];
+  scenarios?: string[];
+  scenarioConfidence?: number;
+  intent?: string;
+  target?: string;
+  [key: string]: unknown;
+}
+
 export interface MetaLayerOutput {
-  perception: any;
-  context: any;
-  reasoning: any;
-  consciousness: any;
-  scenarios: any;
-  decision: any;
-  executionPlan: any;
+  perception: Record<string, unknown>;
+  context: Record<string, unknown>;
+  reasoning: Record<string, unknown>;
+  consciousness: Record<string, unknown>;
+  scenarios: Record<string, unknown>;
+  decision: Record<string, unknown>;
+  executionPlan: Record<string, unknown>;
 }
 
 function clamp(v: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, v));
 }
 
-export function processMetaLayers(input: any): MetaLayerOutput {
+export function processMetaLayers(input: MetaLayerInput | Record<string, unknown>): MetaLayerOutput {
   const perception = { signals: input?.signals || [], metrics: input?.metrics || {} };
   const context = { ...input?.context, inferred: input?.context?.trend || 'estável' };
   const reasoning = { coherent: true, contradictions: [] };

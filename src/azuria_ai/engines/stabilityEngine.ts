@@ -4,14 +4,21 @@ let stabilityScore = 0.8;
 let safeMode = false;
 const recoveryEvents: string[] = [];
 
-function emitStabilityAlert(event: { severity: 'info' | 'warning' | 'critical'; riskLevel: number; details?: any }) {
+function emitStabilityAlert(event: { severity: 'info' | 'warning' | 'critical'; riskLevel: number; details?: Record<string, unknown> }) {
   emitEvent('ai:stability-alert', event, { source: 'stabilityEngine', priority: event.severity === 'critical' ? 9 : 6 });
   if (event.riskLevel >= 0.8) {
     safeMode = true;
   }
 }
 
-export function predictFailure(signals: any): { risk: number } {
+interface FailureSignals {
+  loopsDetected?: boolean;
+  contradictions?: number;
+  load?: number;
+  [key: string]: unknown;
+}
+
+export function predictFailure(signals: FailureSignals | Record<string, unknown>): { risk: number } {
   const risk =
     (signals?.loopsDetected ? 0.3 : 0) +
     (signals?.contradictions ? Math.min(signals.contradictions / 5, 0.3) : 0) +
@@ -24,7 +31,12 @@ export function predictFailure(signals: any): { risk: number } {
   return { risk: totalRisk };
 }
 
-export function detectCascadingErrors(history: any[] = []) {
+interface HistoryEntry {
+  type?: string;
+  [key: string]: unknown;
+}
+
+export function detectCascadingErrors(history: HistoryEntry[] = []) {
   const cascades = history.filter((h) => h.type === 'error').length > 3;
   if (cascades) {emitStabilityAlert({ severity: 'warning', riskLevel: 0.7, details: { cascades: true } });}
   return cascades;

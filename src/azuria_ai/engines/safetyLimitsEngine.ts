@@ -14,7 +14,7 @@ export function checkCriticalBoundaries(state: SafetyState) {
   return critical;
 }
 
-export function detectRunawayBehavior(actions: any[] = []) {
+export function detectRunawayBehavior(actions: Array<Record<string, unknown>> = []) {
   const runaway = actions.length > 10;
   if (runaway) {
     applySafetyBreak({ reason: 'runaway_actions', state: { actions: actions.length } });
@@ -22,12 +22,12 @@ export function detectRunawayBehavior(actions: any[] = []) {
   return runaway;
 }
 
-export function applySafetyBreak(event: { reason: string; state?: any }) {
+export function applySafetyBreak(event: { reason: string; state?: Record<string, unknown> }) {
   emitEvent('ai:safety-break', event, { source: 'safetyLimitsEngine', priority: 10 });
   return true;
 }
 
-export function logSafetyEvent(event: any) {
+export function logSafetyEvent(event: Record<string, unknown>) {
   emitEvent('ai:governance-alert', { message: 'Safety event', detail: event }, { source: 'safetyLimitsEngine', priority: 6 });
 }
 
