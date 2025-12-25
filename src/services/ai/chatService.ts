@@ -199,19 +199,20 @@ export async function loadChatHistory(
   sessionId: string
 ): Promise<ChatMessage[]> {
   try {
-    // @ts-expect-error - chat_history table not in generated types yet
-    const { data, error } = await supabase
+     
+    const { data, error } = await (supabase
       .from('chat_history')
       .select('*')
       .eq('user_id', userId)
       .eq('session_id', sessionId)
-      .order('timestamp', { ascending: true });
+      .order('timestamp', { ascending: true }) as any);
 
     if (error) {
       throw error;
     }
 
-    return (data || []).map(row => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return ((data || []) as any[]).map((row: any) => ({
       id: row.id,
       role: row.role,
       content: row.content,

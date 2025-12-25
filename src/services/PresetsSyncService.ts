@@ -53,11 +53,12 @@ export class PresetsSyncService {
       taxas_por_parcela: preset.taxas_por_parcela,
     };
     
-    const { data, error } = await supabase
+     
+    const { data, error } = await (supabase
       .from('maquininha_presets')
-      .upsert(payload as unknown as Parameters<typeof supabase.from<'maquininha_presets'>['upsert']>[0])
+      .upsert(payload as any)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Erro ao salvar preset de maquininha: ${error.message}`);
@@ -208,11 +209,12 @@ export class PresetsSyncService {
       detalhes: registro.detalhes,
     };
     
-    const { data, error } = await supabase
+     
+    const { data, error } = await (supabase
       .from('taxas_historico')
-      .insert(payload as unknown as Parameters<typeof supabase.from<'taxas_historico'>['insert']>[0])
+      .insert(payload as any)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Erro ao adicionar histórico de taxa: ${error.message}`);

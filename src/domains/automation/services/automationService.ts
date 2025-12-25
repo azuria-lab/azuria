@@ -124,11 +124,12 @@ export async function listAlerts(): Promise<AutomationAlert[]> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchAlertsByRule(ruleId: string): Promise<any> {
    
-  return await (supabase
-    .from("automation_alerts")
-    .select("*")
-    .eq("rule_id", ruleId)
-    .order("created_at", { ascending: false }) as any);
+  const query = supabase.from("automation_alerts").select("*");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const filtered = (query as any).eq("rule_id", ruleId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ordered = (filtered as any).order("created_at", { ascending: false });
+  return await ordered;
 }
 
 export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
