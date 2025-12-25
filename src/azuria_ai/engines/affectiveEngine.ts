@@ -57,7 +57,7 @@ interface UserState {
 }
 
 interface ResponseContext {
-  persona?: PersonaKey | string;
+  persona?: PersonaKey;
   [key: string]: unknown;
 }
 
@@ -172,8 +172,8 @@ export function detectHesitation(pattern: EmotionPattern): { emotion: EmotionTyp
   return { emotion: 'hesitation' as const, confidence };
 }
 
-function craftResponse(text: string, tone: string, persona?: PersonaKey | string) {
-  const toneProfile = persona ? adaptToneProfileFromPersona(persona as PersonaKey) : (tone as ToneProfileKey);
+function craftResponse(text: string, tone: string, persona?: PersonaKey) {
+  const toneProfile = persona ? adaptToneProfileFromPersona(persona) : (tone as ToneProfileKey);
   const spoken = speak(text, toneProfile, persona ? { personaSignals: {} } : undefined);
   state.lastMessage = spoken.message;
   emitEvent('ai:affective-response', { message: spoken.message, tone: spoken.tone, persona: spoken.persona }, { source: 'affectiveEngine', priority: 5 });
