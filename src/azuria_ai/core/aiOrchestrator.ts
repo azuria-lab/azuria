@@ -406,7 +406,7 @@ function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
     );
 
     // Disparar ações autônomas seguras (apenas sugestão)
-    dispatchAction(emitEvent, calcData);
+    dispatchAction(emitEvent, calcData as Record<string, unknown> as import('../engines/autonomousActionsEngine').ActionContext);
   }
 
   // Gerar previsões cognitivas adicionais
@@ -774,7 +774,7 @@ function generateInsight(insight: GenerateInsightParam): void {
   const refinedMessage = rewriteWithBrandVoice(insight.message ?? '', tone);
   const userStateValue = insight.userState || insight.data?.userState;
   if (userStateValue && typeof userStateValue === 'object' && userStateValue !== null) {
-    inferUserEmotion(userStateValue as Record<string, unknown>, { payload: insight });
+    inferUserEmotion(userStateValue as Record<string, unknown>, { payload: insight as Record<string, unknown> });
   }
   const preStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
   if (preStability.risk >= 0.8) {
@@ -821,31 +821,33 @@ function generateInsight(insight: GenerateInsightParam): void {
     emitEvent('ai:decision-corrected', { insight }, { source: 'aiOrchestrator', priority: 7 });
   }
   if (insight?.eventLog || insight?.flowData || insight?.userHistory) {
-    analyzeBehavior({
-      eventLog: insight.eventLog,
-      flowData: insight.flowData,
-      userState: insight.userState,
-      userHistory: insight.userHistory,
-    });
+    const behaviorSignals: import('../engines/behaviorEngine').BehaviorSignals = {
+      eventLog: Array.isArray(insight.eventLog) ? (insight.eventLog as unknown[]) as import('../engines/behaviorEngine').EventLogEntry[] : undefined,
+      flowData: (insight.flowData as unknown) as import('../engines/behaviorEngine').FlowData | undefined,
+      userState: (insight.userState as unknown) as import('../engines/behaviorEngine').UserState | undefined,
+      userHistory: Array.isArray(insight.userHistory) ? (insight.userHistory as unknown[]) as import('../engines/behaviorEngine').UserHistoryEntry[] : undefined,
+    };
+    analyzeBehavior(behaviorSignals);
   }
   let affectiveMessage: string | undefined;
   const emotionType = emotionState.type;
-  if (emotionType) {
+  const persona = typeof insight.persona === 'string' ? insight.persona : undefined;
+  if (emotionType && persona) {
     switch (emotionType) {
       case 'frustration':
-        affectiveMessage = respondWithSimplification({ persona: insight.persona });
+        affectiveMessage = respondWithSimplification({ persona });
         break;
       case 'hesitation':
-        affectiveMessage = respondWithEncouragement({ persona: insight.persona });
+        affectiveMessage = respondWithEncouragement({ persona });
         break;
       case 'confidence':
-        affectiveMessage = respondWithConfidenceBoost({ persona: insight.persona });
+        affectiveMessage = respondWithConfidenceBoost({ persona });
         break;
       case 'confusion':
-        affectiveMessage = respondWithReassurance({ persona: insight.persona });
+        affectiveMessage = respondWithReassurance({ persona });
         break;
       case 'achievement':
-        affectiveMessage = respondWithEmpathy({ persona: insight.persona });
+        affectiveMessage = respondWithEmpathy({ persona });
         break;
       default:
         break;

@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 
-interface EventLogEntry {
+export interface EventLogEntry {
   type?: string;
   [key: string]: unknown;
 }
@@ -11,19 +11,19 @@ interface FlowStep {
   [key: string]: unknown;
 }
 
-interface FlowData {
+export interface FlowData {
   steps?: FlowStep[];
   abandonPoints?: string[];
   [key: string]: unknown;
 }
 
-interface UserState {
+export interface UserState {
   struggleScore?: number;
   frictionScore?: number;
   [key: string]: unknown;
 }
 
-interface UserHistoryEntry {
+export interface UserHistoryEntry {
   repeatCount?: number;
   step?: string;
   [key: string]: unknown;
