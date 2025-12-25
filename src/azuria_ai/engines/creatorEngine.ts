@@ -62,7 +62,7 @@ export class CreatorEngine {
     ];
   }
 
-  getHighestSeverity(risks: any[]) {
+  getHighestSeverity(risks: unknown[]) {
     return risks.length > 1 ? 'high' : 'medium';
   }
 }

@@ -4,7 +4,7 @@ const MAX_LOG = 100;
 
 interface AuditEntry {
   type: string;
-  payload: any;
+  payload: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -16,15 +16,15 @@ function push(entry: AuditEntry) {
   emitEvent('ai:audited-decision', entry, { source: 'decisionAuditEngine', priority: 4 });
 }
 
-export function recordDecision(input: any) {
+export function recordDecision(input: Record<string, unknown>) {
   push({ type: 'decision', payload: input, timestamp: Date.now() });
 }
 
-export function recordAutoFix(input: any) {
+export function recordAutoFix(input: Record<string, unknown>) {
   push({ type: 'autofix', payload: input, timestamp: Date.now() });
 }
 
-export function recordInsightHistory(input: any) {
+export function recordInsightHistory(input: Record<string, unknown>) {
   push({ type: 'insight', payload: input, timestamp: Date.now() });
 }
 

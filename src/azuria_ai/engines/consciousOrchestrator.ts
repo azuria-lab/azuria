@@ -90,7 +90,12 @@ export function harmonizeEngines() {
   logGovernance({ aligned });
 }
 
-export function validateRecommendation(rec: any) {
+interface Recommendation {
+  action?: string;
+  [key: string]: unknown;
+}
+
+export function validateRecommendation(rec: Recommendation | Record<string, unknown>) {
   const assessment = assessGlobalState();
   const risk = predictSystemRisk();
   const allowed = assessment.coherenceScore > 0.4 && risk < 0.7;

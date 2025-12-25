@@ -1,6 +1,13 @@
 import { emitEvent } from '../core/eventBus';
 
-export function rebuildContext(sample: any) {
+interface ContextSample {
+  eventFrequency?: number;
+  avgLatency?: number;
+  silentComponents?: string[];
+  logAnomalies?: string[];
+}
+
+export function rebuildContext(sample: ContextSample | Record<string, unknown>) {
   const reconstructedState = {
     inferredLoad: sample?.eventFrequency > 5 ? 'high' : 'normal',
     inferredStability: sample?.avgLatency > 150 ? 'low' : 'good',

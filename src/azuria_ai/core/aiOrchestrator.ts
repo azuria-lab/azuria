@@ -787,7 +787,7 @@ function generateInsight(insight: GenerateInsightParam): void {
   }
   const emotionState = getEmotionState();
   // Governance validation
-  const scopeCheck = blockIfOutsideScope(insight);
+  const scopeCheck = blockIfOutsideScope(insight as Record<string, unknown>);
   if (scopeCheck.blocked === true || scopeCheck.valid === false) {
     emitEvent('ai:unsafe-output-blocked', { insight, reason: scopeCheck.reason }, { source: 'aiOrchestrator', priority: 10 });
     recordDecision({ insight, status: 'blocked', reason: scopeCheck.reason });
@@ -807,7 +807,7 @@ function generateInsight(insight: GenerateInsightParam): void {
     emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: postStability.risk, details: { stage: 'post-insight' } }, { source: 'aiOrchestrator', priority: 10 });
     return;
   }
-  const validated = validateInsight(insight);
+  const validated = validateInsight(insight as Record<string, unknown>);
   let safeMessage = refinedMessage;
   if (!validated.valid) {
     safeMessage = correctIfUnsafe(refinedMessage);
@@ -816,7 +816,7 @@ function generateInsight(insight: GenerateInsightParam): void {
   if (!postTruthOk) {
     emitTruthAlert('warning', { reason: 'post-check-failed', insight });
   }
-  const downgraded = downgradeSeverityIfNeeded(insight);
+  const downgraded = downgradeSeverityIfNeeded(insight as Record<string, unknown>);
   if (validated.corrected) {
     emitEvent('ai:decision-corrected', { insight }, { source: 'aiOrchestrator', priority: 7 });
   }

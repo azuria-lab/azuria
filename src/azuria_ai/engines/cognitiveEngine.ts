@@ -59,8 +59,14 @@ export function detectPatterns() {
   const calcEntries = lastTen.filter(e => e.category === 'calc');
   const intents = lastTen.filter(e => e.category === 'intent');
 
-  const repeatedCalcType = findRepeated(calcEntries.map(e => e.payload?.tipo || 'calc'));
-  const frequentIntent = findRepeated(intents.map(e => e.payload?.category || 'unknown'));
+  const repeatedCalcType = findRepeated(calcEntries.map(e => {
+    const tipo = e.payload?.tipo;
+    return typeof tipo === 'string' ? tipo : 'calc';
+  }));
+  const frequentIntent = findRepeated(intents.map(e => {
+    const category = e.payload?.category;
+    return typeof category === 'string' ? category : 'unknown';
+  }));
 
   const patterns: string[] = [];
   if (repeatedCalcType) {patterns.push(`Repetição de cálculos: ${repeatedCalcType}`);}
@@ -81,8 +87,14 @@ export function generateForecast() {
   const intents = lastTen.filter(e => e.category === 'intent');
   const predictions = lastTen.filter(e => e.category === 'prediction');
 
-  const nextIntent = mostLikely(intents.map(e => e.payload?.category));
-  const nextRiskLevel = mostLikely(predictions.map(e => e.payload?.riskLevel));
+  const nextIntent = mostLikely(intents.map(e => {
+    const category = e.payload?.category;
+    return typeof category === 'string' ? category : undefined;
+  }));
+  const nextRiskLevel = mostLikely(predictions.map(e => {
+    const riskLevel = e.payload?.riskLevel;
+    return typeof riskLevel === 'string' ? riskLevel : undefined;
+  }));
 
   const forecast = {
     message: 'Previsão cognitiva gerada.',
@@ -99,18 +111,18 @@ export function detectAnomalies() {
   if (lastTwo.length < 2) {return;}
 
   const [prev, curr] = lastTwo;
-  const prevMargin = prev.payload?.margemLucro;
-  const currMargin = curr.payload?.margemLucro;
+  const prevMarginValue = prev.payload?.margemLucro;
+  const currMarginValue = curr.payload?.margemLucro;
 
   if (
-    prevMargin !== undefined &&
-    currMargin !== undefined &&
-    Math.abs(currMargin - prevMargin) >= 15
+    typeof prevMarginValue === 'number' &&
+    typeof currMarginValue === 'number' &&
+    Math.abs(currMarginValue - prevMarginValue) >= 15
   ) {
     const anomaly = {
       message: 'Mudança abrupta de margem detectada.',
-      from: prevMargin,
-      to: currMargin,
+      from: prevMarginValue,
+      to: currMarginValue,
       source: curr.source,
     };
     emitEvent('ai:anomaly-detected', anomaly, { source: 'cognitiveEngine', priority: 7 });
