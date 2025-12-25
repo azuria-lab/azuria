@@ -8,11 +8,10 @@
 import { supabase } from '../integrations/supabase/client';
 
 // Helper para tabelas não tipadas no schema
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const untypedFrom = (table: string): any => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const fromTable: any = supabase.from(table);
-  return fromTable;
+// @ts-expect-error - Table may not exist in generated types
+const untypedFrom = (table: string) => {
+  // @ts-expect-error - No overload matches this call
+  return supabase.from(table);
 };
 
 // ============================================================================
