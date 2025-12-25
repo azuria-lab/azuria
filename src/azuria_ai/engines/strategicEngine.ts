@@ -35,9 +35,12 @@ export function analyzeGlobalState(state: GlobalState | Record<string, unknown>)
 }
 
 export function identifyStructuralRisks(state: GlobalState | Record<string, unknown>): string[] {
+  const stateData = state as GlobalState;
   const risks: string[] = [];
-  if (state?.operational?.load > 0.8) {risks.push('Carga operacional alta');}
-  if (state?.consistency?.drift) {risks.push('Drift de consistência');}
+  const operationalData = stateData?.operational as { load?: number } | undefined;
+  const loadValue = typeof operationalData?.load === 'number' ? operationalData.load : 0;
+  if (loadValue > 0.8) {risks.push('Carga operacional alta');}
+  if (stateData?.consistency?.drift) {risks.push('Drift de consistência');}
   return risks;
 }
 

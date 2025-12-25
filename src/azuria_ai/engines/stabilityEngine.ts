@@ -19,10 +19,15 @@ interface FailureSignals {
 }
 
 export function predictFailure(signals: FailureSignals | Record<string, unknown>): { risk: number } {
+  const signalsData = signals as FailureSignals;
+  const contradictionsValue = signalsData?.contradictions;
+  const contradictions = typeof contradictionsValue === 'number' ? contradictionsValue : 0;
+  const loadValue = signalsData?.load;
+  const load = typeof loadValue === 'number' ? loadValue : 0;
   const risk =
-    (signals?.loopsDetected ? 0.3 : 0) +
-    (signals?.contradictions ? Math.min(signals.contradictions / 5, 0.3) : 0) +
-    (signals?.load && signals.load > 0.8 ? 0.2 : 0);
+    (signalsData?.loopsDetected ? 0.3 : 0) +
+    (contradictions > 0 ? Math.min(contradictions / 5, 0.3) : 0) +
+    (load > 0.8 ? 0.2 : 0);
   const totalRisk = Math.min(1, risk);
   if (totalRisk > 0.6) {
     emitStabilityAlert({ severity: totalRisk > 0.8 ? 'critical' : 'warning', riskLevel: totalRisk, details: signals });

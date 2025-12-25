@@ -9,7 +9,7 @@ export interface SafetyState {
 export function checkCriticalBoundaries(state: SafetyState) {
   const critical = (state.load ?? 0) > 0.9 || (state.actionsPerMinute ?? 0) > 20;
   if (critical) {
-    applySafetyBreak({ reason: 'critical_boundaries', state });
+    applySafetyBreak({ reason: 'critical_boundaries', state: state as Record<string, unknown> });
   }
   return critical;
 }

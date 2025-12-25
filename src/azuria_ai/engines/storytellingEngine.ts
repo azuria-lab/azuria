@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import { storyProfiles } from './storyProfiles';
-import { adaptToneProfileFromPersona, getToneProfileForUser, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
+import { adaptToneProfileFromPersona, getToneProfileForUser, type PersonaKey, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
 
 function pickProfile(userLevel: string) {
   return storyProfiles[userLevel as keyof typeof storyProfiles] || storyProfiles.iniciante;
@@ -18,14 +18,18 @@ interface StoryState {
 }
 
 export function generateContextStory(event: StoryEvent | Record<string, unknown>, state: StoryState | Record<string, unknown>) {
-  const profile = pickProfile(state?.userLevel || 'iniciante');
-  const raw = `(${profile.tone}) ${event?.tipo || 'evento'} processado. Contexto: ${Object.keys(
-    event?.payload || {}
+  const stateData = state as StoryState;
+  const eventData = event as StoryEvent;
+  const userLevel = typeof stateData?.userLevel === 'string' ? stateData.userLevel : 'iniciante';
+  const profile = pickProfile(userLevel);
+  const eventTipo = typeof eventData?.tipo === 'string' ? eventData.tipo : 'evento';
+  const raw = `(${profile.tone}) ${eventTipo} processado. Contexto: ${Object.keys(
+    eventData?.payload || {}
   )
     .slice(0, 3)
     .join(', ')}`;
-  const tone = getToneProfileForUser(state);
-  const spoken = speak(raw, tone, { user: state });
+  const tone = getToneProfileForUser(stateData as { motivationLevel?: number; persona?: string; skillLevel?: string });
+  const spoken = speak(raw, tone, { user: stateData as { motivationLevel?: number; persona?: string; skillLevel?: string } });
   emitEvent(
     'ai:story-generated',
     { story: spoken.message, profile: profile.tone, brandTone: spoken.tone, persona: spoken.persona },
@@ -42,8 +46,13 @@ interface Insight {
 }
 
 export function explainInsight(insight: Insight | Record<string, unknown>) {
-  const raw = `Sugerimos ${insight?.action || 'essa ação'} porque observamos ${insight?.reason || 'padrões recentes'}.`;
-  const tone = adaptToneProfileFromPersona(insight?.persona || 'iniciante-inseguro');
+  const insightData = insight as Insight;
+  const raw = `Sugerimos ${insightData?.action || 'essa ação'} porque observamos ${insightData?.reason || 'padrões recentes'}.`;
+  const personaValue = insightData?.persona;
+  const persona: PersonaKey = typeof personaValue === 'string' && ['iniciante-inseguro', 'intermediario-crescimento', 'avancado-lucro', 'comercial-agressivo', 'operador-analitico'].includes(personaValue) 
+    ? personaValue as PersonaKey 
+    : 'iniciante-inseguro';
+  const tone = adaptToneProfileFromPersona(persona);
   const refined = rewriteWithBrandVoice(raw, tone);
   emitEvent('ai:story-clarified', { story: refined, brandTone: tone }, { source: 'storytellingEngine', priority: 5 });
   return refined;
@@ -64,8 +73,11 @@ interface MicroStoryData {
 }
 
 export function createMicroStory(data: MicroStoryData | Record<string, unknown>) {
-  const msg = data?.message || 'História não especificada.';
-  const refined = rewriteWithBrandVoice(msg, data?.tone || 'padrao');
+  const dataObj = data as MicroStoryData;
+  const msg = typeof dataObj?.message === 'string' ? dataObj.message : 'História não especificada.';
+  const toneValue = dataObj?.tone;
+  const tone = typeof toneValue === 'string' ? toneValue : 'padrao';
+  const refined = rewriteWithBrandVoice(msg, tone);
   emitEvent('ai:story-generated', { story: refined, brandTone: data?.tone || 'padrao' }, { source: 'storytellingEngine', priority: 4 });
   return refined;
 }

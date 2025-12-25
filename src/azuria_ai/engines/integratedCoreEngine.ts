@@ -189,7 +189,7 @@ export function runSafeActionPipeline(action: Action | Record<string, unknown>, 
     decision,
   });
 
-  const forbiddenActions = getForbidden(policyCheck);
+  const forbiddenActions = getForbidden(policyCheck as { forbiddenActions?: string[]; [key: string]: unknown });
   const forbiddenActionsTyped = Array.isArray(forbiddenActions) 
     ? forbiddenActions.filter((type): type is string => typeof type === 'string').map((type) => ({ type }))
     : [];
