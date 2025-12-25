@@ -202,15 +202,12 @@ export async function loadChatHistory(
     // Função auxiliar para evitar erro de profundidade de tipo
     // @ts-expect-error - chat_history table not in generated types
     const queryBuilder = supabase.from('chat_history');
-    // @ts-expect-error - Type instantiation is excessively deep
     const selectQuery = queryBuilder.select('*');
     // @ts-expect-error - Type instantiation is excessively deep
     const filtered1 = selectQuery.eq('user_id', userId);
-    // @ts-expect-error - Type instantiation is excessively deep
     const filtered2 = filtered1.eq('session_id', sessionId);
     // @ts-expect-error - Type instantiation is excessively deep
     const ordered = filtered2.order('timestamp', { ascending: true });
-    // @ts-expect-error - Type instantiation is excessively deep
     const result = await ordered;
     const { data, error } = result;
 

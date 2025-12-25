@@ -8,9 +8,8 @@
 import { supabase } from '../integrations/supabase/client';
 
 // Helper para tabelas não tipadas no schema
-// @ts-expect-error - Table may not exist in generated types
+// @ts-expect-error - No overload matches this call
 const untypedFrom = (table: string) => {
-  // @ts-expect-error - No overload matches this call
   return supabase.from(table);
 };
 
@@ -169,6 +168,7 @@ export async function loadEventsFromStorage(limit = 100): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
+    // @ts-expect-error - Type instantiation is excessively deep
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = await untypedFrom('evolution_events')
       .select('*')
