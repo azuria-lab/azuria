@@ -121,6 +121,7 @@ export async function listAlerts(): Promise<AutomationAlert[]> {
 }
 
 export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
+  // @ts-expect-error - Type instantiation is excessively deep
   const { data, error } = await supabase
     .from("automation_alerts")
     .select("*")

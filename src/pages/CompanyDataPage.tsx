@@ -154,10 +154,11 @@ export default function CompanyDataPage() {
         .eq("user_id", userId)
         .single();
 
-      if (data && !error) {
+      if (data && !error && data.data && typeof data.data === 'object') {
+        const companyData = data.data as Record<string, unknown>;
         setFormData({
-          ...data.data,
-          inscricoesEstaduais: data.data.inscricoesEstaduais || []
+          ...companyData as CompanyData,
+          inscricoesEstaduais: (companyData.inscricoesEstaduais as InscricaoEstadual[]) || []
         });
       }
     } catch (error) {

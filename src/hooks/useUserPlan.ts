@@ -8,7 +8,8 @@ export function useUserPlan() {
 
   // Por enquanto, considera apenas se é free ou não
   // No futuro, implementar lógica completa de planos
-  const isFreePlan = role === 'guest' || role === null;
+  // Nota: 'viewer' é o role mais básico, equivalente a free
+  const isFreePlan = role === 'viewer' || role === null;
   const isIniciante = role === 'member' || role === 'manager' || role === 'admin' || role === 'owner';
   const isPremium = role === 'admin' || role === 'owner';
 

@@ -11,6 +11,7 @@ import type { PlanId } from '@/types/subscription';
  * Mapeamento de planos para preços
  */
 export const PLAN_PRICES: Record<Exclude<PlanId, 'free' | 'enterprise'>, number> = {
+  iniciante: 29.00,
   essencial: 59.00,
   pro: 119.00,
 };
@@ -242,6 +243,7 @@ export function formatCurrency(value: number): string {
 export function getPlanDescription(planType: PlanId): string {
   const descriptions: Record<PlanId, string> = {
     free: 'Plano Gratuito - Azuria',
+    iniciante: 'Plano Iniciante - Azuria',
     essencial: 'Plano Essencial - Azuria',
     pro: 'Plano Pro - Azuria',
     enterprise: 'Plano Enterprise - Azuria',
