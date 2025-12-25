@@ -1,9 +1,11 @@
 interface AgentMemoryEntry {
-  action?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  action?: any;
   outcome?: 'success' | 'failure';
   reason?: string;
   metrics?: Record<string, number>;
-  context?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context?: any;
   timestamp: number;
 }
 

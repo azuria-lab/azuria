@@ -45,12 +45,23 @@ export const useSubscription = () => {
       // Type assertion para garantir tipos corretos durante type-check
       const subscriptionData = data as Database['public']['Tables']['subscriptions']['Row'];
       
+      // Validar se os valores são válidos antes de fazer type assertion
+      const validStatuses: SubscriptionStatus[] = ['active', 'canceled', 'past_due', 'trialing', 'incomplete', 'incomplete_expired'];
+      const validIntervals: BillingInterval[] = ['monthly', 'annual'];
+      
+      const status = validStatuses.includes(subscriptionData.status as SubscriptionStatus) 
+        ? (subscriptionData.status as SubscriptionStatus) 
+        : 'active';
+      const billingInterval = validIntervals.includes(subscriptionData.billing_interval as BillingInterval)
+        ? (subscriptionData.billing_interval as BillingInterval)
+        : 'monthly';
+      
       setSubscription({
         id: subscriptionData.id,
         userId: subscriptionData.user_id,
         planId: subscriptionData.plan_id as PlanId,
-        status: subscriptionData.status as SubscriptionStatus,
-        billingInterval: subscriptionData.billing_interval as BillingInterval,
+        status,
+        billingInterval,
         currentPeriodStart: new Date(subscriptionData.current_period_start),
         currentPeriodEnd: new Date(subscriptionData.current_period_end),
         cancelAtPeriodEnd: subscriptionData.cancel_at_period_end,

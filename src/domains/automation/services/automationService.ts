@@ -72,20 +72,21 @@ function mapWorkflow(row: z.infer<typeof automationWorkflowRow>): AutomationWork
   };
 }
 
-function mapExecution(row: Database["public"]["Tables"]["automation_executions"]["Row"] | unknown): AutomationExecution {
-  const typedRow = row as Database["public"]["Tables"]["automation_executions"]["Row"];
+type AutomationExecutionRow = Database["public"]["Tables"]["automation_executions"]["Row"];
+
+function mapExecution(row: AutomationExecutionRow): AutomationExecution {
   return {
-    id: typedRow.id,
-    rule_id: typedRow.rule_id,
-    user_id: typedRow.user_id,
-    status: typedRow.status as AutomationExecution["status"],
-    input_data: typedRow.input_data ?? undefined,
-    output_data: typedRow.output_data ?? undefined,
-    error_message: typedRow.error_message ?? undefined,
-    execution_time_ms: typedRow.execution_time_ms ?? undefined,
-    started_at: typedRow.started_at,
-    completed_at: typedRow.completed_at ?? undefined,
-    metadata: (typedRow.metadata ?? undefined) as Record<string, unknown> | undefined,
+    id: row.id,
+    rule_id: row.rule_id,
+    user_id: row.user_id,
+    status: row.status as AutomationExecution["status"],
+    input_data: row.input_data ?? undefined,
+    output_data: row.output_data ?? undefined,
+    error_message: row.error_message ?? undefined,
+    execution_time_ms: row.execution_time_ms ?? undefined,
+    started_at: row.started_at,
+    completed_at: row.completed_at ?? undefined,
+    metadata: (row.metadata ?? undefined) as Record<string, unknown> | undefined,
   };
 }
 
@@ -145,7 +146,7 @@ export async function listExecutions(limit = 100): Promise<AutomationExecution[]
     .order("started_at", { ascending: false })
     .limit(limit);
   if (error) { throw error; }
-  return (data ?? []).map((e) => mapExecution(e as Database["public"]["Tables"]["automation_executions"]["Row"]));
+  return (data ?? []).map((e) => mapExecution(e));
 }
 
 export async function listExecutionsByRule(ruleId: string, limit = 50): Promise<AutomationExecution[]> {
@@ -156,7 +157,7 @@ export async function listExecutionsByRule(ruleId: string, limit = 50): Promise<
     .order("started_at", { ascending: false })
     .limit(limit);
   if (error) { throw error; }
-  return (data ?? []).map((e) => mapExecution(e as Database["public"]["Tables"]["automation_executions"]["Row"]));
+  return (data ?? []).map((e) => mapExecution(e));
 }
 
 // Commands
@@ -270,5 +271,5 @@ export async function createExecution(ruleId: string, inputData?: Json) {
     .select()
     .single();
   if (error) { throw error; }
-  return mapExecution(data as Database["public"]["Tables"]["automation_executions"]["Row"]);
+  return mapExecution(data);
 }

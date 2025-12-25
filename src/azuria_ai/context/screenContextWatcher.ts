@@ -12,7 +12,8 @@ import { emitEvent } from '../core/eventBus';
 export interface ScreenContext {
   screen: string;
   path: string;
-  metadata: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata: Record<string, any>;
   timestamp: number;
 }
 
@@ -94,8 +95,10 @@ export function useScreenContextWatcher() {
  * Função para emitir atualização de dados da tela atual
  */
 export function emitScreenDataUpdate(
-  data: unknown,
-  metadata?: Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>
 ) {
   const context = {
     data,

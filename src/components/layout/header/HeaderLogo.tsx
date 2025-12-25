@@ -15,9 +15,9 @@ export default function HeaderLogo() {
         height={96}
         loading="eager"
         decoding="async"
-        onError={(e) => {
+        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
           // Fallback em caso de erro
-          const target = e.target as HTMLImageElement;
+          const target = e.currentTarget;
           target.style.display = 'none';
           const parent = target.parentElement;
           if (parent) {

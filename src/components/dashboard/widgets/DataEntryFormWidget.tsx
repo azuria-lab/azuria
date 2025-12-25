@@ -73,23 +73,28 @@ export default function DataEntryFormWidget({ userPlan }: DataEntryFormWidgetPro
     setIsSubmitting(true);
 
     try {
+      // Calculamos lucro
+      const profit = entry.saleValue - entry.costValue;
+      
       const { error } = await supabase
         .from('sales_data')
         .insert({
           user_id: user.id,
-          channel_name: entry.channel,
-          product_name: entry.productName,
-          sale_value: entry.saleValue,
-          cost_value: entry.costValue,
-          profit_margin: entry.costValue > 0 
-            ? ((entry.saleValue - entry.costValue) / entry.saleValue) * 100 
-            : 0,
-          sale_date: entry.saleDate,
-          commission_fee: 0,
-          advertising_cost: 0,
-          shipping_cost: 0,
-          metadata: { source: 'manual_entry' }
-        } as Database['public']['Tables']['sales_data']['Insert']);
+          order_id: `manual-${Date.now()}`,
+          order_date: entry.saleDate,
+          product_id: entry.productName, // Usamos o nome do produto como ID temporário
+          quantity: 1,
+          unit_price: entry.saleValue,
+          total_amount: entry.saleValue,
+          cost: entry.costValue,
+          profit: profit,
+          payment_method: entry.channel,
+          metadata: { 
+            source: 'manual_entry', 
+            channel: entry.channel,
+            product_name: entry.productName 
+          }
+        } satisfies Database['public']['Tables']['sales_data']['Insert']);
 
       if (error) {throw error;}
 

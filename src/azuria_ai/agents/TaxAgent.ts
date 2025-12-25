@@ -1,7 +1,7 @@
-import { BaseAgent } from './baseAgent';
+import { AgentState, BaseAgent } from './baseAgent';
 
 export class TaxAgent extends BaseAgent {
-  analyze(state: any): void {
+  analyze(state: AgentState): void {
     this.reset();
     const taxes = state?.taxes || {};
     if (taxes.icms && taxes.icms > 0.3) {

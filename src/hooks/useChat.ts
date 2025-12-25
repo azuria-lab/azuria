@@ -308,7 +308,24 @@ export function useChat() {
 
         if (error) {throw error;}
 
-        return (data || []).reverse() as ChatMessage[];
+        // Mapear dados do Supabase para o tipo ChatMessage
+        const messages: ChatMessage[] = (data || []).map((row) => ({
+          id: row.id,
+          room_id: row.room_id,
+          sender_id: row.sender_id,
+          content: row.content,
+          status: (row.status || 'sent') as ChatMessage['status'],
+          reply_to_id: row.reply_to_id ?? undefined,
+          created_at: row.created_at,
+          updated_at: row.updated_at ?? undefined,
+          deleted_at: row.deleted_at ?? undefined,
+          sender: row.sender ? {
+            id: (row.sender as { id: string; name: string; avatar_url?: string }).id,
+            name: (row.sender as { id: string; name: string; avatar_url?: string }).name,
+            avatar_url: (row.sender as { id: string; name: string; avatar_url?: string }).avatar_url,
+          } : undefined,
+        }));
+        return messages.reverse();
       } catch (error) {
         console.error("Error loading messages:", error);
         return [];

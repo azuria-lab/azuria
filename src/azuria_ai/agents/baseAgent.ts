@@ -16,7 +16,8 @@ export abstract class BaseAgent {
 
   abstract analyze(state: AgentState): void;
 
-  emit(eventType: EventType, payload: unknown, priority = 5) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emit(eventType: EventType, payload: any, priority = 5) {
     emitEvent(eventType, payload, { source: this.constructor.name, priority });
   }
 

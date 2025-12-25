@@ -176,11 +176,13 @@ export type EventType =
  */
 export interface AzuriaEvent {
   tipo: EventType;
-  payload: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: any;
   timestamp: number;
   source?: string;
   priority?: number;
-  metadata?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>;
 }
 
 export type EventHandler = (event: AzuriaEvent) => void | Promise<void>;
@@ -225,11 +227,13 @@ export function registerEvent(event: AzuriaEvent): void {
  */
 export function emitEvent(
   tipo: EventType,
-  payload: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: any,
   options?: {
     source?: string;
     priority?: number;
-    metadata?: Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    metadata?: Record<string, any>;
   }
 ): void {
   const event: AzuriaEvent = {
