@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
+import type { Database } from "@/types/supabase";
 import { 
   Briefcase, 
   Camera, 
@@ -111,7 +112,7 @@ export default function ProfilePage() {
           bio: profileData.bio || "",
           title: profileData.title || "",
           company: profileData.company || "",
-          experience: (Array.isArray(profileData.experience) ? profileData.experience as Experience[] : []),
+          experience: (Array.isArray(profileData.experience) ? (profileData.experience as unknown as Experience[]) : []),
           skills: (profileData.skills as string[]) || [],
           links: (profileData.links as { linkedin?: string; github?: string; website?: string }) || {},
         });
@@ -127,25 +128,26 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
        
+      const payload = {
+        id: userProfile.id,
+        name: profileData.name,
+        email: profileData.email,
+        phone: profileData.phone || null,
+        location: profileData.location || null,
+        avatar_url: profileData.avatar_url || null,
+        cover_url: profileData.cover_url || null,
+        bio: profileData.bio || null,
+        title: profileData.title || null,
+        company: profileData.company || null,
+        experience: profileData.experience.length > 0 ? profileData.experience : null,
+        skills: profileData.skills.length > 0 ? profileData.skills : null,
+        links: Object.keys(profileData.links || {}).length > 0 ? profileData.links : null,
+        updated_at: new Date().toISOString(),
+      };
+      
       const { error: profileError } = await supabase
         .from("user_profiles")
-        .upsert({
-          id: userProfile.id,
-          name: profileData.name,
-          email: profileData.email,
-        } as any, {
-          phone: profileData.phone || null,
-          location: profileData.location || null,
-          avatar_url: profileData.avatar_url || null,
-          cover_url: profileData.cover_url || null,
-          bio: profileData.bio || null,
-          title: profileData.title || null,
-          company: profileData.company || null,
-          experience: profileData.experience.length > 0 ? profileData.experience : null,
-          skills: profileData.skills.length > 0 ? profileData.skills : null,
-          links: Object.keys(profileData.links || {}).length > 0 ? profileData.links : null,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(payload as unknown as Database['public']['Tables']['user_profiles']['Insert']);
 
       if (profileError) {throw profileError;}
 

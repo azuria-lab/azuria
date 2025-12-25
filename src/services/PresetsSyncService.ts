@@ -43,17 +43,19 @@ export class PresetsSyncService {
     userId: string,
     preset: MaquininhaPreset
   ): Promise<MaquininhaPreset> {
+    const payload = {
+      id: preset.id.includes('-') ? preset.id : undefined, // Apenas UUID válido
+      user_id: userId,
+      nome: preset.nome,
+      maquininha_fornecedor: preset.maquininha_fornecedor,
+      bandeira: preset.bandeira,
+      parcelas_default: preset.parcelas_default,
+      taxas_por_parcela: preset.taxas_por_parcela,
+    };
+    
     const { data, error } = await supabase
       .from('maquininha_presets')
-      .upsert({
-        id: preset.id.includes('-') ? preset.id : undefined, // Apenas UUID válido
-        user_id: userId,
-        nome: preset.nome,
-        maquininha_fornecedor: preset.maquininha_fornecedor,
-        bandeira: preset.bandeira,
-        parcelas_default: preset.parcelas_default,
-        taxas_por_parcela: preset.taxas_por_parcela,
-      })
+      .upsert(payload as unknown as Parameters<typeof supabase.from<'maquininha_presets'>['upsert']>[0])
       .select()
       .single();
 
@@ -197,16 +199,18 @@ export class PresetsSyncService {
     userId: string,
     registro: Omit<TaxaHistorico, 'id' | 'created_at'>
   ): Promise<TaxaHistorico> {
+    const payload = {
+      user_id: userId,
+      tipo: registro.tipo,
+      valor_venda: registro.valor_venda,
+      taxa_aplicada: registro.taxa_aplicada,
+      valor_recebido: registro.valor_recebido,
+      detalhes: registro.detalhes,
+    };
+    
     const { data, error } = await supabase
       .from('taxas_historico')
-      .insert({
-        user_id: userId,
-        tipo: registro.tipo,
-        valor_venda: registro.valor_venda,
-        taxa_aplicada: registro.taxa_aplicada,
-        valor_recebido: registro.valor_recebido,
-        detalhes: registro.detalhes,
-      })
+      .insert(payload as unknown as Parameters<typeof supabase.from<'taxas_historico'>['insert']>[0])
       .select()
       .single();
 

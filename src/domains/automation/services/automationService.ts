@@ -121,8 +121,8 @@ export async function listAlerts(): Promise<AutomationAlert[]> {
 }
 
 // Função auxiliar para evitar erro de profundidade de tipo
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchAlertsByRule(ruleId: string): Promise<any> {
+// @ts-expect-error - Type instantiation is excessively deep
+async function fetchAlertsByRule(ruleId: string) {
   return await supabase
     .from("automation_alerts")
     .select("*")
@@ -131,6 +131,7 @@ async function fetchAlertsByRule(ruleId: string): Promise<any> {
 }
 
 export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
+  // @ts-expect-error - Type instantiation is excessively deep
   const result = await fetchAlertsByRule(ruleId);
   if (result.error) { throw result.error; }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
