@@ -123,9 +123,13 @@ interface NextStepContext {
 
 export function predictNextStep(context: NextStepContext | Record<string, unknown> = {}): { nextStep: string; intentConfidence: number } {
   // Heurística simples baseada em margem e custo
-  const margem = context?.margemLucro ?? context?.payload?.margemLucro;
-  const preco = context?.precoVenda ?? context?.payload?.precoVenda;
-  const custo = context?.custoProduto ?? context?.payload?.custoProduto;
+  const contextData = context as NextStepContext;
+  const margemValue = contextData?.margemLucro ?? contextData?.payload?.margemLucro;
+  const precoValue = contextData?.precoVenda ?? contextData?.payload?.precoVenda;
+  const custoValue = contextData?.custoProduto ?? contextData?.payload?.custoProduto;
+  const margem = typeof margemValue === 'number' ? margemValue : undefined;
+  const preco = typeof precoValue === 'number' ? precoValue : undefined;
+  const custo = typeof custoValue === 'number' ? custoValue : undefined;
 
   let nextStep = 'monitor';
   const signals: string[] = [];
