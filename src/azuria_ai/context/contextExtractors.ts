@@ -7,7 +7,7 @@
 
 export interface ExtractedContext {
   screen: string;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
 }
 

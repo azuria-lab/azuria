@@ -1,0 +1,364 @@
+{
+  "config": {
+    "configFile": "C:\\Projects\\azuria\\playwright.config.ts",
+    "rootDir": "C:/Projects/azuria/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Projects/azuria/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Projects/azuria/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 15000
+      },
+      {
+        "outputDir": "C:/Projects/azuria/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Projects/azuria/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 15000
+      },
+      {
+        "outputDir": "C:/Projects/azuria/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Projects/azuria/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 15000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 3,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 4173",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "app.spec.ts",
+      "file": "app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Azuria E2E Tests",
+          "file": "app.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load homepage successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-6dea62662e8be777b19d",
+              "file": "app.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "should have working navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-a1c11333271c46558a96",
+              "file": "app.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "should work on different viewports",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-286f93ad213b140f8223",
+              "file": "app.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "should load within acceptable time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-d132de05638c08e47ef0",
+              "file": "app.spec.ts",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "should load homepage successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-e4f6f3213a06d5215a44",
+              "file": "app.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "should have working navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-aa601450b3e7c8b52ccd",
+              "file": "app.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "should work on different viewports",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-3cb227f44a1eef7a8a67",
+              "file": "app.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "should load within acceptable time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-cdc5275b20ef1a13948d",
+              "file": "app.spec.ts",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "should load homepage successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-a72bddd71dbfbd018c53",
+              "file": "app.spec.ts",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "should have working navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-90a18667787631818a83",
+              "file": "app.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "should work on different viewports",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-27e9e2e0c8063a714ce9",
+              "file": "app.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "should load within acceptable time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 15000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-4c76baa89620b4dfceac",
+              "file": "app.spec.ts",
+              "line": 40,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-12-25T14:11:15.099Z",
+    "duration": 54.340999999999894,
+    "expected": 0,
+    "skipped": 12,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

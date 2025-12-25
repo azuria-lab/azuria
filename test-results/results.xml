@@ -1,0 +1,56 @@
+<testsuites id="" name="" tests="12" failures="0" skipped="12" errors="0" time="0.054340999999999896">
+<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

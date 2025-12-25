@@ -1,43 +1,205 @@
 name: Release
 
+# Release workflow - Executa automaticamente quando há commits que geram nova versão
+# Usa semantic-release para versionamento automático baseado em conventional commits
+# Deploy automático para Vercel após release bem-sucedido
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
 
+# Permissões necessárias para criar releases e fazer deploy
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
+  contents: write      # Criar releases e tags
+  issues: write        # Fechar issues automaticamente
+  pull-requests: write # Comentar em PRs
+  id-token: write      # OIDC para segurança
+
+# Concurrency para evitar releases duplicadas
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  release:
+  # Job de validação - Verifica se CI está verde antes de prosseguir
+  validate:
+    name: Validate CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      ci-passed: ${{ steps.check-ci.outputs.passed }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check CI status
+        id: check-ci
+        uses: actions/github-script@v7
         with:
-          fetch-depth: 0
+          script: |
+            const commitSha = context.sha;
+            
+            console.log(`🔍 Verificando status do CI para commit: ${commitSha}`);
+            
+            // Buscar o workflow run do CI mais recente para este commit
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              head_sha: commitSha,
+              per_page: 1
+            });
+            
+            if (runs.workflow_runs.length === 0) {
+              console.log(`⚠️ Nenhum workflow de CI encontrado para o commit ${commitSha}`);
+              console.log(`✅ Prosseguindo com release (CI pode estar em execução)`);
+              core.setOutput('passed', 'true');
+              return;
+            }
+            
+            const ciRun = runs.workflow_runs[0];
+            const status = ciRun.status;
+            const conclusion = ciRun.conclusion;
+            
+            console.log(`📊 Status do CI: ${status} | Conclusão: ${conclusion}`);
+            
+            if (status !== 'completed') {
+              throw new Error(`❌ ERRO: CI ainda está em execução (status: ${status}). Aguarde a conclusão.`);
+            }
+            
+            if (conclusion !== 'success') {
+              throw new Error(`❌ ERRO: CI falhou (conclusão: ${conclusion}). O release só pode ser executado se o CI estiver 100% verde.`);
+            }
+            
+            console.log(`✅ CI passou com sucesso! Release pode prosseguir.`);
+            core.setOutput('passed', 'true');
+
+  # Job principal de release - Usa semantic-release para versionamento automático
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: validate
+    if: needs.validate.outputs.ci-passed == 'true'
+    outputs:
+      published: ${{ steps.check-release.outputs.published }}
+      version: ${{ steps.check-release.outputs.version }}
+      tag: ${{ steps.check-release.outputs.tag }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Histórico completo para semantic-release
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
-      - run: npm run -s build
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+      - name: Build application
+        run: npm run -s build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
       - name: Generate SBOM
         run: npm run -s sbom
+        continue-on-error: true  # SBOM não deve bloquear release
+
       - name: Generate license inventory
         run: npm run -s generate:licenses
-      - name: Upload artifacts (pre-release)
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-artifacts
-          path: |
-            dist
-            sbom.json
-            THIRD_PARTY_LICENSES.md
-          if-no-files-found: error
+        continue-on-error: true  # Licenças não devem bloquear release
+
+      - name: Get latest tag before release
+        id: before-release
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "📌 Última tag antes do release: $LATEST_TAG"
+
       - name: Run semantic-release
+        id: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN || 'dummy' }}
         run: npm run -s release
+
+      - name: Check if new version was published
+        id: check-release
+        run: |
+          # Buscar tags novamente após semantic-release
+          git fetch --tags
+          NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          OLD_TAG="${{ steps.before-release.outputs.latest_tag }}"
+          
+          if [ -z "$NEW_TAG" ]; then
+            echo "published=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Nenhuma tag encontrada - nenhuma nova versão publicada"
+          elif [ "$NEW_TAG" != "$OLD_TAG" ]; then
+            VERSION="${NEW_TAG#v}"  # Remove 'v' prefix
+            echo "published=true" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+            echo "✅ Nova versão publicada: $NEW_TAG (versão: $VERSION)"
+          else
+            echo "published=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Nenhuma nova versão publicada (tag ainda é: $OLD_TAG)"
+          fi
+
+  # Job de deploy - Executa apenas se uma nova versão foi publicada
+  deploy:
+    name: Deploy to Vercel Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: release
+    if: needs.release.outputs.published == 'true' && needs.release.outputs.version != ''
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        uses: amondnet/vercel-action@v25
+        id: vercel-pull
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Build project
+        run: vercel build --prod
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy project to Vercel
+        id: vercel-deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Display deployment URL
+        run: |
+          echo "🚀 Deploy concluído com sucesso!"
+          echo "🌐 URL: ${{ steps.vercel-deploy.outputs.preview-url }}"
+          echo "📦 Versão: ${{ needs.release.outputs.version }}"

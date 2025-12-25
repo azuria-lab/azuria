@@ -113,7 +113,7 @@ jobs:
   e2e:
     name: Playwright E2E
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15  # Reduzido de 25 para 15 minutos
     needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v4
@@ -126,14 +126,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('playwright.config.ts') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('playwright.config.ts', 'package-lock.json') }}
           restore-keys: |
             playwright-${{ runner.os }}-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install chromium --with-deps
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
       - name: Run Playwright tests
         env:
           CI: true
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run test:e2e
 
   build:

@@ -7,7 +7,7 @@
 
 interface ScreenContextData {
   screen: string;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
 }
 
