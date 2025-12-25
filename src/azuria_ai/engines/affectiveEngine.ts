@@ -174,8 +174,7 @@ export function detectHesitation(pattern: EmotionPattern): { emotion: EmotionTyp
 
 function craftResponse(text: string, tone: string, persona?: PersonaKey | string) {
   const toneProfile = persona ? adaptToneProfileFromPersona(persona as PersonaKey) : (tone as ToneProfileKey);
-  const personaSignals = persona ? (typeof persona === 'string' ? { persona } : undefined) : undefined;
-  const spoken = speak(text, toneProfile, personaSignals ? { personaSignals } : undefined);
+  const spoken = speak(text, toneProfile, persona ? { personaSignals: {} } : undefined);
   state.lastMessage = spoken.message;
   emitEvent('ai:affective-response', { message: spoken.message, tone: spoken.tone, persona: spoken.persona }, { source: 'affectiveEngine', priority: 5 });
   createMicroStory({ message: spoken.message, tone: spoken.tone });
