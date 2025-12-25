@@ -279,8 +279,8 @@ const proactiveRules: ProactiveRule[] = [
           message: `Você tem ${sugestoesPendentesValue} sugestões não aplicadas há ${diasPendentesValue} dias. Revisar pode aumentar sua margem.`,
           suggestion: 'Revise e aplique as sugestões da IA',
           values: { 
-            sugestoesPendentes: sugestoesPendentesValue as number, 
-            diasPendentes: diasPendentesValue as number 
+            sugestoesPendentes: sugestoesPendentesValue, 
+            diasPendentes: diasPendentesValue 
           },
           sourceModule: 'pricing_ai',
         };
