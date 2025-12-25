@@ -11,21 +11,34 @@ function sanitize(text: string, forbidEmojis?: boolean) {
   return text.replaceAll(/[\u{1F300}-\u{1FAFF}]/gu, '');
 }
 
-export function getToneProfileForUser(userState?: any): ToneProfileKey {
+interface UserStateForTone {
+  motivationLevel?: number;
+  persona?: string;
+  skillLevel?: string;
+}
+
+export function getToneProfileForUser(userState?: UserStateForTone): ToneProfileKey {
   if (!userState) {return 'padrao';}
-  if (userState?.motivationLevel && userState.motivationLevel < 0.4) {return 'motivador';}
-  if (userState?.persona === 'operador-analitico') {return 'estrategico';}
-  if (userState?.persona === 'comercial-agressivo') {return 'comercial';}
-  if (userState?.skillLevel === 'beginner') {return 'educativo';}
+  if (userState.motivationLevel && userState.motivationLevel < 0.4) {return 'motivador';}
+  if (userState.persona === 'operador-analitico') {return 'estrategico';}
+  if (userState.persona === 'comercial-agressivo') {return 'comercial';}
+  if (userState.skillLevel === 'beginner') {return 'educativo';}
   return 'padrao';
 }
 
-export function adaptPersona(userSignals?: any): PersonaKey {
+interface UserSignals {
+  advancedUsage?: boolean;
+  commercialFocus?: boolean;
+  analyticBehavior?: boolean;
+  improving?: boolean;
+}
+
+export function adaptPersona(userSignals?: UserSignals): PersonaKey {
   if (!userSignals) {return 'iniciante-inseguro';}
-  if (userSignals?.advancedUsage) {return 'avancado-lucro';}
-  if (userSignals?.commercialFocus) {return 'comercial-agressivo';}
-  if (userSignals?.analyticBehavior) {return 'operador-analitico';}
-  if (userSignals?.improving) {return 'intermediario-crescimento';}
+  if (userSignals.advancedUsage) {return 'avancado-lucro';}
+  if (userSignals.commercialFocus) {return 'comercial-agressivo';}
+  if (userSignals.analyticBehavior) {return 'operador-analitico';}
+  if (userSignals.improving) {return 'intermediario-crescimento';}
   return 'iniciante-inseguro';
 }
 
@@ -48,7 +61,12 @@ export function rewriteWithBrandVoice(text: string, toneProfile: ToneProfileKey 
   return refined;
 }
 
-export function speak(message: string, toneProfile: ToneProfileKey = 'padrao', context?: any) {
+interface SpeakContext {
+  user?: UserStateForTone;
+  personaSignals?: UserSignals;
+}
+
+export function speak(message: string, toneProfile: ToneProfileKey = 'padrao', context?: SpeakContext) {
   const tone = toneProfile || getToneProfileForUser(context?.user);
   const refined = rewriteWithBrandVoice(message, tone);
   const persona = adaptPersona(context?.personaSignals);
