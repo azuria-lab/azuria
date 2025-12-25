@@ -120,7 +120,8 @@ export function harmonizeConflicts() {
 
 export function runSelfEvolutionStep() {
   const health = unifiedState.healthScore ?? 0.7;
-  const evo = unifiedState.evolution?.evolutionScore ?? 0.6;
+  const evolutionData = unifiedState.evolution as { evolutionScore?: number } | undefined;
+  const evo = typeof evolutionData?.evolutionScore === 'number' ? evolutionData.evolutionScore : 0.6;
   const newScore = clamp((health + evo) / 2);
   unifiedState.healthScore = newScore;
   unifiedState.systemHealthScore = newScore;
@@ -142,11 +143,12 @@ interface CognitiveSnapshot {
 }
 
 export function updateCognitiveMap(snapshot: CognitiveSnapshot | Record<string, unknown>) {
-  unifiedState.mindSnapshot = snapshot?.state;
-  unifiedState.confidenceMap = snapshot?.confidenceMap;
-  if (snapshot?.healthScore !== undefined) {
-    unifiedState.healthScore = snapshot.healthScore;
-    unifiedState.systemHealthScore = snapshot.healthScore;
+  const snapshotData = snapshot as CognitiveSnapshot;
+  unifiedState.mindSnapshot = snapshotData?.state as AnyState | undefined;
+  unifiedState.confidenceMap = snapshotData?.confidenceMap as Record<string, number> | undefined;
+  if (typeof snapshotData?.healthScore === 'number') {
+    unifiedState.healthScore = snapshotData.healthScore;
+    unifiedState.systemHealthScore = snapshotData.healthScore;
   }
   emitEvent('ai:core-sync', { state: getGlobalState(), snapshot }, { source: 'integratedCoreEngine', priority: 7 });
 }
@@ -169,11 +171,16 @@ export function runSafeActionPipeline(action: Action | Record<string, unknown>, 
     ? applyAction(action)
     : { success: false, reason: policyCheck.reason || safeResult.reason };
 
+  const contextData = context as ActionContext | undefined;
+  const actionData = action as Action;
+  const intentValue = typeof contextData?.intent === 'string' ? { type: contextData.intent } : undefined;
+  const actionType = typeof actionData?.type === 'string' ? actionData.type : 'unknown';
+  
   registerDecision({
-    intent: context?.intent,
+    intent: intentValue,
     action,
     policy: {
-      forbiddenActions: policyCheck.allowed ? [] : [{ type: action?.type || 'unknown' }],
+      forbiddenActions: policyCheck.allowed ? [] : [{ type: actionType }],
     },
     risk: {
       level: safeResult.riskLevel || 'medium',
@@ -182,10 +189,14 @@ export function runSafeActionPipeline(action: Action | Record<string, unknown>, 
     decision,
   });
 
+  const forbiddenActions = getForbidden(policyCheck);
+  const forbiddenActionsTyped = Array.isArray(forbiddenActions) 
+    ? forbiddenActions.filter((type): type is string => typeof type === 'string').map((type) => ({ type }))
+    : [];
   detectGovernanceViolations({ 
     action, 
     policy: { 
-      forbiddenActions: getForbidden(policyCheck).map((type: string) => ({ type })) 
+      forbiddenActions: forbiddenActionsTyped
     } 
   });
 

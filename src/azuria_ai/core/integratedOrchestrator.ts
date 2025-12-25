@@ -74,7 +74,7 @@ function handleEvent(event: AzuriaEvent) {
   synchronizeTemporalConsistency();
   harmonizeConflicts();
   runSelfEvolutionStep();
-  runCoherenceCheck(getGlobalState() as Record<string, unknown>);
+  runCoherenceCheck(getGlobalState() as unknown as Record<string, unknown>);
 
   emitUnifiedInsight();
 }
