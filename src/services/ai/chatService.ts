@@ -200,12 +200,15 @@ export async function loadChatHistory(
 ): Promise<ChatMessage[]> {
   try {
      
-    const { data, error } = await (supabase
-      .from('chat_history')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('session_id', sessionId)
-      .order('timestamp', { ascending: true }) as any);
+    const query = supabase.from('chat_history').select('*');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered1 = (query as any).eq('user_id', userId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered2 = (filtered1 as any).eq('session_id', sessionId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ordered = (filtered2 as any).order('timestamp', { ascending: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (ordered as any);
 
     if (error) {
       throw error;

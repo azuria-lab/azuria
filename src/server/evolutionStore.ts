@@ -10,9 +10,8 @@ import { supabase } from '../integrations/supabase/client';
 // Helper para tabelas não tipadas no schema
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const untypedFrom = (table: string): any => {
-   
-  const fromResult = supabase.from(table);
-  return fromResult as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (supabase.from(table) as any);
 };
 
 // ============================================================================

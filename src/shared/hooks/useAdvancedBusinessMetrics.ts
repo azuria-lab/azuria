@@ -52,7 +52,7 @@ export const useAdvancedBusinessMetrics = (period: 'week' | 'month' | 'quarter' 
         .order('sale_date', { ascending: false });
 
       if (error) {throw error;}
-      return data as SalesData[];
+      return (data as unknown as SalesData[]);
     },
     enabled: !!user?.id
   });
@@ -72,7 +72,7 @@ export const useAdvancedBusinessMetrics = (period: 'week' | 'month' | 'quarter' 
         .order('total_revenue', { ascending: false });
 
       if (error) {throw error;}
-      return data as ProductPerformance[];
+      return (data as unknown as ProductPerformance[]);
     },
     enabled: !!user?.id
   });

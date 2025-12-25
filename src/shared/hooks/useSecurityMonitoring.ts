@@ -78,13 +78,16 @@ export function usePerformanceAlerts() {
   return useQuery({
     queryKey: ['performance-alerts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('automation_alerts')
-        .select('*')
-        .in('alert_type', ['slow_query', 'rls_warning', 'high_load', 'security_breach'])
-        .eq('is_resolved', false)
-        .order('created_at', { ascending: false })
-        .limit(50);
+       
+      const query = supabase.from('automation_alerts').select('*');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const filtered = (query as any).in('alert_type', ['slow_query', 'rls_warning', 'high_load', 'security_breach']);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resolved = (filtered as any).eq('is_resolved', false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ordered = (resolved as any).order('created_at', { ascending: false });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await ((ordered as any).limit(50) as any);
 
       if (error) {throw error;}
       return data as PerformanceAlert[];

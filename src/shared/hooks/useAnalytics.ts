@@ -153,8 +153,8 @@ export function useAnalyticsTracking() {
     }
     
     // Em produção, enviar para analytics
-    if (typeof globalThis !== 'undefined' && (globalThis as {gtag?: (...args: unknown[]) => void}).gtag) {
-      (globalThis as {gtag: (...args: unknown[]) => void}).gtag('event', eventName, properties);
+    if (typeof globalThis !== 'undefined' && (globalThis as unknown as {gtag?: (...args: unknown[]) => void}).gtag) {
+      ((globalThis as unknown as {gtag: (...args: unknown[]) => void}).gtag)('event', eventName, properties);
     }
   };
 

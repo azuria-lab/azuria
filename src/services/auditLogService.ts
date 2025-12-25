@@ -43,7 +43,7 @@ export class AuditLogService {
 
       const { error } = await supabase
         .from('audit_logs')
-        .insert(auditLog as Database['public']['Tables']['audit_logs']['Insert']);
+        .insert(auditLog as unknown as Database['public']['Tables']['audit_logs']['Insert']);
 
       if (error) {
         logger.error('Failed to log audit event:', error);
