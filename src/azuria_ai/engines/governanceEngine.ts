@@ -1,12 +1,41 @@
 import { emitEvent } from '../core/eventBus';
 import { logGovernance } from '../logs/modeDeus_conscious';
 
+interface Intent {
+  type?: string;
+  target?: string;
+  [key: string]: unknown;
+}
+
+interface Action {
+  type?: string;
+  payload?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface Policy {
+  forbiddenActions?: Array<{ type: string }>;
+  [key: string]: unknown;
+}
+
+interface Risk {
+  level?: string;
+  score?: number;
+  [key: string]: unknown;
+}
+
+interface Decision {
+  outcome?: string;
+  reason?: string;
+  [key: string]: unknown;
+}
+
 interface DecisionEntry {
-  intent?: any;
-  action?: any;
-  policy?: any;
-  risk?: any;
-  decision?: any;
+  intent?: Intent;
+  action?: Action;
+  policy?: Policy;
+  risk?: Risk;
+  decision?: Decision;
   timestamps?: { requested: number; decided: number };
   signature?: string;
 }

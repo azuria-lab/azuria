@@ -43,10 +43,18 @@ export function analyzeStreak(progress: boolean) {
   emitEvent('ai:engagement-progress', { streak: state.streak }, { source: 'engagementEngine', priority: 5 });
 }
 
-export function computeRecommendedNextAction(context?: any) {
-  const action = context?.intent === 'pricing' ? 'Revisar preços sugeridos' : 'Explorar insights de IA';
+interface EngagementContext {
+  intent?: string;
+  user?: Record<string, unknown>;
+  persona?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export function computeRecommendedNextAction(context?: EngagementContext | Record<string, unknown>) {
+  const contextData = context as EngagementContext | undefined;
+  const action = contextData?.intent === 'pricing' ? 'Revisar preços sugeridos' : 'Explorar insights de IA';
   state.recommendedNextAction = action;
-  const spoken = speak(action, 'motivador', { user: context?.user, personaSignals: context?.persona });
+  const spoken = speak(action, 'motivador', { user: contextData?.user, personaSignals: contextData?.persona });
   emitEvent(
     'ai:next-best-action',
     { action: spoken.message, brandTone: spoken.tone, persona: spoken.persona },

@@ -26,7 +26,6 @@ export interface GeminiResponse {
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_MODEL = 'gemini-1.5-pro';
 
 export class GeminiAdapter {
   private readonly apiKey: string;
@@ -43,6 +42,7 @@ export class GeminiAdapter {
     this.temperature = config.temperature || 0.7;
 
     if (!config.apiKey && typeof window !== 'undefined') {
+      // eslint-disable-next-line no-console
       console.warn(
         '[GeminiAdapter] ⚠️ Em produção, use Edge Function. API key não deve estar no frontend.'
       );
@@ -158,6 +158,7 @@ export class GeminiAdapter {
 
       if (!response.ok) {
         const errorText = await response.text();
+        // eslint-disable-next-line no-console
         console.error('[GeminiAdapter] API Error:', response.status, errorText);
         throw new Error(`Gemini API error: ${response.status}`);
       }
@@ -176,6 +177,7 @@ export class GeminiAdapter {
         model: this.model,
       };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('[GeminiAdapter] Error:', error);
 
       // Fallback em caso de erro

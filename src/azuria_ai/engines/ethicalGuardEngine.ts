@@ -20,12 +20,20 @@ export function evaluateEthicalRisk(state: EthicalState) {
   return risk;
 }
 
-export function detectUnsafeIntent(context: any) {
+interface UnsafeIntentContext {
+  intent?: string;
+  action?: string;
+  message?: string;
+  [key: string]: unknown;
+}
+
+export function detectUnsafeIntent(context: UnsafeIntentContext | Record<string, unknown> | null | undefined) {
   if (!context) {return false;}
+  const contextData = context as UnsafeIntentContext;
   const unsafe =
-    context.intent === 'fraud' ||
-    context.action === 'bypass_rules' ||
-    context.message?.toLowerCase().includes('ilegal');
+    contextData.intent === 'fraud' ||
+    contextData.action === 'bypass_rules' ||
+    (typeof contextData.message === 'string' && contextData.message.toLowerCase().includes('ilegal'));
   if (unsafe) {
     emitWarning('Intenção insegura bloqueada.', 0.9);
   }
@@ -46,11 +54,11 @@ export function scoreAlignment(userGoal?: string, aiPlan?: string) {
   return score;
 }
 
-export function enforceEthics(payload: any) {
-  const risk = evaluateEthicalRisk(payload);
+export function enforceEthics(payload: EthicalState | Record<string, unknown>) {
+  const risk = evaluateEthicalRisk(payload as EthicalState);
   const unsafe = detectUnsafeIntent(payload);
   if (risk >= 0.6 || unsafe) {
-    const safe = correctiveIntent(payload);
+    const safe = correctiveIntent(payload as EthicalState);
     emitEvent('ai:unsafe-output-blocked', { reason: 'ethical_guard', original: payload }, { source: 'ethicalGuardEngine', priority: 10 });
     return { blocked: true, safe };
   }
