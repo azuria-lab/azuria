@@ -142,34 +142,34 @@ export function inferUserEmotion(
   return { emotion: state.type, confidence: state.confidence };
 }
 
-export function detectFrustration(pattern: EmotionPattern) {
+export function detectFrustration(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = patternConfidence(pattern);
   setEmotion('frustration', confidence, pattern);
-  return { emotion: 'frustration', confidence };
+  return { emotion: 'frustration' as const, confidence };
 }
 
-export function detectConfidence(pattern: EmotionPattern) {
+export function detectConfidence(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.5 + (pattern?.successes || 0) * 0.1);
   setEmotion('confidence', confidence, pattern);
-  return { emotion: 'confidence', confidence };
+  return { emotion: 'confidence' as const, confidence };
 }
 
-export function detectConfusion(pattern: EmotionPattern) {
+export function detectConfusion(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.4 + (pattern?.undoActions || 0) * 0.1);
   setEmotion('confusion', confidence, pattern);
-  return { emotion: 'confusion', confidence };
+  return { emotion: 'confusion' as const, confidence };
 }
 
-export function detectAchievement(pattern: EmotionPattern) {
+export function detectAchievement(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.5 + (pattern?.achievements || 1) * 0.1);
   setEmotion('achievement', confidence, pattern);
-  return { emotion: 'achievement', confidence };
+  return { emotion: 'achievement' as const, confidence };
 }
 
-export function detectHesitation(pattern: EmotionPattern) {
+export function detectHesitation(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.35 + (pattern?.pauses || 1) * 0.05);
   setEmotion('hesitation', confidence, pattern);
-  return { emotion: 'hesitation', confidence };
+  return { emotion: 'hesitation' as const, confidence };
 }
 
 function craftResponse(text: string, tone: string, persona?: PersonaKey | string) {

@@ -7,7 +7,7 @@ import {
   suggestSimplification,
 } from './behaviorEngine';
 
-function emit(type: any, payload: any, priority = 5) {
+function emit(type: string, payload: Record<string, unknown>, priority = 5) {
   emitEvent(type, payload, { source: 'autoOptimizerEngine', priority });
 }
 

@@ -772,7 +772,10 @@ function generateInsight(insight: GenerateInsightParam): void {
   // Preparar dados completos do insight
   const tone = (insight.brandTone || 'padrao') as import('../engines/brandVoiceEngine').ToneProfileKey;
   const refinedMessage = rewriteWithBrandVoice(insight.message ?? '', tone);
-  inferUserEmotion(insight.userState || insight.data?.userState, { payload: insight });
+  const userStateValue = insight.userState || insight.data?.userState;
+  if (userStateValue && typeof userStateValue === 'object' && userStateValue !== null) {
+    inferUserEmotion(userStateValue as Record<string, unknown>, { payload: insight });
+  }
   const preStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
   if (preStability.risk >= 0.8) {
     emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: preStability.risk, details: { stage: 'pre-insight' } }, { source: 'aiOrchestrator', priority: 10 });
@@ -826,24 +829,27 @@ function generateInsight(insight: GenerateInsightParam): void {
     });
   }
   let affectiveMessage: string | undefined;
-  switch (emotionState.type) {
-    case 'frustration':
-      affectiveMessage = respondWithSimplification({ persona: insight.persona });
-      break;
-    case 'hesitation':
-      affectiveMessage = respondWithEncouragement({ persona: insight.persona });
-      break;
-    case 'confidence':
-      affectiveMessage = respondWithConfidenceBoost({ persona: insight.persona });
-      break;
-    case 'confusion':
-      affectiveMessage = respondWithReassurance({ persona: insight.persona });
-      break;
-    case 'achievement':
-      affectiveMessage = respondWithEmpathy({ persona: insight.persona });
-      break;
-    default:
-      break;
+  const emotionType = emotionState.type;
+  if (emotionType) {
+    switch (emotionType) {
+      case 'frustration':
+        affectiveMessage = respondWithSimplification({ persona: insight.persona });
+        break;
+      case 'hesitation':
+        affectiveMessage = respondWithEncouragement({ persona: insight.persona });
+        break;
+      case 'confidence':
+        affectiveMessage = respondWithConfidenceBoost({ persona: insight.persona });
+        break;
+      case 'confusion':
+        affectiveMessage = respondWithReassurance({ persona: insight.persona });
+        break;
+      case 'achievement':
+        affectiveMessage = respondWithEmpathy({ persona: insight.persona });
+        break;
+      default:
+        break;
+    }
   }
   const insightData = {
     type: insight.type,

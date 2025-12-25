@@ -1,10 +1,39 @@
 import { emitEvent } from '../core/eventBus';
 
+interface EventLogEntry {
+  type?: string;
+  [key: string]: unknown;
+}
+
+interface FlowStep {
+  id?: string;
+  completed?: boolean;
+  [key: string]: unknown;
+}
+
+interface FlowData {
+  steps?: FlowStep[];
+  abandonPoints?: string[];
+  [key: string]: unknown;
+}
+
+interface UserState {
+  struggleScore?: number;
+  frictionScore?: number;
+  [key: string]: unknown;
+}
+
+interface UserHistoryEntry {
+  repeatCount?: number;
+  step?: string;
+  [key: string]: unknown;
+}
+
 export interface BehaviorSignals {
-  eventLog?: any[];
-  flowData?: { steps?: any[]; abandonPoints?: string[] };
-  userState?: any;
-  userHistory?: any[];
+  eventLog?: EventLogEntry[];
+  flowData?: FlowData;
+  userState?: UserState;
+  userHistory?: UserHistoryEntry[];
 }
 
 export interface BehaviorFindings {
@@ -15,11 +44,11 @@ export interface BehaviorFindings {
   recommendations?: string[];
 }
 
-function emit(type: any, payload: any, priority = 5) {
+function emit(type: string, payload: Record<string, unknown>, priority = 5) {
   emitEvent(type, payload, { source: 'behaviorEngine', priority });
 }
 
-export function detectRepeatingErrors(eventLog: any[] = []) {
+export function detectRepeatingErrors(eventLog: EventLogEntry[] = []) {
   const errors = eventLog.filter(e => e.type === 'error');
   if (errors.length > 2) {
     emit(
@@ -31,19 +60,19 @@ export function detectRepeatingErrors(eventLog: any[] = []) {
   return errors.length;
 }
 
-export function detectIncompleteFlows(flowData: any = {}) {
-  const incomplete = (flowData.steps || []).filter((s: any) => !s.completed);
+export function detectIncompleteFlows(flowData: FlowData = {}) {
+  const incomplete = (flowData.steps || []).filter((s: FlowStep) => !s.completed);
   if (incomplete.length > 0) {
     emit(
       'ai:flow-abandon-point',
-      { steps: incomplete.map((s: any) => s.id) },
+      { steps: incomplete.map((s: FlowStep) => s.id).filter((id): id is string => typeof id === 'string') },
       6
     );
   }
-  return incomplete.map((s: any) => s.id);
+  return incomplete.map((s: FlowStep) => s.id).filter((id): id is string => typeof id === 'string');
 }
 
-export function detectAbandonPoints(flowData: any = {}) {
+export function detectAbandonPoints(flowData: FlowData = {}) {
   const abandon = flowData.abandonPoints || [];
   if (abandon.length > 0) {
     emit('ai:ux-friction-detected', { abandon }, 7);
@@ -51,7 +80,7 @@ export function detectAbandonPoints(flowData: any = {}) {
   return abandon;
 }
 
-export function detectUserStruggle(userState: any = {}) {
+export function detectUserStruggle(userState: UserState = {}) {
   const struggle = userState.struggleScore || 0;
   if (struggle > 0.5) {
     emit('ai:ux-friction-detected', { struggle }, 6);
@@ -59,7 +88,7 @@ export function detectUserStruggle(userState: any = {}) {
   return struggle;
 }
 
-export function detectUXFriction(points: any = {}) {
+export function detectUXFriction(points: { score?: number } = {}) {
   const frictionScore = points.score || 0;
   if (frictionScore > 0.5) {
     emit('ai:ux-friction-detected', { frictionScore }, 6);
@@ -67,7 +96,7 @@ export function detectUXFriction(points: any = {}) {
   return frictionScore;
 }
 
-export function detectSuccessfulPatterns(eventLog: any[] = []) {
+export function detectSuccessfulPatterns(eventLog: EventLogEntry[] = []) {
   const successes = eventLog.filter(e => e.type === 'success');
   if (successes.length > 1) {
     emit(
@@ -79,7 +108,13 @@ export function detectSuccessfulPatterns(eventLog: any[] = []) {
   return successes.length;
 }
 
-export function detectFastPaths(flows: any[] = []) {
+interface Flow {
+  id?: string;
+  durationMs?: number;
+  [key: string]: unknown;
+}
+
+export function detectFastPaths(flows: Flow[] = []) {
   const fast = flows.filter(f => f.durationMs && f.durationMs < 5000);
   if (fast.length > 0) {
     emit(
@@ -91,7 +126,7 @@ export function detectFastPaths(flows: any[] = []) {
   return fast.map(f => f.id);
 }
 
-export function detectHighRetentionSteps(userHistory: any[] = []) {
+export function detectHighRetentionSteps(userHistory: UserHistoryEntry[] = []) {
   const retained = userHistory.filter(h => h.repeatCount && h.repeatCount > 2);
   if (retained.length > 0) {
     emit(

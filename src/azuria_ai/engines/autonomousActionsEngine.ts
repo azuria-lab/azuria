@@ -14,7 +14,25 @@ export interface AutonomousDecision {
   reason?: string;
 }
 
-function chooseAction(context: any): RecommendedAction | null {
+interface ActionContext {
+  margemLucro?: number;
+  custoProduto?: number;
+  precoVenda?: number;
+  custoOperacional?: number;
+  taxasMarketplace?: number;
+  impostos?: unknown;
+  aliquotaICMS?: unknown;
+  payload?: {
+    margemLucro?: number;
+    custoProduto?: number;
+    precoVenda?: number;
+    custoOperacional?: number;
+    taxasMarketplace?: number;
+  };
+  [key: string]: unknown;
+}
+
+function chooseAction(context: ActionContext): RecommendedAction | null {
   const margem = context?.margemLucro ?? context?.payload?.margemLucro;
   const custo = context?.custoProduto ?? context?.payload?.custoProduto;
   const preco = context?.precoVenda ?? context?.payload?.precoVenda;
@@ -30,7 +48,7 @@ function chooseAction(context: any): RecommendedAction | null {
   return null;
 }
 
-export function shouldAct(context: any): AutonomousDecision {
+export function shouldAct(context: ActionContext): AutonomousDecision {
   const action = chooseAction(context);
   return {
     shouldAct: Boolean(action),
@@ -39,7 +57,7 @@ export function shouldAct(context: any): AutonomousDecision {
   };
 }
 
-export function getRecommendedAction(context: any): { action: RecommendedAction | null; details?: string } {
+export function getRecommendedAction(context: ActionContext): { action: RecommendedAction | null; details?: string } {
   const decision = shouldAct(context);
   if (!decision.action) {
     return { action: null };
@@ -56,7 +74,7 @@ export function getRecommendedAction(context: any): { action: RecommendedAction 
   return { action: decision.action, details: detailsMap[decision.action] };
 }
 
-export function dispatchAction(eventBus: typeof emitEvent, context: any) {
+export function dispatchAction(eventBus: typeof emitEvent, context: ActionContext) {
   const recommendation = getRecommendedAction(context);
   if (!recommendation.action) {return;}
 
