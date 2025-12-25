@@ -9,7 +9,8 @@ export interface EvolutionPattern {
   pattern: string;
   frequency: number;
   impact: number;
-  details: any;
+   
+  details: Record<string, unknown>;
 }
 
 export interface EvolutionInsight {
@@ -20,12 +21,14 @@ export interface EvolutionInsight {
 
 export interface EvolutionMemory {
   key: string;
-  value: any;
+   
+  value: unknown;
   reason: string;
 }
 
 export interface EvolutionQuery {
   question: string;
-  context: any;
+   
+  context: Record<string, unknown>;
 }
 

@@ -23,9 +23,12 @@ export interface AdvancedCalcData {
   impostos?: number;
   taxasMarketplace?: number;
   precoVenda?: number;
-  cenarios?: any[];
-  taxasDetalhadas?: any;
-  resultado?: any;
+   
+  cenarios?: Array<Record<string, unknown>>;
+   
+  taxasDetalhadas?: Record<string, unknown>;
+   
+  resultado?: Record<string, unknown>;
 }
 
 export interface AdvancedCalcEvent {
@@ -123,8 +126,10 @@ export function useAdvancedCalcWatcher(
 
   /**
    * Detecta mudanças nos dados do cálculo avançado
+   * @internal - Função interna não exportada
    */
-  const handleDataChange = useCallback(
+   
+  const _handleDataChange = useCallback(
     (newData: AdvancedCalcData, changedField?: string) => {
       if (!isWatching) {return;}
 

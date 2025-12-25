@@ -1,7 +1,8 @@
 export interface CreatorEvent {
   severity: string;
   area: string;
-  details: any;
+   
+  details: Record<string, unknown>;
   recommendation: string;
 }
 
