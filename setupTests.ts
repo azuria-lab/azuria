@@ -55,12 +55,26 @@ if (typeof global.fetch === 'undefined') {
 }
 
 // Mock leve do Supabase para evitar múltiplas instâncias de GoTrue em jsdom
+const mockSubscription = {
+  unsubscribe: vi.fn(),
+}
+
 const mockSupabaseAuth = {
   getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
   getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
   signInWithPassword: vi.fn().mockResolvedValue({ data: { user: { id: '1' } }, error: null }),
   signOut: vi.fn().mockResolvedValue({ error: null }),
-  onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+  onAuthStateChange: vi.fn((callback) => {
+    // Chamar callback imediatamente com session null
+    if (callback) {
+      callback('SIGNED_OUT', null)
+    }
+    return { 
+      data: { 
+        subscription: mockSubscription 
+      } 
+    }
+  }),
 }
 
 const mockSupabaseFrom = () => ({
@@ -75,10 +89,20 @@ const mockSupabaseFrom = () => ({
   then: vi.fn().mockResolvedValue({ data: [], error: null }),
 })
 
+const mockSupabaseChannel = () => ({
+  on: vi.fn().mockReturnThis(),
+  subscribe: vi.fn(() => ({
+    status: 'SUBSCRIBED',
+    unsubscribe: vi.fn(),
+  })),
+})
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: mockSupabaseAuth,
     from: mockSupabaseFrom,
+    channel: mockSupabaseChannel,
+    removeChannel: vi.fn(),
   },
   supabaseAuth: {
     auth: mockSupabaseAuth,

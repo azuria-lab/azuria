@@ -61,56 +61,56 @@ vi.mock('@/domains/calculator/hooks/useCalculatorInputs', () => ({
 }))
 
 vi.mock('@/domains/calculator/hooks/useCalculatorResult', () => ({
-  useCalculatorResult: (params: {
-    cost: string;
-    margin: number;
-    tax: string;
-    cardFee: string;
-    otherCosts: string;
-    shipping: string;
-    includeShipping: boolean;
-    setIsLoading: (v: boolean) => void;
-    toast: (opts: { title: string; description?: string; variant?: string }) => void;
-  }) => {
+  useCalculatorResult: (
+    cost: string,
+    margin: number,
+    tax: string,
+    cardFee: string,
+    otherCosts: string,
+    shipping: string,
+    includeShipping: boolean,
+    setIsLoading: (v: boolean) => void,
+    toast: (opts: { title?: string; description?: string; variant?: 'default' | 'destructive' }) => void
+  ) => {
     const [result, setResult] = useState<any>(null)
     const [preview, setPreview] = useState<any>(null)
-    const calculatePrice = (calcParams: {
-      cost: string;
-      marginValue: number;
-      tax: string;
-      cardFee: string;
-      otherCosts: string;
-      shipping: string;
-      includeShipping: boolean;
-      onCalcComplete: (historyItem: CalculationHistory) => void;
-    }) => {
-      params.setIsLoading(true)
-      const parsed = Number(calcParams.cost) || 0
+    const calculatePrice = (
+      calcCost: string,
+      calcMargin: number,
+      calcTax: string,
+      calcCardFee: string,
+      calcOtherCosts: string,
+      calcShipping: string,
+      calcIncludeShipping: boolean,
+      onCalcComplete: (historyItem: CalculationHistory) => void
+    ) => {
+      setIsLoading(true)
+      const parsed = Number(calcCost) || 0
       if (parsed <= 0) {
-        params.toast?.({
+        toast({
           title: 'Valor inválido',
           description: 'O custo do produto deve ser maior que zero.',
           variant: 'destructive',
         })
-        params.setIsLoading(false)
+        setIsLoading(false)
         return
       }
-      const res = { sellingPrice: parsed * (1 + calcParams.marginValue / 100), profit: parsed * calcParams.marginValue / 100, isHealthyProfit: true, breakdown: { costValue: parsed, otherCostsValue: 0, shippingValue: 0, totalCost: parsed, marginAmount: parsed * calcParams.marginValue / 100, realMarginPercent: calcParams.marginValue, taxAmount: 0, cardFeeAmount: 0 } }
+      const res = { sellingPrice: parsed * (1 + calcMargin / 100), profit: parsed * calcMargin / 100, isHealthyProfit: true, breakdown: { costValue: parsed, otherCostsValue: 0, shippingValue: 0, totalCost: parsed, marginAmount: parsed * calcMargin / 100, realMarginPercent: calcMargin, taxAmount: 0, cardFeeAmount: 0 } }
       const item: CalculationHistory = {
         id: 'calc-1',
         date: new Date(),
-        cost: calcParams.cost,
-        margin: calcParams.marginValue,
-        tax: calcParams.tax,
-        cardFee: calcParams.cardFee,
-        otherCosts: calcParams.otherCosts,
-        shipping: calcParams.shipping,
-        includeShipping: calcParams.includeShipping,
+        cost: calcCost,
+        margin: calcMargin,
+        tax: calcTax,
+        cardFee: calcCardFee,
+        otherCosts: calcOtherCosts,
+        shipping: calcShipping,
+        includeShipping: calcIncludeShipping,
         result: res,
       }
       setResult(res)
-      calcParams.onCalcComplete(item)
-      params.setIsLoading(false)
+      onCalcComplete(item)
+      setIsLoading(false)
     }
     return { result, setResult, preview, setPreview, calculatePrice }
   },

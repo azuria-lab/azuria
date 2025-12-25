@@ -327,10 +327,10 @@ DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'documentos') THEN
         ALTER TABLE documentos ENABLE ROW LEVEL SECURITY;
-        DROP POLICY IF EXISTS "documentos_select" ON documentos;
-        DROP POLICY IF EXISTS "documentos_insert" ON documentos;
-        DROP POLICY IF EXISTS "documentos_update" ON documentos;
-        DROP POLICY IF EXISTS "documentos_delete" ON documentos;
+DROP POLICY IF EXISTS "documentos_select" ON documentos;
+DROP POLICY IF EXISTS "documentos_insert" ON documentos;
+DROP POLICY IF EXISTS "documentos_update" ON documentos;
+DROP POLICY IF EXISTS "documentos_delete" ON documentos;
         CREATE POLICY "documentos_select" ON documentos FOR SELECT TO authenticated USING (user_id = (select auth.uid()));
         CREATE POLICY "documentos_insert" ON documentos FOR INSERT TO authenticated WITH CHECK (user_id = (select auth.uid()));
         CREATE POLICY "documentos_update" ON documentos FOR UPDATE TO authenticated USING (user_id = (select auth.uid())) WITH CHECK (user_id = (select auth.uid()));

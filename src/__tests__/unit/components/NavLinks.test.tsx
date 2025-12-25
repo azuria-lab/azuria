@@ -8,9 +8,9 @@ describe('NavLinks', () => {
     
     const linkPaths = navLinks.map(link => link.path)
     expect(linkPaths).toContain('/')
-    expect(linkPaths).toContain('#recursos')
+    expect(linkPaths).toContain('/recursos')
     expect(linkPaths).toContain('/planos')
-    expect(linkPaths).toContain('#sobre')
+    expect(linkPaths).toContain('/sobre')
   })
 
   it('should have proper link structure', () => {
