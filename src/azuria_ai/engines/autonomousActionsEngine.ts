@@ -14,7 +14,7 @@ export interface AutonomousDecision {
   reason?: string;
 }
 
-interface ActionContext {
+export interface ActionContext {
   margemLucro?: number;
   custoProduto?: number;
   precoVenda?: number;

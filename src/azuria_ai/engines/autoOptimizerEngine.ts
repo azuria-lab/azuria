@@ -8,7 +8,7 @@ import {
 } from './behaviorEngine';
 
 function emit(type: string, payload: Record<string, unknown>, priority = 5) {
-  emitEvent(type, payload, { source: 'autoOptimizerEngine', priority });
+  emitEvent(type as import('../core/eventBus').EventType, payload, { source: 'autoOptimizerEngine', priority });
 }
 
 export function applySafeOptimizations() {

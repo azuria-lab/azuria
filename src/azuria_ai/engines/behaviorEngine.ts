@@ -45,7 +45,7 @@ export interface BehaviorFindings {
 }
 
 function emit(type: string, payload: Record<string, unknown>, priority = 5) {
-  emitEvent(type, payload, { source: 'behaviorEngine', priority });
+  emitEvent(type as import('../core/eventBus').EventType, payload, { source: 'behaviorEngine', priority });
 }
 
 export function detectRepeatingErrors(eventLog: EventLogEntry[] = []) {

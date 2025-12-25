@@ -1,5 +1,5 @@
 import { type AzuriaEvent, emitEvent } from '../core/eventBus';
-import { adaptToneProfileFromPersona, type PersonaKey, speak } from './brandVoiceEngine';
+import { adaptToneProfileFromPersona, type PersonaKey, speak, type ToneProfileKey } from './brandVoiceEngine';
 import { createMicroStory } from './storytellingEngine';
 
 // Type guard para verificar se é EmotionPattern
@@ -144,37 +144,38 @@ export function inferUserEmotion(
 
 export function detectFrustration(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = patternConfidence(pattern);
-  setEmotion('frustration', confidence, pattern);
+  setEmotion('frustration', confidence, pattern as Record<string, unknown>);
   return { emotion: 'frustration' as const, confidence };
 }
 
 export function detectConfidence(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.5 + (pattern?.successes || 0) * 0.1);
-  setEmotion('confidence', confidence, pattern);
+  setEmotion('confidence', confidence, pattern as Record<string, unknown>);
   return { emotion: 'confidence' as const, confidence };
 }
 
 export function detectConfusion(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.4 + (pattern?.undoActions || 0) * 0.1);
-  setEmotion('confusion', confidence, pattern);
+  setEmotion('confusion', confidence, pattern as Record<string, unknown>);
   return { emotion: 'confusion' as const, confidence };
 }
 
 export function detectAchievement(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.5 + (pattern?.achievements || 1) * 0.1);
-  setEmotion('achievement', confidence, pattern);
+  setEmotion('achievement', confidence, pattern as Record<string, unknown>);
   return { emotion: 'achievement' as const, confidence };
 }
 
 export function detectHesitation(pattern: EmotionPattern): { emotion: EmotionType; confidence: number } {
   const confidence = Math.min(1, 0.35 + (pattern?.pauses || 1) * 0.05);
-  setEmotion('hesitation', confidence, pattern);
+  setEmotion('hesitation', confidence, pattern as Record<string, unknown>);
   return { emotion: 'hesitation' as const, confidence };
 }
 
 function craftResponse(text: string, tone: string, persona?: PersonaKey | string) {
-  const toneProfile = persona ? adaptToneProfileFromPersona(persona as PersonaKey) : (tone as PersonaKey);
-  const spoken = speak(text, toneProfile, { personaSignals: persona });
+  const toneProfile = persona ? adaptToneProfileFromPersona(persona as PersonaKey) : (tone as ToneProfileKey);
+  const personaSignals = persona ? (typeof persona === 'string' ? { persona } : undefined) : undefined;
+  const spoken = speak(text, toneProfile, personaSignals ? { personaSignals } : undefined);
   state.lastMessage = spoken.message;
   emitEvent('ai:affective-response', { message: spoken.message, tone: spoken.tone, persona: spoken.persona }, { source: 'affectiveEngine', priority: 5 });
   createMicroStory({ message: spoken.message, tone: spoken.tone });

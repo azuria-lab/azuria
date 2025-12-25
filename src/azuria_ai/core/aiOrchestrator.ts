@@ -406,7 +406,7 @@ function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
     );
 
     // Disparar ações autônomas seguras (apenas sugestão)
-    dispatchAction(emitEvent, calcData as Record<string, unknown> as import('../engines/autonomousActionsEngine').ActionContext);
+    dispatchAction(emitEvent, calcData as import('../engines/autonomousActionsEngine').ActionContext);
   }
 
   // Gerar previsões cognitivas adicionais
