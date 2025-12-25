@@ -37,10 +37,16 @@ export function assessGlobalState(): AssessmentResult {
 export function detectContradictions(): string[] {
   const state = getGlobalState();
   const issues: string[] = [];
-  if (state.risk?.level === 'high' && state.opportunity?.signal === 'strong') {
+  const riskData = state.risk as { level?: string } | undefined;
+  const opportunityData = state.opportunity as { signal?: string } | undefined;
+  const temporalData = state.temporal as { trend?: string } | undefined;
+  const evolutionData = state.evolution as { evolutionScore?: number } | undefined;
+  
+  if (riskData?.level === 'high' && opportunityData?.signal === 'strong') {
     issues.push('Risco alto coexistindo com oportunidade forte');
   }
-  if (state.temporal?.trend === 'decline' && state.evolution?.evolutionScore > 0.8) {
+  const evolutionScore = typeof evolutionData?.evolutionScore === 'number' ? evolutionData.evolutionScore : 0;
+  if (temporalData?.trend === 'decline' && evolutionScore > 0.8) {
     issues.push('Tendência de queda vs. evolução alta');
   }
   if (issues.length) {
@@ -59,10 +65,14 @@ export function generateCoherenceScore(contradictions: string[]): number {
 
 export function predictSystemRisk(): number {
   const state = getGlobalState();
+  const riskData = state.risk as { level?: string } | undefined;
+  const consistencyData = state.consistency as { drift?: boolean } | undefined;
+  const operationalData = state.operational as { load?: number } | undefined;
+  const loadValue = typeof operationalData?.load === 'number' ? operationalData.load : 0;
   const risk = clamp(
-    (state.risk?.level === 'high' ? 0.7 : 0.3) +
-      (state.consistency?.drift ? 0.2 : 0) +
-      (state.operational?.load || 0) * 0.2 -
+    (riskData?.level === 'high' ? 0.7 : 0.3) +
+      (consistencyData?.drift ? 0.2 : 0) +
+      loadValue * 0.2 -
       (state.healthScore || 0.1) * 0.3,
     0,
     1

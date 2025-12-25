@@ -20,14 +20,15 @@ interface SafeResult {
   riskLevel?: 'low' | 'medium' | 'high';
 }
 
-export function executeActionSafely(action: Action | Record<string, unknown>, context: ActionContext | Record<string, unknown>): SafeResult {
+export function executeActionSafely(action: Action | Record<string, unknown>, _context: ActionContext | Record<string, unknown>): SafeResult {
   const policyResult = validateActionAgainstPolicy(action);
   if (!policyResult.allowed) {
     return { approved: false, reason: policyResult.reason, riskLevel: 'high' };
   }
 
   // Placeholder predictOutcome (assume medium risk)
-  const predictedRisk = action.riskLevel || 'medium';
+  const actionData = action as Action;
+  const predictedRisk = actionData.riskLevel || 'medium';
   if (predictedRisk === 'high' && policyResult.allowed) {
     return { approved: false, reason: 'Predicted high risk', riskLevel: 'high' };
   }

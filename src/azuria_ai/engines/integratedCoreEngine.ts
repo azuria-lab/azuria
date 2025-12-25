@@ -65,10 +65,14 @@ export function routeEvent(event: { tipo: string; payload: Record<string, unknow
 }
 
 export function computeUnifiedInference() {
+  const operationalData = unifiedState.operational as { globalConfidence?: number } | undefined;
+  const evolutionData = unifiedState.evolution as { evolutionScore?: number } | undefined;
+  const globalConfidence = typeof operationalData?.globalConfidence === 'number' ? operationalData.globalConfidence : 0;
+  const evolutionScore = typeof evolutionData?.evolutionScore === 'number' ? evolutionData.evolutionScore : 0;
   const confidence = clamp(
     0.5 +
-      (unifiedState.operational?.globalConfidence || 0) * 0.2 +
-      (unifiedState.evolution?.evolutionScore || 0) * 0.2
+      globalConfidence * 0.2 +
+      evolutionScore * 0.2
   );
   unifiedState.confidence = confidence;
   emitEvent('ai:core-sync', { state: getGlobalState() }, { source: 'integratedCoreEngine', priority: 6 });
@@ -104,7 +108,8 @@ export function synchronizeTemporalConsistency() {
 }
 
 export function harmonizeConflicts() {
-  const conflicts = unifiedState.consistency?.conflicts || [];
+  const consistencyData = unifiedState.consistency as { conflicts?: unknown[] } | undefined;
+  const conflicts = Array.isArray(consistencyData?.conflicts) ? consistencyData.conflicts : [];
   if (conflicts.length > 0) {
     unifiedState.healthScore = clamp((unifiedState.healthScore || 0.6) - 0.1 * conflicts.length);
   } else {

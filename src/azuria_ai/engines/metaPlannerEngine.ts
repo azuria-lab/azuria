@@ -15,11 +15,11 @@ export interface PlannerPlan {
   score?: number;
 }
 
-let currentGoal: PlannerGoal | null = null;
+let _currentGoal: PlannerGoal | null = null;
 let currentPlan: PlannerPlan | null = null;
 
 export function setGoal(goal: PlannerGoal) {
-  currentGoal = goal;
+  _currentGoal = goal;
   emitEvent(
     'ai:planner-goal-evaluated',
     { goal },

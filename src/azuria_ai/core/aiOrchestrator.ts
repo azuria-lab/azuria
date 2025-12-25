@@ -369,7 +369,7 @@ async function handleCalculationEvent(event: AzuriaEvent): Promise<void> {
 }
 
 function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
-  const intent = detectIntent(event, calcData);
+  const intent = detectIntent(event, calcData as Record<string, unknown>);
   const prediction = generatePredictiveInsight({ ...calcData, event });
   const socialIntent = inferSocialIntent({ tipo: event.tipo, context: event.payload });
   const emotion = inferEmotion({ tipo: event.tipo, metadata: event.metadata });
@@ -390,7 +390,7 @@ function handleIntentAndPrediction(event: AzuriaEvent, calcData: CalcData) {
   }
 
   if (intent.intentConfidence >= 0.4) {
-    const nextStep = predictNextStep(calcData);
+    const nextStep = predictNextStep(calcData as Record<string, unknown>);
     updateCognitiveMemory('intent', intent, 'userIntentEngine');
     emitEvent(
       'ai:recommended-action',
@@ -798,7 +798,8 @@ function generateInsight(insight: GenerateInsightParam): void {
     return;
   }
   checkCriticalBoundaries({ load: insight?.state?.load as number, actionsPerMinute: insight?.state?.actionsPerMinute as number });
-  if (detectRunawayBehavior(insight?.actions || [])) {
+  const actions = Array.isArray(insight?.actions) ? insight.actions.filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null) : [];
+  if (detectRunawayBehavior(actions)) {
     applySafetyBreak({ reason: 'runaway_behavior', state: insight?.state });
     return;
   }
