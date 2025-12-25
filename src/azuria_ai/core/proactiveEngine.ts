@@ -262,18 +262,26 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 1800000,
     check: async () => {
       const context = getContext('pricing_ai');
-      if (!context?.data?.sugestoesPendentes) {return null;}
+      if (!context?.data) {return null;}
 
-      const sugestoesPendentes = context.data.sugestoesPendentes || 0;
-      const diasPendentes = context.data.diasPendentes || 0;
+      const sugestoesPendentesValue = context.data.sugestoesPendentes;
+      const diasPendentesValue = context.data.diasPendentes;
 
-      if (sugestoesPendentes > 5 && diasPendentes > 7) {
+      if (
+        typeof sugestoesPendentesValue === 'number' && 
+        typeof diasPendentesValue === 'number' &&
+        sugestoesPendentesValue > 5 && 
+        diasPendentesValue > 7
+      ) {
         return {
-          severity: 'medium',
+          severity: 'medium' as const,
           title: 'Sugestões de precificação pendentes',
-          message: `Você tem ${sugestoesPendentes} sugestões não aplicadas há ${diasPendentes} dias. Revisar pode aumentar sua margem.`,
+          message: `Você tem ${sugestoesPendentesValue} sugestões não aplicadas há ${diasPendentesValue} dias. Revisar pode aumentar sua margem.`,
           suggestion: 'Revise e aplique as sugestões da IA',
-          values: { sugestoesPendentes, diasPendentes },
+          values: { 
+            sugestoesPendentes: sugestoesPendentesValue as number, 
+            diasPendentes: diasPendentesValue as number 
+          },
           sourceModule: 'pricing_ai',
         };
       }
@@ -289,19 +297,20 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 600000,
     check: async () => {
       const context = getContext('analytics');
-      if (!context?.data?.quedaDiaria) {return null;}
+      if (!context?.data) {return null;}
 
-      const quedaDiaria = context.data.quedaDiaria;
+      const quedaDiariaValue = context.data.quedaDiaria;
+      if (typeof quedaDiariaValue !== 'number') {return null;}
 
-      if (quedaDiaria > 15) {
+      if (quedaDiariaValue > 15) {
         return {
-          severity: 'critical',
+          severity: 'critical' as const,
           title: 'Queda abrupta de margem detectada',
-          message: `Margem caiu ${quedaDiaria.toFixed(
+          message: `Margem caiu ${quedaDiariaValue.toFixed(
             1
           )}% hoje. Verifique custos e preços imediatamente.`,
           suggestion: 'Investigue causas e ajuste precificação urgentemente',
-          values: { quedaDiaria },
+          values: { quedaDiaria: quedaDiariaValue },
           sourceModule: 'analytics',
         };
       }
@@ -317,23 +326,28 @@ const proactiveRules: ProactiveRule[] = [
     cooldownMs: 1800000,
     check: async () => {
       const context = getContext('marketplace');
-      if (!context?.data?.taxaAtual) {return null;}
+      if (!context?.data) {return null;}
 
-      const taxaAtual = context.data.taxaAtual;
-      const taxaAnterior = context.data.taxaAnterior || taxaAtual;
+      const taxaAtualValue = context.data.taxaAtual;
+      const taxaAnteriorValue = context.data.taxaAnterior;
 
-      if (taxaAtual > 20 || taxaAtual - taxaAnterior > 5) {
+      if (typeof taxaAtualValue !== 'number') {return null;}
+
+      const taxaAnterior = typeof taxaAnteriorValue === 'number' ? taxaAnteriorValue : taxaAtualValue;
+      const variacao = typeof taxaAnteriorValue === 'number' ? taxaAtualValue - taxaAnteriorValue : 0;
+
+      if (taxaAtualValue > 20 || variacao > 5) {
         return {
-          severity: 'high',
+          severity: 'high' as const,
           title: 'Taxas de marketplace elevadas',
-          message: `Taxa atual de ${taxaAtual.toFixed(
+          message: `Taxa atual de ${taxaAtualValue.toFixed(
             1
           )}% está impactando significativamente sua margem.`,
           suggestion: 'Compare com outros marketplaces ou ajuste preços',
           values: {
-            taxaAtual,
-            taxaAnterior,
-            variacao: taxaAtual - taxaAnterior,
+            taxaAtual: taxaAtualValue,
+            taxaAnterior: typeof taxaAnteriorValue === 'number' ? taxaAnteriorValue : taxaAtualValue,
+            variacao,
           },
           sourceModule: 'marketplace',
         };

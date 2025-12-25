@@ -1,5 +1,5 @@
 import { type AzuriaEvent, emitEvent, on } from './eventBus';
-import { guardEventLoop, resetCounts } from '../engines/safetyAndReliabilityEngine';
+import { guardEventLoop } from '../engines/safetyAndReliabilityEngine';
 
 const CRITICAL_EVENTS: Array<AzuriaEvent['tipo']> = [
   'ai:consistency-warning',

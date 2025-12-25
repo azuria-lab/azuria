@@ -232,11 +232,11 @@ export function resolveEngine(route: TaskRoute): AIEngine {
   }
 
   if (isEngineAvailable(route.fallback)) {
-    console.log(`[TaskRouter] Fallback: ${route.engine} → ${route.fallback}`);
+    // Fallback para engine alternativo
     return route.fallback;
   }
 
-  console.log(`[TaskRouter] Fallback final: ${route.engine} → local`);
+  // Fallback final para local
   return 'local';
 }
 

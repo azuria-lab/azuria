@@ -1,5 +1,4 @@
 import { emitEvent } from '../core/eventBus';
-import { emotionProfiles } from './emotionProfiles';
 import { adaptToneProfileFromPersona, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
 import { createMicroStory } from './storytellingEngine';
 

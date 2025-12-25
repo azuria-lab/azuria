@@ -40,7 +40,7 @@ export function suggestModelUpdate(agentId: string) {
   }
 }
 
-export function autoTuneParameters(agentId: string, context: any) {
+export function autoTuneParameters(agentId: string, context: { delta?: number }) {
   const mem = getAgentMemory(agentId);
   const nextThreshold = clamp((mem.heuristics.threshold || 0.5) + (context?.delta || 0), 0.1, 0.9);
   updateHeuristic(agentId, 'threshold', nextThreshold);

@@ -15,7 +15,7 @@ import { extractContextForScreen } from '../context/contextExtractors';
 export async function handleScreenChangedEvent(
   event: AzuriaEvent
 ): Promise<void> {
-  const { screen, path, metadata } = event.payload;
+  const { screen } = event.payload;
 
   // Atualizar tela atual no context store
   setCurrentScreen(screen);
@@ -25,13 +25,6 @@ export async function handleScreenChangedEvent(
   if (extractedContext) {
     updateContext(screen, extractedContext.data);
   }
-
-  // Log interno
-  console.log('Screen changed:', {
-    screen,
-    path,
-    timestamp: event.timestamp,
-  });
 
   // TODO: Implementar análise contextual baseada na tela
   // TODO: Gerar insights específicos do módulo
@@ -49,10 +42,4 @@ export async function handleScreenDataUpdatedEvent(
   if (activeScreen && data) {
     updateContext(activeScreen, data);
   }
-
-  console.log('Screen data updated:', {
-    screen: activeScreen,
-    dataKeys: Object.keys(data || {}),
-    timestamp: event.timestamp,
-  });
 }

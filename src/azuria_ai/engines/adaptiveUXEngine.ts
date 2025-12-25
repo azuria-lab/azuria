@@ -7,7 +7,13 @@ interface LayoutSuggestion {
   hide?: string[];
 }
 
-export function adaptLayoutFromBehavior(behavior: any): LayoutSuggestion {
+interface UserBehavior {
+  lowUseSections?: string[];
+  frequentPaths?: string[];
+  intent?: string;
+}
+
+export function adaptLayoutFromBehavior(behavior: UserBehavior): LayoutSuggestion {
   const suggestion: LayoutSuggestion = {};
 
   if (behavior?.lowUseSections) {
@@ -22,7 +28,7 @@ export function adaptLayoutFromBehavior(behavior: any): LayoutSuggestion {
   return suggestion;
 }
 
-export function proposeAdaptiveUX(behavior: any) {
+export function proposeAdaptiveUX(behavior: UserBehavior) {
   const layout = adaptLayoutFromBehavior(behavior);
   emitEvent('ui:adaptive-layout', { layout }, { source: 'adaptiveUXEngine', priority: 4 });
   return layout;
