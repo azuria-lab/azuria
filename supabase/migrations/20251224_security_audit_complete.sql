@@ -322,16 +322,24 @@ CREATE POLICY "user_marketplace_templates_delete" ON user_marketplace_templates 
 -- PARTE 9: TABELAS DE DOCUMENTOS
 -- ============================================================================
 
--- documentos
-ALTER TABLE IF EXISTS documentos ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "documentos_select" ON documentos;
-DROP POLICY IF EXISTS "documentos_insert" ON documentos;
-DROP POLICY IF EXISTS "documentos_update" ON documentos;
-DROP POLICY IF EXISTS "documentos_delete" ON documentos;
-CREATE POLICY "documentos_select" ON documentos FOR SELECT TO authenticated USING (user_id = auth.uid());
-CREATE POLICY "documentos_insert" ON documentos FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
-CREATE POLICY "documentos_update" ON documentos FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-CREATE POLICY "documentos_delete" ON documentos FOR DELETE TO authenticated USING (user_id = auth.uid());
+-- documentos (apenas se existir)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'documentos') THEN
+        ALTER TABLE documentos ENABLE ROW LEVEL SECURITY;
+        DROP POLICY IF EXISTS "documentos_select" ON documentos;
+        DROP POLICY IF EXISTS "documentos_insert" ON documentos;
+        DROP POLICY IF EXISTS "documentos_update" ON documentos;
+        DROP POLICY IF EXISTS "documentos_delete" ON documentos;
+        CREATE POLICY "documentos_select" ON documentos FOR SELECT TO authenticated USING (user_id = (select auth.uid()));
+        CREATE POLICY "documentos_insert" ON documentos FOR INSERT TO authenticated WITH CHECK (user_id = (select auth.uid()));
+        CREATE POLICY "documentos_update" ON documentos FOR UPDATE TO authenticated USING (user_id = (select auth.uid())) WITH CHECK (user_id = (select auth.uid()));
+        CREATE POLICY "documentos_delete" ON documentos FOR DELETE TO authenticated USING (user_id = (select auth.uid()));
+        RAISE NOTICE 'RLS policies criadas para documentos';
+    ELSE
+        RAISE NOTICE 'Tabela documentos não existe, pulando...';
+    END IF;
+END $$;
 
 -- ============================================================================
 -- VERIFICAÇÃO FINAL

@@ -59,14 +59,22 @@ END $$;
 -- PASSO 3: Remover tabela price_audit (vazia e não usada)
 -- =====================================================
 
--- Remover policies de price_audit primeiro
-DROP POLICY IF EXISTS "Users can view own price audits" ON public.price_audit;
-DROP POLICY IF EXISTS "Users can insert own price audits" ON public.price_audit;
-DROP POLICY IF EXISTS "Users can update own price audits" ON public.price_audit;
-DROP POLICY IF EXISTS "Service role has full access" ON public.price_audit;
-
--- Remover triggers
-DROP TRIGGER IF EXISTS update_price_audit_updated_at ON public.price_audit;
+-- Verificar se tabela existe antes de remover policies
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'price_audit') THEN
+        -- Remover policies de price_audit primeiro
+        DROP POLICY IF EXISTS "Users can view own price audits" ON public.price_audit;
+        DROP POLICY IF EXISTS "Users can insert own price audits" ON public.price_audit;
+        DROP POLICY IF EXISTS "Users can update own price audits" ON public.price_audit;
+        DROP POLICY IF EXISTS "Service role has full access" ON public.price_audit;
+        
+        -- Remover triggers
+        DROP TRIGGER IF EXISTS update_price_audit_updated_at ON public.price_audit;
+        
+        RAISE NOTICE 'Policies e triggers de price_audit removidos';
+    END IF;
+END $$;
 
 -- Remover índices (sintaxe correta: apenas nome do índice)
 DROP INDEX IF EXISTS public.idx_price_audit_user_id;
@@ -80,10 +88,18 @@ DROP TABLE IF EXISTS public.price_audit;
 -- PASSO 4: Remover tabela users (legada, não usada)
 -- =====================================================
 
--- Remover policies de users primeiro (se existirem)
-DROP POLICY IF EXISTS "Users can view own data" ON public.users;
-DROP POLICY IF EXISTS "Users can update own data" ON public.users;
-DROP POLICY IF EXISTS "Service role has full access" ON public.users;
+-- Verificar se tabela existe antes de remover policies
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users') THEN
+        -- Remover policies de users primeiro (se existirem)
+        DROP POLICY IF EXISTS "Users can view own data" ON public.users;
+        DROP POLICY IF EXISTS "Users can update own data" ON public.users;
+        DROP POLICY IF EXISTS "Service role has full access" ON public.users;
+        
+        RAISE NOTICE 'Policies de users removidas';
+    END IF;
+END $$;
 
 -- Remover índices (sintaxe correta: apenas nome do índice)
 DROP INDEX IF EXISTS public.idx_users_email;

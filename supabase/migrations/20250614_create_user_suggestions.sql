@@ -183,8 +183,22 @@ COMMENT ON TABLE user_suggestions IS 'Sugestões do Co-Piloto para usuários fin
 COMMENT ON TABLE suggestion_feedback IS 'Feedback dos usuários sobre sugestões';
 COMMENT ON TABLE user_copilot_preferences IS 'Preferências do Co-Piloto por usuário';
 
-COMMENT ON COLUMN user_suggestions.type IS 'tip=dica, warning=alerta, insight=análise, action=ação sugerida, explanation=explicação';
-COMMENT ON COLUMN user_suggestions.category IS 'Categoria da sugestão para filtragem';
-COMMENT ON COLUMN user_suggestions.priority IS 'Prioridade para ordenação de exibição';
-COMMENT ON COLUMN user_suggestions.actions IS 'Array de ações possíveis para o usuário';
-COMMENT ON COLUMN user_suggestions.metadata IS 'Dados adicionais específicos do contexto';
+-- Comentários em colunas (apenas se existirem)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_suggestions' AND column_name = 'type') THEN
+        COMMENT ON COLUMN user_suggestions.type IS 'tip=dica, warning=alerta, insight=análise, action=ação sugerida, explanation=explicação';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_suggestions' AND column_name = 'category') THEN
+        COMMENT ON COLUMN user_suggestions.category IS 'Categoria da sugestão para filtragem';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_suggestions' AND column_name = 'priority') THEN
+        COMMENT ON COLUMN user_suggestions.priority IS 'Prioridade para ordenação de exibição';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_suggestions' AND column_name = 'actions') THEN
+        COMMENT ON COLUMN user_suggestions.actions IS 'Array de ações possíveis para o usuário';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_suggestions' AND column_name = 'metadata') THEN
+        COMMENT ON COLUMN user_suggestions.metadata IS 'Dados adicionais específicos do contexto';
+    END IF;
+END $$;
