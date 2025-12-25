@@ -19,10 +19,17 @@ export function validateLogic(state: State | Record<string, unknown>) {
 
 export function detectContradictions(state: State | Record<string, unknown>): string[] {
   const issues: string[] = [];
-  if (state?.risk?.level === 'high' && state?.opportunity?.signal === 'strong') {
+  const stateData = state as State;
+  
+  const riskLevel = stateData?.risk?.level;
+  const opportunitySignal = stateData?.opportunity?.signal;
+  if (riskLevel === 'high' && opportunitySignal === 'strong') {
     issues.push('Risco alto coexistindo com oportunidade forte');
   }
-  if (state?.temporal?.trend === 'decline' && state?.evolution?.evolutionScore > 0.8) {
+  
+  const temporalTrend = stateData?.temporal?.trend;
+  const evolutionScore = stateData?.evolution?.evolutionScore;
+  if (temporalTrend === 'decline' && typeof evolutionScore === 'number' && evolutionScore > 0.8) {
     issues.push('Tendência de queda vs evolução alta');
   }
   return issues;
@@ -57,11 +64,13 @@ interface Decision {
 }
 
 export function explainDecision(decision: Decision | Record<string, unknown>) {
+  const decisionData = decision as Decision;
+  const confidenceValue = decisionData?.values?.confidence;
   const explanation = {
-    reason: decision?.message || 'Decisão emitida.',
-    factors: Object.keys(decision?.values || {}),
-    confidence: decision?.values?.confidence ?? 0.6,
-    inconsistenciesFound: [],
+    reason: typeof decisionData?.message === 'string' ? decisionData.message : 'Decisão emitida.',
+    factors: Object.keys(decisionData?.values || {}),
+    confidence: typeof confidenceValue === 'number' ? confidenceValue : 0.6,
+    inconsistenciesFound: [] as string[],
   };
   emitEvent('ai:explainable-decision', explanation, { source: 'coherenceEngine', priority: 5 });
   logInternalInsight(explanation);

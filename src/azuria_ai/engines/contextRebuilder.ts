@@ -8,13 +8,19 @@ interface ContextSample {
 }
 
 export function rebuildContext(sample: ContextSample | Record<string, unknown>) {
+  const sampleData = sample as ContextSample;
+  const eventFrequencyValue = sampleData?.eventFrequency;
+  const avgLatencyValue = sampleData?.avgLatency;
+  
   const reconstructedState = {
-    inferredLoad: sample?.eventFrequency > 5 ? 'high' : 'normal',
-    inferredStability: sample?.avgLatency > 150 ? 'low' : 'good',
+    inferredLoad: typeof eventFrequencyValue === 'number' && eventFrequencyValue > 5 ? 'high' : 'normal',
+    inferredStability: typeof avgLatencyValue === 'number' && avgLatencyValue > 150 ? 'low' : 'good',
   };
-  const confidence = Math.max(0.3, Math.min(0.9, 1 - (sample?.avgLatency || 0) / 400));
-  const missingSignals = sample?.silentComponents || [];
-  const anomalies = sample?.logAnomalies || [];
+  
+  const avgLatency = typeof avgLatencyValue === 'number' ? avgLatencyValue : 0;
+  const confidence = Math.max(0.3, Math.min(0.9, 1 - avgLatency / 400));
+  const missingSignals = Array.isArray(sampleData?.silentComponents) ? sampleData.silentComponents : [];
+  const anomalies = Array.isArray(sampleData?.logAnomalies) ? sampleData.logAnomalies : [];
 
   const payload = { reconstructedState, confidence, missingSignals, anomalies };
   emitEvent('ai:context-reconstructed', payload, { source: 'contextRebuilder', priority: 6 });
