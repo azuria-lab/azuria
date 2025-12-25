@@ -27,7 +27,7 @@ interface UnsafeIntentContext {
   [key: string]: unknown;
 }
 
-export function detectUnsafeIntent(context: UnsafeIntentContext | Record<string, unknown> | null | undefined) {
+export function detectUnsafeIntent(context: UnsafeIntentContext | EthicalState | Record<string, unknown> | null | undefined) {
   if (!context) {return false;}
   const contextData = context as UnsafeIntentContext;
   const unsafe =
@@ -56,7 +56,7 @@ export function scoreAlignment(userGoal?: string, aiPlan?: string) {
 
 export function enforceEthics(payload: EthicalState | Record<string, unknown>) {
   const risk = evaluateEthicalRisk(payload as EthicalState);
-  const unsafe = detectUnsafeIntent(payload);
+  const unsafe = detectUnsafeIntent(payload as UnsafeIntentContext | EthicalState | Record<string, unknown>);
   if (risk >= 0.6 || unsafe) {
     const safe = correctiveIntent(payload as EthicalState);
     emitEvent('ai:unsafe-output-blocked', { reason: 'ethical_guard', original: payload }, { source: 'ethicalGuardEngine', priority: 10 });

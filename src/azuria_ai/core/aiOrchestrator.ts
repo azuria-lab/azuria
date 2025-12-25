@@ -793,7 +793,7 @@ function generateInsight(insight: GenerateInsightParam): void {
     recordDecision({ insight, status: 'blocked', reason: scopeCheck.reason });
     return;
   }
-  const ethics = enforceEthics(insight);
+  const ethics = enforceEthics(insight as Record<string, unknown>);
   if (ethics.blocked) {
     return;
   }

@@ -60,12 +60,18 @@ export function auditLastDecisions(limit = 50) {
 
 export function detectGovernanceViolations(entry: DecisionEntry) {
   const policy = entry.policy || {};
-  if (policy.forbiddenActions && entry.action && policy.forbiddenActions.includes(entry.action.type)) {
-    emitEvent(
-      'ai:governance-violation',
-      { action: entry.action, reason: 'forbidden' },
-      { source: 'governanceEngine', priority: 9 }
+  if (policy.forbiddenActions && entry.action && entry.action.type) {
+    const actionType = entry.action.type;
+    const isForbidden = policy.forbiddenActions.some(
+      (forbidden) => typeof forbidden === 'object' && forbidden !== null && forbidden.type === actionType
     );
+    if (isForbidden) {
+      emitEvent(
+        'ai:governance-violation',
+        { action: entry.action, reason: 'forbidden' },
+        { source: 'governanceEngine', priority: 9 }
+      );
+    }
   }
 }
 

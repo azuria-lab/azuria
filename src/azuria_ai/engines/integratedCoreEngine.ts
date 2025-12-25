@@ -150,8 +150,13 @@ export function runSafeActionPipeline(action: any, context: any) {
   registerDecision({
     intent: context?.intent,
     action,
-    policy: policyCheck,
-    risk: safeResult.riskLevel,
+    policy: {
+      forbiddenActions: policyCheck.allowed ? [] : [{ type: action?.type || 'unknown' }],
+    },
+    risk: {
+      level: safeResult.riskLevel || 'medium',
+      score: safeResult.riskLevel === 'high' ? 0.8 : safeResult.riskLevel === 'medium' ? 0.5 : 0.2,
+    },
     decision,
   });
 
