@@ -121,15 +121,17 @@ export async function listAlerts(): Promise<AutomationAlert[]> {
 }
 
 export async function listAlertsByRule(ruleId: string): Promise<AutomationAlert[]> {
-  // @ts-expect-error - Type instantiation is excessively deep
-  const { data, error } = await supabase
+  // Usar função auxiliar para evitar erro de profundidade de tipo
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: any = await supabase
     .from("automation_alerts")
     .select("*")
     .eq("rule_id", ruleId)
     .order("created_at", { ascending: false });
-  if (error) { throw error; }
+  
+  if (result.error) { throw result.error; }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((r: any) => mapAlert(r));
+  return (result.data ?? []).map((r: any) => mapAlert(r));
 }
 
 export async function listWorkflows(): Promise<AutomationWorkflow[]> {
