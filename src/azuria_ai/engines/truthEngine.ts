@@ -42,9 +42,12 @@ export function checkLogicalCoherence(state: CoherenceState | Record<string, unk
 }
 
 export function detectContradictions(state: CoherenceState | Record<string, unknown>): TruthCheckResult {
+  const stateData = state as CoherenceState;
   const contradictions: string[] = [];
-  if (state?.pricing?.price < 0) {contradictions.push('Preço negativo detectado');}
-  if (state?.inventory?.stock && state.inventory.stock < 0) {contradictions.push('Estoque negativo');}
+  const priceValue = stateData?.pricing?.price;
+  if (typeof priceValue === 'number' && priceValue < 0) {contradictions.push('Preço negativo detectado');}
+  const stockValue = stateData?.inventory?.stock;
+  if (typeof stockValue === 'number' && stockValue < 0) {contradictions.push('Estoque negativo');}
   return { ok: contradictions.length === 0, contradictions };
 }
 
@@ -57,8 +60,10 @@ export function validateRealityModel(reality: CoherenceState['reality'], perceiv
 }
 
 export function auditStateConsistency(state: CoherenceState | Record<string, unknown>): TruthCheckResult {
+  const stateData = state as CoherenceState;
   const issues: string[] = [];
-  if (state?.operational?.load > 1) {issues.push('Load acima de 1');}
+  const loadValue = stateData?.operational?.load;
+  if (typeof loadValue === 'number' && loadValue > 1) {issues.push('Load acima de 1');}
   const ok = issues.length === 0;
   if (!ok) {emitTruthAlert('critical', { issues });}
   return { ok, contradictions: issues };

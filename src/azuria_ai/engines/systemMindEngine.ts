@@ -45,7 +45,10 @@ interface AnomalyInput {
 export function detectInternalAnomalies(inputs: Record<string, AnomalyInput | unknown> = {}) {
   const anomalies: string[] = [];
   Object.entries(inputs).forEach(([k, v]) => {
-    if (v && v.health && v.health < 0.3) {anomalies.push(`low-health:${k}`);}
+    const inputValue = v as AnomalyInput | null | undefined;
+    if (inputValue && typeof inputValue.health === 'number' && inputValue.health < 0.3) {
+      anomalies.push(`low-health:${k}`);
+    }
   });
   mindState.anomalies = anomalies;
   if (anomalies.length > 0) {

@@ -69,8 +69,11 @@ export function recommendGlobalAdjustments(_state: GlobalState | Record<string, 
 }
 
 export function detectStrategicConflicts(state: GlobalState | Record<string, unknown>) {
-  const conflicts = [];
-  if (state?.risk?.level === 'high' && state?.opportunity?.signal === 'strong') {
+  const stateData = state as GlobalState;
+  const conflicts: string[] = [];
+  const riskData = stateData?.risk as { level?: string } | undefined;
+  const opportunityData = stateData?.opportunity as { signal?: string } | undefined;
+  if (riskData?.level === 'high' && opportunityData?.signal === 'strong') {
     conflicts.push('Prioridade conflito: risco alto vs oportunidade forte');
     emitEvent('ai:strategic-conflict-detected', { conflicts }, { source: 'strategicEngine', priority: 7 });
   }

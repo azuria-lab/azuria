@@ -1,6 +1,6 @@
 import { emitEvent } from '../core/eventBus';
 import { storyProfiles } from './storyProfiles';
-import { adaptToneProfileFromPersona, getToneProfileForUser, type PersonaKey, rewriteWithBrandVoice, speak } from './brandVoiceEngine';
+import { adaptToneProfileFromPersona, getToneProfileForUser, type PersonaKey, rewriteWithBrandVoice, speak, type ToneProfileKey } from './brandVoiceEngine';
 
 function pickProfile(userLevel: string) {
   return storyProfiles[userLevel as keyof typeof storyProfiles] || storyProfiles.iniciante;
@@ -76,7 +76,10 @@ export function createMicroStory(data: MicroStoryData | Record<string, unknown>)
   const dataObj = data as MicroStoryData;
   const msg = typeof dataObj?.message === 'string' ? dataObj.message : 'História não especificada.';
   const toneValue = dataObj?.tone;
-  const tone = typeof toneValue === 'string' ? toneValue : 'padrao';
+  const validTones: ToneProfileKey[] = ['comercial', 'padrao', 'motivador', 'estrategico', 'educativo'];
+  const tone: ToneProfileKey = typeof toneValue === 'string' && validTones.includes(toneValue as ToneProfileKey) 
+    ? toneValue as ToneProfileKey 
+    : 'padrao';
   const refined = rewriteWithBrandVoice(msg, tone);
   emitEvent('ai:story-generated', { story: refined, brandTone: data?.tone || 'padrao' }, { source: 'storytellingEngine', priority: 4 });
   return refined;
