@@ -39,7 +39,6 @@ import {
   Search,
   Send,
   Settings,
-  Shield,
   Video,
   XCircle,
   Zap
@@ -274,7 +273,7 @@ export default function HelpPage() {
         category: "duvida",
         priority: "media"
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Erro",
         description: "Não foi possível criar o ticket. Tente novamente.",

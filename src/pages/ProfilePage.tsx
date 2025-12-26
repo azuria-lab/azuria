@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { motion } from "framer-motion";
 import type { Database } from "@/types/supabase";
 import { 
   Briefcase, 

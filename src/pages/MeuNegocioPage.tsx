@@ -14,10 +14,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -126,11 +122,11 @@ const mockProducts: Product[] = [
 ];
 
 export default function MeuNegocioPage() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [products, _setProducts] = useState<Product[]>(mockProducts);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStore, setSelectedStore] = useState("all");
-  const [situationFilter, setSituationFilter] = useState("ultimos-incluidos");
+  const [_situationFilter, _setSituationFilter] = useState("ultimos-incluidos");
   const [filterOpen, setFilterOpen] = useState(false);
   
   // Filter states
