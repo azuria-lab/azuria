@@ -27,7 +27,7 @@ export interface TaxCalcData {
   ufOrigem?: string;
   ufDestino?: string;
   ncm?: string;
-  resultado?: any;
+  resultado?: Record<string, unknown>;
 }
 
 export interface TaxCalcEvent {
@@ -124,7 +124,8 @@ export function useTaxCalcWatcher(
   /**
    * Detecta mudanças nos dados do cálculo tributário
    */
-  const handleDataChange = useCallback(
+   
+  const _handleDataChange = useCallback(
     (newData: TaxCalcData, changedField?: string) => {
       if (!isWatching) {return;}
 

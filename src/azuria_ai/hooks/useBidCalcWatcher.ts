@@ -123,7 +123,8 @@ export function useBidCalcWatcher(
   /**
    * Detecta mudanças nos dados do cálculo de licitação
    */
-  const handleDataChange = useCallback(
+   
+  const _handleDataChange = useCallback(
     (newData: BidCalcData, changedField?: string) => {
       if (!isWatching) {return;}
 

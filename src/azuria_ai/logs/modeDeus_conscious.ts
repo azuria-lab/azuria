@@ -3,7 +3,7 @@
  * Uso interno — não expor ao usuário final.
  */
 
-type LogEntry = Record<string, any>;
+type LogEntry = Record<string, unknown>;
 
 const contradictions: LogEntry[] = [];
 const justifications: LogEntry[] = [];

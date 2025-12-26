@@ -23,7 +23,7 @@ export interface CalcData {
   impostos?: number;
   taxasMarketplace?: number;
   precoVenda?: number;
-  resultado?: any;
+  resultado?: Record<string, unknown>;
 }
 
 export interface CalcEvent {

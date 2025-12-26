@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { ADMIN_UID_FRONT } from '../../config/admin';
 
-export function useCreatorStream(onEvent: (ev: any) => void) {
+export function useCreatorStream(onEvent: (ev: Record<string, unknown>) => void) {
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     let closed = false;
-    let retryTimer: any;
+    let retryTimer: NodeJS.Timeout | null = null;
 
     const connect = () => {
       const url = `/api/admin/creator/stream?admin_uid=${encodeURIComponent(ADMIN_UID_FRONT)}`;
-      const sse = new EventSource(url, { withCredentials: true } as any);
+      const sse = new EventSource(url, { withCredentials: true } as Record<string, unknown>);
       const handler = (ev: MessageEvent) => onEvent(JSON.parse(ev.data));
       sse.addEventListener('creator-alert', handler);
       sse.addEventListener('creator-insight', handler);

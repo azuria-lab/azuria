@@ -3,7 +3,7 @@
  * Mantém rastros para evolução contínua da IA.
  */
 
-type LogPayload = Record<string, any>;
+type LogPayload = Record<string, unknown>;
 
 const riskLog: LogPayload[] = [];
 const opportunityLog: LogPayload[] = [];

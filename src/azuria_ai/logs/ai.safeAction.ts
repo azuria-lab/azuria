@@ -1,7 +1,7 @@
 /**
  * Log de ações seguras do Modo Deus
  */
-type LogEntry = Record<string, any>;
+type LogEntry = Record<string, unknown>;
 const entries: LogEntry[] = [];
 const LIMIT = 200;
 
