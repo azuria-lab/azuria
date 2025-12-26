@@ -30,34 +30,41 @@ export default function AlertsList() {
 
   return (
     <div className="p-4 space-y-3">
-      {alerts.map((a, idx) => (
-        <div key={typeof a.id === 'string' ? a.id : idx} className={`p-3 rounded border ${a.severity === 'critical' ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
-          <div className="flex justify-between">
-            <div>
-              <strong>{a.area || 'ecosystem'}</strong> • <span className="text-sm">{a.severity}</span>
-              <p className="mt-1 text-sm">{a.message || a.recommendation}</p>
+      {alerts.map((a, idx) => {
+        const alertId = typeof a.id === 'string' ? a.id : String(idx);
+        const area = typeof a.area === 'string' ? a.area : 'ecosystem';
+        const severity = typeof a.severity === 'string' ? a.severity : 'info';
+        const message = typeof a.message === 'string' ? a.message : (typeof a.recommendation === 'string' ? a.recommendation : '');
+        const recommendation = typeof a.recommendation === 'string' ? a.recommendation : undefined;
+        return (
+          <div key={alertId} className={`p-3 rounded border ${severity === 'critical' ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
+            <div className="flex justify-between">
+              <div>
+                <strong>{area}</strong> • <span className="text-sm">{severity}</span>
+                <p className="mt-1 text-sm">{message}</p>
+              </div>
+              <div className="space-x-2">
+                <button onClick={() => ack(alertId, 'ack')} className="btn btn-sm">
+                  Ack
+                </button>
+                <button onClick={() => ack(alertId, 'ignore')} className="btn btn-sm">
+                  Ignorar
+                </button>
+              </div>
             </div>
-            <div className="space-x-2">
-              <button onClick={() => ack(a.id, 'ack')} className="btn btn-sm">
-                Ack
-              </button>
-              <button onClick={() => ack(a.id, 'ignore')} className="btn btn-sm">
-                Ignorar
-              </button>
-            </div>
+            {recommendation && (
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => ack(alertId, 'resolve')} className="btn btn-xs">
+                  Aceitar
+                </button>
+                <button onClick={() => ack(alertId, 'ignore')} className="btn btn-xs">
+                  Rejeitar
+                </button>
+              </div>
+            )}
           </div>
-          {a.recommendation && (
-            <div className="mt-2 flex gap-2">
-              <button onClick={() => ack(a.id, 'resolve')} className="btn btn-xs">
-                Aceitar
-              </button>
-              <button onClick={() => ack(a.id, 'ignore')} className="btn btn-xs">
-                Rejeitar
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -14,13 +14,10 @@ import {
   Calculator, 
   CheckCircle2,
   Clock,
-  FileText,
-  Package,
-  Sparkles,
   TrendingUp,
   Zap
 } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface DashboardStats {
   totalCalculations: number;

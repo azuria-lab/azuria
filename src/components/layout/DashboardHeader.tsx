@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,12 +23,6 @@ import {
 import UserProfileButton from "@/components/auth/UserProfileButton";
 import SmartNotificationCenter from "@/components/notifications/SmartNotificationCenter";
 import { useAuthContext } from "@/domains/auth";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   BarChart3,
   Brain,

@@ -30,13 +30,17 @@ export function EvolutionPanel() {
     <div className="p-3 rounded border border-purple-200 bg-purple-50 space-y-3">
       <div className="text-sm font-semibold">Evolução do Sistema</div>
       <div className="space-y-2 text-sm max-h-72 overflow-y-auto">
-        {events.map((e, idx) => (
-          <div key={idx} className="p-2 rounded border border-purple-100 bg-white">
-            <div className="text-xs text-gray-500">{new Date(e.created_at || Date.now()).toLocaleString()}</div>
-            <div className="font-semibold">{e.type || 'evolution'}</div>
-            <div className="text-xs">{JSON.stringify(e.payload)}</div>
-          </div>
-        ))}
+        {events.map((e, idx) => {
+          const createdAt = typeof e.created_at === 'number' ? e.created_at : Date.now();
+          const type = typeof e.type === 'string' ? e.type : 'evolution';
+          return (
+            <div key={idx} className="p-2 rounded border border-purple-100 bg-white">
+              <div className="text-xs text-gray-500">{new Date(createdAt).toLocaleString()}</div>
+              <div className="font-semibold">{type}</div>
+              <div className="text-xs">{JSON.stringify(e.payload)}</div>
+            </div>
+          );
+        })}
         {events.length === 0 && <div className="text-xs text-gray-500">Sem eventos</div>}
       </div>
       <div>
