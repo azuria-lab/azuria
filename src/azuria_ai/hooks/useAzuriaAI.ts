@@ -16,8 +16,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type {
-  OrchestratorRequest,
-  OrchestratorResponse,
+  OrchestratorRequest as _OrchestratorRequest,
+  OrchestratorResponse as _OrchestratorResponse,
 } from '../core/aiOrchestrator';
 
 export interface UseAzuriaAIOptions {
@@ -31,7 +31,7 @@ export interface AzuriaMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UseAzuriaAIReturn {
@@ -39,7 +39,7 @@ export interface UseAzuriaAIReturn {
   isLoading: boolean;
   isTyping: boolean;
   error: Error | null;
-  sendMessage: (message: string, context?: any) => Promise<void>;
+  sendMessage: (message: string, context?: Record<string, unknown>) => Promise<void>;
   clearHistory: () => void;
   retry: () => Promise<void>;
 }
@@ -49,7 +49,7 @@ export function useAzuriaAI(
 ): UseAzuriaAIReturn {
   const [messages, setMessages] = useState<AzuriaMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [_isTyping, _setIsTyping] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   // TODO: Implementar conexão com backend
@@ -59,7 +59,7 @@ export function useAzuriaAI(
   // TODO: Implementar retry logic
   // TODO: Implementar gerenciamento de histórico
 
-  const sendMessage = useCallback(async (message: string, context?: any) => {
+  const sendMessage = useCallback(async (_message: string, _context?: Record<string, unknown>) => {
     // TODO: Implementar envio de mensagem
     setIsLoading(true);
     setError(null);
@@ -92,7 +92,7 @@ export function useAzuriaAI(
   return {
     messages,
     isLoading,
-    isTyping,
+    isTyping: _isTyping,
     error,
     sendMessage,
     clearHistory,

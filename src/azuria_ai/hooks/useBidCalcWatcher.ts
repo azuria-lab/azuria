@@ -23,10 +23,10 @@ export interface BidCalcData {
   lanceCalculado?: number;
   descontoPorLote?: number;
   nivelRisco?: string;
-  avaliacaoRisco?: any;
+  avaliacaoRisco?: Record<string, unknown>;
   prazoEntrega?: number;
   quantidadeLotes?: number;
-  resultado?: any;
+  resultado?: Record<string, unknown>;
 }
 
 export interface BidCalcEvent {
