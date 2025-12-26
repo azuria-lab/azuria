@@ -68,3 +68,6 @@ temp-*.txt
 docs/notes/temp-*.txt
 docs/notes/*-supabase-*.txt
 
+# Lint output
+.lint-output.txt
+

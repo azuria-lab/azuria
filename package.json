@@ -13,6 +13,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:safe": "node scripts/lint-safe.mjs",
     "gen:types": "npx supabase gen types typescript --project-id crpzkppsriranmeumfqs > src/types/supabase.ts",
     "preview": "vite preview",
     "verify:governance": "node scripts/verify-governance.mjs",
