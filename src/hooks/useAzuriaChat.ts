@@ -102,7 +102,7 @@ Posso te ajudar com:
   /**
    * Obtém contexto da conversa
    */
-  const getConversationContext =
+  const _getConversationContext =
     useCallback(async (): Promise<ConversationContext> => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id || 'anonymous';
@@ -188,6 +188,7 @@ Posso te ajudar com:
         };
       } catch (edgeFunctionError) {
         // Fallback para chamada direta (apenas em desenvolvimento)
+        // eslint-disable-next-line no-console
         console.warn(
           '[useAzuriaChat] Edge Function falhou, usando fallback local:',
           edgeFunctionError

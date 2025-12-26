@@ -94,6 +94,7 @@ export function useChat() {
 
       setRooms(roomsWithUnread);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error loading rooms:", error);
       toast({
         title: "Erro",
@@ -147,6 +148,7 @@ export function useChat() {
         await loadRooms();
         return room;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error creating room:", error);
         toast({
           title: "Erro",
@@ -177,6 +179,7 @@ export function useChat() {
 
         await loadRooms();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error updating room name:", error);
         toast({
           title: "Erro",
@@ -203,7 +206,7 @@ export function useChat() {
           const filePath = `chat-rooms/${fileName}`;
 
           // Upload para Supabase Storage
-          const { data: uploadData, error: uploadError } = await supabase.storage
+          const { data: _uploadData, error: uploadError } = await supabase.storage
             .from('chat-avatars')
             .upload(filePath, avatarFile, {
               cacheControl: '3600',
@@ -236,6 +239,7 @@ export function useChat() {
 
         await loadRooms();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error updating room avatar:", error);
         toast({
           title: "Erro",
@@ -277,6 +281,7 @@ export function useChat() {
 
         return message;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error sending message:", error);
         toast({
           title: "Erro",
@@ -319,6 +324,7 @@ export function useChat() {
         }));
         return messages.reverse();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error loading messages:", error);
         return [];
       }
