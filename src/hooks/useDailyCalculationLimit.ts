@@ -58,6 +58,7 @@ export const useDailyCalculationLimit = () => {
 
       return { count: data.count || 0, date: data.date };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error loading daily usage:', error);
       return { count: 0, date: null };
     }
@@ -71,6 +72,7 @@ export const useDailyCalculationLimit = () => {
       const today = getTodayKey();
       localStorage.setItem(storageKey, JSON.stringify({ count, date: today }));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving daily usage:', error);
     }
   }, [getStorageKey, getTodayKey]);

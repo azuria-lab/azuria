@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Info, Search, Sparkles, Trash2, Upload } from "lucide-react";
 import { motion } from "framer-motion";
@@ -139,14 +139,7 @@ export default function CompanyDataPage() {
     logoUrl: ""
   });
 
-  // Carregar dados salvos
-  useEffect(() => {
-    if (userId) {
-      loadCompanyData();
-    }
-  }, [userId]);
-
-  const loadCompanyData = async () => {
+  const loadCompanyData = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("company_data")
@@ -164,9 +157,17 @@ export default function CompanyDataPage() {
         });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Erro ao carregar dados da empresa:", error);
     }
-  };
+  }, [userId]);
+
+  // Carregar dados salvos
+  useEffect(() => {
+    if (userId) {
+      loadCompanyData();
+    }
+  }, [userId, loadCompanyData]);
 
   const handleChange = (field: keyof CompanyData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -174,10 +175,10 @@ export default function CompanyDataPage() {
 
   const handleCEPChange = async (cep: string) => {
     handleChange("cep", cep);
-    
-    if (cep.replace(/\D/g, "").length === 8) {
+    const cepDigits = cep.replaceAll(/\D/g, "");
+    if (cepDigits.length === 8) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cep.replace(/\D/g, "")}/json/`);
+        const response = await fetch(`https://viacep.com.br/ws/${cepDigits}/json/`);
         const data = await response.json();
         
         if (!data.erro) {
@@ -187,6 +188,7 @@ export default function CompanyDataPage() {
           handleChange("endereco", data.logradouro);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Erro ao buscar CEP:", error);
       }
     }
@@ -261,6 +263,7 @@ export default function CompanyDataPage() {
         description: "Logo atualizada com sucesso."
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Erro ao fazer upload:", error);
       toast({
         title: "Erro",
@@ -295,6 +298,7 @@ export default function CompanyDataPage() {
         description: "Dados da empresa salvos com sucesso."
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Erro ao salvar:", error);
       toast({
         title: "Erro",
@@ -704,7 +708,7 @@ export default function CompanyDataPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.inscricoesEstaduais.map((inscricao, index) => (
-                  <div key={index} className="flex gap-2 items-end">
+                  <div key={`${inscricao.estado}-${inscricao.inscricao}-${index}`} className="flex gap-2 items-end">
                     <div className="flex-1 space-y-2">
                       <Label>Estado</Label>
                       <Select
@@ -780,6 +784,7 @@ export default function CompanyDataPage() {
                       accept="image/*"
                       onChange={handleLogoUpload}
                       className="hidden"
+                      aria-label="Upload do logo da empresa"
                     />
                     <Label htmlFor="logoUpload" className="cursor-pointer">
                       <Button

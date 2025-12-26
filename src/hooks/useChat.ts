@@ -345,6 +345,7 @@ export function useChat() {
 
         await loadRooms();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error marking messages as read:", error);
       }
     },
@@ -365,6 +366,7 @@ export function useChat() {
             last_seen_at: new Date().toISOString(),
           });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error updating user status:", error);
       }
     },

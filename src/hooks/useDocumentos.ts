@@ -209,7 +209,7 @@ export function useDocumentos() {
       }
 
       // Deletar arquivo do storage se existir
-      if (documento && documento.arquivo_url) {
+      if (documento?.arquivo_url) {
         await supabase.storage
           .from('documentos')
           .remove([documento.arquivo_url]);
