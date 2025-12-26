@@ -15,19 +15,19 @@ const Templates = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { setState } = useRapidCalculator();
-  const { incrementDownloads } = useTemplatesShared();
+  const { incrementDownloads: _incrementDownloads } = useTemplatesShared();
 
   const applyRapidTemplate = useCallback(async (template: CalculationTemplate) => {
     try {
       // Aplicar valores do template na calculadora rápida
       setState({
-        cost: (template.default_values as any)?.cost ?? "",
-        margin: (template.default_values as any)?.margin ?? 30,
-        tax: (template.default_values as any)?.tax ?? "",
-        cardFee: (template.default_values as any)?.cardFee ?? "",
-        otherCosts: (template.default_values as any)?.otherCosts ?? "",
-        shipping: (template.default_values as any)?.shipping ?? "",
-        includeShipping: (template.default_values as any)?.includeShipping ?? false,
+        cost: (template.default_values as Record<string, unknown>)?.cost ?? "",
+        margin: (template.default_values as Record<string, unknown>)?.margin ?? 30,
+        tax: (template.default_values as Record<string, unknown>)?.tax ?? "",
+        cardFee: (template.default_values as Record<string, unknown>)?.cardFee ?? "",
+        otherCosts: (template.default_values as Record<string, unknown>)?.otherCosts ?? "",
+        shipping: (template.default_values as Record<string, unknown>)?.shipping ?? "",
+        includeShipping: (template.default_values as Record<string, unknown>)?.includeShipping ?? false,
       });
 
       toast({

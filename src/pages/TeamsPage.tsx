@@ -48,7 +48,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -177,7 +176,7 @@ interface Chat {
 
 export default function TeamsPage() {
   const { userProfile } = useAuthContext();
-  const reduceMotion = useReducedMotion();
+  const _reduceMotion = useReducedMotion();
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
@@ -212,7 +211,7 @@ export default function TeamsPage() {
 
     return backendRooms.map((room) => {
       // Buscar membros da sala (em produção, buscar do backend)
-      const roomMembers = mockMembers.filter((m) =>
+      const roomMembers = mockMembers.filter((_m) =>
         room.members_count ? true : false // Simplificado - em produção buscar do backend
       );
 
@@ -328,7 +327,7 @@ export default function TeamsPage() {
       .toUpperCase();
   };
 
-  const getStatusColor = (status: TaskStatus) => {
+  const _getStatusColor = (status: TaskStatus) => {
     return statusConfig[status].color;
   };
 
@@ -341,7 +340,7 @@ export default function TeamsPage() {
   const currentUserName = userProfile?.name || "Você";
 
   const TaskCard = ({ task }: { task: Task }) => {
-    const StatusIcon = statusConfig[task.status].icon;
+    const _StatusIcon = statusConfig[task.status].icon;
     const completedChecklist = task.checklist?.filter((item) => item.isCompleted).length || 0;
     const totalChecklist = task.checklist?.length || 0;
 
