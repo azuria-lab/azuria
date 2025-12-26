@@ -5,7 +5,6 @@ import {
   Brain, 
   Calculator, 
   ChartBar,
-  FileText,
   FileUp,
   Gauge,
   Package2,

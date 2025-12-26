@@ -45,7 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ChatList from "@/components/team/ChatList";
-import ChatWindow from "@/components/team/ChatWindow";
+import ChatWindow, { type Message } from "@/components/team/ChatWindow";
 import CreateRoomDialog from "@/components/team/CreateRoomDialog";
 import { useChat } from "@/hooks/useChat";
 import {
@@ -284,8 +284,19 @@ export default function TeamsPage() {
     await backendSendMessage(selectedChatId, content);
   };
 
-  const handleLoadMessages = async (roomId: string) => {
-    return await backendLoadMessages(roomId);
+  const handleLoadMessages = async (roomId: string): Promise<Message[]> => {
+    const chatMessages = await backendLoadMessages(roomId);
+    // Converter ChatMessage[] para Message[]
+    return chatMessages.map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      senderId: msg.sender_id,
+      senderName: msg.sender?.name || 'Usuário',
+      senderAvatar: msg.sender?.avatar_url,
+      timestamp: new Date(msg.created_at),
+      isOwn: msg.sender_id === currentUserId,
+      status: msg.status,
+    }));
   };
 
   const handleMarkAsRead = async (roomId: string) => {

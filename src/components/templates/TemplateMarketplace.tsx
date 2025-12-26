@@ -323,7 +323,7 @@ const advancedCalculatorTemplates: CalculationTemplate[] = [
 export default function TemplateMarketplace() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [purchasedTemplates, setPurchasedTemplates] = useState<string[]>([]);
+  const [purchasedTemplates, _setPurchasedTemplates] = useState<string[]>([]);
 
   const handleTemplateSelect = (template: CalculationTemplate, calculatorType: 'rapid' | 'advanced') => {
     logger.info('Template selecionado', { templateId: template.id, calculatorType });

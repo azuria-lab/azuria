@@ -23,6 +23,7 @@ export const ERP_INTEGRATIONS: AdvancedTemplate[] = [
     variant: 'integration',
     onClick: () => {
       // TODO: Implementar integração Bling
+      // eslint-disable-next-line no-console
       console.log('Conectar Bling ERP');
     },
   },
@@ -36,6 +37,7 @@ export const MARKETPLACE_TEMPLATES: AdvancedTemplate[] = [
     variant: 'marketplace',
     onClick: () => {
       // TODO: Aplicar template Mercado Livre
+      // eslint-disable-next-line no-console
       console.log('Aplicar template Mercado Livre');
     },
   },
@@ -46,6 +48,7 @@ export const MARKETPLACE_TEMPLATES: AdvancedTemplate[] = [
     variant: 'marketplace',
     onClick: () => {
       // TODO: Aplicar template Shopee
+      // eslint-disable-next-line no-console
       console.log('Aplicar template Shopee');
     },
   },
@@ -56,6 +59,7 @@ export const MARKETPLACE_TEMPLATES: AdvancedTemplate[] = [
     variant: 'marketplace',
     onClick: () => {
       // TODO: Aplicar template Amazon
+      // eslint-disable-next-line no-console
       console.log('Aplicar template Amazon');
     },
   },
