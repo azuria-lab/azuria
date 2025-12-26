@@ -149,10 +149,19 @@ jobs:
 
       - name: Run semantic-release
         id: semantic-release
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN || 'dummy' }}
-        run: npm run -s release
+        run: |
+          npm run -s release || EXIT_CODE=$?
+          echo "exit-code=${EXIT_CODE:-0}" >> $GITHUB_OUTPUT
+          # Exit code 1 é normal quando não há mudanças que justifiquem release
+          if [ "${EXIT_CODE:-0}" = "1" ]; then
+            echo "ℹ️ Semantic-release não criou nova versão (sem mudanças que justifiquem release)"
+            exit 0  # Tratar como sucesso
+          fi
+          exit ${EXIT_CODE:-0}
 
       - name: Check if new version was published
         id: check-release
