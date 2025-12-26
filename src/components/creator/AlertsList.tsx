@@ -3,7 +3,7 @@ import { useCreatorStream } from '../../azuria_ai/hooks/useCreatorStream';
 import { ADMIN_UID_FRONT } from '../../config/admin';
 
 export default function AlertsList() {
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<Record<string, unknown>[]>([]);
 
   // carga inicial via API (fallback)
   useEffect(() => {
@@ -13,7 +13,7 @@ export default function AlertsList() {
       .catch(() => {});
   }, []);
 
-  const onEvent = useCallback((ev: any) => {
+  const onEvent = useCallback((ev: Record<string, unknown>) => {
     setAlerts((prev) => [ev, ...prev]);
   }, []);
 

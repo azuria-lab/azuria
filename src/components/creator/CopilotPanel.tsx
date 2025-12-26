@@ -24,7 +24,7 @@ export function CopilotPanel() {
       });
       const data = await r.json();
       setResp(data);
-    } catch (e) {
+    } catch (_e) {
       setResp({ summary: 'Erro ao consultar copiloto.' });
     } finally {
       setLoading(false);

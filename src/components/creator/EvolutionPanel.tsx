@@ -3,8 +3,8 @@ import { useCreatorStream } from '../../azuria_ai/hooks/useCreatorStream';
 import { ADMIN_UID_FRONT } from '../../config/admin';
 
 export function EvolutionPanel() {
-  const [events, setEvents] = useState<any[]>([]);
-  const [snapshots, setSnapshots] = useState<any[]>([]);
+  const [events, setEvents] = useState<Record<string, unknown>[]>([]);
+  const [snapshots, setSnapshots] = useState<Record<string, unknown>[]>([]);
 
   useEffect(() => {
     fetch('/api/admin/creator/evolution', { headers: { 'x-admin': 'true', 'x-admin-uid': ADMIN_UID_FRONT } })

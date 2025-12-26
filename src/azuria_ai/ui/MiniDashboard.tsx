@@ -194,8 +194,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
   const [temporalAlerts, setTemporalAlerts] = useState<string[]>([]);
   const [_engagementNarrative, _setEngagementNarrative] = useState<EngagementNarrativeState>({});
   const [_uxEvolution, _setUxEvolution] = useState<UXEvolutionState>({});
-  const [governance, setGovernance] = useState<GovernanceState>({});
-  const [systemMind, setSystemMind] = useState<SystemMindState>({});
+  const [_governance, _setGovernance] = useState<GovernanceState>({});
+  const [_systemMind, _setSystemMind] = useState<SystemMindState>({});
 
   // Escutar eventos de insights
   useEffect(() => {
@@ -282,49 +282,49 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const motivationSub = on('ai:user-motivation-level', (event: AzuriaEvent) => {
-      setEngagementNarrative(prev => ({
+      _setEngagementNarrative(prev => ({
         ...prev,
         motivationLevel: event.payload?.motivationLevel,
       }));
     });
 
     const achievementSub = on('ai:achievement-unlocked', (_event: AzuriaEvent) => {
-      setEngagementNarrative(prev => ({
+      _setEngagementNarrative(prev => ({
         ...prev,
         achievementCount: (prev.achievementCount ?? 0) + 1,
       }));
     });
 
     const streakSub = on('ai:engagement-progress', (event: AzuriaEvent) => {
-      setEngagementNarrative(prev => ({
+      _setEngagementNarrative(prev => ({
         ...prev,
         recentStreak: event.payload?.streak ?? prev.recentStreak,
       }));
     });
 
     const nextActionSub = on('ai:next-best-action', (event: AzuriaEvent) => {
-      setEngagementNarrative(prev => ({
+      _setEngagementNarrative(prev => ({
         ...prev,
         recommendedNextAction: event.payload?.action,
       }));
     });
 
     const storySub = on('ai:story-generated', (event: AzuriaEvent) => {
-      setEngagementNarrative(prev => ({
+      _setEngagementNarrative(prev => ({
         ...prev,
         lastStory: event.payload?.story,
       }));
     });
 
     const behaviorSub = on('ai:behavior-pattern-detected', (_event: AzuriaEvent) => {
-      setUxEvolution(prev => ({
+      _setUxEvolution(prev => ({
         ...prev,
         positivePatterns: prev.positivePatterns || 0,
       }));
     });
 
     const frictionSub = on('ai:ux-friction-detected', (event: AzuriaEvent) => {
-      setUxEvolution(prev => ({
+      _setUxEvolution(prev => ({
         ...prev,
         uxFrictionPoints: (prev.uxFrictionPoints || 0) + 1,
         abandonRate: event.payload?.struggle || prev.abandonRate,
@@ -332,14 +332,14 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const autofixSub = on('ai:autofix-applied', (event: AzuriaEvent) => {
-      setUxEvolution(prev => ({
+      _setUxEvolution(prev => ({
         ...prev,
         autoFixesApplied: [...(prev.autoFixesApplied || []), ...(event.payload?.fixes || [])].slice(0, 5),
       }));
     });
 
     const optimizedSub = on('ai:ux-optimized', (event: AzuriaEvent) => {
-      setUxEvolution(prev => ({
+      _setUxEvolution(prev => ({
         ...prev,
         optimizedFlows: [...(prev.optimizedFlows || []), ...(event.payload?.combined || [])].slice(0, 5),
       }));
@@ -697,7 +697,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
 
   if (!isOpen) {return null;}
 
-  const insightTypeStyles = {
+  const _insightTypeStyles = {
     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
     suggestion: 'bg-blue-50 border-blue-200 text-blue-800',
     info: 'bg-cyan-50 border-cyan-200 text-cyan-800',
