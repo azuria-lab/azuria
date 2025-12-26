@@ -20,14 +20,28 @@ const Templates = () => {
   const applyRapidTemplate = useCallback(async (template: CalculationTemplate) => {
     try {
       // Aplicar valores do template na calculadora rápida
+      const defaults = template.default_values as Record<string, unknown> | undefined;
+      const getString = (key: string): string => {
+        const value = defaults?.[key];
+        return typeof value === 'string' ? value : '';
+      };
+      const getNumber = (key: string, fallback: number): number => {
+        const value = defaults?.[key];
+        return typeof value === 'number' ? value : fallback;
+      };
+      const getBoolean = (key: string, fallback: boolean): boolean => {
+        const value = defaults?.[key];
+        return typeof value === 'boolean' ? value : fallback;
+      };
+      
       setState({
-        cost: (template.default_values as Record<string, unknown>)?.cost ?? "",
-        margin: (template.default_values as Record<string, unknown>)?.margin ?? 30,
-        tax: (template.default_values as Record<string, unknown>)?.tax ?? "",
-        cardFee: (template.default_values as Record<string, unknown>)?.cardFee ?? "",
-        otherCosts: (template.default_values as Record<string, unknown>)?.otherCosts ?? "",
-        shipping: (template.default_values as Record<string, unknown>)?.shipping ?? "",
-        includeShipping: (template.default_values as Record<string, unknown>)?.includeShipping ?? false,
+        cost: getString('cost'),
+        margin: getNumber('margin', 30),
+        tax: getString('tax'),
+        cardFee: getString('cardFee'),
+        otherCosts: getString('otherCosts'),
+        shipping: getString('shipping'),
+        includeShipping: getBoolean('includeShipping', false),
       });
 
       toast({
