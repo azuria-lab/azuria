@@ -39,7 +39,7 @@ interface ChatWindowProps {
   onEditAvatar?: (avatarFile: File | string) => void;
   userStatus?: UserStatusType;
   onSendMessage?: (content: string) => Promise<void>;
-  onLoadMessages?: (roomId: string) => Promise<any[]>;
+  onLoadMessages?: (roomId: string) => Promise<Message[]>;
   onMarkAsRead?: (roomId: string) => Promise<void>;
 }
 
@@ -55,8 +55,8 @@ export default function ChatWindow({
   onEditAvatar,
   userStatus,
   onSendMessage,
-  onLoadMessages,
-  onMarkAsRead,
+  onLoadMessages: _onLoadMessages,
+  onMarkAsRead: _onMarkAsRead,
 }: ChatWindowProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -141,6 +141,7 @@ export default function ChatWindow({
         await onSendMessage(messageContent);
         // A mensagem será atualizada via real-time ou reload
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error sending message:", error);
         // Remover mensagem otimista em caso de erro
         setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
@@ -216,7 +217,7 @@ export default function ChatWindow({
                     input.onchange = async (e) => {
                       const file = (e.target as HTMLInputElement).files?.[0];
                       if (file && chatId && onEditAvatar) {
-                        onEditAvatar(file as any);
+                        onEditAvatar(file);
                       }
                     };
                     input.click();

@@ -20,6 +20,8 @@ export default function TemplateCard({
   isPurchased = false,
   calculatorType = 'rapid'
 }: TemplateCardProps) {
+  // calculatorType is reserved for future use
+  void calculatorType;
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
