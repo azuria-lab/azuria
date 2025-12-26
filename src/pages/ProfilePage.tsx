@@ -256,7 +256,7 @@ export default function ProfilePage() {
     }));
   };
 
-  const updateExperience = (id: string, field: keyof Experience, value: any) => {
+  const updateExperience = (id: string, field: keyof Experience, value: unknown) => {
     setProfileData((prev) => ({
       ...prev,
       experience: prev.experience?.map((exp) =>
