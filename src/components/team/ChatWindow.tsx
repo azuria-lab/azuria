@@ -16,7 +16,7 @@ import { TeamMember } from "@/types/team";
 import { MessageDeliveryStatus } from "./MessageStatus";
 import UserStatus, { type UserStatus as UserStatusType } from "./UserStatus";
 
-interface Message {
+export interface Message {
   id: string;
   content: string;
   senderId: string;
@@ -214,8 +214,9 @@ export default function ChatWindow({
                     const input = document.createElement("input");
                     input.type = "file";
                     input.accept = "image/*";
-                    input.onchange = async (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
+                    input.onchange = async (e: Event) => {
+                      const target = e.target as HTMLInputElement;
+                      const file = target.files?.[0];
                       if (file && chatId && onEditAvatar) {
                         onEditAvatar(file);
                       }
