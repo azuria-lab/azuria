@@ -103,6 +103,7 @@ export function useDocumentos() {
           data_validade: params.data_validade,
           arquivo_url: params.arquivo_url ?? null,
           observacoes: params.observacoes ?? null,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any)
         .select()
         .single();
@@ -165,6 +166,7 @@ export function useDocumentos() {
 
       const { data, error } = await supabase
         .from('documentos')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .update(updateData as any)
         .eq('id', id)
         .select()
@@ -201,7 +203,7 @@ export function useDocumentos() {
         .eq('id', id)
         .single()) as {
         data: { arquivo_url: string | null } | null;
-        error: any;
+        error: Error | null;
       };
 
       if (fetchError) {

@@ -17,7 +17,6 @@ import {
   Calculator,
   CreditCard,
   FileText,
-  HelpCircle,
   Mail,
   MessageCircle,
   Rocket,

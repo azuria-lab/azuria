@@ -169,7 +169,7 @@ export default function CompanyDataPage() {
     }
   }, [userId, loadCompanyData]);
 
-  const handleChange = (field: keyof CompanyData, value: any) => {
+  const handleChange = (field: keyof CompanyData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -285,8 +285,10 @@ export default function CompanyDataPage() {
         .from("company_data")
         .upsert({
           user_id: userId,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data: formData as any,
           updated_at: new Date().toISOString()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any, {
           onConflict: "user_id"
         });

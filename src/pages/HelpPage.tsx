@@ -31,7 +31,6 @@ import {
   CreditCard,
   FileText,
   Globe,
-  HelpCircle,
   Mail,
   MessageCircle,
   MessageSquare,

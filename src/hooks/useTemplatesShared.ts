@@ -186,6 +186,7 @@ export function useTemplatesShared() {
        
       const { data, error } = await supabase
         .from('calculation_templates')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .insert(payload as any)
         .select()
         .single();
