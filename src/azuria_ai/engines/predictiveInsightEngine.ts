@@ -114,7 +114,7 @@ export function generatePredictiveInsight(context: Record<string, unknown> = {})
     { source: 'predictiveInsightEngine', priority: 7 }
   );
 
-  logPredictive(insight);
+  logPredictive(insight as Record<string, unknown>);
 
   // Também expor via canal padrão de insight para UI
   emitEvent(

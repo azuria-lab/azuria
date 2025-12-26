@@ -17,21 +17,25 @@ function pushWithLimit(arr: LogPayload[], item: LogPayload, limit = 200) {
 
 export function logRisk(entry: LogPayload) {
   pushWithLimit(riskLog, entry);
+  // eslint-disable-next-line no-console
   console.debug('[ModoDeus][risk]', entry);
 }
 
 export function logOpportunity(entry: LogPayload) {
   pushWithLimit(opportunityLog, entry);
+  // eslint-disable-next-line no-console
   console.debug('[ModoDeus][opportunity]', entry);
 }
 
 export function logPredictive(entry: LogPayload) {
   pushWithLimit(predictiveLog, entry);
+  // eslint-disable-next-line no-console
   console.debug('[ModoDeus][predictive]', entry);
 }
 
 export function logConflict(entry: LogPayload) {
   pushWithLimit(conflictLog, entry);
+  // eslint-disable-next-line no-console
   console.warn('[ModoDeus][conflict]', entry);
 }
 

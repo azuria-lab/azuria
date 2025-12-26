@@ -7,7 +7,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { type AzuriaEvent, emitEvent, on, unsubscribeFromEvent } from '../core/eventBus';
 import { AlertTriangle, Info, Lightbulb, Sparkles, X } from 'lucide-react';
-import { rewriteWithBrandVoice } from '../engines/brandVoiceEngine';
+import { rewriteWithBrandVoice, type ToneProfileKey } from '../engines/brandVoiceEngine';
 
 export type InsightType = 'info' | 'success' | 'warning' | 'insight' | 'suggestion' | 'forecast';
 
@@ -157,7 +157,7 @@ export function useInsightToasts() {
     const updated = toasts.map((toast) => {
       if (processed.current.has(toast.id)) {return toast;}
       const tone = toast.brandTone || 'padrao';
-      const refined = rewriteWithBrandVoice(toast.message, tone as any);
+      const refined = rewriteWithBrandVoice(toast.message, tone as ToneProfileKey);
       processed.current.add(toast.id);
       if (refined !== toast.message || !toast.refinedMessage) {
         changed = true;

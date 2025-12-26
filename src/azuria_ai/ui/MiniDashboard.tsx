@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { type AzuriaEvent, on, unsubscribeFromEvent } from '../core/eventBus';
-import { AlertTriangle, BarChart3, Calculator, FileText, Sparkles, TrendingUp, X } from 'lucide-react';
+import { BarChart3, Calculator, FileText, Sparkles, TrendingUp, X } from 'lucide-react';
 import { rewriteWithBrandVoice, type ToneProfileKey } from '../engines/brandVoiceEngine';
 
 export interface MiniDashboardProps {
@@ -158,7 +158,8 @@ function formatPercent(value: number | undefined, decimals = 0): string {
 /**
  * Helper to format a numeric score as percentage
  */
-function formatScore(value: number | undefined): string {
+ 
+function _formatScore(value: number | undefined): string {
   if (value === undefined) {
     return 'n/d';
   }
@@ -191,8 +192,8 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
   const [timeline, setTimeline] = useState<string[]>([]);
   const [forecastText, setForecastText] = useState<string>('Sem previsão ainda.');
   const [temporalAlerts, setTemporalAlerts] = useState<string[]>([]);
-  const [engagementNarrative, setEngagementNarrative] = useState<EngagementNarrativeState>({});
-  const [uxEvolution, setUxEvolution] = useState<UXEvolutionState>({});
+  const [_engagementNarrative, _setEngagementNarrative] = useState<EngagementNarrativeState>({});
+  const [_uxEvolution, _setUxEvolution] = useState<UXEvolutionState>({});
   const [governance, setGovernance] = useState<GovernanceState>({});
   const [systemMind, setSystemMind] = useState<SystemMindState>({});
 
