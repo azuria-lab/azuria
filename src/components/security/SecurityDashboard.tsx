@@ -69,6 +69,7 @@ const SecurityDashboard: React.FC = () => {
       await optimizeTables.mutateAsync();
       toast.success('Otimização de tabelas executada com sucesso');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro na otimização de tabelas:', error);
       toast.error('Erro na otimização de tabelas');
     }
@@ -79,6 +80,7 @@ const SecurityDashboard: React.FC = () => {
       await cleanupAnalytics.mutateAsync();
       toast.success('Limpeza de analytics executada com sucesso');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro na limpeza de analytics:', error);
       toast.error('Erro na limpeza de analytics');
     }
@@ -89,6 +91,7 @@ const SecurityDashboard: React.FC = () => {
       await maintenanceCleanup.mutateAsync();
       toast.success('Limpeza completa de manutenção executada com sucesso');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro na limpeza de manutenção:', error);
       toast.error('Erro na limpeza de manutenção');
     }

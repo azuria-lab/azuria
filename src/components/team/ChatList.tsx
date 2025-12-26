@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Circle, MessageCircle, Plus, Search, Users } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,7 @@ interface ChatListProps {
   onCreateRoom?: () => void;
 }
 
-export default function ChatList({ chats, selectedChatId, onSelectChat, currentUserId, onCreateRoom }: ChatListProps) {
+export default function ChatList({ chats, selectedChatId, onSelectChat, currentUserId: _currentUserId, onCreateRoom }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredChats = chats.filter((chat) =>

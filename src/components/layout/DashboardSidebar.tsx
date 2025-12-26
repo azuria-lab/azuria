@@ -159,18 +159,21 @@ export default function DashboardSidebar() {
         
         // Migrar ícones antigos para novos
         const migrated = parsed.map((item: Record<string, unknown>) => {
+          const itemUrl = typeof item.url === 'string' ? item.url : '';
+          const itemIconName = typeof item.iconName === 'string' ? item.iconName : undefined;
+          
           // Se for formato antigo (com icon como objeto), converter
           if (item.icon && typeof item.icon !== 'string') {
             needsUpdate = true;
             const iconName = Object.keys(iconMap).find(
               key => iconMap[key] === item.icon
-            ) || urlToIconMap[item.url] || 'Flag';
-            return { title: item.title, url: item.url, iconName };
+            ) || (itemUrl && urlToIconMap[itemUrl]) || 'Flag';
+            return { title: item.title, url: itemUrl, iconName };
           }
           
           // Migrar ícones antigos baseado na URL
-          const correctIcon = urlToIconMap[item.url];
-          if (correctIcon && item.iconName !== correctIcon) {
+          const correctIcon = itemUrl ? urlToIconMap[itemUrl] : undefined;
+          if (correctIcon && itemIconName !== correctIcon) {
             needsUpdate = true;
             return { ...item, iconName: correctIcon };
           }

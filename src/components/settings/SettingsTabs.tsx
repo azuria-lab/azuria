@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BellRing, Building2, CircleDollarSign, ShieldCheck, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
