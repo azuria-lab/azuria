@@ -227,7 +227,7 @@ export default function MeuNegocioPage() {
             <Badge variant="secondary" className="gap-2">
               Últimos Incluídos
               <button
-                onClick={() => setSituationFilter("")}
+                onClick={() => _setSituationFilter("")}
                 className="hover:bg-muted rounded-full p-0.5"
               >
                 <X className="h-3 w-3" />

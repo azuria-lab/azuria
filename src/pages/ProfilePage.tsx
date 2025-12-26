@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import type { Database } from "@/types/supabase";
 import { 
@@ -14,7 +14,6 @@ import {
   Plus,
   Save,
   Trash2,
-  Upload,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,11 +23,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useAuthContext } from "@/domains/auth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 interface ProfileData {
@@ -82,11 +79,7 @@ export default function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadProfile();
-  }, [userProfile]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     if (!userProfile?.id) {return;}
 
     try {
@@ -97,6 +90,7 @@ export default function ProfilePage() {
         .single();
 
       if (profileError && profileError.code !== "PGRST116") {
+        // eslint-disable-next-line no-console
         console.error("Error loading profile:", profileError);
       }
 
@@ -117,9 +111,14 @@ export default function ProfilePage() {
         });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error loading profile:", error);
     }
-  };
+  }, [userProfile]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [userProfile, loadProfile]);
 
   const handleSave = async () => {
     if (!userProfile?.id) {return;}
@@ -156,6 +155,7 @@ export default function ProfilePage() {
       });
       setIsEditing(false);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error saving profile:", error);
       toast({
         title: "Erro",
@@ -188,6 +188,7 @@ export default function ProfilePage() {
 
       setProfileData((prev) => ({ ...prev, avatar_url: data.publicUrl }));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error uploading avatar:", error);
       toast({
         title: "Erro",
@@ -220,6 +221,7 @@ export default function ProfilePage() {
 
       setProfileData((prev) => ({ ...prev, cover_url: data.publicUrl }));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error uploading cover:", error);
       toast({
         title: "Erro",
