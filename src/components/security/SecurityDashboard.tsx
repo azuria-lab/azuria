@@ -47,6 +47,7 @@ const SecurityDashboard: React.FC = () => {
       await resolveAlert.mutateAsync(alertId);
       toast.success('Alerta resolvido com sucesso');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro ao resolver alerta:', error);
       toast.error('Erro ao resolver alerta');
     }
@@ -57,6 +58,7 @@ const SecurityDashboard: React.FC = () => {
       await cleanupRoles.mutateAsync();
       toast.success('Limpeza de roles expirados executada com sucesso');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erro na limpeza de roles:', error);
       toast.error('Erro na limpeza de roles expirados');
     }

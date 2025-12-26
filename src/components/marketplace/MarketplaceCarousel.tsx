@@ -47,7 +47,8 @@ export default function MarketplaceCarousel({
   };
 
   // Mapeamento de logos 3D (geradas via AI)
-  const get3DLogo = (id: string, fallbackUrl: string) => {
+   
+  const _get3DLogo = (id: string, fallbackUrl: string) => {
     const map: Record<string, string> = {
       'shopee': '/images/marketplaces/3d/shopee.png',
       'mercado-livre': '/images/marketplaces/3d/mercadolivre.png',

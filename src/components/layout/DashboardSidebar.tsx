@@ -158,7 +158,7 @@ export default function DashboardSidebar() {
         let needsUpdate = false;
         
         // Migrar ícones antigos para novos
-        const migrated = parsed.map((item: any) => {
+        const migrated = parsed.map((item: Record<string, unknown>) => {
           // Se for formato antigo (com icon como objeto), converter
           if (item.icon && typeof item.icon !== 'string') {
             needsUpdate = true;
@@ -328,6 +328,7 @@ export default function DashboardSidebar() {
           .single();
 
         if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+          // eslint-disable-next-line no-console
           console.error("Erro ao buscar dados da empresa:", error);
           return;
         }
@@ -342,6 +343,7 @@ export default function DashboardSidebar() {
           }
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Erro ao buscar dados da empresa:", error);
       }
     };

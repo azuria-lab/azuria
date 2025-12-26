@@ -41,7 +41,6 @@ import {
   Settings,
   ShoppingBag,
   Thermometer,
-  Zap,
 } from "lucide-react";
 
 export default function DashboardHeader() {
@@ -49,7 +48,7 @@ export default function DashboardHeader() {
   const userProfile = authContext?.userProfile;
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
-  const { state } = useSidebar();
+  const { state: _state } = useSidebar();
 
   // Menu de funcionalidades
   const functionalMenus = [
