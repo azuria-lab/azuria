@@ -16,7 +16,7 @@ export function EvolutionPanel() {
       .catch(() => {});
   }, []);
 
-  const onEvent = useCallback((ev: any) => {
+  const onEvent = useCallback((ev: Record<string, unknown>) => {
     setEvents((prev) => [{ type: 'stream', payload: ev, created_at: Date.now() }, ...prev].slice(0, 50));
   }, []);
 
@@ -42,7 +42,7 @@ export function EvolutionPanel() {
       <div>
         <div className="text-xs font-semibold text-gray-600 mb-1">Snapshots</div>
         <div className="text-xs text-gray-700 max-h-32 overflow-y-auto space-y-1">
-          {snapshots.map((s: any, idx: number) => (
+          {snapshots.map((s: Record<string, unknown>, idx: number) => (
             <pre key={idx} className="bg-white border border-gray-200 rounded p-2 whitespace-pre-wrap text-[11px]">
               {JSON.stringify(s, null, 2)}
             </pre>

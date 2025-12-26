@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Timeline({ events = [] }: { events?: any[] }) {
+export function Timeline({ events = [] }: { events?: Record<string, unknown>[] }) {
   return (
     <div className="p-3 rounded border border-gray-200 bg-white">
       <div className="text-sm font-semibold mb-2">Timeline</div>

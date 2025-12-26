@@ -346,14 +346,14 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const ethicalSub = on('ai:ethical-warning', () => {
-      setGovernance(prev => ({
+      _setGovernance(prev => ({
         ...prev,
         ethicalWarnings: (prev.ethicalWarnings || 0) + 1,
       }));
     });
 
     const safetySub = on('ai:safety-break', () => {
-      setGovernance(prev => ({
+      _setGovernance(prev => ({
         ...prev,
         safetyBreaks: (prev.safetyBreaks || 0) + 1,
       }));
@@ -380,7 +380,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
         ? Object.entries(forces).map(([k, v]) => formatForceEntry(k, v))
         : undefined;
       
-      setSystemMind({
+      _setSystemMind({
         globalHealthScore: event.payload?.healthScore,
         confidenceMap: event.payload?.confidenceMap,
         internalRisks: event.payload?.anomalies,
@@ -393,14 +393,14 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const mindWarnSub = on('ai:mind-warning', (event: AzuriaEvent) => {
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         internalRisks: event.payload?.anomalies || prev.internalRisks,
       }));
     });
 
     const truthSub = on('ai:truth-alert', (event: AzuriaEvent) => {
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         truthScore: event.payload?.severity === 'critical' ? 0.2 : 0.6,
         contradictionsDetected: event.payload?.details?.contradictions || prev.contradictionsDetected,
@@ -408,7 +408,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const stabilitySub = on('ai:stability-alert', (event: AzuriaEvent) => {
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         stabilityScore: 1 - (event.payload?.riskLevel || 0),
         predictedFailure: event.payload?.riskLevel,
@@ -418,7 +418,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const marketSub = on('ai:market-insight', (event: AzuriaEvent) => {
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         marketOpportunities: event.payload?.details?.opps || prev.marketOpportunities,
         marketRisks: event.payload?.details?.risks || prev.marketRisks,
@@ -426,7 +426,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     });
 
     const metaLayerSub = on('ai:meta-layer-updated', (event: AzuriaEvent) => {
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         metaState: event.payload?.snapshot ? 'online' : prev.metaState,
         scenarioConfidence: event.payload?.snapshot?.scenarios?.confidence,
@@ -437,7 +437,7 @@ export const MiniDashboard: React.FC<MiniDashboardProps> = ({
     const coreSyncSub = on('ai:core-sync', (event: AzuriaEvent) => {
       const st = event.payload?.state;
       if (!st) {return;}
-      setSystemMind(prev => ({
+      _setSystemMind(prev => ({
         ...prev,
         personalityRiskAttitude: st.personalityRiskAttitude ?? prev.personalityRiskAttitude,
         opportunityBias: st.opportunityBias ?? prev.opportunityBias,

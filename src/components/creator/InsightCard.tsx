@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function InsightCard({ insight }: { insight: any }) {
+export function InsightCard({ insight }: { insight: Record<string, unknown> }) {
   return (
     <div className="p-3 rounded border border-blue-200 bg-blue-50">
       <div className="text-sm font-semibold">{insight.area || 'geral'}</div>

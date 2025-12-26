@@ -30,8 +30,8 @@ export default function AlertsList() {
 
   return (
     <div className="p-4 space-y-3">
-      {alerts.map((a) => (
-        <div key={a.id} className={`p-3 rounded border ${a.severity === 'critical' ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
+      {alerts.map((a, idx) => (
+        <div key={typeof a.id === 'string' ? a.id : idx} className={`p-3 rounded border ${a.severity === 'critical' ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
           <div className="flex justify-between">
             <div>
               <strong>{a.area || 'ecosystem'}</strong> • <span className="text-sm">{a.severity}</span>

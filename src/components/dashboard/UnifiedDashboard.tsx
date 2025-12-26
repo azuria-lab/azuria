@@ -8,15 +8,12 @@ import { motion } from 'framer-motion';
 import DashboardGreeting from '@/components/dashboard/DashboardGreeting';
 import { Link } from 'react-router-dom';
 import { 
-  Activity, 
   ArrowRight, 
   BarChart3, 
-  Bell, 
   Brain, 
   Calculator, 
   CheckCircle2,
   Clock,
-  DollarSign,
   FileText,
   Package,
   Sparkles,

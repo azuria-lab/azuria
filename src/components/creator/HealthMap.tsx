@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function HealthMap({ modules = [] as any[] }) {
+export function HealthMap({ modules = [] as Record<string, unknown>[] }) {
   return (
     <div className="p-3 rounded border border-emerald-200 bg-emerald-50">
       <div className="text-sm font-semibold mb-2">Health Map</div>
