@@ -16,7 +16,6 @@ import {
   Brain,
   Crown,
   Shield,
-  Sparkles,
 } from 'lucide-react';
 import { useConsciousnessContext } from '../ConsciousnessProvider';
 
@@ -45,7 +44,7 @@ export const ConsciousnessStatus: React.FC<ConsciousnessStatusProps> = ({
     loading,
     silenced,
     userRole,
-    userTier,
+    userTier: _userTier,
     activeMessages,
     requestSilence,
     disableSilence,
@@ -201,7 +200,7 @@ const StatusContent: React.FC<StatusContentProps> = ({
   loading,
   silenced,
   userRole,
-  userTier,
+  userTier: _userTier,
   activeMessages,
   requestSilence,
   disableSilence,

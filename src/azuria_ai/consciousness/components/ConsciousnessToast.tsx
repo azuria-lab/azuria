@@ -15,7 +15,6 @@ import {
   CheckCircle,
   Info,
   Lightbulb,
-  Shield,
   Sparkles,
   TrendingUp,
   X,
@@ -38,7 +37,7 @@ interface ConsciousnessToastProps {
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function getIcon(type: MessageType, severity: MessageSeverity): React.ReactNode {
+function getIcon(type: MessageType, _severity: MessageSeverity): React.ReactNode {
   switch (type) {
     case 'insight':
       return <Lightbulb className="w-5 h-5" />;
