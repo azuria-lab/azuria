@@ -169,11 +169,8 @@ class PriceMonitoringAgentEngine {
   initPriceMonitoring(apiKey?: string): void {
     // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
     if (!apiKey) {
-      // Apenas logar em modo debug (esperado em desenvolvimento)
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.debug('[PriceMonitoring] Engine não inicializado - API key deve ser passada via backend/Edge Function');
-      }
+      // Silencioso: esperado em desenvolvimento quando API key não está disponível
+      // API key deve ser passada via backend/Edge Function em produção
       return;
     }
 

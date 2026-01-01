@@ -21,11 +21,9 @@ export const ADMIN_UID = ADMIN_UIDS.size > 0
   ? Array.from(ADMIN_UIDS)[0] 
   : '';
 
-// Validação em runtime - alertar se não configurado (apenas em desenvolvimento)
-if (ADMIN_UIDS.size === 0 && import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
-  console.debug('[SECURITY] ADMIN_UID/ADMIN_UIDS não configurado. Defina a variável de ambiente ADMIN_UID ou ADMIN_UIDS para habilitar acesso admin.');
-}
+// Validação em runtime - silencioso (configuração esperada via variável de ambiente)
+// Nota: ADMIN_UID deve ser configurado via VITE_ADMIN_UID ou VITE_ADMIN_UIDS
+// Em desenvolvimento, pode ser configurado via .env.local
 
 /**
  * Verifica se um UID é um admin válido
