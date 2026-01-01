@@ -7,7 +7,7 @@
  * Apenas para usuários ADMIN.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -215,12 +215,12 @@ export const AdminDashboard: React.FC = () => {
     };
   };
   
-  const refreshStats = () => {
+  const refreshStats = useCallback(() => {
     setRefreshing(true);
     const newStats = collectStats();
     setStats(newStats);
     setTimeout(() => setRefreshing(false), 500);
-  };
+  }, []);
   
   // Auto-refresh (hooks devem vir antes de qualquer return condicional)
   useEffect(() => {
