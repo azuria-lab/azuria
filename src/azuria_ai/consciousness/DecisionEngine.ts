@@ -22,13 +22,11 @@ import type {
   MessageType,
   NormalizedEvent,
   OutputChannel,
-  SilenceReason,
 } from './types';
 import {
   getCurrentActivity,
   getGlobalState,
   getUserRole,
-  isAdmin,
   isSilenced,
 } from './GlobalState';
 import { OutputGate, type OutputRequest } from './OutputGate';

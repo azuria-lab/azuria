@@ -30,7 +30,7 @@ export interface EventMapping {
 }
 
 /** Mapeamento completo de eventos */
-type EventMappingMap = Record<string, EventMapping>;
+export type EventMappingMap = Record<string, EventMapping>;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HELPERS DE DETECÇÃO DE PADRÕES

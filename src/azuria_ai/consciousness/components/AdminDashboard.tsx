@@ -7,25 +7,25 @@
  * Apenas para usuários ADMIN.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain,
   Activity,
-  MessageSquare,
-  TrendingUp,
-  TrendingDown,
   AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Users,
-  Zap,
   BarChart3,
+  Brain,
+  CheckCircle,
+  Clock,
+  MessageSquare,
   RefreshCw,
   Settings,
   Shield,
   Sparkles,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  XCircle,
+  Zap,
 } from 'lucide-react';
 import { useConsciousnessContext } from '../ConsciousnessProvider';
 import { getGlobalState, type GlobalStateShape } from '../GlobalState';
@@ -228,7 +228,9 @@ export const AdminDashboard: React.FC = () => {
   
   // Auto-refresh (hooks devem vir antes de qualquer return condicional)
   useEffect(() => {
-    if (userRole !== 'ADMIN' || !initialized) return;
+    if (userRole !== 'ADMIN' || !initialized) {
+      return;
+    }
     
     refreshStats();
     

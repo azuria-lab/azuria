@@ -7,25 +7,26 @@
  * Gerencia estado, lifecycle e fornece funções utilitárias.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { 
   ConsciousnessCore,
-  initConsciousness,
-  shutdownConsciousness,
-  sendEvent,
-  provideFeedback,
-  updateContext,
-  onOutput,
-  onDecision,
-  type ProcessingResult,
   type InitConfig,
+  initConsciousness,
+  onDecision,
+  onOutput,
+  type ProcessingResult,
+  provideFeedback,
+  sendEvent,
+  shutdownConsciousness,
+  updateContext,
 } from './ConsciousnessCore';
 import { 
   getGlobalState, 
-  subscribeToState,
   type GlobalStateShape,
+  subscribeToState,
 } from './GlobalState';
-import type { OutputMessage, Decision, NormalizedEvent, CognitiveRole, SubscriptionTier } from './types';
+import type { CognitiveRole, NormalizedEvent, OutputMessage, SubscriptionTier } from './types';
+import type { Decision } from './DecisionEngine';
 import type { RawEvent } from './PerceptionGate';
 
 // ═══════════════════════════════════════════════════════════════════════════════

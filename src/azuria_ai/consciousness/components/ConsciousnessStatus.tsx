@@ -8,16 +8,16 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  Brain, 
-  BellOff, 
-  Bell, 
   Activity,
-  Shield,
-  Sparkles,
+  Bell,
+  BellOff,
+  Brain,
   ChevronDown,
   Crown,
+  Shield,
+  Sparkles,
 } from 'lucide-react';
 import { useConsciousnessContext } from '../ConsciousnessProvider';
 
@@ -55,16 +55,22 @@ export const ConsciousnessStatus: React.FC<ConsciousnessStatusProps> = ({
   
   // Status color
   const getStatusColor = () => {
-    if (loading) return 'text-amber-400';
-    if (!initialized) return 'text-slate-500';
-    if (silenced) return 'text-slate-400';
+    if (loading) {
+      return 'text-amber-400';
+    }
+    if (!initialized) {
+      return 'text-slate-500';
+    }
+    if (silenced) {
+      return 'text-slate-400';
+    }
     return 'text-cyan-400';
   };
   
   const getStatusPulse = () => {
-    if (loading) return 'animate-pulse';
-    if (!initialized) return '';
-    if (silenced) return '';
+    if (loading) {return 'animate-pulse';}
+    if (!initialized) {return '';}
+    if (silenced) {return '';}
     return 'animate-pulse';
   };
   
@@ -90,7 +96,7 @@ export const ConsciousnessStatus: React.FC<ConsciousnessStatusProps> = ({
   
   // Position classes
   const getPositionClasses = () => {
-    if (position === 'inline') return '';
+    if (position === 'inline') {return '';}
     
     const positions = {
       'top-left': 'fixed top-4 left-4',

@@ -35,7 +35,6 @@ import {
   removeSilence,
   requestSilence,
   resetGlobalState,
-  subscribeToState,
   updateCurrentScreen,
   updateUserActivity,
 } from './GlobalState';
@@ -236,7 +235,7 @@ async function executeDecision(
  */
 function executeEmit(
   decision: Decision,
-  event: NormalizedEvent
+  _event: NormalizedEvent
 ): ProcessingResult {
   if (!decision.payload?.output) {
     return {
@@ -305,7 +304,7 @@ function executeSchedule(
  */
 async function executeDelegate(
   decision: Decision,
-  event: NormalizedEvent
+  _event: NormalizedEvent
 ): Promise<ProcessingResult> {
   // Por enquanto, apenas log - agentes serão integrados na fase 6
   if (coreState.config.debug) {

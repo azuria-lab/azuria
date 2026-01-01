@@ -11,15 +11,15 @@
  */
 
 import { getGlobalState } from '../GlobalState';
-import type { SkillLevel, CognitiveRole, MessageType } from '../types';
+import type { CognitiveRole, MessageType, SkillLevel } from '../types';
 import {
-  initSupabaseGemini,
+  analyzeCalculation as analyzeCalculationSupabase,
   analyzeContext as analyzeContextSupabase,
   classifyIntent as classifyIntentSupabase,
   generateResponse as generateResponseSupabase,
-  analyzeCalculation as analyzeCalculationSupabase,
-  isSupabaseGeminiAvailable,
   getSupabaseGeminiStats,
+  initSupabaseGemini,
+  isSupabaseGeminiAvailable,
 } from './SupabaseGeminiAdapter';
 
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -472,7 +472,7 @@ function recommendLocal(
  */
 function predictLocal(
   input: string | Record<string, unknown>,
-  context?: Record<string, unknown>
+  _context?: Record<string, unknown>
 ): Record<string, unknown> {
   // Se input for array de números, calcular média móvel
   if (typeof input === 'object' && Array.isArray((input as Record<string, unknown>).values)) {

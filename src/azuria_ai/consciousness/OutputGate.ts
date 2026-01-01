@@ -518,7 +518,7 @@ export function recordMessageFeedback(
   if (message) {
     recordLearningFeedback(
       topic,
-      message.type,
+      message.messageType,
       outcome
     );
   }
