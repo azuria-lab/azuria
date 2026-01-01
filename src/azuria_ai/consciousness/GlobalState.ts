@@ -14,14 +14,14 @@
 
 import type {
   CognitiveRole,
-  SubscriptionTier,
-  SkillLevel,
-  SuggestionFrequency,
+  EventPriority,
   ExplanationLevel,
   FlowPhase,
-  UserActivityState,
   MessageType,
-  EventPriority,
+  SkillLevel,
+  SubscriptionTier,
+  SuggestionFrequency,
+  UserActivityState,
 } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -327,12 +327,12 @@ export function updateGlobalState(
         existingValue !== null &&
         !Array.isArray(existingValue)
       ) {
-        (globalState as Record<string, unknown>)[key] = {
+        (globalState as unknown as Record<string, unknown>)[key] = {
           ...existingValue,
           ...value,
         };
       } else {
-        (globalState as Record<string, unknown>)[key] = value;
+        (globalState as unknown as Record<string, unknown>)[key] = value;
       }
     }
   }
@@ -363,12 +363,12 @@ export function updateStateSection<K extends keyof GlobalStateShape>(
   const currentSection = globalState[section];
   
   if (typeof currentSection === 'object' && currentSection !== null) {
-    (globalState as Record<string, unknown>)[section] = {
+    (globalState as unknown as Record<string, unknown>)[section] = {
       ...currentSection,
       ...updates,
     };
   } else {
-    (globalState as Record<string, unknown>)[section] = updates;
+    (globalState as unknown as Record<string, unknown>)[section] = updates;
   }
   
   globalState.lastUpdatedAt = Date.now();

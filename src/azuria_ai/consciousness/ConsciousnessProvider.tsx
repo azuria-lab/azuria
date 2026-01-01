@@ -23,7 +23,6 @@ import { useAuthContext } from '@/domains/auth';
 import {
   ConsciousnessCore,
   initConsciousness,
-  onDecision,
   onOutput,
   provideFeedback,
   sendEvent,
@@ -68,13 +67,12 @@ import invoiceOCREngine from '../engines/invoiceOCREngine';
 import dynamicPricingEngine from '../engines/dynamicPricingEngine';
 
 // Types
-import type { CognitiveRole, NormalizedEvent, OutputMessage, SubscriptionTier } from './types';
-import type { Decision } from './DecisionEngine';
+import type { CognitiveRole, OutputMessage, SubscriptionTier } from './types';
 import type { Suggestion, UserContext } from '../types/operational';
 import type { ProcessingResult as LegacyProcessingResult } from '../core/modeDeusOrchestrator';
 
 // Admin config
-import { ADMIN_UIDS, isValidAdminUID } from '../core/adminConfig';
+import { isValidAdminUID } from '../core/adminConfig';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS DO CONTEXTO
@@ -333,10 +331,10 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       // Criar adapter para compatibilidade de tipos
       initEventBridge({
         emit: (type: string, payload: unknown, options?: unknown) => {
-          eventBus.emit(type as any, payload, options as any);
+          eventBus.emit(type as Parameters<typeof eventBus.emit>[0], payload, options as Parameters<typeof eventBus.emit>[2]);
         },
         on: (type: string, handler: (event: unknown) => void) => {
-          const subscriptionId = eventBus.on(type as any, handler as any);
+          const subscriptionId = eventBus.on(type as Parameters<typeof eventBus.on>[0], handler as Parameters<typeof eventBus.on>[1]);
           return () => eventBus.off(subscriptionId);
         },
       });
@@ -420,11 +418,19 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       const suggestion: Suggestion = {
         id: message.id,
         type: message.type as Suggestion['type'],
+        category: 'general' as Suggestion['category'],
+        title: message.title,
         message: message.message,
         priority: (message.severity === 'critical' ? 'critical' : 
                  message.severity === 'high' ? 'high' : 
                  message.severity === 'medium' ? 'medium' : 'low') as Suggestion['priority'],
         context: { screen: message.context.screen },
+        metadata: {
+          createdAt: message.context.timestamp,
+          source: 'consciousness-core',
+          confidence: message.severity === 'critical' ? 0.9 : message.severity === 'high' ? 0.7 : 0.5,
+        },
+        status: 'pending' as Suggestion['status'],
       };
       
       const currentSuggestions = prev.lastResult?.suggestions ?? [];

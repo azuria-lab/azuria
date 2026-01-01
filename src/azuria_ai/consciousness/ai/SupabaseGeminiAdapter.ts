@@ -13,7 +13,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import type { SkillLevel, CognitiveRole, MessageType } from '../types';
+import type { CognitiveRole, MessageType, SkillLevel } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -276,7 +276,7 @@ export function initSupabaseGemini(
  * Analisa contexto e gera insight
  */
 export async function analyzeContext(context: AnalysisContext): Promise<AnalysisResult | null> {
-  if (!state.initialized || !state.supabase || !state.config) {
+  if (!state.initialized || !state.config) {
     return null;
   }
   
@@ -333,7 +333,7 @@ Analise o contexto e determine se deve emitir uma mensagem de assistência. Cons
  * Classifica intenção do usuário
  */
 export async function classifyIntent(input: string): Promise<IntentClassification | null> {
-  if (!state.initialized || !state.supabase || !state.config) {
+  if (!state.initialized || !state.config) {
     return null;
   }
   
@@ -372,7 +372,7 @@ export async function generateResponse(
   userMessage: string,
   context?: Partial<AnalysisContext>
 ): Promise<string | null> {
-  if (!state.initialized || !state.supabase || !state.config) {
+  if (!state.initialized || !state.config) {
     return null;
   }
   
@@ -403,7 +403,7 @@ export async function analyzeCalculation(
   risks: string[];
   opportunities: string[];
 } | null> {
-  if (!state.initialized || !state.supabase || !state.config) {
+  if (!state.initialized || !state.config) {
     return null;
   }
   

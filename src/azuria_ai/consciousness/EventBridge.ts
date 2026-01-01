@@ -14,14 +14,14 @@
  * do sistema antigo para o novo.
  */
 
-import { ConsciousnessCore, onOutput, sendEvent, type ProcessingResult } from './ConsciousnessCore';
+import { ConsciousnessCore, onOutput, type ProcessingResult, sendEvent } from './ConsciousnessCore';
 import type { RawEvent } from './PerceptionGate';
 import type { OutputMessage } from './types';
 import { 
-  shouldProcessEvent, 
-  enrichEvent, 
+  enrichEvent,
+  getCognitiveCategory,
   getEventPriority,
-  getCognitiveCategory 
+  shouldProcessEvent,
 } from './events/EventMapping';
 import { getGlobalState } from './GlobalState';
 

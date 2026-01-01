@@ -12,24 +12,24 @@
  */
 
 import type {
-  NormalizedEvent,
-  DecisionType,
-  CognitiveRole,
-  EventPriority,
-  EventCategory,
-  MessageType,
-  MessageSeverity,
-  OutputChannel,
-  EngineAnalysis,
   AgentRequest,
+  CognitiveRole,
+  DecisionType,
+  EngineAnalysis,
+  EventCategory,
+  EventPriority,
+  MessageSeverity,
+  MessageType,
+  NormalizedEvent,
+  OutputChannel,
   SilenceReason,
 } from './types';
 import {
+  getCurrentActivity,
   getGlobalState,
+  getUserRole,
   isAdmin,
   isSilenced,
-  getCurrentActivity,
-  getUserRole,
 } from './GlobalState';
 import { OutputGate, type OutputRequest } from './OutputGate';
 

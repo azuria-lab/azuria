@@ -13,32 +13,32 @@
  */
 
 import type {
-  MessageType,
+  CognitiveRole,
+  MessageAction,
   MessageSeverity,
+  MessageType,
   OutputChannel,
   OutputMessage,
-  MessageAction,
   SilenceReason,
-  CognitiveRole,
 } from './types';
 import {
-  getGlobalState,
-  isSilenced,
-  isAdmin,
   getCurrentActivity,
+  getGlobalState,
   incrementSessionMetric,
+  isAdmin,
+  isSilenced,
 } from './GlobalState';
 import {
+  checkDuplication,
   CommunicationMemory,
   generateSemanticHash,
-  checkDuplication,
   rememberMessage,
 } from './CommunicationMemory';
 import {
-  shouldAvoidTopic,
-  getRelevanceAdjustment,
   getIdealFrequency,
+  getRelevanceAdjustment,
   recordFeedback as recordLearningFeedback,
+  shouldAvoidTopic,
 } from './learning/FeedbackLearning';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -512,8 +512,8 @@ export function recordMessageFeedback(
   
   // INTEGRAÇÃO COM FEEDBACK LEARNING
   // Obter tipo da mensagem da memória para aprendizado
-  const messageHistory = CommunicationMemory.getHistory();
-  const message = messageHistory.find(m => m.semanticHash === semanticHash);
+  const globalState = getGlobalState();
+  const message = globalState.communicationMemory.sentMessages.find(m => m.semanticHash === semanticHash);
   
   if (message) {
     recordLearningFeedback(

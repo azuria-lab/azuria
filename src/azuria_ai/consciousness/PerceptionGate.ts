@@ -18,7 +18,7 @@ import type {
   EventPriority,
   NormalizedEvent,
 } from './types';
-import { getGlobalState, getUserRole, getCurrentActivity } from './GlobalState';
+import { getCurrentActivity, getGlobalState, getUserRole } from './GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
