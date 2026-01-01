@@ -7,7 +7,7 @@
  * com variações por contexto e nível de usuário.
  */
 
-import type { MessageType, MessageSeverity, SkillLevel, CognitiveRole } from '../types';
+import type { CognitiveRole, MessageSeverity, MessageType, SkillLevel } from '../types';
 import { humanizeMessage, humanizeTitle } from '../personality/SimpleVoice';
 
 // ═══════════════════════════════════════════════════════════════════════════════

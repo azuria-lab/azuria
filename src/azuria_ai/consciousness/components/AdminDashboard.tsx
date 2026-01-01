@@ -17,17 +17,14 @@ import {
   CheckCircle,
   MessageSquare,
   RefreshCw,
-  Settings,
   Shield,
   Sparkles,
   TrendingDown,
   TrendingUp,
-  Users,
-  XCircle,
   Zap,
 } from 'lucide-react';
 import { useConsciousnessContext } from '../ConsciousnessProvider';
-import { getGlobalState, type GlobalStateShape } from '../GlobalState';
+import { getGlobalState } from '../GlobalState';
 import { getDecisionStats } from '../DecisionEngine';
 import { getOutputStats, type OutputStats } from '../OutputGate';
 import { getAIStats } from '../AIRouter';
@@ -237,7 +234,7 @@ export const AdminDashboard: React.FC = () => {
       const interval = setInterval(refreshStats, 5000);
       return () => clearInterval(interval);
     }
-  }, [initialized, autoRefresh, userRole]);
+  }, [initialized, autoRefresh, userRole, refreshStats]);
   
   // Verificar se é ADMIN (após hooks)
   if (userRole !== 'ADMIN') {

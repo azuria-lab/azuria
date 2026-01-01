@@ -6,7 +6,7 @@
  * Regras para eventos de navegação e contexto de tela.
  */
 
-import type { DecisionContext, Decision } from '../DecisionEngine';
+import type { Decision, DecisionContext } from '../DecisionEngine';
 import { getGlobalState } from '../GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -136,15 +136,21 @@ export const navFirstVisitRule = {
   priority: 50,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'user:navigation') return false;
+    if (ctx.event.type !== 'user:navigation') {
+      return false;
+    }
     
     const payload = ctx.event.payload as { to?: string };
     const targetScreen = payload.to;
     
-    if (!targetScreen) return false;
+    if (!targetScreen) {
+      return false;
+    }
     
     const screenInfo = getScreenInfo(targetScreen);
-    if (!screenInfo || screenInfo.tips.length === 0) return false;
+    if (!screenInfo || screenInfo.tips.length === 0) {
+      return false;
+    }
     
     // Só mostrar para primeira visita
     return isFirstVisit(targetScreen);
@@ -200,10 +206,14 @@ export const navQuickBounceRule = {
   priority: 45,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'user:navigation') return false;
+    if (ctx.event.type !== 'user:navigation') {
+      return false;
+    }
     
     const payload = ctx.event.payload as { from?: string; to?: string };
-    if (!payload.from || !payload.to) return false;
+    if (!payload.from || !payload.to) {
+      return false;
+    }
     
     // Verificar se saiu muito rápido (menos de 5 segundos)
     const timeOnPrevious = getTimeOnPreviousScreen(payload.from);
@@ -268,13 +278,19 @@ export const navSuggestNextStepRule = {
   priority: 35,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'user:navigation') return false;
+    if (ctx.event.type !== 'user:navigation') {
+      return false;
+    }
     
     const payload = ctx.event.payload as { from?: string; to?: string };
-    if (!payload.from) return false;
+    if (!payload.from) {
+      return false;
+    }
     
     const previousScreenInfo = getScreenInfo(payload.from);
-    if (!previousScreenInfo) return false;
+    if (!previousScreenInfo) {
+      return false;
+    }
     
     // Se tela anterior era de cálculo e ficou mais de 30 segundos
     const timeOnPrevious = getTimeOnPreviousScreen(payload.from);

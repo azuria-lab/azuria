@@ -14,7 +14,6 @@ import {
   Bell,
   BellOff,
   Brain,
-  ChevronDown,
   Crown,
   Shield,
   Sparkles,
