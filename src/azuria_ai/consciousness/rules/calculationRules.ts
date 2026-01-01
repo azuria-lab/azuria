@@ -6,7 +6,7 @@
  * Regras específicas para eventos de cálculo (BDI, impostos, margens, etc.)
  */
 
-import type { DecisionContext, Decision } from '../DecisionEngine';
+import type { Decision, DecisionContext } from '../DecisionEngine';
 import type { OutputRequest } from '../OutputGate';
 import { getGlobalState } from '../GlobalState';
 
@@ -144,7 +144,9 @@ export const calcMarginCriticalRule = {
   priority: 85,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'calc:completed') return false;
+    if (ctx.event.type !== 'calc:completed') {
+      return false;
+    }
     
     const payload = ctx.event.payload as CalcPayload;
     const margin = payload.margemLucro ?? payload.resultado?.margemReal;
@@ -201,7 +203,9 @@ export const calcMarginTightRule = {
   priority: 60,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'calc:completed') return false;
+    if (ctx.event.type !== 'calc:completed') {
+      return false;
+    }
     
     const payload = ctx.event.payload as CalcPayload;
     const margin = payload.margemLucro ?? payload.resultado?.margemReal;
@@ -244,10 +248,12 @@ export const calcMarkupHighRule = {
   priority: 55,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'calc:completed') return false;
+    if (ctx.event.type !== 'calc:completed') {
+      return false;
+    }
     
     const payload = ctx.event.payload as CalcPayload;
-    if (!payload.precoVenda || !payload.custoProduto) return false;
+    if (!payload.precoVenda || !payload.custoProduto) {return false;}
     
     const markup = ((payload.precoVenda - payload.custoProduto) / payload.custoProduto) * 100;
     return markup > 200;
@@ -288,10 +294,14 @@ export const calcOperationalCostsHighRule = {
   priority: 50,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'calc:completed') return false;
+    if (ctx.event.type !== 'calc:completed') {
+      return false;
+    }
     
     const payload = ctx.event.payload as CalcPayload;
-    if (!payload.custoOperacional || !payload.precoVenda) return false;
+    if (!payload.custoOperacional || !payload.precoVenda) {
+      return false;
+    }
     
     const percentage = (payload.custoOperacional / payload.precoVenda) * 100;
     return percentage > 25;
@@ -332,7 +342,9 @@ export const calcSuccessHealthyRule = {
   priority: 30,
   
   condition: (ctx: DecisionContext): boolean => {
-    if (ctx.event.type !== 'calc:completed') return false;
+    if (ctx.event.type !== 'calc:completed') {
+      return false;
+    }
     
     const payload = ctx.event.payload as CalcPayload;
     const margin = payload.margemLucro ?? payload.resultado?.margemReal;

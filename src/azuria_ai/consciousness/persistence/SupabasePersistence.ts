@@ -12,12 +12,12 @@
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { 
-  CognitiveRole, 
-  SubscriptionTier, 
-  SkillLevel,
-  SuggestionFrequency,
+  CognitiveRole,
   ExplanationLevel,
   MessageType,
+  SkillLevel,
+  SubscriptionTier,
+  SuggestionFrequency,
 } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════════

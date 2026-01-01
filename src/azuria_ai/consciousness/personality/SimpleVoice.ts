@@ -9,7 +9,7 @@
  * FASE B: Personalidade Operacional
  */
 
-import type { CognitiveRole, SkillLevel, MessageSeverity } from '../types';
+import type { CognitiveRole, MessageSeverity, SkillLevel } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SUBSTITUIÇÕES DE JARGÃO TÉCNICO

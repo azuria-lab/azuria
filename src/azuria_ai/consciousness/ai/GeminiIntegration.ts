@@ -120,7 +120,7 @@ const state: GeminiState = {
 // PROMPTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = `Você é o assistente de IA do Azuria, uma plataforma brasileira para vendedores de marketplace e empresas de licitação.
+const _SYSTEM_PROMPT = `Você é o assistente de IA do Azuria, uma plataforma brasileira para vendedores de marketplace e empresas de licitação.
 
 Seu papel é:
 1. Analisar contextos de cálculo e negócio
@@ -149,7 +149,7 @@ Responda SEMPRE em JSON válido com a estrutura:
   "suggestedActions": [{ "id": "string", "label": "string" }]
 }`;
 
-const INTENT_PROMPT = `Analise a seguinte entrada do usuário e classifique a intenção.
+const _INTENT_PROMPT = `Analise a seguinte entrada do usuário e classifique a intenção.
 
 INTENÇÕES POSSÍVEIS:
 - calculate: quer fazer um cálculo
@@ -176,7 +176,7 @@ Responda em JSON:
 /**
  * Formata contexto para o prompt
  */
-function formatContext(context: AnalysisContext): string {
+function _formatContext(context: AnalysisContext): string {
   const parts: string[] = [];
   
   parts.push(`Tela: ${context.screen}`);
@@ -204,7 +204,7 @@ function formatContext(context: AnalysisContext): string {
 /**
  * Parse JSON seguro
  */
-function safeParseJSON<T>(text: string, fallback: T): T {
+function _safeParseJSON<T>(text: string, fallback: T): T {
   try {
     // Limpar possíveis markdown code blocks
     let cleaned = text;

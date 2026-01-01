@@ -7,7 +7,7 @@
  * Apenas para usuários ADMIN.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -15,7 +15,6 @@ import {
   BarChart3,
   Brain,
   CheckCircle,
-  Clock,
   MessageSquare,
   RefreshCw,
   Settings,
