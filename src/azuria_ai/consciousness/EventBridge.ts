@@ -14,7 +14,7 @@
  * do sistema antigo para o novo.
  */
 
-import { ConsciousnessCore, onOutput, type ProcessingResult, sendEvent } from './ConsciousnessCore';
+import { ConsciousnessCore, onOutput, sendEvent } from './ConsciousnessCore';
 import type { RawEvent } from './PerceptionGate';
 import type { OutputMessage } from './types';
 import { 
@@ -23,7 +23,6 @@ import {
   getEventPriority,
   shouldProcessEvent,
 } from './events/EventMapping';
-import { getGlobalState } from './GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS

@@ -8,20 +8,20 @@
  */
 
 import React, { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  X, 
-  Lightbulb, 
-  AlertTriangle, 
-  AlertCircle, 
-  CheckCircle, 
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
   Info,
-  TrendingUp,
+  Lightbulb,
   Shield,
   Sparkles,
+  TrendingUp,
+  X,
 } from 'lucide-react';
 import { useConsciousnessContext } from '../ConsciousnessProvider';
-import type { OutputMessage, MessageType, MessageSeverity } from '../types';
+import type { MessageSeverity, MessageType, OutputMessage } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -92,8 +92,12 @@ function getColorClasses(type: MessageType, severity: MessageSeverity): string {
 }
 
 function getIconColorClass(type: MessageType, severity: MessageSeverity): string {
-  if (severity === 'critical') return 'text-red-400';
-  if (severity === 'high') return 'text-orange-400';
+  if (severity === 'critical') {
+    return 'text-red-400';
+  }
+  if (severity === 'high') {
+    return 'text-orange-400';
+  }
   
   switch (type) {
     case 'insight': return 'text-blue-400';

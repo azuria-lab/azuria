@@ -358,7 +358,7 @@ function isNoiseEvent(eventType: string): boolean {
  * Processa um evento bruto através do PerceptionGate
  */
 export function perceive(event: RawEvent): PerceptionResult {
-  const state = getGlobalState();
+  const _state = getGlobalState();
   
   // 1. Verificar se é ruído
   if (isNoiseEvent(event.type)) {

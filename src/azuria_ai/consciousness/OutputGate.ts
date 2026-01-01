@@ -13,7 +13,6 @@
  */
 
 import type {
-  CognitiveRole,
   MessageAction,
   MessageSeverity,
   MessageType,
@@ -25,7 +24,6 @@ import {
   getCurrentActivity,
   getGlobalState,
   incrementSessionMetric,
-  isAdmin,
   isSilenced,
 } from './GlobalState';
 import {

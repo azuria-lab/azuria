@@ -29,7 +29,7 @@ import {
   getUserRole,
   isSilenced,
 } from './GlobalState';
-import { OutputGate, type OutputRequest } from './OutputGate';
+import { type OutputRequest } from './OutputGate';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS

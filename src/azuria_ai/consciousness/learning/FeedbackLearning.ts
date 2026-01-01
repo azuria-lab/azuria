@@ -137,8 +137,12 @@ function detectTrend(
   
   const diff = secondRate - firstRate;
   
-  if (diff > 0.1) return 'increasing';
-  if (diff < -0.1) return 'decreasing';
+  if (diff > 0.1) {
+    return 'increasing';
+  }
+  if (diff < -0.1) {
+    return 'decreasing';
+  }
   return 'stable';
 }
 
@@ -165,7 +169,9 @@ function analyzeTopicPatterns(): void {
   // Atualizar padrões
   for (const [topic, stats] of Object.entries(topicStats)) {
     const total = stats.accepted + stats.rejected;
-    if (total < 3) continue; // Mínimo de amostras
+    if (total < 3) {
+      continue; // Mínimo de amostras
+    }
     
     const rate = stats.accepted / total;
     const trend = detectTrend(state.feedbackHistory, topic, e => e.topic);
@@ -200,7 +206,9 @@ function analyzeTypePatterns(): void {
   
   for (const [type, stats] of Object.entries(typeStats)) {
     const total = stats.accepted + stats.rejected;
-    if (total < 5) continue;
+    if (total < 5) {
+      continue;
+    }
     
     const rate = stats.accepted / total;
     const trend = detectTrend(state.feedbackHistory, type, e => e.type);
@@ -236,7 +244,9 @@ function analyzeTimePatterns(): void {
   const preferredHours: number[] = [];
   
   for (const [hour, stats] of Object.entries(hourStats)) {
-    if (stats.total < 3) continue;
+    if (stats.total < 3) {
+      continue;
+    }
     
     const rate = stats.accepted / stats.total;
     if (rate >= 0.5) {
@@ -256,7 +266,7 @@ function updateLearnedPreferences(): void {
   const preferredTypes: MessageType[] = [];
   
   for (const [key, pattern] of state.patterns) {
-    if (pattern.sampleSize < 5) continue;
+    if (pattern.sampleSize < 5) {continue;}
     
     if (key.startsWith('topic:')) {
       const topic = key.replace('topic:', '');
