@@ -1,8 +1,9 @@
 name: Health Check Monitor
 on:
   schedule:
-    # Run health check every 6 hours
-    - cron: '0 */6 * * *'
+    # Run health check daily at 3 AM UTC (midnight BR time)
+    # Daily is recommended for code health checks - CI already runs on every push
+    - cron: '0 3 * * *'
   workflow_dispatch:
     inputs:
       environment:
