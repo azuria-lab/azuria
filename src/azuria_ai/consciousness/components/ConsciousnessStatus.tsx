@@ -44,7 +44,7 @@ export const ConsciousnessStatus: React.FC<ConsciousnessStatusProps> = ({
     loading,
     silenced,
     userRole,
-    userTier: _userTier,
+    userTier,
     activeMessages,
     requestSilence,
     disableSilence,
