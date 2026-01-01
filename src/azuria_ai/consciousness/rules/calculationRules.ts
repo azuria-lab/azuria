@@ -103,7 +103,7 @@ function _analyzePricing(precoVenda: number, custoProduto: number): { competitiv
 /**
  * Analisa custos operacionais
  */
-function analyzeOperationalCosts(custoOperacional: number, precoVenda: number): { reasonable: boolean; percentage: number; message: string } {
+function _analyzeOperationalCosts(custoOperacional: number, precoVenda: number): { reasonable: boolean; percentage: number; message: string } {
   if (precoVenda <= 0) {
     return { reasonable: true, percentage: 0, message: '' };
   }
