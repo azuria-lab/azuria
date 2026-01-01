@@ -200,7 +200,7 @@ const StatusContent: React.FC<StatusContentProps> = ({
   loading,
   silenced,
   userRole,
-  userTier,
+  userTier: _userTier,
   activeMessages,
   requestSilence,
   disableSilence,

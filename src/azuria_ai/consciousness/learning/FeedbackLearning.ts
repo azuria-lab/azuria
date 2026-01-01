@@ -10,7 +10,6 @@
  * - Horários de maior receptividade
  */
 
-import { updateStateSection } from '../GlobalState';
 import type { MessageType } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════════

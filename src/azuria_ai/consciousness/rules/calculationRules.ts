@@ -7,7 +7,6 @@
  */
 
 import type { Decision, DecisionContext } from '../DecisionEngine';
-import type { OutputRequest } from '../OutputGate';
 import { getGlobalState } from '../GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -38,7 +37,7 @@ interface CalcPayload {
 /**
  * Analisa se a margem é saudável
  */
-function analyzeMargin(margin: number): { healthy: boolean; message: string; severity: 'info' | 'low' | 'medium' | 'high' } {
+function _analyzeMargin(margin: number): { healthy: boolean; message: string; severity: 'info' | 'low' | 'medium' | 'high' } {
   if (margin < 5) {
     return {
       healthy: false,
@@ -77,7 +76,7 @@ function analyzeMargin(margin: number): { healthy: boolean; message: string; sev
 /**
  * Analisa se o preço está competitivo
  */
-function analyzePricing(precoVenda: number, custoProduto: number): { competitive: boolean; markup: number; message: string } {
+function _analyzePricing(precoVenda: number, custoProduto: number): { competitive: boolean; markup: number; message: string } {
   const markup = ((precoVenda - custoProduto) / custoProduto) * 100;
   
   if (markup < 20) {

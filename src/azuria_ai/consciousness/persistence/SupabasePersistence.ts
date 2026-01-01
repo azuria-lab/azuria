@@ -15,7 +15,6 @@ import type {
   ExplanationLevel,
   MessageType,
   SkillLevel,
-  SubscriptionTier,
   SuggestionFrequency,
 } from '../types';
 
