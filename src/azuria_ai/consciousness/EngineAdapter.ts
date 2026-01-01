@@ -29,21 +29,35 @@
  * - consciousOrchestrator → substituído por DecisionEngine
  */
 
-import { sendEvent, type ProcessingResult } from './ConsciousnessCore';
+import { sendEvent } from './ConsciousnessCore';
 import { 
-  getGlobalState, 
-  updateStateSection,
-  updateUserActivity,
+  getGlobalState,
   updateSystemHealth,
+  updateUserActivity,
 } from './GlobalState';
-import { AIRouter, executeAI, generateRequestId, type AIRequest } from './AIRouter';
 import type { 
-  CognitiveRole, 
-  EventPriority, 
+  CognitiveRole,
   EngineAnalysis,
+  EventPriority,
   UserActivityState,
 } from './types';
 import type { RawEvent } from './PerceptionGate';
+
+// Helper para mapear UserActivityState do operational para consciousness
+function mapToConsciousnessActivityState(
+  state: 'idle' | 'hesitating' | 'calculating' | 'filling-form' | 'browsing' | 'reviewing' | 'error-state'
+): UserActivityState {
+  const mapping: Record<string, UserActivityState> = {
+    'idle': 'idle',
+    'hesitating': 'hesitando',
+    'calculating': 'calculando',
+    'filling-form': 'preenchendo',
+    'browsing': 'ativo',
+    'reviewing': 'revisando',
+    'error-state': 'erro',
+  };
+  return mapping[state] || 'ativo';
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -137,24 +151,22 @@ export function createCognitiveEngineAdapter(): InternalEngine {
   return {
     name: 'cognitiveEngine',
     
-    async analyze(context: EngineContext): Promise<EngineAnalysis> {
+    async analyze(_context: EngineContext): Promise<EngineAnalysis> {
       // Importar engine legado
       const cognitiveEngine = await import('../engines/cognitiveEngine');
       
       // Analisar padrões e anomalias
-      const patterns = cognitiveEngine.detectPatterns();
-      const anomalies = cognitiveEngine.detectAnomalies();
+      // Estas funções retornam void, apenas emitem eventos
+      cognitiveEngine.detectPatterns();
+      cognitiveEngine.detectAnomalies();
       
       return {
         engine: 'cognitiveEngine',
         confidence: 0.7,
         result: {
-          patterns,
-          anomalies,
+          patterns: [],
+          anomalies: [],
         },
-        recommendations: anomalies.length > 0 
-          ? ['Revisar anomalias detectadas'] 
-          : undefined,
       };
     },
   };
@@ -167,7 +179,7 @@ export function createTemporalEngineAdapter(): InternalEngine {
   return {
     name: 'temporalEngine',
     
-    async analyze(context: EngineContext): Promise<EngineAnalysis> {
+    async analyze(_context: EngineContext): Promise<EngineAnalysis> {
       const temporalEngine = await import('../engines/temporalEngine');
       
       // Computar tendências
@@ -193,14 +205,14 @@ export function createOperationalStateAdapter(): InternalEngine {
   return {
     name: 'operationalStateEngine',
     
-    async analyze(context: EngineContext): Promise<EngineAnalysis> {
+    async analyze(_context: EngineContext): Promise<EngineAnalysis> {
       const operationalEngine = await import('../engines/operationalStateEngine');
       
-      const state = operationalEngine.getState();
+      const state = operationalEngine.getOperationalState();
       
       // Atualizar GlobalState com informações operacionais
       updateSystemHealth({
-        overallScore: state.load < 80 ? 1.0 - (state.load / 200) : 0.5,
+        overallScore: state.load < 80 ? 1 - (state.load / 200) : 0.5,
       });
       
       return {
@@ -219,7 +231,7 @@ export function createUserContextAdapter(): InternalEngine {
   return {
     name: 'userContextEngine',
     
-    async analyze(context: EngineContext): Promise<EngineAnalysis> {
+    async analyze(_context: EngineContext): Promise<EngineAnalysis> {
       const userContextEngine = await import('../engines/userContextEngine');
       
       const userContext = userContextEngine.getUserContext();
@@ -228,7 +240,9 @@ export function createUserContextAdapter(): InternalEngine {
       const preferences = userContextEngine.inferPreferences();
       
       // Atualizar GlobalState
-      updateUserActivity(activityState);
+      // Converter UserActivityState do operational para o tipo do consciousness
+      const consciousnessActivityState = mapToConsciousnessActivityState(activityState);
+      updateUserActivity(consciousnessActivityState);
       
       return {
         engine: 'userContextEngine',
@@ -251,22 +265,24 @@ export function createHolisticStateAdapter(): InternalEngine {
   return {
     name: 'holisticStateEngine',
     
-    async analyze(context: EngineContext): Promise<EngineAnalysis> {
+    async analyze(_context: EngineContext): Promise<EngineAnalysis> {
       const holisticEngine = await import('../engines/holisticStateEngine');
       
-      const health = holisticEngine.computeSystemHealth(context.data);
-      const scan = holisticEngine.scanWholeSystem(context.data);
+      const health = holisticEngine.computeSystemHealth(_context.data);
+      const scan = holisticEngine.scanWholeSystem(_context.data);
       
       // Atualizar GlobalState
+      // health é um number, não um objeto
+      const healthScore = typeof health === 'number' ? health : 1;
       updateSystemHealth({
-        overallScore: health?.score ?? 1.0,
+        overallScore: healthScore,
       });
       
       return {
         engine: 'holisticStateEngine',
-        confidence: health?.confidence ?? 0.5,
+        confidence: 0.5,
         result: {
-          health,
+          health: healthScore,
           scan,
         },
       };
@@ -289,8 +305,9 @@ export function createPriceMonitoringAdapter(): CallableAgent {
     description: 'Monitora preços de concorrentes e sugere ajustes',
     
     async init(config?: Record<string, unknown>): Promise<void> {
-      agent = await import('../engines/priceMonitoringAgent');
-      agent.priceMonitoringAgent.initPriceMonitoring(config?.apiKey as string);
+      const priceMonitoringModule = await import('../engines/priceMonitoringAgent');
+      agent = priceMonitoringModule;
+      priceMonitoringModule.default.initPriceMonitoring(config?.apiKey as string);
     },
     
     async execute(task: AgentTask): Promise<AgentResult> {
@@ -305,7 +322,7 @@ export function createPriceMonitoringAdapter(): CallableAgent {
       
       try {
         // O agente legado faz seu próprio loop - apenas retornamos status
-        const status = agent.priceMonitoringAgent.getMonitoringStatus();
+        const status = agent.default.getMonitoringStats();
         
         return {
           taskId: task.id,
@@ -325,7 +342,7 @@ export function createPriceMonitoringAdapter(): CallableAgent {
     
     stop(): void {
       if (agent) {
-        agent.priceMonitoringAgent.stopMonitoring();
+        agent.default.stopMonitoring();
       }
     },
   };
@@ -341,7 +358,7 @@ export function createPortalMonitorAdapter(): CallableAgent {
     name: 'portalMonitorAgent',
     description: 'Monitora editais em portais de licitação',
     
-    async init(config?: Record<string, unknown>): Promise<void> {
+    async init(_config?: Record<string, unknown>): Promise<void> {
       agent = await import('../agents/portalMonitorAgent');
       // Agent se auto-inicializa no import
     },

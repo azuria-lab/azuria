@@ -13,12 +13,12 @@
 
 import type { MessageType, SilenceReason } from './types';
 import {
-  getGlobalState,
-  recordSentMessage,
   blockTopic,
-  wasRecentlySent,
+  getGlobalState,
   isTopicBlocked,
+  recordSentMessage,
   type SentMessage,
+  wasRecentlySent,
 } from './GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════

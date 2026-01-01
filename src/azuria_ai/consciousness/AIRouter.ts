@@ -16,8 +16,8 @@
  * - Rate limiting por modelo
  */
 
-import { getGlobalState, updateSystemHealth } from './GlobalState';
-import { isGeminiAvailable, generateResponse } from './ai';
+import { generateResponse, isGeminiAvailable } from './ai';
+import { updateSystemHealth } from './GlobalState';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS

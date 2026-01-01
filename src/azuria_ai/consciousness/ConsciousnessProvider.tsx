@@ -9,12 +9,12 @@
 
 import React, { 
   createContext, 
+  useCallback,
   useContext, 
   useEffect, 
-  useCallback,
-  useState,
-  useRef,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/domains/auth';
@@ -23,19 +23,19 @@ import { useAuthContext } from '@/domains/auth';
 import {
   ConsciousnessCore,
   initConsciousness,
-  shutdownConsciousness,
-  sendEvent,
-  onOutput,
   onDecision,
-  updateContext,
+  onOutput,
   provideFeedback,
+  sendEvent,
+  shutdownConsciousness,
+  updateContext,
 } from './ConsciousnessCore';
 
 // State
 import {
   getGlobalState,
-  subscribeToState,
   type GlobalStateShape,
+  subscribeToState,
 } from './GlobalState';
 
 // AI Router
@@ -68,7 +68,8 @@ import invoiceOCREngine from '../engines/invoiceOCREngine';
 import dynamicPricingEngine from '../engines/dynamicPricingEngine';
 
 // Types
-import type { OutputMessage, CognitiveRole, SubscriptionTier, Decision, NormalizedEvent } from './types';
+import type { CognitiveRole, NormalizedEvent, OutputMessage, SubscriptionTier } from './types';
+import type { Decision } from './DecisionEngine';
 import type { Suggestion, UserContext } from '../types/operational';
 import type { ProcessingResult as LegacyProcessingResult } from '../core/modeDeusOrchestrator';
 
@@ -176,14 +177,14 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   // ═══════════════════════════════════════════════════════════════════════════
   
   const determineRole = useCallback((): CognitiveRole => {
-    if (!user?.id) return 'USER';
+    if (!user?.id) {return 'USER';}
     return isValidAdminUID(user.id) ? 'ADMIN' : 'USER';
   }, [user?.id]);
   
   const determineTier = useCallback((): SubscriptionTier => {
     const subscription = user?.user_metadata?.subscription;
-    if (subscription === 'enterprise' || subscription === 'Enterprise') return 'ENTERPRISE';
-    if (subscription === 'pro' || subscription === 'PRO') return 'PRO';
+    if (subscription === 'enterprise' || subscription === 'Enterprise') {return 'ENTERPRISE';}
+    if (subscription === 'pro' || subscription === 'PRO') {return 'PRO';}
     return 'FREE';
   }, [user?.user_metadata?.subscription]);
   
@@ -329,7 +330,16 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       });
       
       // 4. Inicializar EventBridge
-      initEventBridge(eventBus);
+      // Criar adapter para compatibilidade de tipos
+      initEventBridge({
+        emit: (type: string, payload: unknown, options?: unknown) => {
+          eventBus.emit(type as any, payload, options as any);
+        },
+        on: (type: string, handler: (event: unknown) => void) => {
+          const subscriptionId = eventBus.on(type as any, handler as any);
+          return () => eventBus.off(subscriptionId);
+        },
+      });
       
       // 5. Inicializar adaptadores de engines
       await initEngineAdapters();
@@ -411,8 +421,9 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         id: message.id,
         type: message.type as Suggestion['type'],
         message: message.message,
-        priority: message.severity === 'critical' ? 10 : 
-                 message.severity === 'high' ? 7 : 5,
+        priority: (message.severity === 'critical' ? 'critical' : 
+                 message.severity === 'high' ? 'high' : 
+                 message.severity === 'medium' ? 'medium' : 'low') as Suggestion['priority'],
         context: { screen: message.context.screen },
       };
       
@@ -439,7 +450,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   // ═══════════════════════════════════════════════════════════════════════════
   
   const send = useCallback((type: string, payload?: Record<string, unknown>) => {
-    if (!legacyState.initialized) return;
+    if (!legacyState.initialized) {return;}
     
     sendEvent({
       type,
@@ -491,7 +502,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   const processContext = useCallback(async (
     context: Partial<UserContext>
   ): Promise<LegacyProcessingResult | null> => {
-    if (!legacyState.initialized) return null;
+    if (!legacyState.initialized) {return null;}
     
     // Enviar evento de contexto
     sendEvent({
@@ -505,7 +516,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   }, [legacyState.initialized, legacyState.lastResult]);
   
   const processNaturalInput = useCallback(async (input: string): Promise<Suggestion[]> => {
-    if (!legacyState.initialized) return [];
+    if (!legacyState.initialized) {return [];}
     
     sendEvent({
       type: 'user:input',
@@ -518,7 +529,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   }, [legacyState.initialized, legacyState.lastResult?.suggestions]);
   
   const refreshSuggestions = useCallback(() => {
-    if (!legacyState.initialized) return;
+    if (!legacyState.initialized) {return;}
     
     sendEvent({
       type: 'user:refresh-suggestions',
@@ -541,7 +552,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   
   // Registrar listeners
   useEffect(() => {
-    if (!legacyState.initialized) return;
+    if (!legacyState.initialized) {return;}
     
     const unsubOutput = onOutput(handleOutput);
     const unsubUIOutput = onUIOutput(handleOutput);
@@ -570,7 +581,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   
   // Rastrear navegação
   useEffect(() => {
-    if (!legacyState.initialized) return;
+    if (!legacyState.initialized) {return;}
     
     const currentPath = location.pathname;
     if (currentPath !== previousPath.current) {
@@ -592,7 +603,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   
   // Auto-expirar mensagens
   useEffect(() => {
-    if (activeMessages.length === 0) return;
+    if (activeMessages.length === 0) {return;}
     
     const checkExpiry = () => {
       const now = Date.now();

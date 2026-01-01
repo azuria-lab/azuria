@@ -21,30 +21,27 @@
  */
 
 import type {
-  NormalizedEvent,
-  ConsciousnessConfig,
   CognitiveRole,
-  SubscriptionTier,
-  OutputMessage,
+  ConsciousnessConfig,
   DecisionType,
-  DEFAULT_CONSCIOUSNESS_CONFIG,
+  NormalizedEvent,
+  OutputMessage,
+  SubscriptionTier,
 } from './types';
 import { 
-  GlobalState, 
-  getGlobalState, 
-  initializeState, 
-  resetGlobalState,
-  updateUserActivity,
-  updateCurrentScreen,
-  requestSilence,
-  removeSilence,
-  incrementSessionMetric,
   cleanupExpiredData,
+  getGlobalState,
+  initializeState, 
+  removeSilence,
+  requestSilence,
+  resetGlobalState,
   subscribeToState,
+  updateCurrentScreen,
+  updateUserActivity,
 } from './GlobalState';
-import { PerceptionGate, perceive, quickFilter, type RawEvent } from './PerceptionGate';
-import { DecisionEngine, decide, createDecisionContext, type Decision } from './DecisionEngine';
-import { OutputGate, processOutput, recordMessageFeedback, type OutputDecision } from './OutputGate';
+import { perceive, quickFilter, type RawEvent } from './PerceptionGate';
+import { createDecisionContext, decide, type Decision } from './DecisionEngine';
+import { processOutput, recordMessageFeedback } from './OutputGate';
 import { CommunicationMemory } from './CommunicationMemory';
 import { initFeedbackLearning } from './learning/FeedbackLearning';
 
