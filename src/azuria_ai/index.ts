@@ -126,11 +126,44 @@ export {
 } from './core/modeDeusOrchestrator';
 
 // ============================================================================
-// Providers
+// Providers - Consciousness Core (Novo Modo Deus)
 // ============================================================================
 
+export { 
+  ConsciousnessProvider,
+  useConsciousnessContext,
+  useModeDeus,
+  useModeDeusOptional,
+  ConsciousnessContext,
+  ModeDeusContext, // Alias para compatibilidade
+} from './consciousness/ConsciousnessProvider';
+
+export {
+  ConsciousnessToast,
+  ConsciousnessStatus,
+} from './consciousness/components';
+
+// Consciousness Core exports
+export {
+  ConsciousnessCore,
+  initConsciousness,
+  shutdownConsciousness,
+  sendEvent,
+  onOutput,
+  onDecision,
+  GlobalState,
+  getGlobalState,
+  PerceptionGate,
+  DecisionEngine,
+  OutputGate,
+  CommunicationMemory,
+  AIRouter,
+  EventBridge,
+  EngineAdapter,
+} from './consciousness';
+
+// Legacy Provider (mantido para compatibilidade)
 export { ModeDeusProvider } from './providers/ModeDeusProvider';
-export { useModeDeus, useModeDeusOptional } from './hooks/useModeDeusHooks';
 
 // ============================================================================
 // Core - Event Payloads (Types)

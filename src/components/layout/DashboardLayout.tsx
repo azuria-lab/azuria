@@ -4,7 +4,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner";
 import ErrorBoundary from "./ErrorBoundary";
-import { ModeDeusProvider } from "@/azuria_ai";
+import { ConsciousnessProvider, ConsciousnessToast } from "@/azuria_ai/consciousness";
 
 // Lazy load componentes pesados para melhorar TTI (Time to Interactive)
 const DashboardSidebar = lazy(() => import("@/components/layout/DashboardSidebar"));
@@ -53,7 +53,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <meta property="og:type" content="website" />
       </Helmet>
 
-      <ModeDeusProvider autoInitialize>
+      <ConsciousnessProvider autoInitialize>
         <SidebarProvider>
           <div className="flex flex-col min-h-screen w-full">
             {/* Header no topo */}
@@ -92,8 +92,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <Suspense fallback={null}>
             <CoPilot position="bottom-right" defaultMinimized />
           </Suspense>
+          {/* ConsciousnessToast - Mensagens do Modo Deus */}
+          <ConsciousnessToast position="top-right" maxVisible={5} />
         </SidebarProvider>
-      </ModeDeusProvider>
+      </ConsciousnessProvider>
     </ErrorBoundary>
   );
 };

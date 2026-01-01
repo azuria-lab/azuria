@@ -97,9 +97,11 @@ class InvoiceOCREngine {
   initInvoiceOCR(apiKey?: string): void {
     // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
     if (!apiKey) {
-      console.warn(
-        '[InvoiceOCR] ⚠️ Engine não inicializado - API key deve ser passada via backend/Edge Function'
-      );
+      // Apenas logar em modo debug (esperado em desenvolvimento)
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.debug('[InvoiceOCR] Engine não inicializado - API key deve ser passada via backend/Edge Function');
+      }
       return;
     }
 
