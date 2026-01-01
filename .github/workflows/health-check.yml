@@ -20,7 +20,7 @@ jobs:
     name: Application Health Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: false  # Temporarily disabled - fails in CI due to Supabase integration issues
+    # Re-enabled: Supabase integration issues resolved via type-check.mjs and environment variables
     
     steps:
       - name: Checkout code
