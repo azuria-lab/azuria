@@ -253,7 +253,9 @@ export const calcMarkupHighRule = {
     }
     
     const payload = ctx.event.payload as CalcPayload;
-    if (!payload.precoVenda || !payload.custoProduto) {return false;}
+    if (!payload.precoVenda || !payload.custoProduto) {
+      return false;
+    }
     
     const markup = ((payload.precoVenda - payload.custoProduto) / payload.custoProduto) * 100;
     return markup > 200;
