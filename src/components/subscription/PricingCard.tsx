@@ -2,7 +2,7 @@
  * Card de plano de assinatura
  */
 
-import { Briefcase, Check, Sparkles, Star } from 'lucide-react';
+import { Award, Building2, Check, CheckCircle, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,13 +35,13 @@ function getButtonText(isCurrentPlan: boolean, isLoading: boolean, planId: strin
 function getPlanIcon(planId: string) {
   switch (planId) {
     case 'iniciante':
-      return <Sparkles className="h-5 w-5" />;
+      return <Rocket className="h-5 w-5" />;
     case 'essencial':
-      return <Star className="h-5 w-5" />;
+      return <Award className="h-5 w-5" />;
     case 'pro':
-      return <Sparkles className="h-5 w-5" />;
+      return <CheckCircle className="h-5 w-5" />;
     case 'enterprise':
-      return <Briefcase className="h-5 w-5" />;
+      return <Building2 className="h-5 w-5" />;
     default:
       return null;
   }

@@ -191,8 +191,8 @@ const essencialPlan: Plan = {
     competitorAnalysis: false,
 
     // Integrações
-    marketplaceIntegration: false,
-    marketplaces: [],
+    marketplaceIntegration: true,
+    marketplaces: ['mercadolivre'], // 1 marketplace
     priceAlerts: false,
 
     // API
@@ -220,12 +220,12 @@ const essencialPlan: Plan = {
 };
 
 /**
- * Plano PRO 🚀
+ * Plano PREMIUM 🚀
  * Recomendado para negócios em crescimento que vendem em múltiplos marketplaces
  */
 const proPlan: Plan = {
   id: 'pro',
-  name: 'Pro',
+  name: 'Premium',
   description: 'Para negócios em expansão com múltiplos canais de venda',
   tagline: 'Recomendado',
   recommended: true,
@@ -246,7 +246,7 @@ const proPlan: Plan = {
     aiQueriesPerMonth: 'unlimited',
     apiRequestsPerMonth: 1000,
     maxStores: 3,
-    teamMembers: 1,
+    teamMembers: 3, // Até 3 usuários
 
     // Funcionalidades
     saveHistory: true,
@@ -271,12 +271,12 @@ const proPlan: Plan = {
     apiAccess: true,
 
     // Colaboração
-    teamCollaboration: false,
-    permissionsSystem: false,
+    teamCollaboration: true, // Habilitado para até 3 usuários
+    permissionsSystem: false, // Básico, sem sistema avançado de permissões
     auditLog: false,
-    commentsOnCalculations: false,
+    commentsOnCalculations: true, // Permitir comentários
     approvalWorkflow: false,
-    consolidatedDashboard: false,
+    consolidatedDashboard: true, // Dashboard compartilhado
 
     // Suporte
     supportType: 'priority',
@@ -300,11 +300,11 @@ const enterprisePlan: Plan = {
   name: 'Enterprise',
   description: 'Solução corporativa com recursos avançados e suporte dedicado',
   tagline: 'Enterprise',
-  customPricing: true,
+  customPricing: false,
   pricing: {
     monthly: 299,
-    annual: 0, // Negociável
-    annualDiscount: 0,
+    annual: 2990, // 299 * 12 * 0.83 (17% de desconto)
+    annualDiscount: 17,
     currency: 'BRL',
     trialDays: 7,
   },
@@ -506,6 +506,8 @@ export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
     'Tudo do Iniciante',
     'Calculadora Avançada',
     'Calculadora Tributária',
+    'Cadastro de produtos',
+    'Integração com 1 marketplace',
     '50 consultas IA/mês (GPT-3.5)',
     'Analytics básico',
     "Sem marca d'água",
@@ -517,11 +519,13 @@ export const PLAN_HIGHLIGHTS: Record<PlanId, string[]> = {
     'Análise de concorrência',
     'Alertas de preço',
     'Analytics avançado',
+    'Colaboração em equipe',
+    'Até 3 usuários',
     'Até 3 lojas conectadas',
     'API (1.000 requisições/mês)',
   ],
   enterprise: [
-    'Tudo do Pro',
+    'Tudo do Premium',
     'API ilimitada',
     'Lojas ilimitadas',
     'Colaboração em equipe',

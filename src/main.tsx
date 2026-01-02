@@ -141,9 +141,77 @@ try {
 backupService.initialize();
 featureFlags.initialize();
 
+// Remove tooltips de debug automaticamente
+const removeDebugTooltips = () => {
+  const observer = new MutationObserver(() => {
+    // Remover tooltips que contenham informações de debug de navegação
+    const tooltips = document.querySelectorAll('[role="tooltip"], [data-radix-tooltip-content], div[class*="tooltip"]');
+    tooltips.forEach((tooltip) => {
+      const text = tooltip.textContent || '';
+      if (
+        text.includes('navigation: user:navigation') ||
+        text.includes('{"from"') ||
+        text.includes('"to":') ||
+        text.includes('user:navigation')
+      ) {
+        (tooltip as HTMLElement).style.display = 'none';
+        (tooltip as HTMLElement).style.visibility = 'hidden';
+        (tooltip as HTMLElement).style.opacity = '0';
+        (tooltip as HTMLElement).style.pointerEvents = 'none';
+        tooltip.remove();
+      }
+    });
+
+    // Remover atributos title que contenham informações de debug
+    const elementsWithDebugTitle = document.querySelectorAll('[title*="navigation"], [title*="user:navigation"], [title*="JSON"]');
+    elementsWithDebugTitle.forEach((element) => {
+      const title = element.getAttribute('title') || '';
+      if (
+        title.includes('navigation: user:navigation') ||
+        title.includes('{"from"') ||
+        title.includes('"to":')
+      ) {
+        element.removeAttribute('title');
+      }
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['title', 'class'],
+  });
+
+  // Executar uma vez imediatamente
+  observer.disconnect();
+  const tooltips = document.querySelectorAll('[role="tooltip"], [data-radix-tooltip-content], div[class*="tooltip"]');
+  tooltips.forEach((tooltip) => {
+    const text = tooltip.textContent || '';
+    if (
+      text.includes('navigation: user:navigation') ||
+      text.includes('{"from"') ||
+      text.includes('"to":') ||
+      text.includes('user:navigation')
+    ) {
+      tooltip.remove();
+    }
+  });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['title', 'class'],
+  });
+};
+
 // Initialize app immediately if DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    removeDebugTooltips();
+  });
 } else {
   initializeApp();
+  removeDebugTooltips();
 }

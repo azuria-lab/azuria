@@ -23,7 +23,7 @@ interface PlanChange {
 const planNames: Record<string, string> = {
   free: 'Free',
   essencial: 'Essencial',
-  pro: 'Pro',
+  pro: 'Premium',
   enterprise: 'Enterprise',
 };
 

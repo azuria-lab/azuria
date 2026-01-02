@@ -11,6 +11,7 @@ import {
   Crown,
   LayoutGrid,
   List,
+  Loader2,
   Mail,
   MapPin,
   MessageCircle,
@@ -430,26 +431,26 @@ export default function TeamsPage() {
   return (
     <>
       <Helmet>
-        <title>Times | Azuria</title>
-        <meta name="description" content="Gerencie seus times e tarefas de forma colaborativa" />
+        <title>Equipe | Azuria</title>
+        <meta name="description" content="Gerencie sua equipe e tarefas de forma colaborativa" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
           {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Times</h1>
+              <h1 className="text-3xl font-bold text-foreground">Equipe</h1>
               <p className="text-muted-foreground mt-1">
-                Gerencie seus times e tarefas de forma colaborativa
+                Gerencie sua equipe e tarefas de forma colaborativa
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <UserPlus className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" className="gap-2">
+                <UserPlus className="h-4 w-4" />
                 Convidar membro
               </Button>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button size="sm" className="gap-2">
+                <Plus className="h-4 w-4" />
                 Nova tarefa
               </Button>
             </div>
@@ -460,7 +461,7 @@ export default function TeamsPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     placeholder="Buscar tarefas..."
                     value={searchQuery}
@@ -497,15 +498,19 @@ export default function TeamsPage() {
                     variant={viewMode === "board" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode("board")}
+                    className="gap-2"
                   >
                     <LayoutGrid className="h-4 w-4" />
+                    <span className="hidden sm:inline">Quadro</span>
                   </Button>
                   <Button
                     variant={viewMode === "list" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode("list")}
+                    className="gap-2"
                   >
                     <List className="h-4 w-4" />
+                    <span className="hidden sm:inline">Lista</span>
                   </Button>
                 </div>
               </div>
@@ -515,7 +520,7 @@ export default function TeamsPage() {
           {/* Team Members */}
           <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Users className="h-5 w-5" />
@@ -525,31 +530,33 @@ export default function TeamsPage() {
                       {mockMembers.length} membro{mockMembers.length !== 1 ? "s" : ""} ativo{mockMembers.length !== 1 ? "s" : ""}
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Settings className="h-4 w-4" />
                     Configurações
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {mockMembers.map((member) => (
-                    <div
+                    <motion.div
                       key={member.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       onClick={() => {
                         setSelectedMember(member);
                         setSelectedChatId(`chat-${member.userId}`);
                       }}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/50 hover:border-primary/50 transition-all cursor-pointer group"
                     >
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10 ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
                         <AvatarImage src={member.avatar} />
                         <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-sm text-foreground truncate">{member.name}</p>
-                          {member.role === "admin" && <Crown className="h-3 w-3 text-yellow-500" />}
+                          {member.role === "admin" && <Crown className="h-3 w-3 text-yellow-500 flex-shrink-0" />}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                         <Badge variant="secondary" className="text-[10px] mt-1">
@@ -558,53 +565,74 @@ export default function TeamsPage() {
                           member.role === "member" ? "Membro" : "Visualizador"}
                         </Badge>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
           {/* Chat Premium - WhatsApp Style */}
-          <Card className="h-[600px]">
-            <div className="flex h-full">
-              {/* Chat List */}
-              <div className="w-full md:w-80 border-r border-border flex-shrink-0">
-                <ChatList
-                  chats={chats}
-                  selectedChatId={selectedChatId}
-                  onSelectChat={setSelectedChatId}
-                  currentUserId={currentUserId}
-                  onCreateRoom={() => setIsCreateRoomOpen(true)}
-                />
+          <Card className="h-[600px] overflow-hidden">
+            {chatLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">Carregando conversas...</p>
+                </div>
               </div>
+            ) : (
+              <div className="flex h-full">
+                {/* Chat List */}
+                <div className="w-full md:w-80 border-r border-border flex-shrink-0 overflow-hidden">
+                  <ChatList
+                    chats={chats}
+                    selectedChatId={selectedChatId}
+                    onSelectChat={setSelectedChatId}
+                    currentUserId={currentUserId}
+                    onCreateRoom={() => setIsCreateRoomOpen(true)}
+                  />
+                </div>
 
-              {/* Chat Window */}
-              <div className="flex-1 min-w-0">
-                <ChatWindow
-                  chatId={selectedChatId}
-                  chatName={selectedChat?.name || ""}
-                  chatAvatar={selectedChat?.avatar}
-                  isGroup={selectedChat?.isGroup || false}
-                  members={selectedChat?.members}
-                  currentUserId={currentUserId}
-                  currentUserName={currentUserName}
-                  onEditName={
-                    selectedChatId
-                      ? (newName) => handleEditRoomName(selectedChatId, newName)
-                      : undefined
-                  }
-                  onEditAvatar={
-                    selectedChatId && selectedChat?.isGroup
-                      ? (avatarUrl) => handleEditRoomAvatar(selectedChatId, avatarUrl)
-                      : undefined
-                  }
-                  userStatus={undefined}
-                  onSendMessage={handleSendMessage}
-                  onLoadMessages={handleLoadMessages}
-                  onMarkAsRead={handleMarkAsRead}
-                />
+                {/* Chat Window */}
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  {selectedChatId ? (
+                    <ChatWindow
+                      chatId={selectedChatId}
+                      chatName={selectedChat?.name || ""}
+                      chatAvatar={selectedChat?.avatar}
+                      isGroup={selectedChat?.isGroup || false}
+                      members={selectedChat?.members}
+                      currentUserId={currentUserId}
+                      currentUserName={currentUserName}
+                      onEditName={
+                        selectedChatId
+                          ? (newName) => handleEditRoomName(selectedChatId, newName)
+                          : undefined
+                      }
+                      onEditAvatar={
+                        selectedChatId && selectedChat?.isGroup
+                          ? (avatarUrl) => handleEditRoomAvatar(selectedChatId, avatarUrl)
+                          : undefined
+                      }
+                      userStatus={undefined}
+                      onSendMessage={handleSendMessage}
+                      onLoadMessages={handleLoadMessages}
+                      onMarkAsRead={handleMarkAsRead}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-muted/30">
+                      <div className="text-center space-y-2 p-6">
+                        <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground/50" />
+                        <p className="text-sm font-medium text-foreground">Selecione uma conversa</p>
+                        <p className="text-xs text-muted-foreground">
+                          Escolha uma conversa da lista ou crie uma nova sala
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </Card>
 
           {/* Create Room Dialog */}

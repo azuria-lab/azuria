@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { motion, useReducedMotion } from "framer-motion";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { ArrowRight, Check, Globe, HelpCircle, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Check, Cloud, HelpCircle, MessageCircle, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -205,18 +205,19 @@ export default function PricingPage() {
                           </tr>
                         </thead>
                       <tbody>
-                        <ComparisonRow feature="Cálculos por dia" values={['10', 'Ilimitado', 'Ilimitado', 'Ilimitado']} />
+                        <ComparisonRow feature="Cálculos por dia" values={['Ilimitado', 'Ilimitado', 'Ilimitado', 'Ilimitado']} />
                         <ComparisonRow feature="Calculadora avançada" values={[false, true, true, true]} />
-                        <ComparisonRow feature="Salvar histórico" values={[false, true, true, true]} />
+                        <ComparisonRow feature="Salvar histórico" values={[true, true, true, true]} />
+                        <ComparisonRow feature="Cadastro de produtos" values={[false, true, true, true]} />
                         <ComparisonRow feature="Consultas IA/mês" values={['-', '50', 'Ilimitado', 'Ilimitado']} />
                         <ComparisonRow feature="Modelo de IA" values={['-', 'GPT-3.5', 'GPT-4', 'GPT-4']} />
                         <ComparisonRow feature="Analytics avançado" values={[false, false, true, true]} />
-                        <ComparisonRow feature="Integração marketplaces" values={[false, false, true, true]} />
+                        <ComparisonRow feature="Integração marketplaces" values={[false, '1 marketplace', '3 marketplaces', 'Ilimitado']} />
                         <ComparisonRow feature="Lojas conectadas" values={['-', '1', '3', 'Ilimitado']} />
                         <ComparisonRow feature="API" values={[false, false, '1000/mês', 'Ilimitado']} />
-                        <ComparisonRow feature="Colaboração em equipe" values={[false, false, false, true]} />
+                        <ComparisonRow feature="Colaboração em equipe" values={[false, false, 'Até 3 usuários', 'Ilimitado']} />
                         <ComparisonRow feature="White label" values={[false, false, false, true]} />
-                        <ComparisonRow feature="Suporte" values={['-', 'Email (48h)', 'Prioritário (24h)', '24/7 + Account Manager']} />
+                        <ComparisonRow feature="Suporte" values={['Email (48h)', 'Email (48h)', 'Prioritário (24h)', '24/7 + Account Manager']} />
                         </tbody>
                       </table>
                     </div>
@@ -243,8 +244,8 @@ export default function PricingPage() {
                   </p>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                        <Shield className="h-5 w-5 text-primary" />
+                      <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20 flex-shrink-0">
+                        <MessageCircle className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Suporte melhor avaliado por 95% dos clientes</h3>
@@ -252,8 +253,8 @@ export default function PricingPage() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                        <Globe className="h-5 w-5 text-primary" />
+                      <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20 flex-shrink-0">
+                        <Cloud className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Sistema 100% online, acesse de qualquer lugar</h3>
@@ -261,8 +262,8 @@ export default function PricingPage() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                        <Zap className="h-5 w-5 text-primary" />
+                      <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20 flex-shrink-0">
+                        <Rocket className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Sem custo de ativação e é só se inscrever e começar</h3>

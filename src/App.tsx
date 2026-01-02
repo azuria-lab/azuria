@@ -375,12 +375,22 @@ const App = () => {
                       
                       {/* Teams - Protected */}
                       <Route
-                        path="/times"
+                        path="/equipe"
                         element={
                           <ProtectedRoute>
                             <DashboardLayout>
                               <TeamsPage />
                             </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      
+                      {/* Redirect /times to /equipe for backwards compatibility */}
+                      <Route
+                        path="/times"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/equipe" replace />
                           </ProtectedRoute>
                         }
                       />

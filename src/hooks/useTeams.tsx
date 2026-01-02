@@ -105,7 +105,7 @@ export const useTeams = () => {
       if (!['pro', 'enterprise'].includes(subscription.planId)) {
         toast({
           title: 'Recurso Indisponível',
-          description: 'Equipes estão disponíveis apenas nos planos Pro e Enterprise.',
+          description: 'Equipes estão disponíveis apenas nos planos Premium e Enterprise.',
           variant: 'destructive',
         });
         return null;

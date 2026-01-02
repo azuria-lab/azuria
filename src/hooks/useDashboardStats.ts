@@ -471,7 +471,7 @@ export function useDashboardStats() {
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("id", user.id)
         .single();
 
       if (error && error.code !== "PGRST116") {
@@ -484,12 +484,12 @@ export function useDashboardStats() {
         const { data: newData } = await supabase
           .from("user_profiles")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("id", user.id)
           .single();
 
         if (newData) {
           setUserProfile({
-            userId: newData.user_id,
+            userId: newData.id,
             experienceLevel: newData.experience_level,
             totalCalculations: newData.total_calculations,
             totalSavingsGenerated: newData.total_savings_generated,
@@ -502,7 +502,7 @@ export function useDashboardStats() {
 
       if (data) {
         setUserProfile({
-          userId: data.user_id,
+          userId: data.id,
           experienceLevel: data.experience_level,
           totalCalculations: data.total_calculations,
           totalSavingsGenerated: data.total_savings_generated,

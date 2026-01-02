@@ -272,6 +272,7 @@ input[type="number"] {
   /* Glass Card Effect */
   .glass-card {
     background: var(--glass-light);
+    -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-soft);
@@ -473,3 +474,5 @@ input[type="number"] {
     background-position: 200% 0;
   }
 }
+
+/* Ocultar tooltips de debug - removidos via JavaScript em main.tsx */

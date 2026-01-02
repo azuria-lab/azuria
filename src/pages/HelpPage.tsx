@@ -76,7 +76,7 @@ const faqCategories = [
       },
       {
         question: "Quais são os planos disponíveis?",
-        answer: "Oferecemos 4 planos: Iniciante (R$ 25/mês) com calculadora ilimitada, Essencial (R$ 99/mês) com recursos básicos, Pro (R$ 299/mês) com recursos avançados e IA, e Enterprise (sob consulta) com recursos completos e suporte dedicado."
+        answer: "Oferecemos 4 planos: Iniciante (R$ 25/mês) com calculadora ilimitada, Essencial (R$ 59/mês) com recursos básicos, Premium (R$ 119/mês) com recursos avançados e IA, e Enterprise (R$ 299/mês) com recursos completos e suporte dedicado."
       }
     ]
   },
@@ -144,7 +144,7 @@ const faqCategories = [
       },
       {
         question: "Como ativar o Azuria AI?",
-        answer: "O Azuria AI está disponível nos planos Pro e Enterprise. Acesse a página 'Azuria AI' no menu principal e comece a conversar com o assistente. Ele aprende com seus padrões de uso e melhora continuamente."
+        answer: "O Azuria AI está disponível nos planos Premium e Enterprise. Acesse a página 'Azuria AI' no menu principal e comece a conversar com o assistente. Ele aprende com seus padrões de uso e melhora continuamente."
       },
       {
         question: "O Azuria AI substitui minha análise?",

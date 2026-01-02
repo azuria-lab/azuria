@@ -65,18 +65,35 @@ export function useChat() {
     if (!userProfile?.id) {return;}
 
     try {
+      // Primeiro, buscar IDs das salas que o usuário é membro
+      const { data: memberRooms, error: memberError } = await supabase
+        .from("chat_room_members")
+        .select("room_id")
+        .eq("user_id", userProfile.id);
+
+      if (memberError) {throw memberError;}
+
+      if (!memberRooms || memberRooms.length === 0) {
+        setRooms([]);
+        setLoading(false);
+        return;
+      }
+
+      const roomIds = memberRooms.map((m) => m.room_id);
+
+      // Buscar salas usando os IDs
       const { data, error } = await supabase
         .from("chat_rooms")
         .select(`
           *,
-          chat_room_members!inner(user_id),
-          chat_messages(count)
+          chat_room_members(count)
         `)
+        .in("id", roomIds)
         .order("last_message_at", { ascending: false, nullsFirst: false });
 
       if (error) {throw error;}
 
-      // Calcular unread_count para cada sala
+      // Calcular unread_count e members_count para cada sala
       const roomsWithUnread = await Promise.all(
         (data || []).map(async (room) => {
           const { data: unreadData } = await supabase.rpc("get_unread_count", {
@@ -84,10 +101,16 @@ export function useChat() {
             p_user_id: userProfile.id,
           });
 
+          // Buscar contagem de membros separadamente
+          const { count: membersCount } = await supabase
+            .from("chat_room_members")
+            .select("*", { count: "exact", head: true })
+            .eq("room_id", room.id);
+
           return {
             ...room,
             unread_count: unreadData || 0,
-            members_count: room.chat_room_members?.length || 0,
+            members_count: membersCount || 0,
           };
         })
       );

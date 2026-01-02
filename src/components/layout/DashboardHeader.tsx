@@ -246,17 +246,6 @@ export default function DashboardHeader() {
             <HelpCircle className="h-5 w-5" />
           </Button>
 
-          {/* Configurações */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => navigate("/configuracoes")}
-            title="Configurações"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
-
           {/* Meu Perfil */}
         {userProfile && <UserProfileButton />}
       </div>

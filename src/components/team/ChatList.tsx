@@ -100,7 +100,6 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, currentU
                 "flex items-center gap-3 p-3 cursor-pointer transition-colors border-b border-border/50",
                 isSelected ? "bg-accent" : "hover:bg-accent/50"
               )}
-              whileHover={{ backgroundColor: "hsl(var(--accent) / 0.5)" }}
               whileTap={{ scale: 0.98 }}
             >
               <div className="relative flex-shrink-0">

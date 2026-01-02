@@ -234,9 +234,20 @@ export const ConsciousnessToast: React.FC<ConsciousnessToastProps> = ({
 }) => {
   const { activeMessages, dismiss, accept } = useConsciousnessContext();
   
-  // Limitar mensagens visíveis
+  // Limitar mensagens visíveis e filtrar mensagens de navegação
   const visibleMessages = useMemo(
-    () => activeMessages.slice(0, maxVisible),
+    () => activeMessages
+      .filter(msg => {
+        // Filtrar mensagens de navegação que não devem ser exibidas
+        const isNavigationMessage = 
+          msg.message.includes('navigation: user:navigation') ||
+          msg.title.includes('navigation: user:navigation') ||
+          msg.context.eventId?.includes('user:navigation') ||
+          (msg.context.eventType === 'user:navigation');
+        
+        return !isNavigationMessage;
+      })
+      .slice(0, maxVisible),
     [activeMessages, maxVisible]
   );
   

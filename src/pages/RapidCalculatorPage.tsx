@@ -91,7 +91,7 @@ export default function RapidCalculatorPage() {
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button 
                           variant="outline" 
-                          className="w-full sm:w-auto h-12 min-h-[44px] border-primary/20 text-primary hover:bg-primary/10 transition-all"
+                          className="w-full sm:w-auto h-12 min-h-[44px]"
                         >
                           Ver Calculadora Avançada
                         </Button>

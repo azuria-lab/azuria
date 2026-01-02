@@ -164,7 +164,7 @@ const MarketplaceCarouselPremium: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-[#F8FBFF] w-full">
+    <section className="py-20 md:py-32 bg-background w-full">
       <div className="container mx-auto px-4 w-full">
         <motion.div
           initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}

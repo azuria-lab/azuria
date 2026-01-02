@@ -175,10 +175,10 @@ const UserProfileButton: React.FC = () => {
             Dados da empresa
           </DropdownMenuItem>
           
-          <Link to="/times">
+          <Link to="/equipe">
             <DropdownMenuItem className="cursor-pointer">
               <Users className="mr-2 h-4 w-4" />
-              Times
+              Equipe
             </DropdownMenuItem>
           </Link>
           
@@ -199,7 +199,7 @@ const UserProfileButton: React.FC = () => {
               {isPro ? (
                 <>
                   <Crown className="h-4 w-4 text-yellow-600" />
-                  <span className="text-sm font-medium">Plano PRO</span>
+                  <span className="text-sm font-medium">Plano Premium</span>
                 </>
               ) : (
                 <span className="text-sm font-medium">Plano Gratuito</span>

@@ -412,6 +412,18 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   // ═══════════════════════════════════════════════════════════════════════════
   
   const handleOutput = useCallback((message: OutputMessage) => {
+    // Filtrar mensagens de navegação que não devem ser exibidas
+    const isNavigationMessage = 
+      message.message.includes('navigation: user:navigation') ||
+      message.title.includes('navigation: user:navigation') ||
+      message.context.eventId?.includes('user:navigation') ||
+      (message.context.eventType === 'user:navigation');
+    
+    // Não adicionar mensagens de navegação ao estado
+    if (isNavigationMessage) {
+      return;
+    }
+    
     setActiveMessages(prev => {
       // Verificar se a mensagem já existe para evitar duplicatas
       if (prev.some(m => m.id === message.id)) {
