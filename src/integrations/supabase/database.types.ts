@@ -18,7 +18,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
+          plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
           status:
             | 'active'
             | 'canceled'
@@ -41,7 +41,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
+          plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
           status:
             | 'active'
             | 'canceled'
@@ -284,8 +284,8 @@ export interface Database {
           id: string;
           user_id: string;
           subscription_id: string;
-          from_plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
-          to_plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
+          from_plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
+          to_plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
           change_type:
             | 'upgrade'
             | 'downgrade'
@@ -299,8 +299,8 @@ export interface Database {
           id?: string;
           user_id: string;
           subscription_id: string;
-          from_plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
-          to_plan_id: 'free' | 'essencial' | 'pro' | 'enterprise';
+          from_plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
+          to_plan_id: 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
           change_type:
             | 'upgrade'
             | 'downgrade'

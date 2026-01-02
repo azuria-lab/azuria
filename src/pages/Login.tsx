@@ -27,7 +27,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const REMEMBER_ME_KEY = 'azuria_remember_email';
+const REMEMBER_ME_KEY = 'azuria_remember_credentials';
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,12 +41,29 @@ export default function Login() {
   const { toast } = useToast();
   const { login, register, loginWithGoogle, isAuthenticated } = useAuthContext();
 
-  // Carregar email salvo ao montar o componente
+  // Carregar email e senha salvos ao montar o componente
   useEffect(() => {
-    const savedEmail = localStorage.getItem(REMEMBER_ME_KEY);
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberMe(true);
+    const savedData = localStorage.getItem(REMEMBER_ME_KEY);
+    if (savedData) {
+      try {
+        // Tentar parsear como JSON (novo formato)
+        const credentials = JSON.parse(savedData);
+        if (credentials.email) {
+          setEmail(credentials.email);
+          if (credentials.password) {
+            setPassword(credentials.password);
+          }
+          setRememberMe(true);
+        }
+      } catch {
+        // Se falhar, pode ser o formato antigo (apenas email como string)
+        // Manter compatibilidade com versões antigas
+        const savedEmail = savedData;
+        if (savedEmail && !savedEmail.startsWith('{')) {
+          setEmail(savedEmail);
+          setRememberMe(true);
+        }
+      }
     }
   }, []);
 
@@ -94,9 +111,13 @@ export default function Login() {
           email: session.user.email 
         });
         
-        // Salvar ou remover email baseado no checkbox "Lembrar conta"
+        // Salvar ou remover email e senha baseado no checkbox "Lembrar conta"
         if (rememberMe) {
-          localStorage.setItem(REMEMBER_ME_KEY, email);
+          const credentials = {
+            email: email,
+            password: password
+          };
+          localStorage.setItem(REMEMBER_ME_KEY, JSON.stringify(credentials));
         } else {
           localStorage.removeItem(REMEMBER_ME_KEY);
         }

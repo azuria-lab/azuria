@@ -2,7 +2,7 @@
  * Tipos compartilhados para integração com Stripe
  */
 
-export type PlanId = 'free' | 'essencial' | 'pro' | 'enterprise';
+export type PlanId = 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
 export type BillingInterval = 'month' | 'year';
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete' | 'incomplete_expired';
 
