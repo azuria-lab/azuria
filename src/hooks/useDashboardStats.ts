@@ -577,7 +577,7 @@ export function useDashboardStats() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(statsChannel);
+      statsChannel.unsubscribe();
     };
   }, [user?.id, fetchDashboardData, fetchStats, fetchActivities, fetchNotifications]);
 

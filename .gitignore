@@ -28,6 +28,9 @@ Thumbs.db
 !.vscode/settings.json
 .vscode-test
 
+# Cursor MCP Configuration (may contain tokens)
+.cursor/mcp.json
+
 # Env / Secrets - CRITICAL: Never commit secrets!
 .env
 .env.*

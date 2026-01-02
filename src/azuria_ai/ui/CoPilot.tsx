@@ -9,14 +9,19 @@
 
 import React, { useCallback, useState } from 'react';
 import {
+  AlertTriangle,
   Bot,
+  Brain,
+  CheckCircle,
   ChevronDown,
   ChevronUp,
   HelpCircle,
+  Info,
   LayoutDashboard,
   Lightbulb,
   MessageSquare,
   Settings,
+  Sparkles,
   ThumbsDown,
   ThumbsUp,
   X,
@@ -26,6 +31,39 @@ import { AzuriaAvatarImage } from '@/components/ai/AzuriaAvatarImage';
 import { useCoPilot } from '../hooks/useCoPilot';
 import { MiniDashboard } from './MiniDashboard';
 import type { FeedbackType, Suggestion, SuggestionType } from '../types/operational';
+
+// Importação opcional do ConsciousnessContext
+// Tentar importar de forma segura - será carregado dinamicamente se disponível
+let useConsciousnessContextHook: (() => {
+  activeMessages: Array<{
+    id: string;
+    title: string;
+    message: string;
+    type: string;
+    severity: string;
+    dismissable?: boolean;
+    actions?: Array<{ id: string; label: string; type: string }>;
+  }>;
+  dismiss: (id: string) => void;
+  accept: (id: string) => void;
+}) | undefined;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const consciousnessModule = require('../consciousness/ConsciousnessProvider');
+  useConsciousnessContextHook = consciousnessModule?.useConsciousnessContext;
+} catch {
+  // Módulo não disponível - criar hook dummy que sempre retorna null
+  useConsciousnessContextHook = () => null;
+}
+
+// Hook customizado que sempre é chamado (respeitando regras do React)
+// Retorna null se o hook original não estiver disponível
+function useConsciousnessContextSafe() {
+  // Sempre chamar o hook (agora sempre existe, mesmo que retorne null)
+   
+  return useConsciousnessContextHook();
+}
 
 // ============================================================================
 // Types
@@ -65,6 +103,31 @@ const SuggestionIcon: React.FC<{ type: SuggestionType }> = ({ type }) => {
   };
 
   return <>{icons[type] || <Lightbulb className="h-4 w-4" />}</>;
+};
+
+// Ícones para mensagens do ConsciousnessCore
+const getConsciousnessIcon = (type: string, severity: string) => {
+  if (severity === 'critical') {return <AlertTriangle className="h-4 w-4 text-red-400" />;}
+  if (severity === 'high') {return <AlertTriangle className="h-4 w-4 text-orange-400" />;}
+  
+  switch (type) {
+    case 'insight':
+      return <Lightbulb className="h-4 w-4 text-blue-400" />;
+    case 'suggestion':
+      return <Sparkles className="h-4 w-4 text-emerald-400" />;
+    case 'warning':
+      return <AlertTriangle className="h-4 w-4 text-amber-400" />;
+    case 'error':
+      return <AlertTriangle className="h-4 w-4 text-red-400" />;
+    case 'tip':
+      return <Info className="h-4 w-4 text-violet-400" />;
+    case 'confirmation':
+      return <CheckCircle className="h-4 w-4 text-green-400" />;
+    case 'celebration':
+      return <Sparkles className="h-4 w-4 text-fuchsia-400" />;
+    default:
+      return <Brain className="h-4 w-4 text-slate-400" />;
+  }
 };
 
 const priorityColors: Record<string, string> = {
@@ -299,6 +362,116 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isEnabled, toggle }) => (
   </div>
 );
 
+// Componente para exibir mensagens do ConsciousnessCore
+interface ConsciousnessMessageCardProps {
+  message: {
+    id: string;
+    title: string;
+    message: string;
+    type: string;
+    severity: string;
+    dismissable?: boolean;
+    actions?: Array<{ id: string; label: string; type: string }>;
+  };
+  onDismiss: () => void;
+  onAccept: () => void;
+}
+
+const ConsciousnessMessageCard: React.FC<ConsciousnessMessageCardProps> = ({
+  message,
+  onDismiss,
+  onAccept,
+}) => {
+  const getColorClasses = () => {
+    if (message.severity === 'critical') {
+      return 'border-l-red-500/60 bg-red-50/50';
+    }
+    if (message.severity === 'high') {
+      return 'border-l-orange-500/60 bg-orange-50/50';
+    }
+    
+    switch (message.type) {
+      case 'insight':
+        return 'border-l-blue-500/60 bg-blue-50/50';
+      case 'suggestion':
+        return 'border-l-emerald-500/60 bg-emerald-50/50';
+      case 'warning':
+        return 'border-l-amber-500/60 bg-amber-50/50';
+      case 'error':
+        return 'border-l-red-500/60 bg-red-50/50';
+      case 'tip':
+        return 'border-l-violet-500/60 bg-violet-50/50';
+      case 'confirmation':
+        return 'border-l-green-500/60 bg-green-50/50';
+      case 'celebration':
+        return 'border-l-fuchsia-500/60 bg-fuchsia-50/50';
+      default:
+        return 'border-l-slate-500/60 bg-slate-50/50';
+    }
+  };
+
+  return (
+    <div
+      className={`
+        bg-card rounded-lg shadow-sm border-l-2 border p-3 mb-2 
+        transition-all duration-200 hover:shadow-md
+        ${getColorClasses()}
+      `}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="flex-shrink-0">
+            {getConsciousnessIcon(message.type, message.severity)}
+          </span>
+          <h4 className="font-medium text-sm text-foreground truncate">
+            {message.title}
+          </h4>
+        </div>
+        {message.dismissable && (
+          <button
+            onClick={onDismiss}
+            className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
+            aria-label="Fechar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Message */}
+      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+        {message.message}
+      </p>
+
+      {/* Actions */}
+      {message.actions && message.actions.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {message.actions.map((action) => (
+            <button
+              key={action.id}
+              onClick={() => {
+                onAccept();
+              }}
+              className={`
+                text-xs px-3 py-1.5 rounded-md transition-colors
+                ${action.type === 'primary'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : action.type === 'danger'
+                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }
+              `}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -321,6 +494,14 @@ export const CoPilot: React.FC<CoPilotProps> = ({
     sendFeedback,
     toggle,
   } = useCoPilot();
+
+  // Tentar obter mensagens do ConsciousnessCore (se disponível)
+  // Sempre chamar o hook (respeitando regras do React)
+  const consciousnessContext = useConsciousnessContextSafe();
+
+  const consciousnessMessages = consciousnessContext?.activeMessages || [];
+  const dismissConsciousness = consciousnessContext?.dismiss || null;
+  const acceptConsciousness = consciousnessContext?.accept || null;
 
   const [isMinimized, setIsMinimized] = useState(defaultMinimized);
   const [expandedSuggestions, setExpandedSuggestions] = useState<Set<string>>(
@@ -576,17 +757,8 @@ export const CoPilot: React.FC<CoPilotProps> = ({
 
           {/* Content */}
           <div className="max-h-96 overflow-y-auto p-4">
-            {suggestions.length === 0 ? (
-              <div className="text-center py-6">
-                <AzuriaAvatarImage size="large" className="mx-auto mb-2 opacity-50" />
-                <p className="text-sm text-gray-500">
-                  Nenhuma sugestão no momento
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Continue navegando, estou aqui para ajudar!
-                </p>
-              </div>
-            ) : (
+            {suggestions.length > 0 ? (
+              // Mostrar sugestões do CoPilot se houver
               suggestions.map((suggestion) => (
                 <SuggestionCard
                   key={suggestion.id}
@@ -598,6 +770,65 @@ export const CoPilot: React.FC<CoPilotProps> = ({
                   onToggleExpand={() => toggleExpand(suggestion.id)}
                 />
               ))
+            ) : consciousnessMessages.length > 0 ? (
+              // Mostrar mensagens do ConsciousnessCore se houver
+              <>
+                <div className="mb-3 pb-2 border-b border-border/50">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Brain className="h-3.5 w-3.5" />
+                    <span className="font-medium">Insights do Sistema Azuria AI</span>
+                  </div>
+                </div>
+                {consciousnessMessages.slice(0, 3).map((message) => (
+                  <ConsciousnessMessageCard
+                    key={message.id}
+                    message={message}
+                    onDismiss={() => dismissConsciousness?.(message.id)}
+                    onAccept={() => acceptConsciousness?.(message.id)}
+                  />
+                ))}
+                {consciousnessMessages.length > 3 && (
+                  <p className="text-xs text-center text-muted-foreground mt-2">
+                    +{consciousnessMessages.length - 3} mais insight{consciousnessMessages.length - 3 > 1 ? 's' : ''}
+                  </p>
+                )}
+              </>
+            ) : (
+              // Estado vazio - mostrar informações sobre funcionalidades
+              <div className="text-center py-6">
+                <AzuriaAvatarImage size="large" className="mx-auto mb-3 opacity-50" />
+                <p className="text-sm text-gray-500 mb-2">
+                  Nenhuma sugestão no momento
+                </p>
+                <p className="text-xs text-gray-400 mb-4">
+                  Continue navegando, estou aqui para ajudar!
+                </p>
+                
+                {/* Lista de funcionalidades disponíveis */}
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs font-medium text-gray-600 mb-2">
+                    Funcionalidades disponíveis:
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-left">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Brain className="h-3 w-3 text-blue-500" />
+                      <span>Insights IA</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Lightbulb className="h-3 w-3 text-yellow-500" />
+                      <span>Sugestões</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Zap className="h-3 w-3 text-orange-500" />
+                      <span>Otimizações</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <MessageSquare className="h-3 w-3 text-green-500" />
+                      <span>Orientações</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 

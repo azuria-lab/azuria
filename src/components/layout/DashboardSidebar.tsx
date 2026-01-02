@@ -326,13 +326,16 @@ export default function DashboardSidebar() {
       try {
         const { data, error } = await supabase
           .from("company_data")
-          .select("data")
+          .select("*")
           .eq("user_id", userProfile.id)
-          .single();
+          .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-          // eslint-disable-next-line no-console
-          console.error("Erro ao buscar dados da empresa:", error);
+        if (error) {
+          // Ignorar erro se não houver dados (PGRST116 = no rows returned)
+          if (error.code !== 'PGRST116') {
+            // eslint-disable-next-line no-console
+            console.error("Erro ao buscar dados da empresa:", error);
+          }
           return;
         }
 

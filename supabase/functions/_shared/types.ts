@@ -2,9 +2,15 @@
  * Tipos compartilhados entre as Edge Functions
  */
 
-export type PlanId = 'free' | 'essencial' | 'pro' | 'enterprise';
+export type PlanId = 'free' | 'iniciante' | 'essencial' | 'pro' | 'enterprise';
 export type BillingInterval = 'monthly' | 'annual';
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete' | 'incomplete_expired';
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'past_due'
+  | 'trialing'
+  | 'incomplete'
+  | 'incomplete_expired';
 
 /**
  * Configuração dos planos
@@ -38,14 +44,26 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       api_requests_per_month: 0,
     },
   },
+  iniciante: {
+    id: 'iniciante',
+    name: 'Plano Iniciante',
+    monthlyPrice: 25.0,
+    annualPrice: 250.0,
+    limits: {
+      calculations_per_day: -1, // ilimitado
+      calculations_per_month: -1, // ilimitado
+      ai_queries_per_month: 0,
+      api_requests_per_month: 0,
+    },
+  },
   essencial: {
     id: 'essencial',
     name: 'Plano Essencial',
-    monthlyPrice: 29.90,
-    annualPrice: 299.00,
+    monthlyPrice: 59.0,
+    annualPrice: 590.0,
     limits: {
-      calculations_per_day: 100,
-      calculations_per_month: 2000,
+      calculations_per_day: -1, // ilimitado
+      calculations_per_month: -1, // ilimitado
       ai_queries_per_month: 50,
       api_requests_per_month: 100,
     },
@@ -53,20 +71,20 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   pro: {
     id: 'pro',
     name: 'Plano Pro',
-    monthlyPrice: 79.90,
-    annualPrice: 799.00,
+    monthlyPrice: 119.0,
+    annualPrice: 1190.0,
     limits: {
-      calculations_per_day: 500,
-      calculations_per_month: 10000,
-      ai_queries_per_month: 200,
-      api_requests_per_month: 500,
+      calculations_per_day: -1, // ilimitado
+      calculations_per_month: -1, // ilimitado
+      ai_queries_per_month: -1, // ilimitado
+      api_requests_per_month: 1000,
     },
   },
   enterprise: {
     id: 'enterprise',
     name: 'Plano Enterprise',
-    monthlyPrice: 299.90,
-    annualPrice: 2999.00,
+    monthlyPrice: 299.0,
+    annualPrice: 2990.0,
     limits: {
       calculations_per_day: -1, // ilimitado
       calculations_per_month: -1, // ilimitado
@@ -135,7 +153,12 @@ export interface MercadoPagoPreference {
 export interface MercadoPagoWebhookNotification {
   id: number;
   live_mode: boolean;
-  type: 'payment' | 'plan' | 'subscription' | 'invoice' | 'point_integration_wh';
+  type:
+    | 'payment'
+    | 'plan'
+    | 'subscription'
+    | 'invoice'
+    | 'point_integration_wh';
   date_created: string;
   application_id: number;
   user_id: string;
@@ -160,7 +183,16 @@ export interface MercadoPagoPayment {
   issuer_id: string;
   payment_method_id: string;
   payment_type_id: string;
-  status: 'pending' | 'approved' | 'authorized' | 'in_process' | 'in_mediation' | 'rejected' | 'cancelled' | 'refunded' | 'charged_back';
+  status:
+    | 'pending'
+    | 'approved'
+    | 'authorized'
+    | 'in_process'
+    | 'in_mediation'
+    | 'rejected'
+    | 'cancelled'
+    | 'refunded'
+    | 'charged_back';
   status_detail: string;
   currency_id: string;
   description?: string;
@@ -218,5 +250,6 @@ export interface EdgeFunctionResponse<T = unknown> {
  */
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
 };

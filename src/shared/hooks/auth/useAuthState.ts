@@ -60,8 +60,8 @@ export const useAuthState = () => {
           
           // Configurar listener primeiro
           const { data: authListener } = supabaseAuth.auth.onAuthStateChange(
-            (event, currentSession) => {
-              logger.debug("Evento de auth:", event);
+            async (event, currentSession) => {
+              logger.info("🔔 Evento de auth:", event, currentSession ? `Sessão ativa - User: ${currentSession.user.email}` : "Sem sessão");
               
               // Log security event for auth state changes
               if (typeof window !== 'undefined' && event !== 'INITIAL_SESSION') {
@@ -72,6 +72,19 @@ export const useAuthState = () => {
                     severity: 'low'
                   }
                 }));
+              }
+              
+              // Tratamento especial para eventos OAuth
+              if (event === 'SIGNED_IN' && currentSession) {
+                logger.info("✅ Login OAuth bem-sucedido - sessão criada:", {
+                  userId: currentSession.user.id,
+                  email: currentSession.user.email,
+                  provider: currentSession.user.app_metadata?.provider
+                });
+              }
+              
+              if (event === 'TOKEN_REFRESHED' && currentSession) {
+                logger.debug("🔄 Token OAuth atualizado");
               }
               
               // Sempre atualizar - React ignora updates em componentes desmontados

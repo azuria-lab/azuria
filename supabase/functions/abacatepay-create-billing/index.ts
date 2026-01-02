@@ -112,6 +112,15 @@ async function handleCreateBilling(req: Request): Promise<Response> {
   // Criar cobrança
   const devMode = Deno.env.get('VITE_ABACATEPAY_DEV_MODE') === 'true';
 
+  console.log('Creating billing with AbacatePay:', {
+    planId,
+    billingInterval,
+    frequency,
+    methods: methods || ['PIX', 'CARD'],
+    devMode,
+    userEmail,
+  });
+
   const billing = await abacate.billing.create({
     frequency,
     methods: methods || ['PIX', 'CARD'],
@@ -127,22 +136,38 @@ async function handleCreateBilling(req: Request): Promise<Response> {
       planId,
       billingInterval,
     },
-    devMode,
+  });
+
+  console.log('AbacatePay billing response:', {
+    hasError: !!billing.error,
+    hasData: !!billing.data,
+    error: billing.error,
   });
 
   if (billing.error) {
-    throw new Error(billing.error);
+    console.error('AbacatePay error:', billing.error);
+    throw new Error(`AbacatePay API error: ${billing.error}`);
   }
 
   if (!billing.data) {
-    throw new Error('Failed to create billing');
+    console.error('AbacatePay returned no data');
+    throw new Error('Failed to create billing: No data returned from AbacatePay');
   }
+
+  // Buscar subscription existente do usuário (se houver)
+  const { data: existingSubscription } = await supabaseClient
+    .from('subscriptions')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('payment_provider', 'abacatepay')
+    .single();
 
   // Salvar no banco de dados
   const { error: insertError } = await supabaseClient
     .from('abacatepay_billings')
     .insert({
       user_id: user.id,
+      subscription_id: existingSubscription?.id || null,
       billing_id: billing.data.id,
       plan_id: planId,
       billing_interval: billingInterval,

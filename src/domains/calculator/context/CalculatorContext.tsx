@@ -165,9 +165,16 @@ export const CalculatorProvider: React.FC<CalculatorProviderProps> = ({
   children, 
   initialValues 
 }) => {
+  // Garantir que initialValues não contenha valores inválidos
+  const safeInitialValues = initialValues ? {
+    ...Object.fromEntries(
+      Object.entries(initialValues).filter(([_, value]) => value !== undefined && value !== null)
+    )
+  } : {};
+  
   const [state, dispatch] = useReducer(calculatorReducer, {
     ...initialState,
-    ...initialValues
+    ...safeInitialValues
   });
 
   // Action creators

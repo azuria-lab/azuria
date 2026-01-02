@@ -17,6 +17,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabase';
+import { callGeminiViaEdgeFunction } from './edgeFunctionHelper';
 
 /* eslint-disable no-console */
 
@@ -151,6 +152,7 @@ export interface MarketAnalysis {
 class PriceMonitoringAgentEngine {
   private genAI: GoogleGenerativeAI | null = null;
   private isInitialized = false;
+  private useEdgeFunction = false; // Usar Edge Function em vez de API direta
   private monitoringInterval: NodeJS.Timeout | null = null;
   private isMonitoring = false;
   private readonly stats: MonitoringStats = {
@@ -163,31 +165,67 @@ class PriceMonitoringAgentEngine {
   };
 
   /**
-   * Inicializa o engine - NOTA: Em produção, use Edge Functions
-   * Este engine requer que a API key seja passada explicitamente
+   * Inicializa o engine
+   * Prioriza Edge Functions (seguro) - fallback para API direta apenas em desenvolvimento
    */
-  initPriceMonitoring(apiKey?: string): void {
-    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
+  initPriceMonitoring(apiKey?: string, useEdgeFunction: boolean = true): void {
+    // Priorizar Edge Functions (recomendado em produção)
+    if (useEdgeFunction) {
+      this.useEdgeFunction = true;
+      this.isInitialized = true;
+      console.log('[PriceMonitoring] ✅ Engine inicializado (usando Edge Functions)');
+      return;
+    }
+
+    // Fallback: API direta (apenas em desenvolvimento)
     if (!apiKey) {
-      // Silencioso: esperado em desenvolvimento quando API key não está disponível
-      // API key deve ser passada via backend/Edge Function em produção
+      // Silencioso: esperado quando API key não está disponível
       return;
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
+    this.useEdgeFunction = false;
     this.isInitialized = true;
-    console.log('[PriceMonitoring] ✅ Engine inicializado');
+    console.log('[PriceMonitoring] ✅ Engine inicializado (API direta - apenas DEV)');
   }
 
   /**
-   * Verifica se o engine estÃ¡ inicializado
+   * Verifica se o engine está inicializado
    */
   private checkInitialized(): void {
-    if (!this.isInitialized || !this.genAI) {
+    if (!this.isInitialized) {
       throw new Error(
-        'PriceMonitoring engine nÃ£o inicializado. Chame initPriceMonitoring() primeiro.'
+        'PriceMonitoring engine não inicializado. Chame initPriceMonitoring() primeiro.'
       );
     }
+    // Se usar API direta, verificar genAI
+    if (!this.useEdgeFunction && !this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+  }
+
+  /**
+   * Helper para chamar Gemini (via Edge Function ou API direta)
+   */
+  private async callGemini(prompt: string, context?: Record<string, unknown>): Promise<string> {
+    if (this.useEdgeFunction) {
+      const response = await callGeminiViaEdgeFunction(prompt, {
+        context: 'price_monitoring',
+        ...context,
+      });
+      if (!response) {
+        throw new Error('Edge Function não retornou resposta');
+      }
+      return response.trim();
+    }
+
+    if (!this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
   }
 
   // =====================================================
@@ -339,23 +377,15 @@ class PriceMonitoringAgentEngine {
   ): Promise<CompetitorPrice[]> {
     this.checkInitialized();
 
-    if (!this.genAI) {
-      throw new Error('GenAI not initialized');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    try {
-      // Usar Gemini para simular busca de preÃ§os (em produÃ§Ã£o, usar scraping real)
-      const prompt = `
-VocÃª Ã© um assistente de anÃ¡lise de mercado. Gere dados REALISTAS de preÃ§os de concorrentes para o seguinte produto:
+    const prompt = `
+Você é um assistente de análise de mercado. Gere dados REALISTAS de preços de concorrentes para o seguinte produto:
 
 Produto: ${product.productName}
-PreÃ§o Atual: R$ ${product.currentPrice.toFixed(2)}
+Preço Atual: R$ ${product.currentPrice.toFixed(2)}
 Categoria: ${product.category || 'Geral'}
 
-Gere 3-5 preÃ§os de concorrentes em diferentes marketplaces (Mercado Livre, Shopee, Amazon, Magazine Luiza).
-Os preÃ§os devem variar entre -15% e +20% do preÃ§o atual.
+Gere 3-5 preços de concorrentes em diferentes marketplaces (Mercado Livre, Shopee, Amazon, Magazine Luiza).
+Os preços devem variar entre -15% e +20% do preço atual.
 
 Retorne APENAS um JSON array no formato:
 [
@@ -370,8 +400,8 @@ Retorne APENAS um JSON array no formato:
 ]
       `.trim();
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+    try {
+      const text = await this.callGemini(prompt, { product: product.productName });
 
       // Extrair JSON da resposta
       const jsonMatch = /[\s\S]*/.exec(text);
@@ -491,36 +521,32 @@ Retorne APENAS um JSON array no formato:
   ): Promise<string> {
     this.checkInitialized();
 
-    if (!this.genAI) {
-      throw new Error('GenAI not initialized');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
     const prompt = `
-VocÃª Ã© um especialista em precificaÃ§Ã£o estratÃ©gica. Analise a situaÃ§Ã£o e dÃª uma recomendaÃ§Ã£o concisa (mÃ¡x 100 palavras):
+Você é um especialista em precificação estratégica. Analise a situação e dê uma recomendação concisa (máx 100 palavras):
 
 Produto: ${product.productName}
-PreÃ§o Atual: R$ ${product.currentPrice.toFixed(2)}
+Preço Atual: R$ ${product.currentPrice.toFixed(2)}
 Custo: R$ ${product.costPrice?.toFixed(2) || 'N/A'}
 Margem Alvo: ${product.targetMargin}%
 
-AnÃ¡lise de Mercado:
-- MÃ©dia do Mercado: R$ ${analysis.marketAvgPrice?.toFixed(2)}
-- Menor PreÃ§o: R$ ${analysis.lowestPrice?.toFixed(2)}
-- Maior PreÃ§o: R$ ${analysis.highestPrice?.toFixed(2)}
-- PosiÃ§Ã£o: ${analysis.pricePosition}
+Análise de Mercado:
+- Média do Mercado: R$ ${analysis.marketAvgPrice?.toFixed(2)}
+- Menor Preço: R$ ${analysis.lowestPrice?.toFixed(2)}
+- Maior Preço: R$ ${analysis.highestPrice?.toFixed(2)}
+- Posição: ${analysis.pricePosition}
 - Vantagem: ${analysis.priceAdvantage?.toFixed(1)}%
 
-Recomende uma aÃ§Ã£o estratÃ©gica clara e justificada.
+Recomende uma ação estratégica clara e justificada.
     `.trim();
 
     try {
-      const result = await model.generateContent(prompt);
-      return result.response.text().trim();
+      return await this.callGemini(prompt, {
+        product: product.productName,
+        analysis,
+      });
     } catch (error) {
-      console.error('[PriceMonitoring] Erro ao gerar recomendaÃ§Ã£o:', error);
-      return 'NÃ£o foi possÃ­vel gerar recomendaÃ§Ã£o no momento.';
+      console.error('[PriceMonitoring] Erro ao gerar recomendação:', error);
+      return 'Não foi possível gerar recomendação no momento.';
     }
   }
 

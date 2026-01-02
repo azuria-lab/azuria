@@ -31,8 +31,12 @@ export function useMaquininhaPresets() {
   useEffect(() => {
     const getUserId = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUserId(user?.id ?? null);
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) {
+          setUserId(null);
+          return;
+        }
+        setUserId(data.user.id ?? null);
       } catch (error) {
         logger.warn('Erro ao obter userId:', error);
         setUserId(null);

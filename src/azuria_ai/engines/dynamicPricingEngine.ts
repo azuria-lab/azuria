@@ -18,6 +18,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabase';
+import { callGeminiViaEdgeFunction } from './edgeFunctionHelper';
 
 // =====================================================
 // SUPABASE HELPER (para tabelas sem tipagem)
@@ -146,35 +147,72 @@ export interface OptimizationResult {
 class DynamicPricingEngine {
   private genAI: GoogleGenerativeAI | null = null;
   private isInitialized = false;
+  private useEdgeFunction = false; // Usar Edge Function em vez de API direta
   private readonly autoExecutionInterval: NodeJS.Timeout | null = null;
   private readonly isAutoExecuting = false;
 
   /**
-   * Inicializa o engine - NOTA: Em produção, use Edge Functions
-   * Este engine requer que a API key seja passada explicitamente
+   * Inicializa o engine
+   * Prioriza Edge Functions (seguro) - fallback para API direta apenas em desenvolvimento
    */
-  initDynamicPricing(apiKey?: string): void {
-    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
+  initDynamicPricing(apiKey?: string, useEdgeFunction: boolean = true): void {
+    // Priorizar Edge Functions (recomendado em produção)
+    if (useEdgeFunction) {
+      this.useEdgeFunction = true;
+      this.isInitialized = true;
+      console.log('[DynamicPricing] ✅ Engine inicializado (usando Edge Functions)');
+      return;
+    }
+
+    // Fallback: API direta (apenas em desenvolvimento)
     if (!apiKey) {
-      // Silencioso: esperado em desenvolvimento quando API key não está disponível
-      // API key deve ser passada via backend/Edge Function em produção
+      // Silencioso: esperado quando API key não está disponível
       return;
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
+    this.useEdgeFunction = false;
     this.isInitialized = true;
-    console.log('[DynamicPricing] ✅ Engine inicializado');
+    console.log('[DynamicPricing] ✅ Engine inicializado (API direta - apenas DEV)');
   }
 
   /**
    * Verifica se o engine está inicializado
    */
   private checkInitialized(): void {
-    if (!this.isInitialized || !this.genAI) {
+    if (!this.isInitialized) {
       throw new Error(
         'DynamicPricing engine não inicializado. Chame initDynamicPricing() primeiro.'
       );
     }
+    // Se usar API direta, verificar genAI
+    if (!this.useEdgeFunction && !this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+  }
+
+  /**
+   * Helper para chamar Gemini (via Edge Function ou API direta)
+   */
+  private async callGemini(prompt: string, context?: Record<string, unknown>): Promise<string> {
+    if (this.useEdgeFunction) {
+      const response = await callGeminiViaEdgeFunction(prompt, {
+        context: 'dynamic_pricing',
+        ...context,
+      });
+      if (!response) {
+        throw new Error('Edge Function não retornou resposta');
+      }
+      return response.trim();
+    }
+
+    if (!this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
   }
 
   // =====================================================
@@ -799,12 +837,6 @@ class DynamicPricingEngine {
       `[DynamicPricing] 🔮 Simulando mudanças de preço para ${productName}`
     );
 
-    if (!this.genAI) {
-      throw new Error('GenAI not initialized');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
     const prompt = `
 Você é um especialista em precificação e análise de demanda.
 
@@ -837,8 +869,12 @@ Retorne APENAS um JSON:
 }
     `.trim();
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const text = await this.callGemini(prompt, {
+      productName,
+      currentPrice,
+      costPrice,
+      priceRange,
+    });
 
     const jsonMatch = /\{[\s\S]*\}/.exec(text);
     if (!jsonMatch) {

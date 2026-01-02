@@ -145,9 +145,16 @@ export default function CompanyDataPage() {
         .from("company_data")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (data && !error && data.data && typeof data.data === 'object') {
+      // Se não há dados (null) ou erro específico de "nenhuma linha", é válido
+      if (error && error.code !== 'PGRST116') {
+        // eslint-disable-next-line no-console
+        console.error("Erro ao carregar dados da empresa:", error);
+        return;
+      }
+
+      if (data && data.data && typeof data.data === 'object') {
         const companyData = data.data as Record<string, unknown>;
         setFormData({
           ...(companyData as unknown as CompanyData),

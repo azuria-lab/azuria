@@ -78,9 +78,19 @@ export function getCorsHeaders(
   const {
     allowCredentials = false,
     allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders = ['Authorization', 'Content-Type', 'X-Requested-With'],
+    allowedHeaders: customAllowedHeaders,
     maxAge = 86400, // 24 hours
   } = options;
+
+  // Default allowed headers
+  const defaultHeaders = ['Authorization', 'Content-Type', 'X-Requested-With'];
+  
+  // If credentials are allowed, include Supabase client headers
+  const supabaseHeaders = allowCredentials 
+    ? ['x-client-info', 'apikey'] 
+    : [];
+  
+  const allowedHeaders = customAllowedHeaders || [...defaultHeaders, ...supabaseHeaders];
 
   const headers: Record<string, string> = {};
 

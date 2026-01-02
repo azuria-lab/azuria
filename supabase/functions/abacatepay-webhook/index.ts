@@ -47,13 +47,22 @@ async function handleAbacatepayWebhook(req: Request): Promise<Response> {
       updateData.status = 'PAID';
       updateData.paid_at = new Date().toISOString();
 
-      // Ativar assinatura do usuário
-      await activateSubscription(
-        supabaseAdmin,
-        billingRecord.user_id,
-        billingRecord.plan_id,
-        billingRecord.billing_interval
-      );
+      // Se for uma renovação (tem subscription_id), estender o período
+      // Caso contrário, ativar/criar nova assinatura
+      if (billingRecord.subscription_id) {
+        await renewSubscription(
+          supabaseAdmin,
+          billingRecord.subscription_id,
+          billingRecord.billing_interval
+        );
+      } else {
+        await activateSubscription(
+          supabaseAdmin,
+          billingRecord.user_id,
+          billingRecord.plan_id,
+          billingRecord.billing_interval
+        );
+      }
       break;
 
     case 'billing.refunded':
@@ -148,6 +157,60 @@ async function activateSubscription(
     console.log(`Subscription activated for user ${userId}`);
   } catch (error) {
     console.error('Error in activateSubscription:', error);
+    throw error;
+  }
+}
+
+/**
+ * Renova uma subscription existente (estende o período)
+ */
+async function renewSubscription(
+  supabase: any,
+  subscriptionId: string,
+  billingInterval: string
+) {
+  try {
+    // Buscar subscription atual
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('id', subscriptionId)
+      .single();
+
+    if (subError || !subscription) {
+      console.error('Subscription not found for renewal:', subscriptionId);
+      throw new Error('Subscription not found');
+    }
+
+    // Calcular novo período baseado no período atual
+    const currentPeriodEnd = new Date(subscription.current_period_end);
+    const newPeriodEnd = new Date(currentPeriodEnd);
+
+    if (billingInterval === 'monthly') {
+      newPeriodEnd.setMonth(newPeriodEnd.getMonth() + 1);
+    } else {
+      newPeriodEnd.setFullYear(newPeriodEnd.getFullYear() + 1);
+    }
+
+    // Atualizar subscription estendendo o período
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({
+        status: 'active',
+        current_period_start: currentPeriodEnd.toISOString(),
+        current_period_end: newPeriodEnd.toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', subscriptionId);
+
+    if (error) {
+      console.error('Error renewing subscription:', error);
+      throw error;
+    }
+
+    console.log(`Subscription ${subscriptionId} renewed until ${newPeriodEnd.toISOString()}`);
+  } catch (error) {
+    console.error('Error in renewSubscription:', error);
     throw error;
   }
 }

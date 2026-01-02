@@ -135,23 +135,25 @@ interface ToastItemProps {
   onAccept: () => void;
 }
 
-const ToastItem: React.FC<ToastItemProps> = ({ message, onDismiss, onAccept }) => {
-  const colorClasses = getColorClasses(message.type, message.severity);
-  const iconColorClass = getIconColorClass(message.type, message.severity);
-  
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, x: 50, scale: 0.9 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 50, scale: 0.9 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className={`
-        relative w-80 p-4 rounded-xl border backdrop-blur-xl
-        shadow-2xl shadow-black/30
-        ${colorClasses}
-      `}
-    >
+const ToastItem = React.forwardRef<HTMLDivElement, ToastItemProps>(
+  ({ message, onDismiss, onAccept }, ref) => {
+    const colorClasses = getColorClasses(message.type, message.severity);
+    const iconColorClass = getIconColorClass(message.type, message.severity);
+    
+    return (
+      <motion.div
+        ref={ref}
+        layout
+        initial={{ opacity: 0, x: 50, scale: 0.9 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        exit={{ opacity: 0, x: 50, scale: 0.9 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        className={`
+          relative w-80 p-4 rounded-xl border backdrop-blur-xl
+          shadow-2xl shadow-black/30
+          ${colorClasses}
+        `}
+      >
       {/* Header */}
       <div className="flex items-start gap-3">
         {/* Icon */}
@@ -216,8 +218,11 @@ const ToastItem: React.FC<ToastItemProps> = ({ message, onDismiss, onAccept }) =
         transition={{ duration: message.ttl / 1000, ease: 'linear' }}
       />
     </motion.div>
-  );
-};
+    );
+  }
+);
+
+ToastItem.displayName = 'ToastItem';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
@@ -240,14 +245,18 @@ export const ConsciousnessToast: React.FC<ConsciousnessToastProps> = ({
   return (
     <div className={`fixed ${positionClasses} z-50 flex flex-col gap-3`}>
       <AnimatePresence mode="popLayout">
-        {visibleMessages.map((message) => (
-          <ToastItem
-            key={message.id}
-            message={message}
-            onDismiss={() => dismiss(message.id)}
-            onAccept={() => accept(message.id)}
-          />
-        ))}
+        {visibleMessages.map((message, index) => {
+          // Criar chave única combinando múltiplos identificadores
+          const uniqueKey = `${message.id}-${message.context.timestamp}-${message.context.eventId}-${message.semanticHash}-${index}`;
+          return (
+            <ToastItem
+              key={uniqueKey}
+              message={message}
+              onDismiss={() => dismiss(message.id)}
+              onAccept={() => accept(message.id)}
+            />
+          );
+        })}
       </AnimatePresence>
     </div>
   );

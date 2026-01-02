@@ -225,20 +225,32 @@ export default function Login() {
       setIsLoading(true);
       logger.info("🔐 Tentando login com Google...");
       
-      await loginWithGoogle();
+      const result = await loginWithGoogle();
       
-      // O redirecionamento será feito automaticamente pelo Google OAuth
-      logger.info("✅ Redirecionamento para Google iniciado");
+      if (result) {
+        // Se retornou uma URL, o redirecionamento será feito automaticamente
+        // Não precisamos fazer nada aqui, o navegador será redirecionado
+        logger.info("✅ Redirecionamento para Google iniciado - usuário será redirecionado");
+        // Não definir setIsLoading(false) aqui pois a página será redirecionada
+      } else {
+        // Se não retornou resultado, pode ter havido um erro
+        logger.warn("⚠️ loginWithGoogle retornou null/undefined");
+        setIsLoading(false);
+        toast({
+          title: "Erro no login com Google",
+          description: "Não foi possível iniciar o login com Google. Verifique as configurações e tente novamente.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       logger.error("❌ Erro no login com Google:", { error });
       
+      setIsLoading(false);
       toast({
         title: "Erro no login com Google",
         description: "Não foi possível conectar com o Google. Tente novamente.",
         variant: "destructive",
       });
-      
-      setIsLoading(false);
     }
   };
 

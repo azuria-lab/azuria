@@ -16,6 +16,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { callGeminiViaEdgeFunction } from './edgeFunctionHelper';
 
 /* eslint-disable no-console */
 
@@ -89,33 +90,93 @@ export interface ValidationResult {
 class InvoiceOCREngine {
   private genAI: GoogleGenerativeAI | null = null;
   private isInitialized = false;
+  private useEdgeFunction = false; // Usar Edge Function em vez de API direta
 
   /**
-   * Inicializa o engine - NOTA: Em produção, use Edge Functions
-   * Este engine requer que a API key seja passada explicitamente
+   * Inicializa o engine
+   * Prioriza Edge Functions (seguro) - fallback para API direta apenas em desenvolvimento
    */
-  initInvoiceOCR(apiKey?: string): void {
-    // SEGURANÇA: API key não pode vir de variáveis de ambiente do frontend
+  initInvoiceOCR(apiKey?: string, useEdgeFunction: boolean = true): void {
+    // Priorizar Edge Functions (recomendado em produção)
+    if (useEdgeFunction) {
+      this.useEdgeFunction = true;
+      this.isInitialized = true;
+      console.log('[InvoiceOCR] ✅ Engine inicializado (usando Edge Functions)');
+      return;
+    }
+
+    // Fallback: API direta (apenas em desenvolvimento)
     if (!apiKey) {
-      // Silencioso: esperado em desenvolvimento quando API key não está disponível
-      // API key deve ser passada via backend/Edge Function em produção
+      // Silencioso: esperado quando API key não está disponível
       return;
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
+    this.useEdgeFunction = false;
     this.isInitialized = true;
-    console.log('[InvoiceOCR] ✅ Engine inicializado');
+    console.log('[InvoiceOCR] ✅ Engine inicializado (API direta - apenas DEV)');
   }
 
   /**
    * Verifica se o engine está inicializado
    */
   private checkInitialized(): void {
-    if (!this.isInitialized || !this.genAI) {
+    if (!this.isInitialized) {
       throw new Error(
         'InvoiceOCR engine não inicializado. Chame initInvoiceOCR() primeiro.'
       );
     }
+    // Se usar API direta, verificar genAI
+    if (!this.useEdgeFunction && !this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+  }
+
+  /**
+   * Helper para chamar Gemini (via Edge Function ou API direta)
+   * NOTA: Para imagens, ainda usa API direta (Edge Function atual não suporta imagens)
+   */
+  private async callGemini(
+    prompt: string,
+    imageBase64?: string,
+    mimeType?: string,
+    context?: Record<string, unknown>
+  ): Promise<string> {
+    // Se tiver imagem, usar API direta (Edge Function não suporta imagens ainda)
+    if (imageBase64) {
+      if (!this.genAI) {
+        throw new Error('GenAI not initialized for image processing');
+      }
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const imagePart = {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType || 'image/jpeg',
+        },
+      };
+      const result = await model.generateContent([prompt, imagePart]);
+      return result.response.text().trim();
+    }
+
+    // Para texto apenas, usar Edge Function
+    if (this.useEdgeFunction) {
+      const response = await callGeminiViaEdgeFunction(prompt, {
+        context: 'invoice_ocr',
+        ...context,
+      });
+      if (!response) {
+        throw new Error('Edge Function não retornou resposta');
+      }
+      return response.trim();
+    }
+
+    if (!this.genAI) {
+      throw new Error('GenAI not initialized');
+    }
+
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
   }
 
   // =====================================================
@@ -202,12 +263,6 @@ class InvoiceOCREngine {
   ): Promise<InvoiceData> {
     this.checkInitialized();
 
-    if (!this.genAI) {
-      throw new Error('GenAI not initialized');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
     const prompt = `
 Você é um assistente especializado em extração de dados de Notas Fiscais brasileiras (NF-e).
 
@@ -258,15 +313,8 @@ IMPORTANTE:
 - Confidence: sua confiança na extração (0-100)
     `.trim();
 
-    const imagePart = {
-      inlineData: {
-        data: base64Data,
-        mimeType: mimeType,
-      },
-    };
-
-    const result = await model.generateContent([prompt, imagePart]);
-    const text = result.response.text().trim();
+    // Para imagens, sempre usar API direta (Edge Function não suporta imagens ainda)
+    const text = await this.callGemini(prompt, base64Data, mimeType);
 
     // Extrair JSON da resposta
     const jsonMatch = /\{[\s\S]*\}/.exec(text);
@@ -472,27 +520,11 @@ IMPORTANTE:
 
     try {
       const base64Data = await this.fileToBase64(file);
-
-      if (!this.genAI) {
-        throw new Error('GenAI not initialized');
-      }
-
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-      });
-
       const prompt =
         'Extraia todo o texto visível nesta imagem, preservando a formatação.';
 
-      const imagePart = {
-        inlineData: {
-          data: base64Data,
-          mimeType: file.type,
-        },
-      };
-
-      const result = await model.generateContent([prompt, imagePart]);
-      return result.response.text();
+      // Para imagens, sempre usar API direta (Edge Function não suporta imagens ainda)
+      return await this.callGemini(prompt, base64Data, file.type);
     } catch (error) {
       console.error('[InvoiceOCR] Erro ao extrair texto:', error);
       throw error;

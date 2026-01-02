@@ -233,38 +233,54 @@ export const useAuthMethods = (
       setIsLoading(true);
       setError(null);
       
-      logger.info("🔐 Iniciando login com Google...");
+      logger.info("🔐 Iniciando login com Google OAuth...");
+      
+      // Obter URL de redirecionamento correta
+      const redirectUrl = `${globalThis.location.origin}/dashboard`;
+      logger.info("📍 URL de redirecionamento:", redirectUrl);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${globalThis.location.origin}/dashboard`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           },
+          // Incluir scopes para obter informações do perfil
+          scopes: 'email profile',
         },
       });
       
       if (error) {
+        logger.error("❌ Erro do Supabase no OAuth:", error);
         throw error;
       }
       
-      logger.info("✅ Redirecionamento para Google iniciado");
+      if (!data?.url) {
+        logger.error("❌ URL de autorização não retornada pelo Supabase");
+        throw new Error("Falha ao obter URL de autorização do Google");
+      }
+      
+      logger.info("✅ Redirecionamento para Google iniciado - URL:", data.url);
+      
+      // O redirecionamento será feito automaticamente pelo navegador
+      // Não precisamos fazer setIsLoading(false) aqui pois a página será redirecionada
+      
       return data;
     } catch (err: unknown) {
       logger.error("❌ Erro no login com Google:", err);
       
       let errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
-      if (errorMessage.includes("OAuth")) {
-        errorMessage = "Erro ao conectar com o Google. Tente novamente.";
+      if (errorMessage.includes("OAuth") || errorMessage.includes("redirect")) {
+        errorMessage = "Erro ao conectar com o Google. Verifique as configurações e tente novamente.";
       }
       
       setError(errorMessage);
-      return null;
-    } finally {
       setIsLoading(false);
+      return null;
     }
+    // Não usar finally aqui - se o redirecionamento ocorrer, não queremos desligar o loading
   };
 
   return {

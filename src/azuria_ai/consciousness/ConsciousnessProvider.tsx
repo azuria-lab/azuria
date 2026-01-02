@@ -193,15 +193,22 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   const initializeSecondaryEngines = useCallback(async () => {
     const isPremiumUser = userTier === 'PRO' || userTier === 'ENTERPRISE';
     
+    // Priorizar Edge Functions (seguro - API key no Supabase)
+    // Fallback para API direta apenas em desenvolvimento local
+    const useEdgeFunctions = true; // Sempre usar Edge Functions (recomendado)
+    const geminiApiKey = import.meta.env.DEV 
+      ? (config?.geminiApiKey ?? import.meta.env.VITE_GEMINI_API_KEY)
+      : undefined;
+    
     // Inicializar engines em paralelo
     const enginePromises = [
       Promise.resolve().then(() => ragEngine.initRAGEngine()),
       Promise.resolve().then(() => multimodalEngine.initMultimodalEngine()),
       Promise.resolve().then(() => whatIfSimulator.initWhatIfSimulator()),
       Promise.resolve().then(() => xaiEngine.initXAIEngine()),
-      Promise.resolve().then(() => priceMonitoringAgent.initPriceMonitoring()),
-      Promise.resolve().then(() => invoiceOCREngine.initInvoiceOCR()),
-      Promise.resolve().then(() => dynamicPricingEngine.initDynamicPricing()),
+      Promise.resolve().then(() => priceMonitoringAgent.initPriceMonitoring(geminiApiKey, useEdgeFunctions)),
+      Promise.resolve().then(() => invoiceOCREngine.initInvoiceOCR(geminiApiKey, useEdgeFunctions)),
+      Promise.resolve().then(() => dynamicPricingEngine.initDynamicPricing(geminiApiKey, useEdgeFunctions)),
     ];
 
     await Promise.allSettled(enginePromises);
@@ -406,6 +413,11 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   
   const handleOutput = useCallback((message: OutputMessage) => {
     setActiveMessages(prev => {
+      // Verificar se a mensagem já existe para evitar duplicatas
+      if (prev.some(m => m.id === message.id)) {
+        return prev;
+      }
+      
       const newMessages = [message, ...prev];
       if (newMessages.length > maxMessages.current) {
         newMessages.pop();

@@ -200,18 +200,20 @@ const HistoryDisplayOptimized = memo<HistoryDisplayOptimizedProps>(({
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>
-              {isPro 
-                ? "Histórico sincronizado na nuvem" 
-                : "Histórico local (limitado)"
-              }
+            <div className="flex items-center gap-2">
+              <CardDescription>
+                {isPro 
+                  ? "Histórico sincronizado na nuvem" 
+                  : "Histórico local (limitado)"
+                }
+              </CardDescription>
               {!isSupabaseConfigured && !historyLoading && (
-                <Badge variant="outline" className="ml-2">
+                <Badge variant="outline">
                   <AlertCircle className="w-3 h-3 mr-1" />
                   Offline
                 </Badge>
               )}
-            </CardDescription>
+            </div>
           </div>
         </div>
       </CardHeader>

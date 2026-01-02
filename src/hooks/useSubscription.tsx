@@ -16,21 +16,24 @@ export const useSubscription = () => {
 
   const fetchSubscription = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !data?.user) {
         setSubscription(null);
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
+      const { user } = data;
+
+      const { data: subscriptionResponse, error } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
+      // Se não há assinatura (null) ou erro específico de "nenhuma linha", é válido
+      if (error && error.code !== 'PGRST116') {
         logger.error('Error fetching subscription:', error);
         toast({
           title: 'Erro ao carregar assinatura',
@@ -40,10 +43,15 @@ export const useSubscription = () => {
         return;
       }
 
-      if (!data) { return; }
+      // Se não há assinatura, definir como null e finalizar
+      if (!subscriptionResponse) {
+        setSubscription(null);
+        setLoading(false);
+        return;
+      }
       
       // Type assertion para garantir tipos corretos durante type-check
-      const subscriptionData = data as Database['public']['Tables']['subscriptions']['Row'];
+      const subscriptionData = subscriptionResponse as Database['public']['Tables']['subscriptions']['Row'];
       
       // Validar se os valores são válidos antes de fazer type assertion
       const validStatuses: SubscriptionStatus[] = ['active', 'canceled', 'past_due', 'trialing', 'incomplete', 'incomplete_expired'];
@@ -100,15 +108,15 @@ export const useSubscription = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, [fetchSubscription]);
 
   const updateSubscription = async (planId: PlanId, billingInterval: 'monthly' | 'annual') => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !data?.user) {
         toast({
           title: 'Erro',
           description: 'Você precisa estar logado para atualizar sua assinatura.',
@@ -116,6 +124,8 @@ export const useSubscription = () => {
         });
         return false;
       }
+
+      const { user } = data;
 
       const { error } = await supabase
         .from('subscriptions')
@@ -151,9 +161,9 @@ export const useSubscription = () => {
 
   const cancelSubscription = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !data?.user) {
         toast({
           title: 'Erro',
           description: 'Você precisa estar logado para cancelar sua assinatura.',
@@ -161,6 +171,8 @@ export const useSubscription = () => {
         });
         return false;
       }
+
+      const { user } = data;
 
       const { error } = await supabase
         .from('subscriptions')
@@ -196,9 +208,9 @@ export const useSubscription = () => {
 
   const reactivateSubscription = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !data?.user) {
         toast({
           title: 'Erro',
           description: 'Você precisa estar logado para reativar sua assinatura.',
@@ -206,6 +218,8 @@ export const useSubscription = () => {
         });
         return false;
       }
+
+      const { user } = data;
 
       const { error } = await supabase
         .from('subscriptions')

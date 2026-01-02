@@ -4,6 +4,7 @@ import { UserProfileWithDisplayData } from "@/types/auth";
 import { User } from "@supabase/supabase-js";
 import { useCallback } from "react";
 import { TablesInsert, TablesUpdate } from "@/types/supabase";
+import { logger } from "@/services/logger";
 
 /**
  * Hook para gerenciar o perfil do usuário
@@ -20,14 +21,24 @@ export const useUserProfile = (
       const isPro = localStorage.getItem("isPro") === "true";
 
       const userMetadata = user?.user_metadata;
-      const name = userMetadata?.name || user?.email?.split("@")[0] || "Usuário";
+      // Obter nome do Google OAuth metadata (pode vir de user_metadata ou raw_user_meta_data)
+      const name = userMetadata?.full_name || 
+                   userMetadata?.name || 
+                   user?.email?.split("@")[0] || 
+                   "Usuário";
+      
+      // Obter avatar do Google OAuth
+      const avatarUrl = userMetadata?.avatar_url || 
+                        userMetadata?.picture || 
+                        null;
 
       // Use properly typed insert
       const profileData: TablesInsert<"user_profiles"> = {
         id: userId,
         name,
         is_pro: isPro,
-        email: user?.email
+        email: user?.email ?? "",
+        avatar_url: avatarUrl
       };
 
       const { data, error } = await supabase
@@ -46,7 +57,7 @@ export const useUserProfile = (
         email: user?.email ?? "",
         isPro,
         createdAt: data.created_at,
-        avatar_url: data.avatar_url
+        avatar_url: data.avatar_url ?? avatarUrl
       });
 
       return data;
@@ -79,13 +90,56 @@ export const useUserProfile = (
 
       if (!data) { return null; }
       
+      // Sincronizar dados do OAuth se disponíveis e mais recentes
+      const userMetadata = user?.user_metadata;
+      const needsUpdate = userMetadata && (
+        (userMetadata.full_name || userMetadata.name) !== data.name ||
+        (userMetadata.avatar_url || userMetadata.picture) !== data.avatar_url ||
+        user?.email !== data.email
+      );
+      
+      if (needsUpdate) {
+        // Atualizar perfil com dados mais recentes do OAuth
+        const updates: TablesUpdate<"user_profiles"> = {
+          updated_at: new Date().toISOString()
+        };
+        
+        if (userMetadata?.full_name || userMetadata?.name) {
+          updates.name = userMetadata.full_name || userMetadata.name || data.name;
+        }
+        
+        if (userMetadata?.avatar_url || userMetadata?.picture) {
+          updates.avatar_url = userMetadata.avatar_url || userMetadata.picture || data.avatar_url;
+        }
+        
+        if (user?.email && user.email !== data.email) {
+          updates.email = user.email;
+        }
+        
+        // Atualizar no banco de dados (silenciosamente, sem mostrar erro se falhar)
+        await supabase
+          .from("user_profiles")
+          .update(updates)
+          .eq("id", userId)
+          .then((result) => {
+            if (result.error) {
+              logger.warn("Erro ao sincronizar dados OAuth no perfil:", result.error);
+            }
+          });
+        
+        // Usar dados atualizados
+        data.name = updates.name as string || data.name;
+        data.avatar_url = updates.avatar_url as string || data.avatar_url;
+        data.email = updates.email as string || data.email;
+      }
+      
       // Definir status PRO com base no perfil ou localStorage como fallback
       const isPro = data.is_pro ?? localStorage.getItem("isPro") === "true";
 
       setUserProfile({
         id: data.id,
         name: data.name ?? "",
-        email: user?.email ?? "",
+        email: (data.email || user?.email) ?? "",
         isPro,
         createdAt: data.created_at,
         avatar_url: data.avatar_url,

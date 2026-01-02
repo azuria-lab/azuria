@@ -50,6 +50,7 @@ supabase migration up
 supabase functions deploy abacatepay-create-billing
 supabase functions deploy abacatepay-webhook
 supabase functions deploy abacatepay-check-status
+supabase functions deploy abacatepay-renew-subscription
 
 # Ou deploy de todas de uma vez
 supabase functions deploy
@@ -243,11 +244,39 @@ sequenceDiagram
 2. Confirme que o evento `billing.paid` está sendo processado
 3. Verifique se a tabela `subscriptions` existe e está acessível
 
+## Sistema de Renovação Automática
+
+O AbacatePay não possui suporte nativo a assinaturas recorrentes. Implementamos um sistema de renovação manual que funciona como se fosse automático.
+
+📖 **Documentação completa:** Ver [ABACATEPAY_RENEWAL_SYSTEM.md](./ABACATEPAY_RENEWAL_SYSTEM.md)
+
+**Resumo:**
+- Renovações são criadas automaticamente 3 dias antes do vencimento
+- Usuário recebe link de pagamento para renovar
+- Ao pagar, a subscription é renovada automaticamente
+
+**Configuração do Cron Job:**
+```sql
+-- Executar diariamente às 02:00 UTC
+SELECT cron.schedule(
+  'abacatepay-renew-subscriptions',
+  '0 2 * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://YOUR_PROJECT.supabase.co/functions/v1/abacatepay-renew-subscription',
+    headers := jsonb_build_object('Content-Type', 'application/json'),
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+
 ## Recursos Adicionais
 
 - [Documentação Oficial do Abacatepay](https://docs.abacatepay.com)
 - [SDK Node.js](https://github.com/AbacatePay/abacatepay-nodejs-sdk)
 - [Dashboard Abacatepay](https://www.abacatepay.com/app)
+- [Sistema de Renovação](./ABACATEPAY_RENEWAL_SYSTEM.md)
 - [Suporte](mailto:[email protected])
 
 ## Migração de Stripe/MercadoPago
