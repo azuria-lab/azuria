@@ -16,7 +16,7 @@ import {
 import { PricingCard } from '@/components/subscription/PricingCard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PLANS_ARRAY } from '@/config/plans';
-import { useAbacatePay } from '@/hooks/useAbacatePay';
+import { useMercadoPago } from '@/hooks/useMercadoPago';
 import { toast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -39,7 +39,8 @@ const containerVariants = {
 export default function PricingPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
   const { subscription } = useSubscription();
-  const { createBilling, isLoading } = useAbacatePay();
+  const { startCheckout, checkoutData } = useMercadoPago();
+  const isLoading = checkoutData.status === 'creating' || checkoutData.status === 'redirecting';
   const reduceMotion = useReducedMotion();
 
   const handleSelectPlan = async (planId: string) => {
@@ -62,12 +63,9 @@ export default function PricingPage() {
       return;
     }
 
-    // Criar cobrança no Abacatepay
-    await createBilling({
-      planId: planId as 'essencial' | 'pro',
-      billingInterval: billingInterval,
-      methods: ['PIX', 'CARD']
-    });
+    // Criar preferência de pagamento no Mercado Pago
+    // Usar assinatura recorrente (recurring: true) para pagamentos mensais/anuais
+    startCheckout(planId as 'essencial' | 'pro' | 'iniciante', true, billingInterval);
   };
 
   return (
@@ -274,16 +272,12 @@ export default function PricingPage() {
                   </div>
                 </div>
                 <div className="hidden md:block">
-                  <div className="relative rounded-lg overflow-hidden border border-border bg-card/50">
-                    <div className="aspect-square bg-gradient-to-br from-primary/10 via-primary/5 to-transparent flex items-center justify-center">
-                      <div className="text-center space-y-4 p-8">
-                        <div className="w-24 h-24 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-                          <Zap className="h-12 w-12 text-primary" />
-                        </div>
-                        <p className="text-lg font-semibold text-foreground">Precificação Inteligente</p>
-                        <p className="text-sm text-muted-foreground">Para vender com mais lucro e menos esforço</p>
-                      </div>
-                    </div>
+                  <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-xl">
+                    <img 
+                      src="/images/azuria-pricing-hero.jpg" 
+                      alt="Azuria - Precificação Inteligente" 
+                      className="w-full h-auto object-cover aspect-[3/4]"
+                    />
                   </div>
                 </div>
             </div>

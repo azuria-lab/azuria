@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from './useSubscription';
+import { supabase } from '@/integrations/supabase/client';
 import {
   cancelSubscription as cancelMPSubscription,
   createPaymentPreference,
@@ -79,12 +80,15 @@ export function useMercadoPago() {
    * Mutation para criar assinatura
    */
   const createSubscriptionMutation = useMutation({
-    mutationFn: async (planType: Exclude<PlanId, 'free' | 'enterprise'>) => {
-      if (!subscription?.userId) {
+    mutationFn: async ({ planType, billingInterval }: { planType: Exclude<PlanId, 'free' | 'enterprise'>; billingInterval: 'monthly' | 'annual' }) => {
+      // Verificar autenticação
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
         throw new Error('Usuário não autenticado');
       }
 
-      return await createSubscription(planType, subscription.userId);
+      return await createSubscription(planType, billingInterval);
     },
     onSuccess: (data: SubscriptionData) => {
       setCheckoutData({
@@ -114,11 +118,16 @@ export function useMercadoPago() {
    */
   const createPreferenceMutation = useMutation({
     mutationFn: async (planType: Exclude<PlanId, 'free' | 'enterprise'>) => {
-      if (!subscription?.userId) {
+      // Obter userId do usuário autenticado
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
         throw new Error('Usuário não autenticado');
       }
 
-      return await createPaymentPreference(planType, subscription.userId);
+      // Esta mutation não é mais usada, mas mantida para compatibilidade
+      // O startCheckout agora chama createPaymentPreference diretamente
+      return await createPaymentPreference(planType, 'monthly');
     },
     onSuccess: (data: PreferenceData) => {
       setCheckoutData({
@@ -178,19 +187,49 @@ export function useMercadoPago() {
    * 
    * @param planType - Tipo do plano a assinar
    * @param recurring - Se true, cria assinatura recorrente; se false, pagamento único
+   * @param billingInterval - Intervalo de cobrança ('monthly' ou 'annual')
    */
   const startCheckout = useCallback((
     planType: Exclude<PlanId, 'free' | 'enterprise'>,
-    recurring: boolean = true
+    recurring: boolean = true,
+    billingInterval: 'monthly' | 'annual' = 'monthly'
   ) => {
     setCheckoutData({ status: 'creating' });
 
     if (recurring) {
-      createSubscriptionMutation.mutate(planType);
+      createSubscriptionMutation.mutate({ planType, billingInterval });
     } else {
-      createPreferenceMutation.mutate(planType);
+      // Para preferências, precisamos passar o billingInterval
+      // Verificar autenticação primeiro
+      supabase.auth.getUser()
+        .then(({ data: { user }, error: authError }) => {
+          if (authError || !user) {
+            throw new Error('Usuário não autenticado');
+          }
+          
+          return createPaymentPreference(planType, billingInterval);
+        })
+        .then((data) => {
+          setCheckoutData({
+            status: 'redirecting',
+            preferenceId: data.id,
+            checkoutUrl: data.init_point,
+          });
+          window.location.href = data.init_point;
+        })
+        .catch((error) => {
+          setCheckoutData({
+            status: 'error',
+            error: error.message,
+          });
+          toast({
+            variant: 'destructive',
+            title: 'Erro ao criar pagamento',
+            description: error.message,
+          });
+        });
     }
-  }, [createSubscriptionMutation, createPreferenceMutation]);
+  }, [createSubscriptionMutation, toast]);
 
   /**
    * Cancela a assinatura atual

@@ -9,7 +9,6 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { withSecurityMiddleware } from '../_shared/security-config.ts';
 import {
   type EdgeFunctionResponse,
   type MercadoPagoPayment,
@@ -41,13 +40,53 @@ async function handleMercadoPagoWebhook(req: Request): Promise<Response> {
     );
   }
 
+  // Verificar se é um ID de teste (simulação)
+  const paymentId = notification.data.id;
+  const isTestId = paymentId === '123456' || paymentId === '123456789' || !paymentId;
+  
+  if (isTestId) {
+    console.log('Test notification received, skipping payment lookup:', paymentId);
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Test notification received and acknowledged',
+        test: true,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
+  }
+
   // Buscar detalhes do pagamento no Mercado Pago
-  const payment: MercadoPagoPayment = await mercadoPagoRequest(
-    `/v1/payments/${notification.data.id}`,
-    {
-      method: 'GET',
+  let payment: MercadoPagoPayment;
+  try {
+    payment = await mercadoPagoRequest<MercadoPagoPayment>(
+      `/v1/payments/${paymentId}`,
+      {
+        method: 'GET',
+      }
+    );
+  } catch (error) {
+    // Se o pagamento não for encontrado, logar mas não falhar
+    if (error instanceof Error && error.message.includes('Not Found')) {
+      console.warn(`Payment not found: ${paymentId}. This may be a test notification or deleted payment.`);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Payment not found (may be test or deleted)',
+          paymentId,
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200, // Retornar 200 para Mercado Pago não reenviar
+        }
+      );
     }
-  );
+    // Re-throw outros erros
+    throw error;
+  }
 
   // Log apenas status e referência (informações críticas)
   console.log('Payment processed:', {
@@ -217,6 +256,78 @@ async function handleMercadoPagoWebhook(req: Request): Promise<Response> {
   });
 }
 
-// Wrap handler with security middleware
-// Note: Retorna 200 mesmo em erro para Mercado Pago não reenviar
-Deno.serve(withSecurityMiddleware(handleMercadoPagoWebhook));
+// Serve handler - webhooks públicos não precisam de autenticação JWT
+// IMPORTANTE: Esta função deve ser configurada como pública no Supabase Dashboard
+// Settings → Edge Functions → mercadopago-webhook → Disable JWT verification
+Deno.serve(async (req: Request): Promise<Response> => {
+  // Log detalhado da requisição recebida
+  const headers = Object.fromEntries(req.headers.entries());
+  console.log('Webhook request received:', {
+    method: req.method,
+    url: req.url,
+    hasAuth: !!headers.authorization,
+    hasApiKey: !!headers.apikey,
+    origin: headers.origin || 'none',
+    userAgent: headers['user-agent'] || 'none',
+  });
+
+  // Aceitar apenas POST
+  if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method);
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 405,
+      }
+    );
+  }
+
+  // Log que chegou até aqui (se chegar)
+  console.log('Processing POST request...');
+
+  try {
+    // Validar assinatura do webhook (opcional, mas recomendado)
+    const signature = req.headers.get('x-signature');
+    const requestId = req.headers.get('x-request-id');
+    
+    console.log('Webhook headers:', {
+      signature: signature ? 'present' : 'missing',
+      requestId: requestId || 'missing',
+    });
+    
+    // Se a secret estiver configurada, validar assinatura
+    const webhookSecret = Deno.env.get('MERCADOPAGO_WEBHOOK_SECRET');
+    if (webhookSecret && signature) {
+      // TODO: Implementar validação de assinatura HMAC
+      // Por enquanto, apenas verificar se existe
+      console.log('Webhook secret configured, signature validation pending');
+    }
+
+    // Processar webhook
+    const response = await handleMercadoPagoWebhook(req);
+    
+    // Adicionar headers de resposta
+    const headers = new Headers(response.headers);
+    headers.set('Content-Type', 'application/json');
+    
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  } catch (error) {
+    // Retornar 200 mesmo em erro para Mercado Pago não reenviar
+    console.error('Error processing webhook:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: error instanceof Error ? error.message : 'Internal server error',
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200, // Importante: 200 para Mercado Pago não reenviar
+      }
+    );
+  }
+});

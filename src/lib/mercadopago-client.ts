@@ -18,8 +18,11 @@ export const PLAN_PRICES: Record<Exclude<PlanId, 'free' | 'enterprise'>, number>
 
 /**
  * Configuração do Mercado Pago
+ * 
+ * NOTA: Toda a integração é feita via Edge Functions no backend.
+ * A chave pública não é necessária no frontend, pois não usamos o SDK do Mercado Pago diretamente.
+ * Todas as operações (criar preferências, assinaturas, etc.) são feitas via Supabase Edge Functions.
  */
-const MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
 
 /**
  * Dados da preferência de pagamento
@@ -67,18 +70,28 @@ export interface SubscriptionData {
  * Cria uma preferência de pagamento no Mercado Pago
  * 
  * @param planType - Tipo do plano (essencial ou pro)
- * @param userId - ID do usuário
+ * @param billingInterval - Intervalo de cobrança ('monthly' ou 'annual')
  * @returns Dados da preferência criada
  */
 export async function createPaymentPreference(
   planType: Exclude<PlanId, 'free' | 'enterprise'>,
-  userId: string
+  billingInterval: 'monthly' | 'annual' = 'monthly'
 ): Promise<PreferenceData> {
   try {
-    const { data, error } = await supabase.functions.invoke('mercadopago-create-preference', {
+    // Obter sessão para pegar o access_token
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const { data, error } = await supabase.functions.invoke('create-payment-preference', {
       body: {
-        planType,
-        userId,
+        planId: planType,
+        billingInterval: billingInterval,
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
       },
     });
 
@@ -86,7 +99,15 @@ export async function createPaymentPreference(
       throw error;
     }
     
-    return data as PreferenceData;
+    // A função retorna { success, data: { checkoutUrl, preferenceId } }
+    // Precisamos adaptar para o formato esperado
+    const response = data as { success: boolean; data: { checkoutUrl: string; preferenceId: string } };
+    
+    return {
+      id: response.data.preferenceId,
+      init_point: response.data.checkoutUrl,
+      sandbox_init_point: response.data.checkoutUrl, // Usar mesma URL para sandbox
+    };
   } catch (_error) {
     throw new Error('Falha ao criar preferência de pagamento');
   }
@@ -96,18 +117,28 @@ export async function createPaymentPreference(
  * Cria uma assinatura recorrente no Mercado Pago
  * 
  * @param planType - Tipo do plano (essencial ou pro)
- * @param userId - ID do usuário
+ * @param billingInterval - Intervalo de cobrança ('monthly' ou 'annual')
  * @returns Dados da assinatura criada
  */
 export async function createSubscription(
   planType: Exclude<PlanId, 'free' | 'enterprise'>,
-  userId: string
+  billingInterval: 'monthly' | 'annual' = 'monthly'
 ): Promise<SubscriptionData> {
   try {
-    const { data, error } = await supabase.functions.invoke('mercadopago-create-subscription', {
+    // Obter sessão para pegar o access_token
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const { data, error } = await supabase.functions.invoke('create-subscription', {
       body: {
-        planType,
-        userId,
+        planId: planType,
+        billingInterval: billingInterval,
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
       },
     });
 
@@ -115,7 +146,25 @@ export async function createSubscription(
       throw error;
     }
     
-    return data as SubscriptionData;
+    // A função retorna { success, data: { checkoutUrl, subscriptionId } }
+    // Precisamos adaptar para o formato esperado
+    const response = data as { success: boolean; data: { checkoutUrl: string; subscriptionId: string } };
+    
+    return {
+      id: response.data.subscriptionId,
+      status: 'pending',
+      reason: `Azuria ${planType}`,
+      payer_email: '', // Será preenchido pelo Mercado Pago
+      auto_recurring: {
+        frequency: billingInterval === 'monthly' ? 1 : 12,
+        frequency_type: billingInterval === 'monthly' ? 'months' : 'months',
+        transaction_amount: PLAN_PRICES[planType],
+        currency_id: 'BRL',
+      },
+      back_url: '',
+      init_point: response.data.checkoutUrl,
+      sandbox_init_point: response.data.checkoutUrl,
+    };
   } catch (_error) {
     throw new Error('Falha ao criar assinatura');
   }
@@ -203,22 +252,23 @@ export async function updateSubscription(
 /**
  * Obtém a chave pública do Mercado Pago
  * 
- * @returns Chave pública configurada
+ * @deprecated Não é mais necessário, pois toda a integração é feita via Edge Functions
+ * @returns Chave pública configurada (se disponível)
  */
 export function getPublicKey(): string {
-  if (!MERCADOPAGO_PUBLIC_KEY) {
-    throw new Error('Chave pública do Mercado Pago não configurada');
-  }
-  return MERCADOPAGO_PUBLIC_KEY;
+  // Não é mais necessário, mas mantido para compatibilidade
+  throw new Error('Chave pública não é mais necessária. Use Edge Functions.');
 }
 
 /**
  * Verifica se está em modo de teste
  * 
+ * @deprecated Não é mais necessário, pois toda a integração é feita via Edge Functions
  * @returns true se estiver usando credenciais de teste
  */
 export function isTestMode(): boolean {
-  return MERCADOPAGO_PUBLIC_KEY?.startsWith('TEST-') ?? false;
+  // Não é mais necessário, mas mantido para compatibilidade
+  return false;
 }
 
 /**
