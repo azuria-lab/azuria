@@ -355,48 +355,20 @@ export function useDashboardStats() {
     }
 
     try {
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        // Se não existe, calcular
-        await supabase.rpc("calculate_user_experience_level", {
-          p_user_id: user.id,
-        });
-        
-        // Buscar novamente
-        const { data: newData } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (newData) {
-          setUserProfile({
-            userId: newData.id,
-            experienceLevel: newData.experience_level,
-            totalCalculations: newData.total_calculations,
-            totalSavingsGenerated: newData.total_savings_generated,
-            daysActive: newData.days_active,
-            lastActivityAt: newData.last_activity_at ?? null,
-          });
-        }
-        return;
-      }
-
-      if (data) {
-        setUserProfile({
-          userId: data.id,
-          experienceLevel: data.experience_level,
-          totalCalculations: data.total_calculations,
-          totalSavingsGenerated: data.total_savings_generated,
-          daysActive: data.days_active,
-          lastActivityAt: data.last_activity_at ?? null,
-        });
-      }
+      // TODO: Propriedades experience_level, total_calculations, total_savings_generated,
+      // days_active e last_activity_at foram removidas do schema user_profiles
+      // Retornando valores padrão temporariamente até implementar alternativa
+      
+      setUserProfile({
+        userId: user.id,
+        experienceLevel: 'beginner',
+        totalCalculations: 0,
+        totalSavingsGenerated: 0,
+        daysActive: 0,
+        lastActivityAt: null,
+      });
+      
+      logger.info("👤 Perfil do usuário carregado (valores padrão - propriedades removidas)");
     } catch (error) {
       logger.error("❌ Erro ao buscar perfil do usuário:", error);
     }
