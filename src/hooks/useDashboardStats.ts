@@ -338,55 +338,12 @@ export function useDashboardStats() {
     }
 
     try {
-      // Buscar dica personalizada usando a função do Supabase
-      const { data, error } = await supabase.rpc("get_next_personalized_tip", {
-        p_user_id: user.id,
-      });
-
-      if (error) {
-        logger.error("❌ Erro ao buscar dica personalizada:", error);
-        // Fallback: buscar qualquer dica ativa
-        const { data: fallbackData } = await supabase
-          .from("dashboard_tips")
-          .select("*")
-          .eq("is_active", true)
-          .order("priority", { ascending: false })
-          .limit(1)
-          .single();
-
-        if (fallbackData) {
-          return {
-            id: fallbackData.id,
-            title: fallbackData.title,
-            message: fallbackData.message,
-            category: fallbackData.category ?? "general",
-            actionUrl: fallbackData.action_url ?? undefined,
-            actionLabel: fallbackData.action_label ?? undefined,
-          };
-        }
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const tipData = data[0];
-        const newTip = {
-          id: tipData.tip_id,
-          title: tipData.title,
-          message: tipData.message,
-          category: tipData.category,
-          actionUrl: tipData.action_url,
-          actionLabel: tipData.action_label,
-        };
-        
-        setTip(newTip);
-        
-        // Registrar que a dica foi visualizada
-        await supabase.rpc("track_tip_view", {
-          p_tip_id: tipData.tip_id,
-        });
-
-        logger.info("💡 Dica personalizada carregada:", { title: tipData.title });
-      }
+      // TODO: Tabela dashboard_tips e função get_next_personalized_tip foram removidas do schema
+      // Função desabilitada temporariamente até implementar alternativa
+      // ou recriar a tabela dashboard_tips
+      
+      setTip(null);
+      logger.info("💡 Dica carregada (desabilitado - tabela não existe)");
     } catch (error) {
       logger.error("❌ Erro ao buscar dica:", error);
     }
@@ -537,11 +494,10 @@ export function useDashboardStats() {
 
   const trackTipActionClick = async (tipId: string) => {
     try {
-      await supabase.rpc("track_tip_action_click", {
-        p_tip_id: tipId,
-      });
-
-      logger.info("🎯 Clique na ação da dica rastreado", { tipId });
+      // TODO: Função track_tip_action_click foi removida do schema
+      // Função desabilitada temporariamente até implementar alternativa
+      
+      logger.info("🎯 Clique na ação da dica rastreado (desabilitado - função não existe)", { tipId });
     } catch (error) {
       logger.error("❌ Erro ao rastrear clique na dica:", error);
     }
