@@ -306,28 +306,12 @@ export function useDashboardStats() {
     if (!user?.id) {return;}
 
     try {
-      const { data, error } = await supabase
-        .from("user_activities")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      if (error) {throw error;}
-
-      const activities: Activity[] = (data || []).map((activity) => ({
-        id: activity.id,
-        type: activity.activity_type,
-        title: activity.title,
-        description: activity.description || "",
-        time: formatTimeAgo(activity.created_at),
-        icon: getActivityIcon(activity.activity_type),
-        color: getActivityColor(activity.activity_type),
-        metadata: activity.metadata,
-      }));
-
-      setActivities(activities);
-      logger.info("📜 Atividades carregadas", { count: activities.length });
+      // TODO: Tabela user_activities foi removida do schema
+      // Retornando array vazio temporariamente até implementar alternativa
+      // ou recriar a tabela user_activities
+      
+      setActivities([]);
+      logger.info("📜 Atividades carregadas (vazio - tabela não existe)");
     } catch (error) {
       logger.error("❌ Erro ao buscar atividades:", error);
     }
@@ -337,30 +321,12 @@ export function useDashboardStats() {
     if (!user?.id) {return;}
 
     try {
-      const { data, error } = await supabase
-        .from("user_notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_read", false)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      if (error) {throw error;}
-
-      const notifications: Notification[] = (data || []).map((notif) => ({
-        id: notif.id,
-        type: notif.type as Notification["type"],
-        title: notif.title,
-        message: notif.message,
-        icon: notif.icon,
-        isRead: notif.is_read,
-        actionUrl: notif.action_url,
-        actionLabel: notif.action_label,
-        createdAt: notif.created_at,
-      }));
-
-      setNotifications(notifications);
-      logger.info("🔔 Notificações carregadas", { count: notifications.length });
+      // TODO: Tabela user_notifications foi removida do schema
+      // Retornando array vazio temporariamente até implementar alternativa
+      // ou recriar a tabela user_notifications
+      
+      setNotifications([]);
+      logger.info("🔔 Notificações carregadas (vazio - tabela não existe)");
     } catch (error) {
       logger.error("❌ Erro ao buscar notificações:", error);
     }
@@ -499,67 +465,29 @@ export function useDashboardStats() {
 
     fetchDashboardData();
 
-    // Subscrever a mudanças em tempo real
-    const statsChannel = supabase
-      .channel("dashboard-stats")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_daily_stats",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          fetchStats();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "user_activities",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          fetchActivities();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_notifications",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          fetchNotifications();
-        }
-      )
-      .subscribe();
+    // TODO: Tabelas user_daily_stats, user_activities e user_notifications foram removidas
+    // Realtime subscriptions desabilitadas temporariamente
+    // const statsChannel = supabase
+    //   .channel("dashboard-stats")
+    //   .subscribe();
 
     return () => {
-      statsChannel.unsubscribe();
+      // statsChannel.unsubscribe();
     };
   }, [user?.id, fetchDashboardData, fetchStats, fetchActivities, fetchNotifications]);
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
-      const { error } = await supabase.rpc("mark_notification_as_read", {
-        p_notification_id: notificationId,
-      });
-
-      if (error) {throw error;}
-
+      // TODO: Tabela user_notifications foi removida do schema
+      // Função desabilitada temporariamente até implementar alternativa
+      
       setNotifications((prev) =>
         prev.map((notif) =>
           notif.id === notificationId ? { ...notif, isRead: true } : notif
         )
       );
 
-      logger.info("✅ Notificação marcada como lida", { notificationId });
+      logger.info("✅ Notificação marcada como lida (desabilitado - tabela não existe)", { notificationId });
     } catch (error) {
       logger.error("❌ Erro ao marcar notificação como lida:", error);
     }
@@ -597,17 +525,11 @@ export function useDashboardStats() {
     }
 
     try {
-      const { error } = await supabase.from("user_activities").insert({
-        user_id: user.id,
-        activity_type: type,
-        title,
-        description,
-        metadata: metadata ?? null,
-      });
-
-      if (error) {throw error;}
-
-      logger.info("✅ Atividade registrada", { type, title });
+      // TODO: Tabela user_activities foi removida do schema
+      // Função desabilitada temporariamente até implementar alternativa
+      // ou recriar a tabela user_activities
+      
+      logger.info("✅ Atividade registrada (desabilitado - tabela não existe)", { type, title });
     } catch (error) {
       logger.error("❌ Erro ao registrar atividade:", error);
     }
