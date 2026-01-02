@@ -242,8 +242,7 @@ export const ConsciousnessToast: React.FC<ConsciousnessToastProps> = ({
         const isNavigationMessage = 
           msg.message.includes('navigation: user:navigation') ||
           msg.title.includes('navigation: user:navigation') ||
-          msg.context.eventId?.includes('user:navigation') ||
-          (msg.context.eventType === 'user:navigation');
+          msg.context.eventId?.includes('user:navigation');
         
         return !isNavigationMessage;
       })

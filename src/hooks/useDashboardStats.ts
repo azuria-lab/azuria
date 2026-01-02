@@ -275,64 +275,28 @@ export function useDashboardStats() {
     if (!user?.id) {return;}
 
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-      // Buscar estatísticas de hoje
-      const { data: todayStats, error: todayError } = await supabase
-        .from("user_daily_stats")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("date", today)
-        .single();
-
-      if (todayError && todayError.code !== "PGRST116") {
-        throw todayError;
-      }
-
-      // Buscar estatísticas de ontem para comparação
-      const { data: yesterdayStats, error: yesterdayError } = await supabase
-        .from("user_daily_stats")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("date", yesterday)
-        .single();
-
-      if (yesterdayError && yesterdayError.code !== "PGRST116") {
-        throw yesterdayError;
-      }
-
-      const calculateChange = (today: number, yesterday: number) => {
-        if (yesterday === 0) {return today > 0 ? 100 : 0;}
-        return Math.round(((today - yesterday) / yesterday) * 100);
+      // TODO: Tabela user_daily_stats foi removida do schema
+      // Retornando valores padrão temporários até implementar alternativa
+      // ou recriar a tabela user_daily_stats
+      
+      const calculateChange = (_today: number, _yesterday: number) => {
+        return 0;
       };
 
       setStats({
-        calculationsCount: todayStats?.calculations_count || 0,
-        totalSavings: todayStats?.total_savings || 0,
-        productsAnalyzed: todayStats?.products_analyzed || 0,
-        timeSavedMinutes: todayStats?.time_saved_minutes || 0,
+        calculationsCount: 0,
+        totalSavings: 0,
+        productsAnalyzed: 0,
+        timeSavedMinutes: 0,
         change: {
-          calculations: calculateChange(
-            todayStats?.calculations_count || 0,
-            yesterdayStats?.calculations_count || 0
-          ),
-          savings: calculateChange(
-            todayStats?.total_savings || 0,
-            yesterdayStats?.total_savings || 0
-          ),
-          products: calculateChange(
-            todayStats?.products_analyzed || 0,
-            yesterdayStats?.products_analyzed || 0
-          ),
-          time: calculateChange(
-            todayStats?.time_saved_minutes || 0,
-            yesterdayStats?.time_saved_minutes || 0
-          ),
+          calculations: 0,
+          savings: 0,
+          products: 0,
+          time: 0,
         },
       });
 
-      logger.info("📊 Estatísticas do dashboard carregadas", { todayStats });
+      logger.info("📊 Estatísticas do dashboard carregadas (valores padrão)");
     } catch (error) {
       logger.error("❌ Erro ao buscar estatísticas:", error);
     }

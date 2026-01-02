@@ -416,8 +416,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
     const isNavigationMessage = 
       message.message.includes('navigation: user:navigation') ||
       message.title.includes('navigation: user:navigation') ||
-      message.context.eventId?.includes('user:navigation') ||
-      (message.context.eventType === 'user:navigation');
+      message.context.eventId?.includes('user:navigation');
     
     // Não adicionar mensagens de navegação ao estado
     if (isNavigationMessage) {
