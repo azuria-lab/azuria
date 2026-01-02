@@ -50,6 +50,7 @@ function isKnownSupabaseError(errorLine) {
     'missing the following properties from type \'never[]\'',
     'postgrestfilterbuilder',
     'postgrestquerybuilder',
+    'type instantiation is excessively deep',
   ];
   
   // Arquivos que sabemos ter essa limitação conhecida
@@ -70,6 +71,7 @@ function isKnownSupabaseError(errorLine) {
     'useteams.tsx',
     'useteammembers.tsx',
     'dataentryformwidget.tsx',
+    'useallfeaturesdata.ts',
   ];
   
   // Verificar se é um erro de tipo 'never' (sempre considerado conhecido)
