@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Briefcase, Building2, Quote, ShoppingBag, User, UserCircle } from "lucide-react";
 
@@ -62,12 +62,12 @@ const testimonials = [
   }
 ];
 
-// Componente para cada card de depoimento
-const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ testimonial }) => {
+// Componente para cada card de depoimento - memoizado para melhor performance
+const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = React.memo(({ testimonial }) => {
   const Icon = testimonial.icon;
   return (
     <div className="flex-shrink-0 w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-20px)] px-4">
-      <div className="bg-card rounded-lg p-8 shadow-sm border border-border hover:shadow-lg transition-all h-full">
+      <div className="bg-card rounded-lg p-8 shadow-sm border border-border hover:shadow-lg transition-shadow duration-300 h-full">
         {/* Quote Icon */}
         <div className="mb-4">
           <Quote className="h-8 w-8 text-primary opacity-50" />
@@ -97,7 +97,7 @@ const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ te
       </div>
     </div>
   );
-};
+});
 
 const TestimonialsSectionBling: React.FC = () => {
   const reduceMotion = useReducedMotion();
@@ -106,11 +106,11 @@ const TestimonialsSectionBling: React.FC = () => {
   // A chave é ter múltiplas cópias idênticas para que quando a animação reinicia,
   // a posição visual seja exatamente a mesma, criando um loop perfeito sem salto
   // Usamos 3 cópias para garantir que sempre haja conteúdo visível durante a transição
-  const duplicatedTestimonials = [
+  const duplicatedTestimonials = useMemo(() => [
     ...testimonials, 
     ...testimonials, 
     ...testimonials
-  ];
+  ], []);
 
   return (
     <section className="py-20 md:py-32 bg-background w-full">
@@ -138,8 +138,9 @@ const TestimonialsSectionBling: React.FC = () => {
               style={{
                 animation: reduceMotion 
                   ? 'none' 
-                  : 'scroll-testimonials-infinite 60s linear infinite',
+                  : 'scroll-testimonials-infinite 25s linear infinite',
                 willChange: reduceMotion ? 'auto' : 'transform',
+                transform: 'translate3d(0, 0, 0)', // Força aceleração por hardware
               }}
             >
               {duplicatedTestimonials.map((testimonial, index) => (
@@ -164,6 +165,15 @@ const TestimonialsSectionBling: React.FC = () => {
             /* Como temos 3 cópias idênticas, quando a animação reinicia em 0%,
                a posição visual é exatamente a mesma, criando um loop perfeito */
             transform: translate3d(-33.333%, 0, 0);
+          }
+        }
+        
+        /* Otimizações de performance para o carrossel */
+        @media (prefers-reduced-motion: no-preference) {
+          .flex[style*="scroll-testimonials-infinite"] {
+            backface-visibility: hidden;
+            perspective: 1000px;
+            -webkit-font-smoothing: antialiased;
           }
         }
       `}</style>

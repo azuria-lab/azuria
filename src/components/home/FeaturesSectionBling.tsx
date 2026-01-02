@@ -3,23 +3,22 @@ import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   BarChart3,
-  FileText,
-  Layers,
-  PieChart,
-  ShoppingCart,
-  Sparkles,
+  Brain,
+  Package2,
+  Scale,
+  ShoppingBag,
   TrendingUp,
-  Zap
+  Workflow
 } from "lucide-react";
 
 const features = [
   {
-    icon: Sparkles,
+    icon: Brain,
     title: "Inteligência Artificial Avançada",
     description: "Algoritmos de machine learning especializados no mercado brasileiro, processando múltiplas variáveis simultaneamente para otimização de preços."
   },
   {
-    icon: ShoppingCart,
+    icon: ShoppingBag,
     title: "Integração com Marketplaces",
     description: "Conexão automatizada com Mercado Livre, Shopee, Amazon, Magalu e demais plataformas para sincronização de produtos e preços."
   },
@@ -29,12 +28,12 @@ const features = [
     description: "Teste estratégias de precificação alternativas e analise o impacto financeiro antes de implementar alterações."
   },
   {
-    icon: Layers,
+    icon: Package2,
     title: "Precificação em Massa",
     description: "Atualize preços de centenas ou milhares de produtos simultaneamente, reduzindo significativamente o tempo operacional."
   },
   {
-    icon: FileText,
+    icon: Scale,
     title: "Análise Tributária Completa",
     description: "Cálculo automático e preciso de todos os impostos brasileiros aplicáveis: ICMS, PIS, COFINS, IPI, ISS e demais tributos."
   },
@@ -44,12 +43,12 @@ const features = [
     description: "Acompanhe preços da concorrência em tempo real e ajuste sua estratégia para manter posicionamento competitivo."
   },
   {
-    icon: PieChart,
+    icon: BarChart3,
     title: "Analytics e Relatórios",
     description: "Dashboards executivos com métricas de lucratividade, margem de contribuição, volume de vendas e tendências de mercado."
   },
   {
-    icon: Zap,
+    icon: Workflow,
     title: "Automação Inteligente",
     description: "Configure regras de negócio para ajuste automático de preços baseado em estoque, sazonalidade e comportamento de mercado."
   }

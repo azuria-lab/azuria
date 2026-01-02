@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,115 +8,135 @@ import { motion } from 'framer-motion';
 import DashboardGreeting from '@/components/dashboard/DashboardGreeting';
 import { Link } from 'react-router-dom';
 import { 
+  Activity, 
   ArrowRight, 
   BarChart3, 
-  Brain, 
-  Calculator, 
+  Bell, 
+  Brain,
+  Calculator,
   CheckCircle2,
   Clock,
+  FileText,
+  Gavel,
+  Loader2,
+  Settings,
+  ShoppingCart,
   TrendingUp,
+  Users,
+  Workflow,
   Zap
 } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-
-interface DashboardStats {
-  totalCalculations: number;
-  aiAnalysis: number;
-  profitOptimized: number;
-  timesSaved: number;
-  weeklyGrowth: number;
-}
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useDashboardCharts } from '@/hooks/useDashboardCharts';
+import { useAllFeaturesData } from '@/hooks/useAllFeaturesData';
+import { format } from 'date-fns';
 
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [stats] = useState<DashboardStats>({
-    totalCalculations: 127,
-    aiAnalysis: 23,
-    profitOptimized: 15.5,
-    timesSaved: 8.5,
-    weeklyGrowth: 12.3
-  });
+  
+  // Buscar dados reais do dashboard
+  const { stats, activities, isLoading: statsLoading } = useDashboardStats();
+  
+  // Buscar dados de todas as funcionalidades
+  const allFeaturesData = useAllFeaturesData();
+  
+  // Estados para controlar os períodos dos gráficos
+  const [ticketMedioPeriod, setTicketMedioPeriod] = useState<'7D' | '30D' | '90D'>('30D');
+  const [valorFaturadoPeriod, setValorFaturadoPeriod] = useState<'7D' | '30D' | '90D'>('30D');
+  const [quantidadePedidosPeriod, setQuantidadePedidosPeriod] = useState<'7D' | '30D' | '90D'>('30D');
+  
+  // Buscar dados dos gráficos baseado no período selecionado
+  const ticketMedioCharts = useDashboardCharts(ticketMedioPeriod);
+  const valorFaturadoCharts = useDashboardCharts(valorFaturadoPeriod);
+  const quantidadeCharts = useDashboardCharts(quantidadePedidosPeriod);
+  
+  // Usar dados diretamente dos hooks
+  const ticketMedioData = ticketMedioCharts.ticketMedio;
+  const valorFaturadoData = valorFaturadoCharts.valorFaturado;
+  const quantidadePedidosData = quantidadeCharts.quantidadeCalculos;
+  
+  // Calcular estatísticas derivadas dos dados reais
+  const dashboardStats = useMemo(() => {
+    const totalCalculations = stats.calculationsCount;
+    const aiAnalysis = activities.filter(a => a.type === 'analysis' || a.type.includes('ai')).length;
+    const profitOptimized = stats.totalSavings > 0 
+      ? ((stats.totalSavings / (totalCalculations || 1)) / 100) * 100 
+      : 0;
+    const timesSaved = stats.timeSavedMinutes / 60; // Converter minutos para horas
+    const weeklyGrowth = stats.change.calculations;
+    
+    return {
+      totalCalculations,
+      aiAnalysis,
+      profitOptimized: Math.round(profitOptimized * 10) / 10,
+      timesSaved: Math.round(timesSaved * 10) / 10,
+      weeklyGrowth
+    };
+  }, [stats, activities]);
 
-  // Dados para gráficos
-  const ticketMedioData = [
-    { date: '10/Nov', value: 180 },
-    { date: '15/Nov', value: 220 },
-    { date: '20/Nov', value: 253 },
-    { date: '24/Nov', value: 280 },
-    { date: '28/Nov', value: 240 },
-    { date: '01/Dez', value: 260 },
-    { date: '05/Dez', value: 253 },
-    { date: '08/Dez', value: 270 }
-  ];
 
-  const valorFaturadoData = [
-    { date: '10/Nov', value: 1200 },
-    { date: '15/Nov', value: 1800 },
-    { date: '20/Nov', value: 2100 },
-    { date: '24/Nov', value: 3200 },
-    { date: '28/Nov', value: 1900 },
-    { date: '01/Dez', value: 2800 },
-    { date: '05/Dez', value: 2400 },
-    { date: '08/Dez', value: 2600 }
-  ];
-
-  const quantidadePedidosData = [
-    { date: '10/Nov', value: 5 },
-    { date: '15/Nov', value: 8 },
-    { date: '20/Nov', value: 10 },
-    { date: '24/Nov', value: 12 },
-    { date: '28/Nov', value: 8 },
-    { date: '01/Dez', value: 11 },
-    { date: '05/Dez', value: 9 },
-    { date: '08/Dez', value: 10 }
-  ];
-
-  // Resumo diário
-  const dailySummary = {
-    calculations: {
-      total: stats.totalCalculations,
-      new: 5,
-      inProgress: 2,
-      completed: 120
-    },
-    aiAnalysis: {
-      total: stats.aiAnalysis,
-      pending: 1,
-      completed: 22
-    },
-    profit: {
-      total: 4810.63,
-      optimized: 745.65
-    },
-    recentActivity: 3
+  // Função para calcular média (para ticket médio)
+  const calculateAverage = (data: { value: number }[]): number => {
+    if (data.length === 0) {return 0;}
+    const sum = data.reduce((acc, item) => acc + item.value, 0);
+    return sum / data.length;
   };
 
-  const recentActivity = [
-    {
-      type: 'calculation',
-      title: 'Calculadora Rápida',
-      description: 'Produto: Smartphone XYZ - Margem: 25%',
-      time: '2 min atrás',
-      icon: Calculator,
-      status: 'completed'
-    },
-    {
-      type: 'ai',
-      title: 'Análise de IA',
-      description: 'Sugestão de preço otimizada aplicada',
-      time: '15 min atrás',
-      icon: Brain,
-      status: 'completed'
-    },
-    {
-      type: 'batch',
-      title: 'Lote Inteligente',
-      description: '3 lotes analisados com IA',
-      time: '1 hora atrás',
-      icon: Zap,
-      status: 'inProgress'
-    }
-  ];
+  // Função para calcular total (para valor faturado e quantidade)
+  const calculateTotal = (data: { value: number }[]): number => {
+    return data.reduce((acc, item) => acc + item.value, 0);
+  };
+
+  // Resumo diário baseado em dados reais
+  const dailySummary = useMemo(() => {
+    const todayActivities = activities.filter(a => {
+      const activityDate = new Date(a.time);
+      const today = new Date();
+      return activityDate.toDateString() === today.toDateString();
+    });
+    
+    const completedActivities = activities.filter(a => a.type === 'calculation');
+    const aiActivities = activities.filter(a => a.type === 'analysis' || a.type.includes('ai'));
+    
+    return {
+      calculations: {
+        total: stats.calculationsCount,
+        new: todayActivities.length,
+        inProgress: 0, // Pode ser calculado se houver status nas atividades
+        completed: completedActivities.length
+      },
+      aiAnalysis: {
+        total: aiActivities.length,
+        pending: 0, // Pode ser calculado se houver status
+        completed: aiActivities.length
+      },
+      profit: {
+        total: stats.totalSavings,
+        optimized: stats.totalSavings * 0.15 // Estimativa de 15% de otimização
+      },
+      recentActivity: todayActivities.length
+    };
+  }, [stats, activities]);
+
+  // Mapear atividades reais para o formato do componente
+  const recentActivity = useMemo(() => {
+    const iconMap: Record<string, typeof Calculator> = {
+      calculation: Calculator,
+      analysis: Brain,
+      batch: Zap,
+      template_created: BarChart3,
+    };
+    
+    return activities.slice(0, 3).map(activity => ({
+      type: activity.type,
+      title: activity.title,
+      description: activity.description,
+      time: activity.time,
+      icon: iconMap[activity.type] || CheckCircle2,
+      status: 'completed' as const
+    }));
+  }, [activities]);
 
   const quickActions = [
     {
@@ -197,9 +217,20 @@ export default function UnifiedDashboard() {
               <Calculator className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalCalculations}</div>
+              <div className="text-2xl font-bold">
+                {statsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  dashboardStats.totalCalculations
+                )}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                <span className="text-green-600 font-medium">+12</span> desde ontem
+                {stats.change.calculations !== 0 && (
+                  <span className={`font-medium ${stats.change.calculations > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {stats.change.calculations > 0 ? '+' : ''}{stats.change.calculations}%
+                  </span>
+                )}
+                {' '}desde ontem
               </p>
             </CardContent>
           </Card>
@@ -216,9 +247,18 @@ export default function UnifiedDashboard() {
               <Brain className="h-4 w-4 text-purple-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.aiAnalysis}</div>
+              <div className="text-2xl font-bold">
+                {statsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  dashboardStats.aiAnalysis
+                )}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
-                <span className="text-green-600 font-medium">+5</span> esta semana
+                {stats.change.products > 0 && (
+                  <span className="text-green-600 font-medium">+{stats.change.products}%</span>
+                )}
+                {' '}esta semana
               </p>
             </CardContent>
           </Card>
@@ -235,7 +275,13 @@ export default function UnifiedDashboard() {
               <TrendingUp className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{stats.profitOptimized}%</div>
+              <div className="text-2xl font-bold">
+                {statsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  `+${dashboardStats.profitOptimized}%`
+                )}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Margem média melhorada
               </p>
@@ -254,7 +300,13 @@ export default function UnifiedDashboard() {
               <Clock className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.timesSaved}h</div>
+              <div className="text-2xl font-bold">
+                {statsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  `${dashboardStats.timesSaved}h`
+                )}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Vs. cálculo manual
               </p>
@@ -362,6 +414,255 @@ export default function UnifiedDashboard() {
             </CardContent>
           </Card>
 
+          {/* Todas as Funcionalidades - Visão Consolidada */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Todas as Funcionalidades</CardTitle>
+              <CardDescription>Visão consolidada de todas as áreas do Azuria</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {allFeaturesData.isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Cálculos */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Link to="/calculadora-rapida">
+                      <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Calculator className="h-5 w-5 text-blue-500" />
+                            <CardTitle className="text-sm">Cálculos</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.calculations.total}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Básicos: {allFeaturesData.calculations.basic}</div>
+                              <div>Avançados: {allFeaturesData.calculations.advanced}</div>
+                              <div>Templates: {allFeaturesData.calculations.templates}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Marketplace */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                  >
+                    <Link to="/marketplace">
+                      <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <ShoppingCart className="h-5 w-5 text-purple-500" />
+                            <CardTitle className="text-sm">Marketplace</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.marketplace.monitoredProducts}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Produtos monitorados</div>
+                              <div>Alertas: {allFeaturesData.marketplace.priceAlerts}</div>
+                              <div>Integrações: {allFeaturesData.marketplace.activeIntegrations}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Colaboração */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
+                    <Link to="/equipes">
+                      <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-5 w-5 text-green-500" />
+                            <CardTitle className="text-sm">Colaboração</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.collaboration.teams}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Equipes</div>
+                              <div>Membros: {allFeaturesData.collaboration.teamMembers}</div>
+                              <div>Pendências: {allFeaturesData.collaboration.pendingApprovals}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Automação */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.3 }}
+                  >
+                    <Link to="/automatizacao">
+                      <Card className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Workflow className="h-5 w-5 text-orange-500" />
+                            <CardTitle className="text-sm">Automação</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.automation.activeRules}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Regras ativas</div>
+                              <div>Execuções: {allFeaturesData.automation.totalExecutions}</div>
+                              <div>Alertas: {allFeaturesData.automation.alerts}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Documentos */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.4 }}
+                  >
+                    <Link to="/documentos">
+                      <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-red-500" />
+                            <CardTitle className="text-sm">Documentos</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.documents.total}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Total de documentos</div>
+                              <div>Válidos: {allFeaturesData.documents.valid}</div>
+                              <div className="flex items-center gap-1">
+                                <span>Expirando: </span>
+                                {allFeaturesData.documents.expiring > 0 && (
+                                  <Badge variant="destructive" className="h-4 px-1 text-[10px]">
+                                    {allFeaturesData.documents.expiring}
+                                  </Badge>
+                                )}
+                                {allFeaturesData.documents.expiring === 0 && <span>0</span>}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Licitações */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.5 }}
+                  >
+                    <Link to="/licitacoes">
+                      <Card className="border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Gavel className="h-5 w-5 text-indigo-500" />
+                            <CardTitle className="text-sm">Licitações</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.bidding.editais}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Editais detectados</div>
+                              <div>Alertas: {allFeaturesData.bidding.alerts}</div>
+                              <div>Portais: {allFeaturesData.bidding.portals}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* Analytics */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.6 }}
+                  >
+                    <Link to="/analytics">
+                      <Card className="border-l-4 border-l-cyan-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-cyan-500" />
+                            <CardTitle className="text-sm">Analytics</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.analytics.businessMetrics}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Métricas de negócio</div>
+                              <div>Vendas: {allFeaturesData.analytics.salesRecords}</div>
+                              <div>Produtos: {allFeaturesData.analytics.productPerformance}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+
+                  {/* IA */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.7 }}
+                  >
+                    <Link to="/ia">
+                      <Card className="border-l-4 border-l-pink-500 hover:shadow-md transition-shadow cursor-pointer">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Brain className="h-5 w-5 text-pink-500" />
+                            <CardTitle className="text-sm">Inteligência Artificial</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-2xl font-bold">{allFeaturesData.ai.totalInteractions}</div>
+                            <div className="text-xs text-muted-foreground space-y-1">
+                              <div>Interações totais</div>
+                              <div>Sugestões: {allFeaturesData.ai.suggestions}</div>
+                              <div>Padrões: {allFeaturesData.ai.behaviorPatterns}</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Gráficos - Estilo Bling */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Ticket Médio */}
@@ -370,22 +671,54 @@ export default function UnifiedDashboard() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <CardTitle className="text-base sm:text-lg">Ticket Médio</CardTitle>
-                    <div className="text-xl sm:text-2xl font-bold mt-1">{formatCurrency(253.19)}</div>
+                    <div className="text-xl sm:text-2xl font-bold mt-1">
+                      {formatCurrency(calculateAverage(ticketMedioData))}
+                    </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">7D</Button>
-                    <Button variant="default" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">30D</Button>
-                    <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">90D</Button>
+                    <Button 
+                      variant={ticketMedioPeriod === '7D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setTicketMedioPeriod('7D')}
+                    >
+                      7D
+                    </Button>
+                    <Button 
+                      variant={ticketMedioPeriod === '30D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setTicketMedioPeriod('30D')}
+                    >
+                      30D
+                    </Button>
+                    <Button 
+                      variant={ticketMedioPeriod === '90D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setTicketMedioPeriod('90D')}
+                    >
+                      90D
+                    </Button>
                   </div>
                 </div>
                 <CardDescription className="text-xs mt-2">
-                  Atualizado em: 01/12 às 23:50
+                  Atualizado em: {format(new Date(), 'dd/MM')} às {format(new Date(), 'HH:mm')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="h-48 sm:h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={ticketMedioData}>
+                  {ticketMedioCharts.isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : ticketMedioData.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                      Nenhum dado disponível para o período selecionado
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={ticketMedioData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis 
                         dataKey="date" 
@@ -400,7 +733,8 @@ export default function UnifiedDashboard() {
                         width={50}
                       />
                       <Tooltip 
-                        formatter={(value: number) => formatCurrency(value)}
+                        formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                        labelFormatter={(label) => `Data: ${label}`}
                         contentStyle={{ 
                           backgroundColor: 'white', 
                           border: '1px solid #e5e7eb',
@@ -410,6 +744,7 @@ export default function UnifiedDashboard() {
                       <Line 
                         type="monotone" 
                         dataKey="value" 
+                        name="Valor"
                         stroke="#3b82f6" 
                         strokeWidth={2}
                         dot={{ fill: '#3b82f6', r: 4 }}
@@ -417,6 +752,7 @@ export default function UnifiedDashboard() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -427,22 +763,54 @@ export default function UnifiedDashboard() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <CardTitle className="text-base sm:text-lg">Valor Faturado</CardTitle>
-                    <div className="text-xl sm:text-2xl font-bold mt-1">{formatCurrency(4810.63)}</div>
+                    <div className="text-xl sm:text-2xl font-bold mt-1">
+                      {formatCurrency(calculateTotal(valorFaturadoData))}
+                    </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">7D</Button>
-                    <Button variant="default" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">30D</Button>
-                    <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">90D</Button>
+                    <Button 
+                      variant={valorFaturadoPeriod === '7D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setValorFaturadoPeriod('7D')}
+                    >
+                      7D
+                    </Button>
+                    <Button 
+                      variant={valorFaturadoPeriod === '30D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setValorFaturadoPeriod('30D')}
+                    >
+                      30D
+                    </Button>
+                    <Button 
+                      variant={valorFaturadoPeriod === '90D' ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-8 sm:h-7 text-xs min-h-[32px]"
+                      onClick={() => setValorFaturadoPeriod('90D')}
+                    >
+                      90D
+                    </Button>
                   </div>
                 </div>
                 <CardDescription className="text-xs mt-2">
-                  Atualizado em: 01/12 às 23:50
+                  Atualizado em: {format(new Date(), 'dd/MM')} às {format(new Date(), 'HH:mm')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="h-48 sm:h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={valorFaturadoData}>
+                  {valorFaturadoCharts.isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : valorFaturadoData.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                      Nenhum dado disponível para o período selecionado
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={valorFaturadoData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis 
                         dataKey="date" 
@@ -457,7 +825,8 @@ export default function UnifiedDashboard() {
                         width={50}
                       />
                       <Tooltip 
-                        formatter={(value: number) => formatCurrency(value)}
+                        formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                        labelFormatter={(label) => `Data: ${label}`}
                         contentStyle={{ 
                           backgroundColor: 'white', 
                           border: '1px solid #e5e7eb',
@@ -466,11 +835,13 @@ export default function UnifiedDashboard() {
                       />
                       <Bar 
                         dataKey="value" 
+                        name="Valor"
                         fill="#10b981"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
                   </ResponsiveContainer>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -482,22 +853,54 @@ export default function UnifiedDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <CardTitle className="text-base sm:text-lg">Quantidade de Cálculos</CardTitle>
-                  <div className="text-xl sm:text-2xl font-bold mt-1">19 cálculos</div>
+                  <div className="text-xl sm:text-2xl font-bold mt-1">
+                    {calculateTotal(quantidadePedidosData)} cálculos
+                  </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">7D</Button>
-                  <Button variant="default" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">30D</Button>
-                  <Button variant="outline" size="sm" className="h-8 sm:h-7 text-xs min-h-[32px]">90D</Button>
+                  <Button 
+                    variant={quantidadePedidosPeriod === '7D' ? 'default' : 'outline'} 
+                    size="sm" 
+                    className="h-8 sm:h-7 text-xs min-h-[32px]"
+                    onClick={() => setQuantidadePedidosPeriod('7D')}
+                  >
+                    7D
+                  </Button>
+                  <Button 
+                    variant={quantidadePedidosPeriod === '30D' ? 'default' : 'outline'} 
+                    size="sm" 
+                    className="h-8 sm:h-7 text-xs min-h-[32px]"
+                    onClick={() => setQuantidadePedidosPeriod('30D')}
+                  >
+                    30D
+                  </Button>
+                  <Button 
+                    variant={quantidadePedidosPeriod === '90D' ? 'default' : 'outline'} 
+                    size="sm" 
+                    className="h-8 sm:h-7 text-xs min-h-[32px]"
+                    onClick={() => setQuantidadePedidosPeriod('90D')}
+                  >
+                    90D
+                  </Button>
                 </div>
               </div>
               <CardDescription className="text-xs mt-2">
-                Atualizado em: 01/12 às 23:50
+                Atualizado em: {format(new Date(), 'dd/MM')} às {format(new Date(), 'HH:mm')}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <div className="h-48 sm:h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={quantidadePedidosData}>
+                {quantidadeCharts.isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : quantidadePedidosData.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    Nenhum dado disponível para o período selecionado
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={quantidadePedidosData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis 
                       dataKey="date" 
@@ -511,6 +914,8 @@ export default function UnifiedDashboard() {
                       width={40}
                     />
                     <Tooltip 
+                      formatter={(value: number) => [`${value} cálculos`, 'Quantidade']}
+                      labelFormatter={(label) => `Data: ${label}`}
                       contentStyle={{ 
                         backgroundColor: 'white', 
                         border: '1px solid #e5e7eb',
@@ -519,11 +924,13 @@ export default function UnifiedDashboard() {
                     />
                     <Bar 
                       dataKey="value" 
+                      name="Quantidade"
                       fill="#8b5cf6"
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -674,19 +1081,25 @@ export default function UnifiedDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Cálculos</span>
                     <span className="text-sm font-medium">
-                      <span className="text-green-600">+{stats.weeklyGrowth}%</span>
+                      <span className={stats.change.calculations >= 0 ? "text-green-600" : "text-red-600"}>
+                        {stats.change.calculations > 0 ? '+' : ''}{stats.change.calculations}%
+                      </span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Análises IA</span>
                     <span className="text-sm font-medium">
-                      <span className="text-green-600">+8.2%</span>
+                      <span className={stats.change.products >= 0 ? "text-green-600" : "text-red-600"}>
+                        {stats.change.products > 0 ? '+' : ''}{stats.change.products}%
+                      </span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Lucro Otimizado</span>
                     <span className="text-sm font-medium">
-                      <span className="text-green-600">+{stats.profitOptimized}%</span>
+                      <span className={stats.change.savings >= 0 ? "text-green-600" : "text-red-600"}>
+                        {stats.change.savings > 0 ? '+' : ''}{stats.change.savings}%
+                      </span>
                     </span>
                   </div>
                 </div>
