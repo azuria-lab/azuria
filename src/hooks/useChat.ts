@@ -96,21 +96,45 @@ export function useChat() {
       // Calcular unread_count e members_count para cada sala
       const roomsWithUnread = await Promise.all(
         (data || []).map(async (room) => {
-          const { data: unreadData } = await supabase.rpc("get_unread_count", {
-            p_room_id: room.id,
-            p_user_id: userProfile.id,
-          });
+          let unreadCount = 0;
+          let membersCount = 0;
 
-          // Buscar contagem de membros separadamente
-          const { count: membersCount } = await supabase
-            .from("chat_room_members")
-            .select("*", { count: "exact", head: true })
-            .eq("room_id", room.id);
+          try {
+            // Tentar buscar unread_count
+            const { data: unreadData, error: unreadError } = await supabase.rpc("get_unread_count", {
+              p_room_id: room.id,
+              p_user_id: userProfile.id,
+            });
+
+            if (!unreadError && unreadData !== null && unreadData !== undefined) {
+              unreadCount = unreadData;
+            }
+          } catch (err) {
+            // Ignorar erros na contagem de não lidas
+            // eslint-disable-next-line no-console
+            console.warn("Error getting unread count for room:", room.id, err);
+          }
+
+          try {
+            // Buscar contagem de membros separadamente
+            const { count } = await supabase
+              .from("chat_room_members")
+              .select("*", { count: "exact", head: true })
+              .eq("room_id", room.id);
+
+            if (count !== null && count !== undefined) {
+              membersCount = count;
+            }
+          } catch (err) {
+            // Ignorar erros na contagem de membros
+            // eslint-disable-next-line no-console
+            console.warn("Error getting members count for room:", room.id, err);
+          }
 
           return {
             ...room,
-            unread_count: unreadData || 0,
-            members_count: membersCount || 0,
+            unread_count: unreadCount,
+            members_count: membersCount,
           };
         })
       );
@@ -150,7 +174,15 @@ export function useChat() {
           .select()
           .single();
 
-        if (roomError) {throw roomError;}
+        if (roomError) {
+          // eslint-disable-next-line no-console
+          console.error("Error creating room:", roomError);
+          throw roomError;
+        }
+
+        if (!room) {
+          throw new Error("Room was not created");
+        }
 
         // Adicionar criador como membro admin
         const { error: memberError } = await supabase
@@ -161,14 +193,26 @@ export function useChat() {
             role: "admin",
           });
 
-        if (memberError) {throw memberError;}
+        if (memberError) {
+          // Se a sala foi criada mas falhou ao adicionar membro, tentar limpar
+          // eslint-disable-next-line no-console
+          console.error("Error adding member to room:", memberError);
+          // Não deletar a sala, apenas logar o erro
+        }
 
         toast({
           title: "Sala criada",
           description: `A sala "${name}" foi criada com sucesso.`,
         });
 
-        await loadRooms();
+        // Recarregar salas após um pequeno delay para garantir que tudo foi salvo
+        setTimeout(() => {
+          loadRooms().catch((err) => {
+            // eslint-disable-next-line no-console
+            console.warn("Error reloading rooms after creation:", err);
+          });
+        }, 500);
+
         return room;
       } catch (error) {
         // eslint-disable-next-line no-console
