@@ -97,17 +97,19 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     try {
       setError(null);
       
+        
        
       const { data: teamTasks, error: tasksError } = await supabase
         .from("team_tasks" as any)
         .select("*")
         .eq("team_id", teamId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any;
 
       if (tasksError) {throw tasksError;}
 
       // Transformar para formato Task
-      const formattedTasks: Task[] = (teamTasks || []).map((tt: any) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const formattedTasks: Task[] = ((teamTasks || []) as any[]).map((tt: any) => ({
         id: tt.id,
         teamId: tt.team_id,
         title: tt.title,
@@ -151,6 +153,7 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     if (!teamId || !user?.id) {return null;}
 
     try {
+        
        
       const { data, error: insertError } = await supabase
         .from("team_tasks" as any)
@@ -168,25 +171,27 @@ export function useTeam(teamId: string | null): UseTeamReturn {
           attachments: task.attachments || [],
         })
         .select()
-        .single();
+        .single() as any;
 
       if (insertError) {throw insertError;}
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const taskData = data as any;
       const newTask: Task = {
-        id: data.id,
-        teamId: data.team_id,
-        title: data.title,
-        description: data.description || undefined,
-        status: data.status as Task["status"],
-        priority: data.priority as Task["priority"],
-        assignedTo: data.assigned_to || [],
-        createdBy: data.created_by,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
-        dueDate: data.due_date ? new Date(data.due_date) : undefined,
-        tags: data.tags || [],
-        checklist: data.checklist || [],
-        attachments: data.attachments || [],
+        id: taskData.id,
+        teamId: taskData.team_id,
+        title: taskData.title,
+        description: taskData.description || undefined,
+        status: taskData.status as Task["status"],
+        priority: taskData.priority as Task["priority"],
+        assignedTo: taskData.assigned_to || [],
+        createdBy: taskData.created_by,
+        createdAt: new Date(taskData.created_at),
+        updatedAt: new Date(taskData.updated_at),
+        dueDate: taskData.due_date ? new Date(taskData.due_date) : undefined,
+        tags: taskData.tags || [],
+        checklist: taskData.checklist || [],
+        attachments: taskData.attachments || [],
       };
 
       setTasks((prev) => [newTask, ...prev]);
@@ -245,12 +250,13 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     if (!teamId || !user?.id) {return false;}
 
     try {
+        
        
       const { error: deleteError } = await supabase
         .from("team_tasks" as any)
         .delete()
         .eq("id", taskId)
-        .eq("team_id", teamId);
+        .eq("team_id", teamId) as any;
 
       if (deleteError) {throw deleteError;}
 
