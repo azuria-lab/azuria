@@ -169,7 +169,7 @@ export async function loadEventsFromStorage(limit = 100): Promise<void> {
   
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = await untypedFrom('evolution_events')
+    const result: any = await (untypedFrom('evolution_events') as any)
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
