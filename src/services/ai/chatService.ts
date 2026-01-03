@@ -200,15 +200,18 @@ export async function loadChatHistory(
 ): Promise<ChatMessage[]> {
   try {
     // Função auxiliar para evitar erro de profundidade de tipo
-    // @ts-expect-error - chat_history table not in generated types
-    const queryBuilder = supabase.from('chat_history');
-    const selectQuery = queryBuilder.select('*');
-    // @ts-expect-error - Type instantiation is excessively deep
-    const filtered1 = selectQuery.eq('user_id', userId);
-    // @ts-expect-error - Type instantiation is excessively deep
-    const filtered2 = filtered1.eq('session_id', sessionId);
-    const ordered = filtered2.order('timestamp', { ascending: true });
-    const result = await ordered;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const queryBuilder = (supabase.from('chat_history') as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const selectQuery = (queryBuilder.select('*') as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered1 = (selectQuery.eq('user_id', userId) as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered2 = (filtered1.eq('session_id', sessionId) as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ordered = (filtered2.order('timestamp', { ascending: true }) as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (ordered as any);
     const { data, error } = result;
 
     if (error) {
