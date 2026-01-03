@@ -97,8 +97,9 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     try {
       setError(null);
       
+       
       const { data: teamTasks, error: tasksError } = await supabase
-        .from("team_tasks")
+        .from("team_tasks" as any)
         .select("*")
         .eq("team_id", teamId)
         .order("created_at", { ascending: false });
@@ -150,8 +151,9 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     if (!teamId || !user?.id) {return null;}
 
     try {
+       
       const { data, error: insertError } = await supabase
-        .from("team_tasks")
+        .from("team_tasks" as any)
         .insert({
           team_id: teamId,
           title: task.title,
@@ -212,8 +214,9 @@ export function useTeam(teamId: string | null): UseTeamReturn {
       if (updates.tags !== undefined) {updateData.tags = updates.tags;}
       if (updates.checklist !== undefined) {updateData.checklist = updates.checklist;}
 
+       
       const { error: updateError } = await supabase
-        .from("team_tasks")
+        .from("team_tasks" as any)
         .update(updateData)
         .eq("id", taskId)
         .eq("team_id", teamId);
@@ -242,8 +245,9 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     if (!teamId || !user?.id) {return false;}
 
     try {
+       
       const { error: deleteError } = await supabase
-        .from("team_tasks")
+        .from("team_tasks" as any)
         .delete()
         .eq("id", taskId)
         .eq("team_id", teamId);

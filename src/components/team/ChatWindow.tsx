@@ -363,7 +363,6 @@ export default function ChatWindow({
         prev.forEach((value, messageId) => {
           if (value.expiresAt <= now) {
             newMap.delete(messageId);
-            hasExpired = true;
           }
         });
 

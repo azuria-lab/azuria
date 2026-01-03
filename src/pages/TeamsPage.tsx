@@ -1070,7 +1070,7 @@ export default function TeamsPage() {
 
     // Simular exclusão da equipe (em produção, chamaria a API)
     // Limpar dados locais
-    setTasks([]);
+    setTasksState([]);
     // mockMembers seria limpo em produção
     
     toast({

@@ -168,7 +168,6 @@ export async function loadEventsFromStorage(limit = 100): Promise<void> {
   if (!useSupabase) {return;}
   
   try {
-    // @ts-expect-error - Type instantiation is excessively deep
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = await untypedFrom('evolution_events')
       .select('*')
