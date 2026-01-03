@@ -133,7 +133,6 @@ npm install @daily-co/daily-js
 ```
 
 #### 2.4 LiveKit
-- ✅ Open-source
 - ✅ Self-hosted ou cloud
 - ✅ Suporte completo a WebRTC
 - 💰 **Custo**: Gratuito (self-hosted) ou pago (cloud)
@@ -229,7 +228,7 @@ const handleStartCall = async () => {
 | **Daily.co** | Gratuito até 50 users | ⭐⭐⭐⭐⭐ | Gravação, Screen Share | ✅ Melhor para começar |
 | **Agora.io** | Gratuito até 17 users | ⭐⭐⭐⭐ | Gravação, Analytics | ✅ Boa opção |
 | **Twilio Video** | $0.004/min/user | ⭐⭐⭐ | Enterprise features | ⚠️ Caro em escala |
-| **LiveKit** | Gratuito (self-host) | ⭐⭐⭐ | Open-source, flexível | ✅ Melhor controle |
+| **LiveKit** | Gratuito (self-host) | ⭐⭐⭐ | Self-hosted, flexível | ✅ Melhor controle |
 | **WebRTC Nativo** | Gratuito | ⭐⭐ | Controle total | ⚠️ Muito complexo |
 
 ## 🚦 Próximos Passos
