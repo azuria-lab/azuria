@@ -193,7 +193,6 @@ export default function HistoryPage() {
             <ProjectHistoryList 
               history={history}
               loading={isLoading}
-              selectedCategory={selectedCategory}
             />
           </motion.div>
         </div>
