@@ -38,14 +38,6 @@ export const useProjectHistory = () => {
   const [selectedCategory, setSelectedCategory] = useState<HistoryCategory | "todos">("todos");
   const [dateFilter, setDateFilter] = useState<DateFilterValue | null>(null);
 
-  const filterByDate = (item: ProjectHistoryItem): boolean => {
-    if (!dateFilter) {return true;}
-    const itemDate = item.timestamp.getTime();
-    const fromTime = dateFilter.from.getTime();
-    const toTime = dateFilter.to.getTime();
-    return itemDate >= fromTime && itemDate <= toTime;
-  };
-
   const loadHistory = useCallback(async () => {
     if (!user?.id) {return;}
 
@@ -54,14 +46,6 @@ export const useProjectHistory = () => {
       setError(null);
 
       const allItems: ProjectHistoryItem[] = [];
-
-      // Build date filter query if dateFilter is set
-      const dateQuery = {};
-      if (dateFilter) {
-        const fromISO = dateFilter.from.toISOString();
-        const toISO = dateFilter.to.toISOString();
-        // Note: Supabase date filtering would need to be applied per table query
-      }
 
       // 1. Histórico de Cálculos
       let calcQuery = supabase
@@ -79,7 +63,8 @@ export const useProjectHistory = () => {
         .order("date", { ascending: false })
         .limit(50);
 
-      if (!calcError && calculations) {
+
+      if (!calcError && calculations && calculations.length > 0) {
         calculations.forEach((calc) => {
           allItems.push({
             id: `calc-${calc.id}`,
@@ -111,7 +96,8 @@ export const useProjectHistory = () => {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (!advCalcError && advancedCalcs) {
+
+      if (!advCalcError && advancedCalcs && advancedCalcs.length > 0) {
         advancedCalcs.forEach((calc) => {
           allItems.push({
             id: `adv-calc-${calc.id}`,
@@ -143,7 +129,8 @@ export const useProjectHistory = () => {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (!templatesError && templates) {
+
+      if (!templatesError && templates && templates.length > 0) {
         templates.forEach((template) => {
           // Item de criação
           allItems.push({
@@ -191,7 +178,8 @@ export const useProjectHistory = () => {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (!productsError && products) {
+
+      if (!productsError && products && products.length > 0) {
         products.forEach((product) => {
           allItems.push({
             id: `product-created-${product.id}`,
@@ -236,7 +224,8 @@ export const useProjectHistory = () => {
       const { data: businessSettings, error: settingsError } = await settingsQuery
         .limit(10);
 
-      if (!settingsError && businessSettings) {
+
+      if (!settingsError && businessSettings && businessSettings.length > 0) {
         businessSettings.forEach((setting) => {
           if (setting.created_at) {
             allItems.push({
@@ -283,7 +272,8 @@ export const useProjectHistory = () => {
       const { data: companyData, error: companyError } = await companyQuery
         .limit(10);
 
-      if (!companyError && companyData) {
+
+      if (!companyError && companyData && companyData.length > 0) {
         companyData.forEach((company) => {
           allItems.push({
             id: `company-created-${company.id}`,
@@ -329,7 +319,8 @@ export const useProjectHistory = () => {
         .order("created_at", { ascending: false })
         .limit(20);
 
-      if (!teamsError && teams) {
+
+      if (!teamsError && teams && teams.length > 0) {
         teams.forEach((team) => {
           allItems.push({
             id: `team-created-${team.id}`,
@@ -359,29 +350,24 @@ export const useProjectHistory = () => {
         });
       }
 
-      // Aplicar filtro de data se necessário
-      let filteredItems = allItems;
-      if (dateFilter) {
-        filteredItems = allItems.filter(filterByDate);
-      }
-
       // Ordenar por timestamp (mais recente primeiro)
-      filteredItems.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      // O filtro de data já foi aplicado nas queries do Supabase acima
+      allItems.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-      setHistory(filteredItems.slice(0, 200)); // Limitar a 200 itens mais recentes
+      setHistory(allItems.slice(0, 200)); // Limitar a 200 itens mais recentes
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao carregar histórico";
       setError(message);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, dateFilter, filterByDate]);
+  }, [user?.id, dateFilter]);
 
   useEffect(() => {
     if (user?.id) {
       loadHistory();
     }
-  }, [user?.id, dateFilter, loadHistory]);
+  }, [user?.id, loadHistory]);
 
   const filteredHistory = selectedCategory === "todos" 
     ? history 

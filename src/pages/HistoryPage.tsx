@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,16 @@ export default function HistoryPage() {
     setDateFilter
   } = useProjectHistory();
 
+  // Memoizar valores do DateFilter para evitar re-renders desnecessários (hooks devem ser chamados antes de qualquer return)
+  const dateFilterValue = useMemo(() => 
+    dateFilter ? { from: dateFilter.from, to: dateFilter.to } : undefined,
+    [dateFilter]
+  );
+
+  const handleDateFilterChange = useCallback((value: { from: Date; to: Date } | undefined) => {
+    setDateFilter(value ? { from: value.from, to: value.to } : null);
+  }, [setDateFilter]);
+
   // Verificar se o usuário está logado
   useEffect(() => {
     if (!isAuthenticated) {
@@ -53,27 +63,12 @@ export default function HistoryPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  // Contar itens por categoria (incluindo cards falsos quando não há histórico real)
+  // Contar itens por categoria (apenas dados reais)
   const getCategoryCount = (category: HistoryCategory | "todos"): number => {
-    if (allHistory.length > 0) {
-      // Se há histórico real, usar a contagem real
-      if (category === "todos") {
-        return allHistory.length;
-      }
-      return allHistory.filter(h => h.category === category).length;
-    } else {
-      // Se não há histórico real, mostrar contagem dos cards falsos
-      if (category === "todos") {
-        // Para "Todos", mostrar soma de todas as categorias (5 cada)
-        return 5 * 7; // 7 categorias × 5 cards cada
-      }
-      // Para categorias específicas, mostrar 15 cards falsos
-      return 15;
+    if (category === "todos") {
+      return allHistory.length;
     }
+    return allHistory.filter(h => h.category === category).length;
   };
 
   const categoryCounts = {
@@ -97,6 +92,10 @@ export default function HistoryPage() {
     { value: "empresa", label: "Empresa" },
     { value: "configuracoes", label: "Configurações" },
   ];
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <motion.div 
@@ -126,7 +125,7 @@ export default function HistoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-5xl font-bold text-foreground leading-tight pb-1">
-                  Histórico do Projeto
+                  Histórico
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Tudo que foi calculado, cadastrado ou modificado
@@ -180,8 +179,8 @@ export default function HistoryPage() {
 
               {/* Filtro de Data */}
               <DateFilter
-                value={dateFilter ? { from: dateFilter.from, to: dateFilter.to } : undefined}
-                onChange={(value) => setDateFilter(value ? { from: value.from, to: value.to } : null)}
+                value={dateFilterValue}
+                onChange={handleDateFilterChange}
                 label="Filtrar por período"
                 placeholder="Filtrar por data"
                 iconOnly={true}
