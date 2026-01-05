@@ -71,7 +71,20 @@ export default function AdvancedCalculatorPremium({ userId: _userId }: AdvancedC
   
   const [formData, setFormData] = useState<CalculatorFormData>(defaultFormData);
   const [selectedTemplate, setSelectedTemplate] = useState<MarketplaceTemplateConfig | null>(null);
-  const [result, setResult] = useState<unknown>(null);
+  const [result, setResult] = useState<{
+    sellingPrice: number;
+    profit: number;
+    realMargin: number;
+    breakdown: {
+      cost: number;
+      shipping: number;
+      packaging: number;
+      marketing: number;
+      otherCosts: number;
+      marketplaceFee: number;
+      paymentFee: number;
+    };
+  } | null>(null);
   const [showTemplateSelection, setShowTemplateSelection] = useState(true);
 
   // Apply template configuration
