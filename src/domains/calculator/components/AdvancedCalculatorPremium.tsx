@@ -213,8 +213,6 @@ export default function AdvancedCalculatorPremium({ userId: _userId }: AdvancedC
     setResult({
       sellingPrice,
       profit,
-      totalCosts: totalOperationalCosts,
-      totalFees,
       realMargin,
       breakdown: {
         cost,

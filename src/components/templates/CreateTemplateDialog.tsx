@@ -57,6 +57,8 @@ export default function CreateTemplateDialog({
         price: null,
         is_premium: false,
         is_public: false,
+        status: 'published',
+        created_by: null,
       });
 
       if (template) {
