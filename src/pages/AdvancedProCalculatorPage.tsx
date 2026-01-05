@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdvancedCalculator from "@/components/calculators/AdvancedCalculator";
+import AdvancedCalculatorPremium from "@/domains/calculator/components/AdvancedCalculatorPremium";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/services/logger";
@@ -71,31 +71,38 @@ export default function AdvancedProCalculatorPage() {
       exit="exit"
     >
       
-      <main className="flex-grow py-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <LoadingState />
-            </div>
-          ) : !isPro ? (
-            <ProUpgradeBanner />
-          ) : (
-            <>
-              <motion.div variants={itemVariants} className="text-center mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                  Calculadora Avançada
-                </h1>
-                <p className="text-gray-600 max-w-3xl mx-auto">
-                  Ferramenta profissional para precificação em marketplaces com análise completa de custos operacionais, 
-                  comissões e estratégias de margem otimizada.
-                </p>
-              </motion.div>
-              
-              <motion.div variants={itemVariants}>
-                <AdvancedCalculator userId={user?.id} />
-              </motion.div>
-            </>
-          )}
+      <main className="flex-grow bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16">
+          <div className="max-w-5xl mx-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <LoadingState />
+              </div>
+            ) : !isPro ? (
+              <ProUpgradeBanner />
+            ) : (
+              <>
+                <motion.div 
+                  variants={itemVariants} 
+                  className="mb-8 sm:mb-12 md:mb-16"
+                >
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-2 sm:mb-3">
+                      Calculadora Avançada
+                    </h1>
+                    <p className="text-base sm:text-lg md:text-xl text-muted-foreground font-light">
+                      Precificação profissional para marketplaces com análise completa de custos, 
+                      comissões e estratégias de margem otimizada. Ferramenta principal para seu negócio.
+                    </p>
+                  </div>
+                </motion.div>
+                
+                <motion.div variants={itemVariants}>
+                  <AdvancedCalculatorPremium userId={user?.id} />
+                </motion.div>
+              </>
+            )}
+          </div>
         </div>
       </main>
       

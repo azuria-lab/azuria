@@ -1,14 +1,15 @@
 /**
  * Azuria IA Hub - Módulo Unificado de IA
  * 
- * Design Premium - Estilo Apple
+ * Design Premium - Estilo Apple (igual à página /equipe)
  * Foco em simplicidade, clareza e experiência fluida
  */
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AzuriaAINavigation } from '@/components/ai/AzuriaAINavigation';
+import { Helmet } from 'react-helmet-async';
+import { Brain, MessageSquare, Package2, Sparkles, Target } from 'lucide-react';
 import {
   AssistenteSection,
   CompetitividadeSection,
@@ -19,17 +20,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import LoadingState from '@/components/calculators/LoadingState';
 import { logger } from '@/services/logger';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
-};
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const contentVariants = {
   hidden: { opacity: 0, y: 8 },
@@ -72,12 +63,6 @@ export default function AzuriaAIHub() {
         const userIsPro = localStorage.getItem('isPro') === 'true';
         setIsPro(userIsPro);
         
-        // Check for section parameter in URL
-        const sectionParam = searchParams.get('section');
-        if (sectionParam && ['assistente', 'lote', 'precos', 'sugestao', 'competitividade'].includes(sectionParam)) {
-          setActiveSection(sectionParam);
-        }
-        
         setIsLoading(false);
       } catch (error) {
         logger.error('Erro ao verificar sessão:', error);
@@ -94,22 +79,13 @@ export default function AzuriaAIHub() {
     setSearchParams({ section });
   };
 
-  const renderSection = () => {
-    switch (activeSection) {
-      case 'assistente':
-        return <AssistenteSection />;
-      case 'lote':
-        return <LoteIASection isPro={isPro} />;
-      case 'precos':
-        return <IAPrecosSection />;
-      case 'sugestao':
-        return <SugestaoSection />;
-      case 'competitividade':
-        return <CompetitividadeSection />;
-      default:
-        return <AssistenteSection />;
+  // Sincronizar activeSection com searchParams
+  useEffect(() => {
+    const sectionParam = searchParams.get('section');
+    if (sectionParam && ['assistente', 'lote', 'precos', 'sugestao', 'competitividade'].includes(sectionParam)) {
+      setActiveSection(sectionParam);
     }
-  };
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -120,55 +96,94 @@ export default function AzuriaAIHub() {
   }
 
   return (
-    <motion.div
-      className="min-h-screen bg-background"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 py-12 md:py-16">
-        {/* Minimalist Header */}
-        <motion.div 
-          className="mb-12 md:mb-16"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-3">
-            Azuria AI
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-light max-w-2xl">
-            Inteligência artificial para precificação precisa e análise tributária avançada
-          </p>
-        </motion.div>
+    <>
+      <Helmet>
+        <title>Azuria AI - Azuria</title>
+        <meta name="description" content="Inteligência artificial para precificação precisa e análise tributária avançada" />
+      </Helmet>
+      
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          {/* Header igual à página /equipe */}
+          <div className="mb-8">
+            <h1 className="text-5xl font-bold tracking-tight leading-tight pb-1 -mt-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Azuria AI
+            </h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Inteligência artificial para precificação precisa e análise tributária avançada
+            </p>
+          </div>
 
-        {/* Refined Navigation */}
-        <motion.div 
-          className="mb-10 md:mb-12"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <AzuriaAINavigation 
-            activeSection={activeSection} 
-            onSectionChange={handleSectionChange}
-          />
-        </motion.div>
+          {/* Tabs igual à página /equipe */}
+          <Tabs value={activeSection} onValueChange={handleSectionChange} className="w-full">
+            <TabsList className="bg-transparent p-0 h-auto gap-3 mb-6">
+              <TabsTrigger 
+                value="assistente" 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Assistente
+              </TabsTrigger>
+              <TabsTrigger 
+                value="lote" 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm gap-2"
+              >
+                <Package2 className="h-4 w-4" />
+                Lote IA
+              </TabsTrigger>
+              <TabsTrigger 
+                value="precos" 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm gap-2"
+              >
+                <Brain className="h-4 w-4" />
+                IA Preços
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sugestao" 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Sugestão
+              </TabsTrigger>
+              <TabsTrigger 
+                value="competitividade" 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm gap-2"
+              >
+                <Target className="h-4 w-4" />
+                Competitividade
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Content with smooth transitions */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeSection}
-            variants={contentVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="w-full"
-          >
-            {renderSection()}
-          </motion.div>
-        </AnimatePresence>
+            {/* Content with smooth transitions */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="w-full"
+              >
+                <TabsContent value="assistente" className="mt-0">
+                  <AssistenteSection />
+                </TabsContent>
+                <TabsContent value="lote" className="mt-0">
+                  <LoteIASection isPro={isPro} />
+                </TabsContent>
+                <TabsContent value="precos" className="mt-0">
+                  <IAPrecosSection />
+                </TabsContent>
+                <TabsContent value="sugestao" className="mt-0">
+                  <SugestaoSection />
+                </TabsContent>
+                <TabsContent value="competitividade" className="mt-0">
+                  <CompetitividadeSection />
+                </TabsContent>
+              </motion.div>
+            </AnimatePresence>
+          </Tabs>
+        </div>
       </div>
-    </motion.div>
+    </>
   );
 }

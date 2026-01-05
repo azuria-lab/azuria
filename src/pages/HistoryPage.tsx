@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/domains/auth";
-import { useRealTimeHistory } from "@/hooks/useRealTimeHistory";
-import HistoryList from "@/components/history/HistoryList";
-import { formatCurrency } from "@/utils/calculator/formatCurrency";
+import { type HistoryCategory, useProjectHistory } from "@/hooks/useProjectHistory";
+import ProjectHistoryList from "@/components/history/ProjectHistoryList";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "@/components/ui/use-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { DateFilter } from "@/components/ui/date-filter";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,7 +35,16 @@ const itemVariants = {
 export default function HistoryPage() {
   const navigate = useNavigate();
   const { user: _user, isAuthenticated } = useAuthContext();
-  const { history, isLoading, error, deleteHistoryItem, clearAllHistory } = useRealTimeHistory();
+  const { 
+    history, 
+    allHistory,
+    isLoading, 
+    error, 
+    selectedCategory, 
+    setSelectedCategory,
+    dateFilter,
+    setDateFilter
+  } = useProjectHistory();
 
   // Verificar se o usuário está logado
   useEffect(() => {
@@ -43,29 +53,50 @@ export default function HistoryPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleDeleteItem = async (id: string) => {
-    try {
-      await deleteHistoryItem(id);
-      toast.success("Item removido do histórico");
-  } catch (_err) {
-      toast.error("Erro ao remover item do histórico");
-    }
-  };
-
-  const handleClearHistory = async () => {
-    if (window.confirm("Tem certeza que deseja limpar todo o histórico?")) {
-      try {
-        await clearAllHistory();
-        toast.success("Histórico limpo com sucesso");
-  } catch (_err) {
-        toast.error("Erro ao limpar histórico");
-      }
-    }
-  };
-
   if (!isAuthenticated) {
-    return null; // Ou componente de loading
+    return null;
   }
+
+  // Contar itens por categoria (incluindo cards falsos quando não há histórico real)
+  const getCategoryCount = (category: HistoryCategory | "todos"): number => {
+    if (allHistory.length > 0) {
+      // Se há histórico real, usar a contagem real
+      if (category === "todos") {
+        return allHistory.length;
+      }
+      return allHistory.filter(h => h.category === category).length;
+    } else {
+      // Se não há histórico real, mostrar contagem dos cards falsos
+      if (category === "todos") {
+        // Para "Todos", mostrar soma de todas as categorias (5 cada)
+        return 5 * 7; // 7 categorias × 5 cards cada
+      }
+      // Para categorias específicas, mostrar 15 cards falsos
+      return 15;
+    }
+  };
+
+  const categoryCounts = {
+    todos: getCategoryCount("todos"),
+    calculos: getCategoryCount("calculos"),
+    templates: getCategoryCount("templates"),
+    produtos: getCategoryCount("produtos"),
+    configuracoes: getCategoryCount("configuracoes"),
+    equipes: getCategoryCount("equipes"),
+    empresa: getCategoryCount("empresa"),
+    marketplace: getCategoryCount("marketplace"),
+  };
+
+  const categories: Array<{ value: HistoryCategory | "todos"; label: string }> = [
+    { value: "todos", label: "Todos" },
+    { value: "produtos", label: "Produtos" },
+    { value: "templates", label: "Templates" },
+    { value: "calculos", label: "Cálculos" },
+    { value: "marketplace", label: "Marketplace" },
+    { value: "equipes", label: "Equipes" },
+    { value: "empresa", label: "Empresa" },
+    { value: "configuracoes", label: "Configurações" },
+  ];
 
   return (
     <motion.div 
@@ -75,59 +106,99 @@ export default function HistoryPage() {
       animate="visible"
       exit="exit"
     >
-      
       <main className="flex-grow py-12 px-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-5xl">
           <motion.div 
             variants={itemVariants}
-            className="flex items-center justify-between mb-8"
+            className="mb-6"
           >
-            <div className="flex items-center">
+            <div className="mb-6">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate(-1)}
-                className="mr-2"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Voltar
               </Button>
-              
-              <h1 className="text-2xl md:text-3xl font-bold">Histórico de Cálculos</h1>
             </div>
             
-            {history.length > 0 && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleClearHistory}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                Limpar histórico
-              </Button>
-            )}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-5xl font-bold text-foreground leading-tight pb-1">
+                  Histórico do Projeto
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tudo que foi calculado, cadastrado ou modificado
+                </p>
+              </div>
+              
+              {allHistory.length > 0 && (
+                <Badge variant="secondary" className="text-sm">
+                  {allHistory.length} {allHistory.length === 1 ? "item" : "itens"}
+                </Badge>
+              )}
+            </div>
           </motion.div>
           
           {error && (
-            <motion.div variants={itemVariants}>
-              <Alert variant="destructive" className="mb-4">
+            <motion.div variants={itemVariants} className="mb-4">
+              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             </motion.div>
           )}
+
+          {/* Filtros */}
+          <motion.div variants={itemVariants} className="mb-6">
+            <div className="flex items-center gap-2.5 flex-nowrap">
+              {/* Filtros por Categoria */}
+              <Tabs 
+                value={selectedCategory} 
+                onValueChange={(value) => setSelectedCategory(value as HistoryCategory | "todos")}
+                className="flex-1 min-w-0"
+              >
+                <TabsList className="h-auto p-0 gap-2 bg-transparent items-center flex-nowrap">
+                  {categories.map((cat) => (
+                    <TabsTrigger 
+                      key={cat.value} 
+                      value={cat.value}
+                      className="relative h-9 px-2.5 text-xs font-medium rounded-md bg-transparent hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm whitespace-nowrap flex-shrink-0"
+                    >
+                      {cat.label}
+                      <Badge 
+                        variant="secondary" 
+                        className="ml-1.5 h-4.5 px-1.5 text-[11px]"
+                      >
+                        {categoryCounts[cat.value]}
+                      </Badge>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+
+              {/* Filtro de Data */}
+              <DateFilter
+                value={dateFilter ? { from: dateFilter.from, to: dateFilter.to } : undefined}
+                onChange={(value) => setDateFilter(value ? { from: value.from, to: value.to } : null)}
+                label="Filtrar por período"
+                placeholder="Filtrar por data"
+                iconOnly={true}
+                className="flex-shrink-0 h-9 w-9"
+              />
+            </div>
+          </motion.div>
           
           <motion.div variants={itemVariants}>
-            <HistoryList 
-              history={history} 
-              formatCurrency={formatCurrency}
-              onDeleteItem={handleDeleteItem}
+            <ProjectHistoryList 
+              history={history}
               loading={isLoading}
+              selectedCategory={selectedCategory}
             />
           </motion.div>
         </div>
       </main>
-      
     </motion.div>
   );
 }

@@ -157,43 +157,12 @@ export const navFirstVisitRule = {
   },
   
   decide: (ctx: DecisionContext): Decision => {
-    const payload = ctx.event.payload as { to: string };
-    const screenInfo = getScreenInfo(payload.to)!;
-    const state = getGlobalState();
-    
-    // Só para usuários iniciantes ou intermediários
-    if (state.identity.skillLevel === 'expert' || state.identity.skillLevel === 'advanced') {
-      return {
-        type: 'silence',
-        reason: 'Usuário experiente - não precisa de dica de primeira visita',
-        confidence: 0.9,
-        shouldLog: false,
-      };
-    }
-    
-    // Escolher uma dica aleatória
-    const tip = screenInfo.tips[Math.floor(Math.random() * screenInfo.tips.length)];
-    
+    // Notificações de primeira visita desativadas
     return {
-      type: 'emit',
-      reason: 'Primeira visita a tela com dicas disponíveis',
-      confidence: 0.7,
-      payload: {
-        output: {
-          type: 'tip',
-          severity: 'info',
-          title: `📍 ${screenInfo.name}`,
-          message: tip,
-          channel: 'USER',
-          topic: `primeira_visita_${payload.to}`,
-          context: {
-            screen: payload.to,
-            eventId: ctx.event.id,
-          },
-          ttl: 15000, // 15 segundos
-        },
-      },
-      shouldLog: true,
+      type: 'silence',
+      reason: 'Notificações de primeira visita desativadas',
+      confidence: 1.0,
+      shouldLog: false,
     };
   },
 };

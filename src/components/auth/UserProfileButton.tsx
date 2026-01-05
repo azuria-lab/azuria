@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, Crown, LogOut, Moon, Settings, Sun, User, Users } from "lucide-react";
+import { Building2, Crown, History, LogOut, Moon, Settings, Sun, User, Users } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { logger } from "@/services/logger";
 import { useTheme } from "@/components/ui/theme-provider";
@@ -179,6 +179,13 @@ const UserProfileButton: React.FC = () => {
             <DropdownMenuItem className="cursor-pointer">
               <Users className="mr-2 h-4 w-4" />
               Equipe
+            </DropdownMenuItem>
+          </Link>
+          
+          <Link to="/historico">
+            <DropdownMenuItem className="cursor-pointer">
+              <History className="mr-2 h-4 w-4" />
+              Histórico
             </DropdownMenuItem>
           </Link>
           

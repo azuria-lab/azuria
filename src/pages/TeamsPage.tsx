@@ -1402,8 +1402,9 @@ export default function TeamsPage() {
                 Convidar membro
               </Button>
                 <Button 
-                  size="default" 
-                  className="gap-2 shadow-lg"
+                  variant="default"
+                  size="sm"
+                  className="gap-2"
                   onClick={() => setIsCreateTaskOpen(true)}
                 >
                   <Plus className="h-4 w-4" />

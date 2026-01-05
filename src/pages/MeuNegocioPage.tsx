@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BarChart3, DollarSign, Edit, Filter, Image as ImageIcon, MapPin, MoreVertical, Package, Plus, RefreshCw, Search, ShoppingBag, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -122,6 +123,7 @@ const mockProducts: Product[] = [
 ];
 
 export default function MeuNegocioPage() {
+  const navigate = useNavigate();
   const [products, _setProducts] = useState<Product[]>(mockProducts);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -180,7 +182,7 @@ export default function MeuNegocioPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header Section */}
-        <div className="border-b bg-white px-6 py-4">
+        <div className="border-b border-border bg-card px-6 py-4">
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
             <span>...</span>
@@ -247,7 +249,7 @@ export default function MeuNegocioPage() {
           <div className="px-6 py-4">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b">
+                <tr className="border-b border-border">
                   <th className="w-12 px-4 py-3 text-left">
                     <Checkbox
                       checked={selectedProducts.size === products.length && products.length > 0}
@@ -284,7 +286,7 @@ export default function MeuNegocioPage() {
                 {products.map((product) => (
                   <tr
                     key={product.id}
-                    className="border-b hover:bg-muted/50 transition-colors"
+                    className="border-b border-border hover:bg-muted/50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <Checkbox
@@ -361,17 +363,20 @@ export default function MeuNegocioPage() {
       </div>
 
       {/* Right Sidebar - Actions Panel */}
-      <div className="w-64 border-l bg-white flex flex-col">
+      <div className="w-64 border-l border-border bg-card flex flex-col">
         {/* Primary Action Button */}
-        <div className="p-4 border-b">
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+        <div className="p-4 border-b border-border">
+          <Button 
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => navigate("/produtos/novo")}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Incluir cadastro
           </Button>
         </div>
 
         {/* Quick Action Icons */}
-        <div className="p-4 border-b flex items-center justify-around">
+        <div className="p-4 border-b border-border flex items-center justify-around">
           <button className="p-2 hover:bg-muted rounded">
             <ShoppingBag className="h-5 w-5 text-muted-foreground" />
           </button>
@@ -476,7 +481,7 @@ export default function MeuNegocioPage() {
       {/* Filter Panel Sheet */}
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
         <SheetContent side="right" className="w-[400px] sm:w-[500px] p-0">
-          <SheetHeader className="px-6 py-4 border-b">
+          <SheetHeader className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
               <SheetTitle className="text-lg font-semibold">Filtrar</SheetTitle>
               <Button
@@ -681,7 +686,7 @@ export default function MeuNegocioPage() {
           </div>
 
           {/* Filter Button */}
-          <div className="border-t px-6 py-4">
+          <div className="border-t border-border px-6 py-4">
             <Button 
               className="w-full bg-green-600 hover:bg-green-700 text-white"
               onClick={() => {

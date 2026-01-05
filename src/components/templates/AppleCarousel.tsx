@@ -48,10 +48,10 @@ export default function AppleCarousel({ children, className }: AppleCarouselProp
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-0 top-0 bottom-0 z-10 h-full w-12 bg-gradient-to-r from-white via-white/90 to-transparent hover:from-white/95 rounded-none"
+          className="absolute left-0 top-0 bottom-0 z-10 h-full w-12 bg-gradient-to-r from-white dark:from-gray-900 via-white/90 dark:via-gray-900/90 to-transparent hover:from-white/95 dark:hover:from-gray-900/95 rounded-none"
           onClick={() => scroll('left')}
         >
-          <ChevronLeft className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
+          <ChevronLeft className="h-5 w-5 text-gray-900 dark:text-gray-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(255,255,255,0.1)]" />
         </Button>
       )}
 
@@ -73,10 +73,10 @@ export default function AppleCarousel({ children, className }: AppleCarouselProp
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-0 top-0 bottom-0 z-10 h-full w-12 bg-gradient-to-l from-white via-white/90 to-transparent hover:from-white/95 rounded-none"
+          className="absolute right-0 top-0 bottom-0 z-10 h-full w-12 bg-gradient-to-l from-white dark:from-gray-900 via-white/90 dark:via-gray-900/90 to-transparent hover:from-white/95 dark:hover:from-gray-900/95 rounded-none"
           onClick={() => scroll('right')}
         >
-          <ChevronRight className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
+          <ChevronRight className="h-5 w-5 text-gray-900 dark:text-gray-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(255,255,255,0.1)]" />
         </Button>
       )}
     </div>

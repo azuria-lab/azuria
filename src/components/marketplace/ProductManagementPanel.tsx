@@ -51,6 +51,7 @@ import { cn } from '@/lib/utils';
 import { productManagementService } from '@/services/product-management.service';
 import { useToast } from '@/hooks/use-toast';
 import type { Product, ProductFilter } from '@/types/product-management';
+import { DateFilter } from '@/components/ui/date-filter';
 
 interface ProductManagementPanelProps {
   onProductSelect?: (product: Product) => void;
@@ -65,6 +66,7 @@ export default function ProductManagementPanel({
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [filters, setFilters] = useState<ProductFilter>({});
   const [showFilters, setShowFilters] = useState(false);
+  const [dateFilter, setDateFilter] = useState<{ from: Date; to: Date; type?: "changed_on" | "validity_date" } | null>(null);
   const [showBulkSync, setShowBulkSync] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
   const [showImport, setShowImport] = useState(false);
@@ -73,8 +75,31 @@ export default function ProductManagementPanel({
   const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await productManagementService.listProducts(filters);
-      setProducts(result.products);
+      const filtersWithDate = { ...filters };
+      
+      // Adicionar filtro de data se estiver definido
+      if (dateFilter) {
+        // O filtro de data será aplicado no frontend após buscar os produtos
+        // Em produção, isso deveria ser feito no backend
+      }
+      
+      const result = await productManagementService.listProducts(filtersWithDate);
+      
+      // Aplicar filtro de data no frontend se necessário
+      let filteredProducts = result.products;
+      if (dateFilter) {
+        filteredProducts = result.products.filter((p) => {
+          const productDate = dateFilter.type === "validity_date" 
+            ? new Date(p.createdAt) // Ajustar conforme campo de validade quando disponível
+            : new Date(p.updatedAt || p.createdAt);
+          const fromTime = dateFilter.from.getTime();
+          const toTime = dateFilter.to.getTime();
+          const productTime = productDate.getTime();
+          return productTime >= fromTime && productTime <= toTime;
+        });
+      }
+      
+      setProducts(filteredProducts);
     } catch (_error) {
       toast({
         title: "Erro ao carregar produtos",
@@ -84,7 +109,7 @@ export default function ProductManagementPanel({
     } finally {
       setLoading(false);
     }
-  }, [filters, toast]);
+  }, [filters, dateFilter, toast]);
 
   useEffect(() => {
     loadProducts();
@@ -365,6 +390,20 @@ export default function ProductManagementPanel({
                       <SelectItem value="amazon">Amazon</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="col-span-4">
+                  <Label>Período</Label>
+                  <DateFilter
+                    value={dateFilter ? { from: dateFilter.from, to: dateFilter.to, type: dateFilter.type } : undefined}
+                    onChange={(value) => {
+                      setDateFilter(value ? { from: value.from, to: value.to, type: value.type } : null);
+                    }}
+                    label="Filtrar por período"
+                    showTabs={true}
+                    placeholder="Alterado em / Data de validade"
+                    className="w-full"
+                  />
                 </div>
               </motion.div>
             )}

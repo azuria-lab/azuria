@@ -55,10 +55,17 @@ const ImportPage = lazy(() => import("./pages/ImportPage"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Templates = lazy(() => import("./pages/Templates"));
 const CollaborationPage = lazy(() => import("./pages/CollaborationPage"));
-const TeamsPage = lazy(() => import("./pages/TeamsPage"));
+const TeamsPage = lazy(() => 
+  import("./pages/TeamsPage").catch((error) => {
+    console.error("Erro ao carregar TeamsPage:", error);
+    // Retornar um componente de fallback em caso de erro
+    return { default: () => <div>Erro ao carregar a página de Equipes. Por favor, recarregue a página.</div> };
+  })
+);
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AutomationPage = lazy(() => import("./pages/AutomationPage"));
 const MeuNegocioPage = lazy(() => import("./pages/MeuNegocioPage"));
+const ProductFormPage = lazy(() => import("./pages/ProductFormPage"));
 const RuleDetailsPage = lazy(() => import("./pages/RuleDetailsPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const SupabaseDebug = lazy(() => import("./pages/SupabaseDebug"));
@@ -529,14 +536,33 @@ const App = () => {
                         }
                       />
                       
-                      {/* Meu Negócio Routes - Protected */}
+                      {/* Produtos Routes - Protected */}
                       <Route
-                        path="/meu-negocio"
+                        path="/produtos"
                         element={
                           <ProtectedRoute>
                             <DashboardLayout>
                               <MeuNegocioPage />
                             </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/produtos/novo"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <ProductFormPage />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      {/* Redirect antiga rota para nova */}
+                      <Route
+                        path="/meu-negocio"
+                        element={
+                          <ProtectedRoute>
+                            <Navigate to="/produtos" replace />
                           </ProtectedRoute>
                         }
                       />

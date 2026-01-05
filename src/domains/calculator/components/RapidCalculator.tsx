@@ -12,7 +12,6 @@ import { AdvancedLoadingSpinner } from "@/components/ui/advanced-loading-spinner
 import CalculatorContent from "./CalculatorContent";
 import HistoryDisplayOptimized from "@/components/calculators/HistoryDisplayOptimized";
 import ResultAnalysis from "@/components/calculators/ResultAnalysis";
-import TemplateSelector from "@/components/templates/TemplateSelector";
 import MaquininhaModal from "@/components/calculators/modals/MaquininhaModal";
 import ImpostosModal from "@/components/calculators/modals/ImpostosModal";
 import ComparadorMaquininhasModal from "@/components/calculators/modals/ComparadorMaquininhasModal";
@@ -20,8 +19,6 @@ import SimuladorCenariosModal from "@/components/calculators/modals/SimuladorCen
 import ExportImportPresetsModal from "@/components/calculators/modals/ExportImportPresetsModal";
 import HistoricoTaxasModal from "@/components/calculators/modals/HistoricoTaxasModal";
 import { HistoryService } from "../services/HistoryService";
-import { useTemplateApplication } from "@/hooks/useTemplateApplication";
-import type { CalculationTemplate } from "@/types/templates";
 import type { CalculationHistory } from "../types/calculator";
 import { useAuthContext } from "@/domains/auth";
 import { useDailyCalculationLimit } from "@/hooks/useDailyCalculationLimit";
@@ -48,7 +45,6 @@ const CalculatorWithProvider = memo<RapidCalculatorModernProps>(({ isPro = false
 const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, userId }) => {
   // Legacy hook usage to maintain backward-compatibility with existing tests/mocks
   const legacy = useRapidCalculator(isPro, userId);
-  const { applyTemplate } = useTemplateApplication();
   // Keep service hook available for future use but don't destructure to avoid lint errors
   // const services = useCalculatorWithServices(isPro, userId);
   const { user, isAuthenticated } = useAuthContext();
@@ -203,20 +199,6 @@ const RapidCalculatorInner = memo<RapidCalculatorModernProps>(({ isPro = false, 
         style={{ borderLeftColor: '#148D8D' }}
       >
         <CardContent className="p-4 sm:p-6 md:p-8">
-          {/* Template Selector */}
-          <Suspense fallback={<AdvancedLoadingSpinner size="md" />}>
-            <div className="mb-6" data-onboarding="template-selector">
-              <TemplateSelector 
-                onSelectTemplate={(template: CalculationTemplate) => {
-                  // Apply template using legacy state updater for backward compatibility
-                  applyTemplate(template, (newState) => {
-                    legacy.setState(newState);
-                  });
-                }} 
-              />
-            </div>
-          </Suspense>
-          
           {/* Calculator Content */}
           <Suspense fallback={<AdvancedLoadingSpinner size="lg" />}>
             <CalculatorContent

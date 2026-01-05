@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Archive, BellOff, Briefcase, Calendar, ChevronDown, ChevronUp, Crown, Edit2, Forward, Info, Mail, MapPin, MessageCircle, MessageSquare, MoreVertical, Paperclip, Phone, Pin, Reply, Search, Send, Smile, Trash2, UserPlus, Users, Video, X } from "lucide-react";
+import { Archive, BellOff, Briefcase, Calendar, ChevronDown, ChevronUp, Crown, Edit2, Forward, Info, Loader2, Mail, MapPin, MessageCircle, MessageSquare, MoreVertical, Paperclip, Phone, Pin, Reply, Search, Send, Smile, Trash2, UserPlus, Users, Video, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +34,8 @@ import MessageBubble from "./MessageBubble";
 import { TeamMember } from "@/types/team";
 import { MessageDeliveryStatus } from "./MessageStatus";
 import UserStatus, { type UserStatus as UserStatusType } from "./UserStatus";
+import * as chatService from "@/services/ai/chatService";
+import { useConsciousnessContext } from "@/azuria_ai/consciousness/ConsciousnessProvider";
 
 export interface Message {
   id: string;
@@ -98,6 +100,8 @@ export default function ChatWindow({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, _setIsTyping] = useState(false);
+  const [isAzuriaProcessing, setIsAzuriaProcessing] = useState(false);
+  const consciousness = useConsciousnessContext();
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isArchived, setIsArchived] = useState(false);
@@ -177,6 +181,91 @@ export default function ChatWindow({
     }, 100);
   };
 
+  // Detectar menção @Azuria
+  const detectAzuriaMention = (text: string): boolean => {
+    const azuriaMentionPattern = /@Azuria|@azuria/i;
+    return azuriaMentionPattern.test(text);
+  };
+
+  // Processar menção @Azuria
+  const handleAzuriaMention = async (messageContent: string) => {
+    if (!chatId) {return;}
+
+    setIsAzuriaProcessing(true);
+
+    try {
+      // Remover @Azuria do texto para enviar à IA
+      const cleanMessage = messageContent.replace(/@Azuria\s*/gi, "").trim();
+      
+      // Criar contexto com informações do projeto
+      const projectContext = {
+        chatId,
+        chatName,
+        isGroup,
+        membersCount: members.length,
+        tasksCount: tasks.length,
+        // Adicionar contexto do consciousness se disponível
+        ...(consciousness ? {
+          // O consciousness tem visão de todo o projeto
+          hasConsciousness: true,
+        } : {}),
+      };
+
+      // Criar uma sessão temporária para esta conversa
+      const sessionId = `chat-${chatId}-${Date.now()}`;
+      
+      // Preparar contexto rico para a Azuria AI
+      // A Azuria tem visão de todo o projeto através do consciousness
+      let contextMessage = cleanMessage;
+      
+      // Adicionar contexto do projeto se disponível
+      if (consciousness) {
+        const projectContext = `
+Contexto do Projeto:
+- Conversa: ${chatName} (${isGroup ? 'Grupo' : 'Direta'})
+- Membros na conversa: ${members.length}
+- Tarefas da equipe: ${tasks.length}
+- Você tem acesso completo ao sistema através do consciousness e pode ver todo o projeto.
+`;
+        contextMessage = `${projectContext}\n\nPergunta do usuário: ${cleanMessage}`;
+      }
+
+      // Chamar a Azuria AI
+      const response = await chatService.processMessage(sessionId, contextMessage);
+
+      // Enviar resposta da Azuria como mensagem no chat
+      const azuriaMessage: Message = {
+        id: `azuria-${Date.now()}`,
+        content: response.content,
+        senderId: "azuria-ai",
+        senderName: "Azuria AI",
+        senderAvatar: "/azuria-ai-avatar.png", // Você pode adicionar um avatar da Azuria
+        timestamp: new Date(),
+        isOwn: false,
+        status: "delivered",
+      };
+
+      setMessages((prev) => [...prev, azuriaMessage]);
+
+      // Enviar mensagem da Azuria para o backend (se necessário)
+      if (onSendMessage) {
+        // Nota: Você pode querer criar uma função separada para mensagens da Azuria
+        // ou modificar o backend para aceitar mensagens de sistema
+        await onSendMessage(`[Azuria AI] ${response.content}`);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error processing Azuria mention:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível processar a menção à Azuria AI.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAzuriaProcessing(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!inputMessage.trim() || !chatId) {return;}
 
@@ -184,9 +273,13 @@ export default function ChatWindow({
       ? `↪ ${replyToMessage.senderName}: ${replyToMessage.content}\n\n${inputMessage.trim()}`
       : inputMessage.trim();
     
+    const originalMessage = inputMessage.trim();
     setInputMessage("");
     setReplyToMessage(null);
     inputRef.current?.focus();
+
+    // Verificar se há menção @Azuria
+    const hasAzuriaMention = detectAzuriaMention(originalMessage);
 
     // Mensagem otimista (mostra imediatamente)
     const optimisticMessage: Message = {
@@ -229,6 +322,11 @@ export default function ChatWindow({
           )
         );
       }, 1000);
+    }
+
+    // Processar menção @Azuria após enviar a mensagem
+    if (hasAzuriaMention) {
+      await handleAzuriaMention(originalMessage);
     }
   };
 
@@ -895,6 +993,12 @@ export default function ChatWindow({
               );
             })}
           </AnimatePresence>
+          {isAzuriaProcessing && (
+            <div className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Azuria AI está pensando...</span>
+            </div>
+          )}
           {isTyping && (
             <motion.div
               initial={{ opacity: 0 }}

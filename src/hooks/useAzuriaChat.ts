@@ -83,15 +83,15 @@ export function useAzuriaChat() {
     const welcomeMessage: ChatMessage = {
       id: uuidv4(),
       role: MessageRole.ASSISTANT,
-      content: `Olá! 👋 Eu sou a **Azúria**, sua assistente inteligente de precificação e análise de licitações!
+      content: `Olá! 👋 Sou a **Azúria**, sua assistente de precificação e licitações.
 
-Posso te ajudar com:
-📊 **Precificação inteligente** - sugestões baseadas em custos e mercado
-💰 **Análise tributária** - simulações por regime (Simples, Presumido, Real)
-🎯 **Monitoramento de concorrência** - alertas de preços
-📈 **Margens de lucro** - análise de viabilidade
+Posso ajudar com:
+📊 Precificação inteligente
+💰 Análise tributária
+🎯 Monitoramento de concorrência
+📈 Margens de lucro
 
-**Como posso te ajudar hoje?**`,
+**Como posso ajudar hoje?**`,
       type: MessageType.TEXT,
       context: AIContext.GENERAL,
       timestamp: new Date(),

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,9 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TemplateSelector from "@/components/templates/TemplateSelector";
+import type { CalculationTemplate } from "@/types/templates";
+import { getBooleanField, getNumberField } from "@/utils/templateFields";
 
 // Feature Imports - 10 Premium Features
 import MultiMarketplaceComparison from "@/components/calculators/MultiMarketplaceComparison";
@@ -249,6 +252,7 @@ const slideVariants = {
 };
 
 export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculatorProps) {
+  const location = useLocation();
   const {
     calculateAdvancedPrice,
     marketplaces
@@ -316,6 +320,35 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Apply CalculationTemplate to advanced calculator
+  const handleApplyTemplate = (template: CalculationTemplate) => {
+    try {
+      const defaultValues = template.default_values as Record<string, unknown>;
+      
+      // Apply template values to formData
+      setFormData(prev => ({
+        ...prev,
+        cost: String(getNumberField(defaultValues, 'cost', 0)),
+        targetMargin: String(getNumberField(defaultValues, 'margin', 30)),
+        shipping: String(getNumberField(defaultValues, 'shipping', 0)),
+        otherCosts: String(getNumberField(defaultValues, 'otherCosts', 0)),
+        paymentFee: String(getNumberField(defaultValues, 'cardFee', 2.5)),
+        includePaymentFee: getBooleanField(defaultValues, 'includePaymentFee', true),
+      }));
+
+      toast({
+        title: "Template aplicado!",
+        description: `Configurações do template "${template.name}" foram aplicadas com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao aplicar template",
+        description: "Houve um problema ao aplicar as configurações do template.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Apply marketplace template
@@ -415,6 +448,38 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
       });
     }
   };
+
+  // Apply template from location.state (when coming from templates page)
+  useEffect(() => {
+    const state = location.state as { template?: { default_values: Record<string, unknown>; name: string }; templateName?: string } | null;
+    
+    if (state?.template) {
+      const templateData = state.template;
+      const defaultValues = templateData.default_values;
+      
+      // Apply template values to formData
+      setFormData(prev => ({
+        ...prev,
+        marketplaceId: String(defaultValues.marketplaceId || prev.marketplaceId),
+        shipping: String(getNumberField(defaultValues, 'shipping', 0)),
+        packaging: String(getNumberField(defaultValues, 'packaging', 0)),
+        marketing: String(getNumberField(defaultValues, 'marketing', 0)),
+        otherCosts: String(getNumberField(defaultValues, 'otherCosts', 0)),
+        paymentMethod: String(defaultValues.paymentMethod || prev.paymentMethod),
+        paymentFee: String(getNumberField(defaultValues, 'paymentFee', 2.5)),
+        includePaymentFee: getBooleanField(defaultValues, 'includePaymentFee', true),
+        targetMargin: String(getNumberField(defaultValues, 'targetMargin', 30)),
+      }));
+
+      toast({
+        title: "Template aplicado!",
+        description: `Template "${templateData.name || state.templateName || 'Selecionado'}" foi aplicado com sucesso.`,
+      });
+
+      // Clear state to prevent re-applying on re-renders
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Calculate real-time results with validation
   useEffect(() => {
@@ -720,6 +785,13 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
               </CardHeader>
 
               <Separator />
+
+              {/* Template Selector */}
+              <div className="px-6 pt-4">
+                <TemplateSelector 
+                  onSelectTemplate={handleApplyTemplate}
+                />
+              </div>
 
               <CardContent className="pt-6">
                 <AnimatePresence mode="wait" custom={direction}>

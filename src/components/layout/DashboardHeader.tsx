@@ -32,7 +32,6 @@ import {
   Gauge,
   Gavel,
   HelpCircle,
-  History,
   Home,
   Package2,
   Puzzle,
@@ -109,7 +108,7 @@ export default function DashboardHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem
-                  onClick={() => navigate("/meu-negocio")}
+                  onClick={() => navigate("/produtos")}
                   className="cursor-pointer"
                 >
                   <Package2 className="mr-2 h-4 w-4" />
@@ -191,16 +190,6 @@ export default function DashboardHeader() {
           >
             <Brain className="mr-2 h-4 w-4" />
             Azuria AI
-          </Button>
-
-          {/* Histórico - Botão único */}
-          <Button
-            variant="ghost"
-            className="h-9 px-3 text-sm font-medium hover:bg-accent"
-            onClick={() => navigate("/historico")}
-          >
-            <History className="mr-2 h-4 w-4" />
-            Histórico
           </Button>
         </div>
 
