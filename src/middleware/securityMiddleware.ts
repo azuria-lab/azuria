@@ -77,16 +77,25 @@ export class SecurityMiddleware {
    * Detect XSS attempts
    */
   detectXSS(input: string): boolean {
+    if (typeof input !== 'string') {
+      return false;
+    }
+
+    // Use proper character classes for Unicode-aware matching
+    // [\s\S] matches any character including newlines (safer than .* with /s flag)
     const xssPatterns = [
-      /<script[^>]*>[\s\S]*?<\/script>/gi,  // Fixed: use [\s\S] instead of .*? for multiline
-      /<iframe[^>]*>[\s\S]*?<\/iframe>/gi,  // Fixed: use [\s\S] instead of .*? for multiline
-      /javascript:/gi,
-      /data:/gi,
-      /vbscript:/gi,
-      /on\w+\s*=/gi,
+      /<script[\s\S]*?>[\s\S]*?<\/script>/gi,
+      /<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi,
+      /javascript\s*:/gi,
+      /data\s*:\s*text\/html/gi,  // Block data URLs with HTML
+      /vbscript\s*:/gi,
+      /on\w+\s*=\s*["'][\s\S]*?["']/gi,  // Event handlers with quotes
+      /on\w+\s*=\s*[^\s>]*/gi,  // Event handlers without quotes
       /<img[^>]*onerror[^>]*>/gi,
       /<svg[^>]*onload[^>]*>/gi,
-      /<body[^>]*onload[^>]*>/gi
+      /<body[^>]*onload[^>]*>/gi,
+      /<style[^>]*>[\s\S]*?<\/style>/gi,  // Style tags
+      /<link[^>]*href\s*=\s*["']javascript:/gi  // Link tags with javascript
     ];
 
     for (const pattern of xssPatterns) {
@@ -168,44 +177,52 @@ export class SecurityMiddleware {
    * Sanitize input data and validate URL schemes
    */
   sanitizeInput(input: string): string {
-    // Use proper Unicode-aware sanitization
-    // Remove HTML tags and event handlers - handle multi-byte characters correctly
-    let sanitized = input
-      .replace(/<[^>]+>/g, '') // Remove all HTML tags (handles multi-byte correctly)
-      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '') // Remove event handlers with quoted values
-      .replace(/on\w+\s*=\s*[^\s>]*/gi, '') // Remove remaining event handlers
-      .replace(/javascript:/gi, '')
-      .trim();
+    if (typeof input !== 'string') {
+      return '';
+    }
 
-    // Validate and sanitize dangerous URL schemes with proper Unicode handling
-    const dangerousSchemes = [
-      /javascript\s*:/gi,
-      /data\s*:/gi,
-      /vbscript\s*:/gi,
-      /file\s*:/gi,
-      /about\s*:/gi,
-      /chrome\s*:/gi,
-      /chrome-extension\s*:/gi
+    // Normalize Unicode characters first (handles multi-byte characters properly)
+    let sanitized = input.normalize('NFC');
+
+    // Remove HTML tags - use [\s\S] to match all characters including newlines and Unicode
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+
+    // Remove event handlers with proper Unicode-aware matching
+    sanitized = sanitized
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+      .replace(/on\w+\s*=\s*[^\s>]*/gi, '');
+
+    // Validate and sanitize dangerous URL schemes
+    // Check for complete URL scheme patterns (must include :// or : after scheme)
+    const dangerousUrlPatterns = [
+      /\bjavascript\s*:\s*/gi,
+      /\bdata\s*:\s*/gi,
+      /\bvbscript\s*:\s*/gi,
+      /\bfile\s*:\s*\/\/\/?/gi,
+      /\babout\s*:\s*/gi,
+      /\bchrome\s*:\s*/gi,
+      /\bchrome-extension\s*:\s*/gi
     ];
 
-    for (const scheme of dangerousSchemes) {
-      if (scheme.test(sanitized)) {
-        // Remove the dangerous protocol with Unicode-safe replacement
-        sanitized = sanitized.replace(scheme, '');
+    for (const pattern of dangerousUrlPatterns) {
+      if (pattern.test(sanitized)) {
+        sanitized = sanitized.replace(pattern, '');
         this.dispatchSecurityEvent('dangerous_url_scheme_detected', {
-          scheme: scheme.source,
+          pattern: pattern.source,
           input: input.substring(0, 100)
         }, 'high');
       }
     }
 
     // Additional Unicode-aware sanitization
-    // Remove zero-width spaces and other invisible characters that could be used for evasion
+    // Remove zero-width and invisible characters that could be used for evasion
     sanitized = sanitized
-      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width spaces
-      .replace(/[\u202A-\u202E]/g, ''); // Remove directional formatting characters
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Zero-width spaces
+      .replace(/[\u202A-\u202E]/g, '') // Directional formatting
+      .replace(/[\u2060-\u206F]/g, '') // Word joiners and invisible separators
+      .replace(/[\uFE00-\uFE0F]/g, ''); // Variation selectors
 
-    return sanitized;
+    return sanitized.trim();
   }
 
   /**

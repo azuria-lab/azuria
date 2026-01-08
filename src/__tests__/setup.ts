@@ -112,16 +112,14 @@ console.error = (...args: unknown[]) => {
   if (typeof msg === 'string' && suppressedMessages.some((m) => msg.includes(m))) {
     return
   }
-  // Sanitize potentially sensitive information in test logs
-  const sanitizedArgs = args.map(arg => {
-    if (typeof arg === 'string') {
-      // Remove potential API keys, tokens, or passwords from logs
-      return arg
-        .replace(/(api[_-]?key|token|password|secret|auth)=[^\s&]+/gi, '$1=***REDACTED***')
-        .replace(/bearer\s+[\w\-._~+/]+/gi, 'bearer ***REDACTED***')
-        .replace(/eyJ[\w\-._~+/]+/g, '***JWT_REDACTED***'); // JWT tokens
-    }
-    return arg;
-  });
-  originalError(...sanitizedArgs)
+  // In test environment, completely suppress error logs that might contain sensitive data
+  // This prevents any sensitive information from being logged during tests
+  // Only log if it's not suppressed and doesn't contain potential sensitive patterns
+  const firstArg = typeof args[0] === 'string' ? args[0] : '';
+  const hasSensitiveData = /(api[_-]?key|token|password|secret|auth|bearer|eyJ[\w\-._~+/]+)/i.test(firstArg);
+  
+  if (!hasSensitiveData) {
+    originalError(...args);
+  }
+  // Silently suppress logs that might contain sensitive data in tests
 }
