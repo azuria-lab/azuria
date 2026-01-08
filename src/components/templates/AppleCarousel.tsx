@@ -42,7 +42,7 @@ export default function AppleCarousel({ children, className }: AppleCarouselProp
   }, []);
 
   return (
-    <div className={cn("relative group", className)}>
+    <div className={cn("relative", className)}>
       {/* Left Arrow */}
       {canScrollLeft && (
         <Button

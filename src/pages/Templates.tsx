@@ -130,14 +130,14 @@ const Templates = () => {
           </p>
         </div>
 
-        {/* Seção 1 - Calculadora Rápida */}
+        {/* Seção 1 - Templates por Setor */}
         <section className="mb-20">
           <div className="mb-6">
             <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white mb-1.5">
-              Calculadora Rápida
+              Templates por Setor
             </h2>
             <p className="text-base text-gray-600 dark:text-gray-300">
-              Modelos prontos para decisões rápidas.
+              Templates pré-configurados para diferentes setores e tipos de negócio.
             </p>
           </div>
 
@@ -194,10 +194,10 @@ const Templates = () => {
             </div>
           </div>
 
-          {/* Templates Marketplace */}
+          {/* Marketplaces */}
           <div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-5">
-              Templates Marketplace
+              Marketplaces
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.values(MARKETPLACE_TEMPLATES_CONFIG).map((template) => (

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { LucideIcon } from 'lucide-react';
+import { ArrowRight, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface RapidTemplateCardProps {
@@ -41,11 +41,10 @@ export default function RapidTemplateCard({
             </div>
           </div>
           
-          {/* Subtle CTA */}
-          <div className="flex items-center justify-end pt-2">
-            <span className="text-xs text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
-              Selecionar →
-            </span>
+          {/* CTA */}
+          <div className="flex items-center justify-end pt-2 text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+            <span className="font-medium">Selecionar</span>
+            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
 

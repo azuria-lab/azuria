@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAdvancedCalculator } from "../hooks/useAdvancedCalculator";
 import { useToast } from "@/hooks/use-toast";
 import { MARKETPLACE_TEMPLATES_CONFIG, type MarketplaceTemplateConfig } from "@/data/marketplaceTemplatesConfig";
+import { CalculationTemplate } from "@/types/templates";
 import TemplateSelectorSection from "./sections/TemplateSelectorSection";
 import TemplateSelectionSection from "./sections/TemplateSelectionSection";
 import ProductInputSection from "./sections/ProductInputSection";
@@ -239,9 +240,51 @@ export default function AdvancedCalculatorPremium({ userId: _userId }: AdvancedC
   }, []);
 
   // Handle template selection from initial screen
-  const handleTemplateSelection = useCallback((template: MarketplaceTemplateConfig) => {
-    applyTemplate(template);
-  }, [applyTemplate]);
+  const handleTemplateSelection = useCallback((template: MarketplaceTemplateConfig | { type: 'rapid'; template: CalculationTemplate }) => {
+    if ('type' in template && template.type === 'rapid') {
+      // Aplicar template rápido
+      const rapidTemplate = template.template;
+      const defaults = rapidTemplate.default_values as Record<string, unknown> | undefined;
+      
+      const getString = (key: string, fallback = '0'): string => {
+        const value = defaults?.[key];
+        return typeof value === 'string' ? value : (typeof value === 'number' ? value.toString() : fallback);
+      };
+      const getNumber = (key: string, fallback: number): number => {
+        const value = defaults?.[key];
+        return typeof value === 'number' ? value : fallback;
+      };
+      const getBoolean = (key: string, fallback: boolean): boolean => {
+        const value = defaults?.[key];
+        return typeof value === 'boolean' ? value : fallback;
+      };
+
+      setFormData(prev => ({
+        ...prev,
+        templateId: rapidTemplate.id || null,
+        cost: getString('cost'),
+        targetMargin: getString('margin', getString('targetMargin', '30')),
+        marketplaceFee: getString('cardFee', getString('marketplaceFee', '0')),
+        paymentFee: getString('paymentFee', '0'),
+        includePaymentFee: getBoolean('includePaymentFee', false),
+        shipping: getString('shipping'),
+        packaging: getString('packaging', '0'),
+        marketing: getString('marketing', '0'),
+        otherCosts: getString('otherCosts', '0'),
+      }));
+
+      setSelectedTemplate(null); // Templates rápidos não têm MarketplaceTemplateConfig
+      setShowTemplateSelection(false);
+      
+      toast({
+        title: "Template aplicado!",
+        description: `Template "${rapidTemplate.name}" foi aplicado com sucesso.`,
+      });
+    } else {
+      // Aplicar template marketplace
+      applyTemplate(template);
+    }
+  }, [applyTemplate, toast]);
 
   // Handle back to template selection
   const handleBackToSelection = useCallback(() => {
