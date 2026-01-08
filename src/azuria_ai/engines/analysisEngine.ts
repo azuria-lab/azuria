@@ -12,6 +12,7 @@
  * @module azuria_ai/engines/analysisEngine
  */
 
+import { generateSecureInsightId } from '@/utils/secureRandom';
 import { eventBus } from '../core/eventBus';
 import { structuredLogger } from '../../services/structuredLogger';
 
@@ -249,7 +250,7 @@ function linearRegression(values: number[]): { slope: number; intercept: number 
  * Gera ID único para insight
  */
 function generateInsightId(): string {
-  return `insight-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  return generateSecureInsightId();
 }
 
 // ============================================================================

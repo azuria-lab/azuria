@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuditLog } from './useAuditLog';
 import { useRateLimit } from './useRateLimit';
+import { generateSecureAlertId } from '@/utils/secureRandom';
 
 interface SecurityAlert {
   id: string;
@@ -22,7 +23,7 @@ export const useSecurityMonitor = () => {
   const addAlert = useCallback((alertData: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>) => {
     const alert: SecurityAlert = {
       ...alertData,
-      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      id: generateSecureAlertId(),
       timestamp: new Date(),
       resolved: false
     };

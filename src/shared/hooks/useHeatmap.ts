@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { logger } from '@/services/logger';
 import { useAuthContext } from '@/domains/auth';
+import { generateSecureId } from '@/utils/secureRandom';
 
 interface HeatmapPoint {
   x: number;
@@ -33,7 +34,7 @@ export const useHeatmap = () => {
   useEffect(() => {
     sessionId.current = sessionStorage.getItem('heatmap_session') || 
       (() => {
-        const id = `heatmap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const id = `heatmap_${Date.now()}_${generateSecureId(9)}`;
         sessionStorage.setItem('heatmap_session', id);
         return id;
       })();

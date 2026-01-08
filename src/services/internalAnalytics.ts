@@ -1,11 +1,12 @@
 import { AnalyticsEvent } from '@/types/analytics';
+import { generateSecureSessionId } from '@/utils/secureRandom';
 
 export class InternalAnalyticsService {
   private static getSessionId(): string {
     const existing = sessionStorage.getItem('analytics_session');
     if (existing) {return existing;}
     
-    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = generateSecureSessionId();
     sessionStorage.setItem('analytics_session', id);
     return id;
   }
@@ -35,8 +36,15 @@ export class InternalAnalyticsService {
     this.checkSuspiciousActivity(analyticsEvent);
     
   // Route debug output via logger to respect env level
+  // Sanitize event data to prevent logging sensitive information
   const { logger } = await import('@/services/logger');
-  logger.debug?.('📈 Internal Event tracked:', analyticsEvent);
+  const sanitizedEvent = {
+    ...analyticsEvent,
+    // Remove potentially sensitive data from logs
+    metadata: analyticsEvent.metadata ? this.sanitizeMetadata(analyticsEvent.metadata) : undefined,
+    userId: analyticsEvent.userId ? analyticsEvent.userId.substring(0, 8) + '***' : undefined
+  };
+  logger.debug?.('📈 Internal Event tracked:', sanitizedEvent);
   }
 
   private static checkSecurityPatterns(events: AnalyticsEvent[]) {
@@ -76,6 +84,25 @@ export class InternalAnalyticsService {
   /**
    * Check for suspicious individual event activity
    */
+  /**
+   * Sanitize metadata to prevent logging sensitive information
+   */
+  private static sanitizeMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+    const sensitiveKeys = ['password', 'token', 'secret', 'key', 'auth', 'credential', 'session'];
+    const sanitized = { ...metadata };
+    
+    for (const key of Object.keys(sanitized)) {
+      const lowerKey = key.toLowerCase();
+      if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
+        sanitized[key] = '***REDACTED***';
+      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+        sanitized[key] = this.sanitizeMetadata(sanitized[key] as Record<string, unknown>);
+      }
+    }
+    
+    return sanitized;
+  }
+
   private static checkSuspiciousActivity(event: AnalyticsEvent) {
     // Check for suspicious event types
     const suspiciousTypes = ['error', 'failed', 'unauthorized', 'blocked'];

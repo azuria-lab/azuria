@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useAuthContext } from '@/domains/auth';
+import { generateSecureId } from '@/utils/secureRandom';
 
 interface AuditLogEntry {
   id: string;
@@ -32,7 +33,7 @@ export const useAuditLog = () => {
       success: boolean = true
     ) => {
       const logEntry: AuditLogEntry = {
-        id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: `audit_${Date.now()}_${generateSecureId(9)}`,
         timestamp: new Date(),
         userId: user?.id || 'anonymous',
         action,

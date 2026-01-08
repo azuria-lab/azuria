@@ -16,6 +16,7 @@
  * - Rate limiting por modelo
  */
 
+import { generateSecureAIRequestId } from '@/utils/secureRandom';
 import { generateResponse, isGeminiAvailable } from './ai';
 import { updateSystemHealth } from './GlobalState';
 
@@ -589,7 +590,7 @@ export async function executeAI(request: AIRequest): Promise<AIResponse> {
  * Gera ID de requisição
  */
 export function generateRequestId(): string {
-  return `ai_req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return generateSecureAIRequestId();
 }
 
 /**

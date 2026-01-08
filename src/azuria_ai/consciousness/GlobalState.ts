@@ -12,6 +12,7 @@
  * - UI lê através de hooks específicos
  */
 
+import { generateSecureSessionId } from '@/utils/secureRandom';
 import type {
   CognitiveRole,
   EventPriority,
@@ -199,7 +200,7 @@ export interface GlobalStateShape {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function generateSessionId(): string {
-  return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return generateSecureSessionId();
 }
 
 function createInitialState(): GlobalStateShape {

@@ -12,6 +12,7 @@
  * - Decidir entre emitir ou silenciar
  */
 
+import { generateSecureMessageId } from '@/utils/secureRandom';
 import type {
   MessageAction,
   MessageSeverity,
@@ -169,7 +170,7 @@ const state: OutputGateState = {
  * Gera ID único para mensagem
  */
 function generateMessageId(): string {
-  return `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return generateSecureMessageId();
 }
 
 /**

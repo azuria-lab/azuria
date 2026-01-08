@@ -41,7 +41,7 @@ export default function Login() {
   const { toast } = useToast();
   const { login, register, loginWithGoogle, isAuthenticated } = useAuthContext();
 
-  // Carregar email e senha salvos ao montar o componente
+  // Carregar apenas email salvo ao montar o componente (NUNCA armazenar senha)
   useEffect(() => {
     const savedData = localStorage.getItem(REMEMBER_ME_KEY);
     if (savedData) {
@@ -50,9 +50,7 @@ export default function Login() {
         const credentials = JSON.parse(savedData);
         if (credentials.email) {
           setEmail(credentials.email);
-          if (credentials.password) {
-            setPassword(credentials.password);
-          }
+          // NUNCA carregar senha por segurança
           setRememberMe(true);
         }
       } catch {
@@ -111,11 +109,11 @@ export default function Login() {
           email: session.user.email 
         });
         
-        // Salvar ou remover email e senha baseado no checkbox "Lembrar conta"
+        // Salvar apenas email baseado no checkbox "Lembrar conta" (NUNCA armazenar senha)
         if (rememberMe) {
+          // Armazenar apenas o email por segurança - NUNCA a senha
           const credentials = {
-            email: email,
-            password: password
+            email: email
           };
           localStorage.setItem(REMEMBER_ME_KEY, JSON.stringify(credentials));
         } else {

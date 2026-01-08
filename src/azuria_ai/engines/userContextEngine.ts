@@ -10,6 +10,7 @@
  * @module azuria_ai/engines/userContextEngine
  */
 
+import { generateSecureSessionId } from '@/utils/secureRandom';
 import type {
   SkillLevel,
   UserActivityState,
@@ -720,7 +721,7 @@ export function updatePreferences(): void {
 // ============================================================================
 
 function generateSessionId(): string {
-  return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return generateSecureSessionId();
 }
 
 function createInitialContext(sessionId: string): UserContext {

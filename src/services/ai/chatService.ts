@@ -15,6 +15,7 @@ import {
   MessageType,
 } from '@/types/azuriaAI';
 import type { AIContext as SharedAIContext } from '@/shared/types/ai';
+import { generateSecureSessionId } from '@/utils/secureRandom';
 
 /**
  * Envia mensagem para a Azuria AI
@@ -234,7 +235,7 @@ export async function createSession(
   userId: string,
   context: AzuriaAIContext | SharedAIContext | { userId: string; businessType?: string; conversationHistory?: unknown[]; preferences?: Record<string, unknown> }
 ): Promise<{ id: string; userId: string; status: string; context: AzuriaAIContext }> {
-  const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const sessionId = generateSecureSessionId();
   
   // Se context é um enum AIContext, usa diretamente
   let contextObj: AzuriaAIContext;

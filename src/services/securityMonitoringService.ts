@@ -1,5 +1,6 @@
 import { AuditLogService } from './auditLogService';
 import { logger } from './logger';
+import { generateSecureAlertId } from '@/utils/secureRandom';
 
 interface SecurityAlert {
   id: string;
@@ -75,7 +76,7 @@ export class SecurityMonitoringService {
   details: Record<string, unknown>
   ): void {
     const alert: SecurityAlert = {
-      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureAlertId(),
       type,
       severity,
       message,

@@ -81,8 +81,12 @@ export class SecurityMiddleware {
       /<script[^>]*>.*?<\/script>/gi,
       /<iframe[^>]*>.*?<\/iframe>/gi,
       /javascript:/gi,
+      /data:/gi,
+      /vbscript:/gi,
       /on\w+\s*=/gi,
-      /<img[^>]*onerror[^>]*>/gi
+      /<img[^>]*onerror[^>]*>/gi,
+      /<svg[^>]*onload[^>]*>/gi,
+      /<body[^>]*onload[^>]*>/gi
     ];
 
     for (const pattern of xssPatterns) {
@@ -161,14 +165,37 @@ export class SecurityMiddleware {
   }
 
   /**
-   * Sanitize input data
+   * Sanitize input data and validate URL schemes
    */
   sanitizeInput(input: string): string {
-    return input
+    let sanitized = input
       .replace(/[<>]/g, '') // Remove < and >
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/on\w+=/gi, '') // Remove event handlers
       .trim();
+
+    // Validate and sanitize dangerous URL schemes
+    const dangerousSchemes = [
+      /javascript:/gi,
+      /data:/gi,
+      /vbscript:/gi,
+      /file:/gi,
+      /about:/gi,
+      /chrome:/gi,
+      /chrome-extension:/gi
+    ];
+
+    for (const scheme of dangerousSchemes) {
+      if (scheme.test(sanitized)) {
+        // Remove the dangerous protocol
+        sanitized = sanitized.replace(scheme, '');
+        this.dispatchSecurityEvent('dangerous_url_scheme_detected', {
+          scheme: scheme.source,
+          input: input.substring(0, 100)
+        }, 'high');
+      }
+    }
+
+    return sanitized;
   }
 
   /**

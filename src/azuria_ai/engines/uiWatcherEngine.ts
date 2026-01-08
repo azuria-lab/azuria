@@ -10,6 +10,7 @@
  * @module azuria_ai/engines/uiWatcherEngine
  */
 
+import { generateSecureEventId } from '@/utils/secureRandom';
 import { eventBus } from '../core/eventBus';
 import type { UserActivityState } from '../types/operational';
 
@@ -595,7 +596,7 @@ function handlePaste(): void {
 // ============================================================================
 
 function generateEventId(): string {
-  return `evt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  return generateSecureEventId();
 }
 
 /**

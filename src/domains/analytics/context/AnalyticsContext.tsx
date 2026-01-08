@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, ReactNode, useContext, useMemo, useReducer } from "react";
+import { generateSecureSessionId } from '@/utils/secureRandom';
 import { logger } from '@/services/logger';
 
 // Analytics State Types
@@ -239,7 +240,7 @@ export const useAnalyticsContext = (): AnalyticsContextType => {
 function getSessionId(): string {
   let sessionId = sessionStorage.getItem('analytics_session');
   if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    sessionId = generateSecureSessionId();
     sessionStorage.setItem('analytics_session', sessionId);
   }
   return sessionId;

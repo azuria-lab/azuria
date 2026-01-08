@@ -9,15 +9,14 @@
  * @returns Secure random string
  */
 export function generateSecureId(length: number = 9): string {
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    // Use Web Crypto API for secure randomness
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(36)).join('').slice(0, length);
+  if (typeof crypto === 'undefined' || !crypto.getRandomValues) {
+    throw new Error('Crypto API não disponível. Este ambiente não é seguro para geração de IDs.');
   }
   
-  // Fallback for environments without crypto (should not happen in modern browsers)
-  return Math.random().toString(36).substr(2, length);
+  // Use Web Crypto API for secure randomness
+  const array = new Uint8Array(Math.ceil(length * 1.5)); // Generate extra to account for base36 conversion
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(36)).join('').slice(0, length);
 }
 
 /**
@@ -91,14 +90,14 @@ export function generateSecureAnonymousId(): string {
  * @returns Cryptographically secure random number
  */
 export function generateSecureRandomNumber(min: number, max: number): number {
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const range = max - min + 1;
-    const array = new Uint32Array(1);
-    crypto.getRandomValues(array);
-    return min + (array[0] % range);
+  if (typeof crypto === 'undefined' || !crypto.getRandomValues) {
+    throw new Error('Crypto API não disponível. Este ambiente não é seguro para geração de números aleatórios.');
   }
   
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  const range = max - min + 1;
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return min + (array[0] % range);
 }
 
 /**
@@ -107,4 +106,68 @@ export function generateSecureRandomNumber(min: number, max: number): number {
  */
 export function generateSecureRandomPercentage(): number {
   return generateSecureRandomNumber(0, 100);
+}
+
+/**
+ * Generates a secure event ID
+ * @returns Secure event ID with timestamp
+ */
+export function generateSecureEventId(): string {
+  return `evt_${Date.now()}_${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure AI request ID
+ * @returns Secure AI request ID with timestamp
+ */
+export function generateSecureAIRequestId(): string {
+  return `ai_req_${Date.now()}_${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure task ID
+ * @returns Secure task ID with timestamp
+ */
+export function generateSecureTaskId(): string {
+  return `task_${Date.now()}_${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure insight ID
+ * @returns Secure insight ID with timestamp
+ */
+export function generateSecureInsightId(): string {
+  return `insight-${Date.now()}-${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure action ID
+ * @returns Secure action ID with timestamp
+ */
+export function generateSecureActionId(): string {
+  return `action-${Date.now()}-${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure suggestion ID
+ * @returns Secure suggestion ID with timestamp
+ */
+export function generateSecureSuggestionId(): string {
+  return `sug_${Date.now()}_${generateSecureId(9)}`;
+}
+
+/**
+ * Generates a secure explanation ID
+ * @returns Secure explanation ID with timestamp
+ */
+export function generateSecureExplanationId(): string {
+  return `exp_${Date.now()}_${generateSecureId(7)}`;
+}
+
+/**
+ * Generates a secure feedback ID
+ * @returns Secure feedback ID with timestamp
+ */
+export function generateSecureFeedbackId(): string {
+  return `fb_${Date.now()}_${generateSecureId(9)}`;
 }

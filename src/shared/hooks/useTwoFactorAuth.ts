@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { generateSecureRandomNumber } from "@/utils/secureRandom";
 
 export const useTwoFactorAuth = (isEnabled: boolean = false, onToggle?: (enabled: boolean) => void) => {
   const { toast } = useToast();
@@ -19,7 +20,7 @@ export const useTwoFactorAuth = (isEnabled: boolean = false, onToggle?: (enabled
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = '';
         for (let i = 0; i < 8; i++) {
-          result += chars.charAt(Math.floor(Math.random() * chars.length));
+          result += chars.charAt(generateSecureRandomNumber(0, chars.length - 1));
         }
         return result.match(/.{1,4}/g)?.join('-') || result;
       });

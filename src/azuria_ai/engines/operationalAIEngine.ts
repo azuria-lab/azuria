@@ -13,6 +13,7 @@
  * @module azuria_ai/engines/operationalAIEngine
  */
 
+import { generateSecureSuggestionId } from '@/utils/secureRandom';
 import { emitEvent, on } from '../core/eventBus';
 import type {
   CoPilotConfig,
@@ -240,7 +241,7 @@ let state: EngineState = {
 // ============================================================================
 
 function generateId(): string {
-  return `sug_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+  return generateSecureSuggestionId();
 }
 
 function canShowSuggestion(rule: SuggestionRule): boolean {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CalculationMessage, CalculationResult } from '@/workers/calculationWorker';
+import { generateSecureId } from '@/utils/secureRandom';
 
 interface UseWebWorkerOptions {
   onProgress?: (progress: number) => void;
@@ -76,7 +77,7 @@ export const useWebWorker = (options: UseWebWorkerOptions = {}) => {
     data: unknown
   ): Promise<T> => {
     return new Promise((resolve, reject) => {
-      const id = Math.random().toString(36).substr(2, 9);
+      const id = generateSecureId(9);
       
       if (!workerRef.current) {
         // Fallback para main thread se worker não disponível

@@ -5,6 +5,7 @@
  * Permite análise de eficácia e melhoria contínua do Co-Piloto.
  */
 
+import { generateSecureFeedbackId } from '@/utils/secureRandom';
 import { createClient } from '@supabase/supabase-js';
 import { structuredLogger } from '@/services/structuredLogger';
 import type {
@@ -331,7 +332,7 @@ export async function saveFeedback(
   feedback: SuggestionFeedback,
   userId?: string
 ): Promise<PersistenceResult> {
-  const feedbackId = `fb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const feedbackId = generateSecureFeedbackId();
 
   // Salvar em memória
   memoryCache.feedback.set(feedbackId, feedback);

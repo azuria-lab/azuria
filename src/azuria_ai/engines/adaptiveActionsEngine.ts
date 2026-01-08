@@ -11,6 +11,7 @@
  * @module azuria_ai/engines/adaptiveActionsEngine
  */
 
+import { generateSecureActionId } from '@/utils/secureRandom';
 import { eventBus } from '../core/eventBus';
 import { structuredLogger } from '../../services/structuredLogger';
 
@@ -195,7 +196,7 @@ const state: AdaptiveActionsState = {
  * Gera ID único para ação
  */
 function generateActionId(): string {
-  return `action-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  return generateSecureActionId();
 }
 
 /**

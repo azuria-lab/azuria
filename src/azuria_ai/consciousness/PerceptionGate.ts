@@ -12,6 +12,7 @@
  * - Normaliza eventos para processamento
  */
 
+import { generateSecureEventId } from '@/utils/secureRandom';
 import type {
   CognitiveRole,
   EventCategory,
@@ -162,7 +163,7 @@ const CATEGORY_PRIORITY: Record<EventCategory, EventPriority> = {
  * Gera ID único para evento
  */
 function generateEventId(): string {
-  return `evt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return generateSecureEventId();
 }
 
 /**

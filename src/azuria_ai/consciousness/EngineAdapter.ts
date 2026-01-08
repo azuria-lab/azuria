@@ -29,6 +29,7 @@
  * - consciousOrchestrator → substituído por DecisionEngine
  */
 
+import { generateSecureTaskId } from '@/utils/secureRandom';
 import { sendEvent } from './ConsciousnessCore';
 import { 
   getGlobalState,
@@ -544,7 +545,7 @@ export async function invokeAgent(
   }
   
   const task: AgentTask = {
-    id: `task_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    id: generateSecureTaskId(),
     type: taskType,
     input,
     priority: options.priority || 'medium',

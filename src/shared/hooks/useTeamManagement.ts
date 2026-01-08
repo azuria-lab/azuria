@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Permission, Team, TeamMember } from "@/types/enterprise";
 import { useAuthContext } from "@/domains/auth";
 import { toast } from "@/components/ui/use-toast";
+import { generateSecureId } from "@/utils/secureRandom";
 
 export const useTeamManagement = (teamId?: string) => {
   const { user } = useAuthContext();
@@ -133,8 +134,8 @@ export const useTeamManagement = (teamId?: string) => {
       }
 
       const newMember: TeamMember = {
-        id: Math.random().toString(36).substr(2, 9),
-        userId: Math.random().toString(36).substr(2, 9),
+        id: generateSecureId(9),
+        userId: generateSecureId(9),
         teamId,
         role,
         name: email.split('@')[0],

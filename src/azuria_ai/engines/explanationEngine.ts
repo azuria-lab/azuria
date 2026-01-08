@@ -10,6 +10,7 @@
  * @module azuria_ai/engines/explanationEngine
  */
 
+import { generateSecureExplanationId } from '@/utils/secureRandom';
 import type {
   CreateSuggestionInput,
   SkillLevel,
@@ -459,7 +460,7 @@ function generateFromTemplate(
   const summary = interpolateValues(template.templates.minimal, request.values);
 
   const explanation: Explanation = {
-    id: `exp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: generateSecureExplanationId(),
     category: template.category,
     title: template.title,
     summary,
