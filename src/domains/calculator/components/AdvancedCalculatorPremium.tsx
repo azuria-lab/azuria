@@ -282,7 +282,9 @@ export default function AdvancedCalculatorPremium({ userId: _userId }: AdvancedC
       });
     } else {
       // Aplicar template marketplace
-      applyTemplate(template);
+      // Type guard: se não é rapid, então é MarketplaceTemplateConfig
+      const marketplaceTemplate = template as MarketplaceTemplateConfig;
+      applyTemplate(marketplaceTemplate);
     }
   }, [applyTemplate, toast]);
 
