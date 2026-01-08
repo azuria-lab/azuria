@@ -122,7 +122,8 @@ async function handleAzuriaChat(req: Request): Promise<Response> {
   }
 
   // Chamar Gemini API
-  console.log(`Calling Gemini API with key length: ${GEMINI_API_KEY.length}`);
+  // Log apenas indicação de chamada, sem expor informações sensíveis
+  console.log('Calling Gemini API');
   const geminiResponse = await fetch(
     `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
     {

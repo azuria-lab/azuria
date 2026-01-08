@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { AuditLog, AuditLogFilters } from "@/types/auditLogs";
+import { generateSecureRandomNumber } from "@/utils/secureRandom";
 
 export const useAuditLogs = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -29,22 +30,22 @@ export const useAuditLogs = () => {
       ];
 
       return Array.from({ length: 50 }, (_, i) => {
-        const actionData = actions[Math.floor(Math.random() * actions.length)];
+        const actionData = actions[generateSecureRandomNumber(0, actions.length - 1)];
         const timestamp = new Date();
-        timestamp.setHours(timestamp.getHours() - Math.floor(Math.random() * 168)); // Últimas 7 dias
+        timestamp.setHours(timestamp.getHours() - generateSecureRandomNumber(0, 168)); // Últimas 7 dias
         
         return {
           id: `log-${i + 1}`,
           timestamp,
           action: actionData.action,
           category: actionData.category,
-          userId: `user-${Math.floor(Math.random() * 10) + 1}`,
-          userName: `Usuário ${Math.floor(Math.random() * 10) + 1}`,
-          ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+          userId: `user-${generateSecureRandomNumber(1, 10)}`,
+          userName: `Usuário ${generateSecureRandomNumber(1, 10)}`,
+          ipAddress: `192.168.1.${generateSecureRandomNumber(1, 254)}`, // 1-254 é range válido para IP
           userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
           details: {
             module: actionData.category,
-            result: Math.random() > 0.1 ? "success" : "failed"
+            result: generateSecureRandomNumber(0, 100) > 10 ? "success" : "failed"
           },
           riskLevel: actionData.risk
         };

@@ -112,5 +112,16 @@ console.error = (...args: unknown[]) => {
   if (typeof msg === 'string' && suppressedMessages.some((m) => msg.includes(m))) {
     return
   }
-  originalError(...args)
+  // Sanitize potentially sensitive information in test logs
+  const sanitizedArgs = args.map(arg => {
+    if (typeof arg === 'string') {
+      // Remove potential API keys, tokens, or passwords from logs
+      return arg
+        .replace(/(api[_-]?key|token|password|secret|auth)=[^\s&]+/gi, '$1=***REDACTED***')
+        .replace(/bearer\s+[\w\-._~+/]+/gi, 'bearer ***REDACTED***')
+        .replace(/eyJ[\w\-._~+/]+/g, '***JWT_REDACTED***'); // JWT tokens
+    }
+    return arg;
+  });
+  originalError(...sanitizedArgs)
 }

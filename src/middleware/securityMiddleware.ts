@@ -78,8 +78,8 @@ export class SecurityMiddleware {
    */
   detectXSS(input: string): boolean {
     const xssPatterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /<iframe[^>]*>.*?<\/iframe>/gi,
+      /<script[^>]*>[\s\S]*?<\/script>/gi,  // Fixed: use [\s\S] instead of .*? for multiline
+      /<iframe[^>]*>[\s\S]*?<\/iframe>/gi,  // Fixed: use [\s\S] instead of .*? for multiline
       /javascript:/gi,
       /data:/gi,
       /vbscript:/gi,
@@ -168,25 +168,29 @@ export class SecurityMiddleware {
    * Sanitize input data and validate URL schemes
    */
   sanitizeInput(input: string): string {
+    // Use proper Unicode-aware sanitization
+    // Remove HTML tags and event handlers - handle multi-byte characters correctly
     let sanitized = input
-      .replace(/[<>]/g, '') // Remove < and >
-      .replace(/on\w+=/gi, '') // Remove event handlers
+      .replace(/<[^>]+>/g, '') // Remove all HTML tags (handles multi-byte correctly)
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '') // Remove event handlers with quoted values
+      .replace(/on\w+\s*=\s*[^\s>]*/gi, '') // Remove remaining event handlers
+      .replace(/javascript:/gi, '')
       .trim();
 
-    // Validate and sanitize dangerous URL schemes
+    // Validate and sanitize dangerous URL schemes with proper Unicode handling
     const dangerousSchemes = [
-      /javascript:/gi,
-      /data:/gi,
-      /vbscript:/gi,
-      /file:/gi,
-      /about:/gi,
-      /chrome:/gi,
-      /chrome-extension:/gi
+      /javascript\s*:/gi,
+      /data\s*:/gi,
+      /vbscript\s*:/gi,
+      /file\s*:/gi,
+      /about\s*:/gi,
+      /chrome\s*:/gi,
+      /chrome-extension\s*:/gi
     ];
 
     for (const scheme of dangerousSchemes) {
       if (scheme.test(sanitized)) {
-        // Remove the dangerous protocol
+        // Remove the dangerous protocol with Unicode-safe replacement
         sanitized = sanitized.replace(scheme, '');
         this.dispatchSecurityEvent('dangerous_url_scheme_detected', {
           scheme: scheme.source,
@@ -194,6 +198,12 @@ export class SecurityMiddleware {
         }, 'high');
       }
     }
+
+    // Additional Unicode-aware sanitization
+    // Remove zero-width spaces and other invisible characters that could be used for evasion
+    sanitized = sanitized
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width spaces
+      .replace(/[\u202A-\u202E]/g, ''); // Remove directional formatting characters
 
     return sanitized;
   }

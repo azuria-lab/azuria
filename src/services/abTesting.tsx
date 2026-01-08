@@ -1,6 +1,7 @@
 // Advanced A/B Testing System
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { generateSecureAnonymousId } from '@/utils/secureRandom';
 import { logger } from './logger';
 
 interface ABTest {
@@ -439,7 +440,7 @@ function getUserId(): string | null {
 function generateAnonymousId(): string {
   let anonymousId = localStorage.getItem('anonymous_id');
   if (!anonymousId) {
-    anonymousId = 'anon_' + Math.random().toString(36).substr(2, 9);
+    anonymousId = generateSecureAnonymousId();
     localStorage.setItem('anonymous_id', anonymousId);
   }
   return anonymousId;

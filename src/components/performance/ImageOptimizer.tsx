@@ -54,18 +54,43 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
 
   // Otimizar URL se for do Unsplash
   const optimizeImageUrl = (url: string) => {
-    if (url.includes('unsplash.com')) {
-      const params = new URLSearchParams();
-      if (width) {params.set('w', width.toString());}
-      if (height) {params.set('h', height.toString());}
-      params.set('fit', 'crop');
-      params.set('crop', 'center');
-      params.set('auto', 'format,compress');
-      params.set('q', '85');
+    // Validate URL scheme before processing
+    try {
+      const urlObj = new URL(url);
+      // Only allow http, https, and data (for base64 images)
+      const allowedSchemes = ['http:', 'https:', 'data:'];
+      if (!allowedSchemes.includes(urlObj.protocol)) {
+        console.warn('Invalid URL scheme:', urlObj.protocol);
+        return ''; // Return empty string for invalid schemes
+      }
       
-      return `${url.split('?')[0]}?${params.toString()}`;
+      // Additional security: check for dangerous patterns
+      const dangerousPatterns = ['javascript:', 'vbscript:', 'file:'];
+      if (dangerousPatterns.some(pattern => url.toLowerCase().includes(pattern))) {
+        console.warn('Dangerous URL pattern detected');
+        return '';
+      }
+      
+      if (url.includes('unsplash.com')) {
+        const params = new URLSearchParams();
+        if (width) {params.set('w', width.toString());}
+        if (height) {params.set('h', height.toString());}
+        params.set('fit', 'crop');
+        params.set('crop', 'center');
+        params.set('auto', 'format,compress');
+        params.set('q', '85');
+        
+        return `${url.split('?')[0]}?${params.toString()}`;
+      }
+      return url;
+    } catch (e) {
+      // If URL parsing fails, it might be a relative URL, check if it's safe
+      if (url.startsWith('/') || url.startsWith('./')) {
+        return url; // Relative URLs are generally safe
+      }
+      console.warn('Invalid URL format:', url);
+      return '';
     }
-    return url;
   };
 
   const optimizedSrc = currentSrc ? optimizeImageUrl(currentSrc) : '';
