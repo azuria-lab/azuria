@@ -245,6 +245,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       // eslint-disable-next-line no-console
       console.log('[ConsciousnessProvider] 🚀 Engines secundários inicializados');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, userTier]);
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -686,6 +687,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         shutdownNucleus();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -751,6 +753,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
 /**
  * Hook para acessar o ConsciousnessContext (API nova)
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useConsciousnessContext(): ConsciousnessContextValue {
   const context = useContext(ConsciousnessContext);
   
@@ -766,6 +769,7 @@ export function useConsciousnessContext(): ConsciousnessContextValue {
 /**
  * Hook compatível com useModeDeus (API legada)
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useModeDeus(): ConsciousnessContextValue {
   return useConsciousnessContext();
 }
@@ -773,6 +777,7 @@ export function useModeDeus(): ConsciousnessContextValue {
 /**
  * Hook opcional (não lança erro se não estiver no provider)
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useModeDeusOptional(): ConsciousnessContextValue | null {
   return useContext(ConsciousnessContext);
 }

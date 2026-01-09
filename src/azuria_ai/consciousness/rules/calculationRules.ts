@@ -262,7 +262,9 @@ export const calcMarkupHighRule = {
   
   decide: (ctx: DecisionContext): Decision => {
     const payload = ctx.event.payload as CalcPayload;
-    const markup = ((payload.precoVenda! - payload.custoProduto!) / payload.custoProduto!) * 100;
+    const precoVenda = payload.precoVenda ?? 0;
+    const custoProduto = payload.custoProduto ?? 1;
+    const markup = ((precoVenda - custoProduto) / custoProduto) * 100;
     
     return {
       type: 'emit',
@@ -310,7 +312,9 @@ export const calcOperationalCostsHighRule = {
   
   decide: (ctx: DecisionContext): Decision => {
     const payload = ctx.event.payload as CalcPayload;
-    const percentage = (payload.custoOperacional! / payload.precoVenda!) * 100;
+    const custoOperacional = payload.custoOperacional ?? 0;
+    const precoVenda = payload.precoVenda ?? 1;
+    const percentage = (custoOperacional / precoVenda) * 100;
     
     return {
       type: 'emit',
