@@ -102,7 +102,6 @@ export async function initGovernedEmitter(): Promise<void> {
 
   try {
     // Carregar módulos necessários
-    nucleusModule = await import('../consciousness/CentralNucleus');
     governanceModule = await import('../governance/EngineGovernance');
     levelsModule = await import('../levels/ConsciousnessLevels');
 
