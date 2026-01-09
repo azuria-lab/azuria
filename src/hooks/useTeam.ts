@@ -176,7 +176,7 @@ export function useTeam(teamId: string | null): UseTeamReturn {
       if (insertError) {throw insertError;}
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const taskData = data as any;
+      const taskData = data as Record<string, any>;
       const newTask: Task = {
         id: taskData.id,
         teamId: taskData.team_id,
@@ -208,7 +208,8 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     if (!teamId || !user?.id) {return false;}
 
     try {
-      const updateData: any = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: Record<string, any> = {};
       
       if (updates.title !== undefined) {updateData.title = updates.title;}
       if (updates.description !== undefined) {updateData.description = updates.description;}
@@ -219,9 +220,8 @@ export function useTeam(teamId: string | null): UseTeamReturn {
       if (updates.tags !== undefined) {updateData.tags = updates.tags;}
       if (updates.checklist !== undefined) {updateData.checklist = updates.checklist;}
 
-       
-      const { error: updateError } = await supabase
-        .from("team_tasks" as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: updateError } = await (supabase.from("team_tasks" as any) as any)
         .update(updateData)
         .eq("id", taskId)
         .eq("team_id", teamId);
@@ -251,12 +251,11 @@ export function useTeam(teamId: string | null): UseTeamReturn {
 
     try {
         
-       
-      const { error: deleteError } = await supabase
-        .from("team_tasks" as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: deleteError } = await (supabase.from("team_tasks" as any) as any)
         .delete()
         .eq("id", taskId)
-        .eq("team_id", teamId) as any;
+        .eq("team_id", teamId);
 
       if (deleteError) {throw deleteError;}
 

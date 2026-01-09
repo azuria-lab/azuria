@@ -279,9 +279,7 @@ export function useDashboardStats() {
       // Retornando valores padrão temporários até implementar alternativa
       // ou recriar a tabela user_daily_stats
       
-      const calculateChange = (_today: number, _yesterday: number) => {
-        return 0;
-      };
+      // calculateChange não usado - removido
 
       setStats({
         calculationsCount: 0,
@@ -446,8 +444,8 @@ export function useDashboardStats() {
   const addActivity = async (
     type: string,
     title: string,
-    description?: string,
-    metadata?: Json | null
+    _description?: string,
+    _metadata?: Json | null
   ) => {
     if (!user?.id) {
       return;

@@ -124,22 +124,21 @@ export function shutdownMemorySyncService(): void {
 export async function saveLTM(userId: string, ltm: LongTermMemory): Promise<SyncResult> {
   try {
     // Usar upsert direto na tabela (RPC pode não estar disponível ou ter tipos incompatíveis)
-    const { error } = await supabase
-      .from('ai_memory_ltm')
-      .upsert({
-        user_id: userId,
-        preferences: ltm.preferences as unknown,
-        behavior_patterns: ltm.behaviorPatterns as unknown,
-        history_summary: ltm.history as unknown,
-        usage_context: {
-          blockedTopics: ltm.blockedTopics,
-          lastSyncAt: ltm.lastSyncAt,
-        } as unknown,
-        learned_insights: ltm.feedback as unknown,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id',
-      });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('ai_memory_ltm' as any) as any).upsert({
+      user_id: userId,
+      preferences: ltm.preferences as unknown,
+      behavior_patterns: ltm.behaviorPatterns as unknown,
+      history_summary: ltm.history as unknown,
+      usage_context: {
+        blockedTopics: ltm.blockedTopics,
+        lastSyncAt: ltm.lastSyncAt,
+      } as unknown,
+      learned_insights: ltm.feedback as unknown,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id',
+    });
 
     if (error) {
       throw error;
@@ -176,7 +175,8 @@ export async function saveInteraction(
   interaction: RecentInteraction
 ): Promise<SyncResult> {
   try {
-    const { error } = await supabase.from('ai_memory_interactions').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('ai_memory_interactions' as any) as any).insert({
       user_id: userId,
       interaction_type: interaction.type === 'action' ? 'action' :
                         interaction.type === 'suggestion' ? 'suggestion' :
@@ -224,7 +224,8 @@ export async function savePattern(
   try {
     const patternId = `${pattern.type}_${pattern.description.slice(0, 50).replace(/\s+/g, '_')}`;
 
-    const { error } = await supabase.from('ai_memory_patterns').upsert(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('ai_memory_patterns' as any) as any).upsert(
       {
         user_id: userId,
         pattern_id: patternId,
@@ -281,7 +282,8 @@ export async function saveInsight(
   }
 ): Promise<SyncResult> {
   try {
-    const { error } = await supabase.from('ai_memory_insights').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('ai_memory_insights' as any) as any).insert({
       user_id: userId,
       insight_type: insight.type === 'user_preference' ? 'user_preference' :
                     insight.type === 'optimization' ? 'optimization' :
@@ -333,35 +335,35 @@ export async function loadUserMemory(userId: string): Promise<{
   try {
     // Carregar memórias separadamente (RPC não disponível ou tipos incompatíveis)
     // Buscar LTM diretamente da tabela
-    const { data: ltmData } = await supabase
-      .from('ai_memory_ltm')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: ltmData } = await (supabase.from('ai_memory_ltm' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .single();
 
     // Buscar interações recentes
-    const { data: interactionsData } = await supabase
-      .from('ai_memory_interactions')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: interactionsData } = await (supabase.from('ai_memory_interactions' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .order('timestamp', { ascending: false })
       .limit(20);
 
     // Buscar padrões ativos
-    const { data: patternsData } = await supabase
-      .from('ai_memory_patterns')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: patternsData } = await (supabase.from('ai_memory_patterns' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .order('last_detected_at', { ascending: false })
       .limit(10);
 
     // Converter dados do Supabase para formato UnifiedMemory
-    const ltm = ltmData ? convertLTMFromSupabase(ltmData as unknown as Record<string, unknown>) : null;
+    const ltm = ltmData ? convertLTMFromSupabase(ltmData as Record<string, unknown>) : null;
     const recentInteractions = interactionsData
-      ? convertInteractionsFromSupabase(interactionsData as unknown as Record<string, unknown>[])
+      ? convertInteractionsFromSupabase(interactionsData as Record<string, unknown>[])
       : [];
     const patterns = patternsData
-      ? convertPatternsFromSupabase(patternsData as unknown as Record<string, unknown>[])
+      ? convertPatternsFromSupabase(patternsData as Record<string, unknown>[])
       : [];
 
     state.lastSyncAt = Date.now();
@@ -391,8 +393,8 @@ export async function loadUserMemory(userId: string): Promise<{
  */
 export async function loadLTM(userId: string): Promise<Partial<LongTermMemory> | null> {
   try {
-    const { data, error } = await supabase
-      .from('ai_memory_ltm')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('ai_memory_ltm' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .single();
@@ -405,7 +407,7 @@ export async function loadLTM(userId: string): Promise<Partial<LongTermMemory> |
       throw error;
     }
 
-    return convertLTMFromSupabase(data);
+    return convertLTMFromSupabase(data as Record<string, unknown>);
   } catch (error) {
     warn(`Failed to load LTM: ${error}`);
     return null;
@@ -420,8 +422,8 @@ export async function loadRecentInteractions(
   limit: number = 20
 ): Promise<RecentInteraction[]> {
   try {
-    const { data, error } = await supabase
-      .from('ai_memory_interactions')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('ai_memory_interactions' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -431,7 +433,7 @@ export async function loadRecentInteractions(
       throw error;
     }
 
-    return convertInteractionsFromSupabase(data || []);
+    return convertInteractionsFromSupabase((data || []) as Record<string, unknown>[]);
   } catch (error) {
     warn(`Failed to load interactions: ${error}`);
     return [];
@@ -446,8 +448,8 @@ export async function loadActivePatterns(
   minConfidence: number = 0.5
 ): Promise<DetectedPattern[]> {
   try {
-    const { data, error } = await supabase
-      .from('ai_memory_patterns')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('ai_memory_patterns' as any) as any)
       .select('*')
       .eq('user_id', userId)
       .gte('confidence', minConfidence)
@@ -457,7 +459,7 @@ export async function loadActivePatterns(
       throw error;
     }
 
-    return convertPatternsFromSupabase(data || []);
+    return convertPatternsFromSupabase((data || []) as Record<string, unknown>[]);
   } catch (error) {
     warn(`Failed to load patterns: ${error}`);
     return [];
