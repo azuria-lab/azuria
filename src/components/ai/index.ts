@@ -46,3 +46,10 @@ export { default as SeasonalityDetails } from './seasonality/SeasonalityDetails'
 export { default as SeasonalityHeader } from './seasonality/SeasonalityHeader';
 export { default as SeasonalityInsights } from './seasonality/SeasonalityInsights';
 export { default as SeasonalityMetrics } from './seasonality/SeasonalityMetrics';
+
+// Consciousness Dashboard Components
+export {
+  CognitiveDashboard,
+  useCognitiveDashboard,
+  type DashboardData,
+} from './consciousness';

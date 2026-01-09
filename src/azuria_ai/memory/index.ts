@@ -81,3 +81,12 @@ export {
   type SyncCallback,
   type RecallResult,
 } from './UnifiedMemory';
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Memory Sync Service - Sincronização com Supabase
+// ══════════════════════════════════════════════════════════════════════════════
+export {
+  MemorySyncService,
+  type MemorySyncConfig,
+  type SyncResult,
+} from './MemorySyncService';
