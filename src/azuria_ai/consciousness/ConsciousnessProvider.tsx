@@ -1,10 +1,13 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
- * CONSCIOUSNESS PROVIDER - Provider React para ConsciousnessCore
+ * CONSCIOUSNESS PROVIDER - Provider React para CentralNucleus
  * ══════════════════════════════════════════════════════════════════════════════
  * 
- * Este provider substitui o ModeDeusProvider existente, usando a nova
- * arquitetura do ConsciousnessCore, mantendo compatibilidade com a API antiga.
+ * Este provider usa o CentralNucleus como único ponto de entrada,
+ * substituindo a inicialização direta do ConsciousnessCore.
+ * 
+ * Hierarquia:
+ * CentralNucleus → ConsciousnessCore → (ModeDeusDelegate, AIDelegate)
  */
 
 import React, { 
@@ -19,14 +22,18 @@ import React, {
 import { useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/domains/auth';
 
-// Core
+// Central Nucleus (ÚNICO PONTO DE ENTRADA)
+import {
+  initNucleus,
+  shutdownNucleus,
+} from './CentralNucleus';
+
+// Core (usado internamente pelo Nucleus)
 import {
   ConsciousnessCore,
-  initConsciousness,
   onOutput,
   provideFeedback,
   sendEvent,
-  shutdownConsciousness,
   updateContext,
 } from './ConsciousnessCore';
 
@@ -256,8 +263,9 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       const role = determineRole();
       const tier = determineTier();
       
-      // 1. Inicializar ConsciousnessCore
-      await initConsciousness({
+      // 1. INICIALIZAR CENTRAL NUCLEUS (único ponto de entrada)
+      // O Nucleus inicializa ConsciousnessCore + Delegados internamente
+      const nucleusResult = await initNucleus({
         userId: user?.id ?? undefined,
         role,
         tier,
@@ -285,7 +293,17 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
             aiTimeout: 10000,
           },
         },
+        delegates: {
+          modeDeus: true, // Habilitar delegado operacional
+          ai: true,       // Habilitar delegado cognitivo
+        },
+        debug: config?.debug ?? import.meta.env.DEV,
       });
+      
+      if (!nucleusResult.success) {
+        // eslint-disable-next-line no-console
+        console.warn('[ConsciousnessProvider] Nucleus init warnings:', nucleusResult.errors);
+      }
       
       // 2. Inicializar Gemini via Supabase Edge Function (recomendado)
       // Tentar múltiplas variáveis de ambiente (compatibilidade com diferentes configurações)
@@ -664,7 +682,8 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         }
         stopAllAgents();
         stopEventBridge(eventBus);
-        shutdownConsciousness();
+        // Desligar CentralNucleus (que desliga ConsciousnessCore internamente)
+        shutdownNucleus();
       }
     };
   }, []);

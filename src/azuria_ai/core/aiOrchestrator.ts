@@ -1,8 +1,26 @@
 /**
- * AI Orchestrator - "Modo Deus"
+ * AI Orchestrator - Delegado Cognitivo do Modo Deus
  *
- * Roteador central que coordena toda a inteligência artificial da Azuria.
- * Processa eventos reativos e decide quando gerar insights automáticos.
+ * ⚠️ IMPORTANTE: Este módulo agora funciona como DELEGADO do CentralNucleus.
+ * NÃO deve ser usado diretamente - use CentralNucleus.send() para eventos.
+ *
+ * Hierarquia:
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │  CentralNucleus (Único Ponto de Entrada)                       │
+ * │    └── AIOrchestrator (Delegado Cognitivo)                     │
+ * │          └── Engines cognitivos (análise, predição, governança)│
+ * └─────────────────────────────────────────────────────────────────┘
+ *
+ * Responsabilidades ATUAIS:
+ * - Coordenar engines de análise cognitiva
+ * - Processar eventos de cálculo (quando autorizado)
+ * - Gerar insights (submetidos ao Nucleus para aprovação)
+ * - Manter contexto de conversação
+ *
+ * O que NÃO faz mais:
+ * - Decidir sozinho se deve gerar insights
+ * - Escutar eventos diretamente sem filtro do Nucleus
+ * - Emitir para UI sem passar pelo OutputGate
  */
 
 import type { Agent } from './agents';

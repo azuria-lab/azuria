@@ -1,13 +1,26 @@
 /**
- * ModeDeusOrchestrator - Orquestrador Central do Modo Deus
+ * ModeDeusOrchestrator - Delegado Operacional do Modo Deus
  *
- * Este é o "maestro" que conecta e coordena todos os engines do Modo Deus.
- * Responsabilidades:
- * - Inicializar todos os engines na ordem correta
+ * ⚠️ IMPORTANTE: Este módulo agora funciona como DELEGADO do CentralNucleus.
+ * NÃO deve ser usado diretamente - use CentralNucleus.send() para eventos.
+ *
+ * Hierarquia:
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │  CentralNucleus (Único Ponto de Entrada)                       │
+ * │    └── ModeDeusOrchestrator (Delegado Operacional)             │
+ * │          └── Engines operacionais (Co-Pilot, suggestions...)   │
+ * └─────────────────────────────────────────────────────────────────┘
+ *
+ * Responsabilidades ATUAIS:
+ * - Inicializar engines operacionais na ordem correta
  * - Gerenciar ciclo de vida do Co-Piloto
- * - Processar eventos e rotear para engines apropriados
- * - Gerar sugestões coordenadas de múltiplas fontes
- * - Monitorar e ajustar comportamento em tempo real
+ * - Executar ações QUANDO AUTORIZADO pelo Nucleus
+ * - Gerar sugestões coordenadas (submetidas ao Nucleus para aprovação)
+ *
+ * O que NÃO faz mais:
+ * - Decidir sozinho se deve emitir para UI
+ * - Processar eventos diretamente do EventBus sem aprovação
+ * - Agir autonomamente
  *
  * @module azuria_ai/core/modeDeusOrchestrator
  */

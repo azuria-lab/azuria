@@ -7,6 +7,7 @@
  * do sistema. Todas as decisões cognitivas passam por aqui.
  * 
  * Arquitetura:
+ * - CentralNucleus: ÚNICO PONTO DE ENTRADA (use este!)
  * - ConsciousnessCore: O cérebro único do sistema
  * - GlobalState: Estado global centralizado
  * - PerceptionGate: Filtro de entrada de eventos
@@ -15,8 +16,33 @@
  * - CommunicationMemory: Memória do que foi dito
  * - AIRouter: Roteador de modelos de IA
  * 
+ * IMPORTANTE: Para inicializar o sistema, use CentralNucleus.init()
+ * 
  * @module azuria_ai/consciousness
  */
+
+// ════════════════════════════════════════════════════════════════════════════
+// CENTRAL NUCLEUS - ÚNICO PONTO DE ENTRADA
+// ════════════════════════════════════════════════════════════════════════════
+export {
+  CentralNucleus,
+  initNucleus,
+  shutdownNucleus,
+  send,
+  process,
+  requestAction,
+  onResult,
+  updateContext as updateNucleusContext,
+  requestSilence as requestNucleusSilence,
+  disableSilence as disableNucleusSilence,
+  getStats as getNucleusStats,
+  getState as getNucleusState,
+  isInitialized as isNucleusInitialized,
+  type ActionRequest,
+  type ActionResponse,
+  type DelegateState,
+  type NucleusConfig,
+} from './CentralNucleus';
 
 // Core
 export { 
