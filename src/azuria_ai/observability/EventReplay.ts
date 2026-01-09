@@ -162,21 +162,13 @@ export function startRecording(name?: string): string {
   // O eventBus não tem um método para ouvir todos os eventos,
   // então vamos criar um wrapper que captura eventos conhecidos
   const eventTypes: EventType[] = [
-    'ai:insight:generated',
-    'ai:suggestion:created',
-    'ai:explanation:generated',
-    'ai:feedback:received',
-    'ai:pattern:detected',
+    'insight:generated',
+    'ai:predictive-insight',
+    'ai:pattern-detected',
     'user:action',
-    'user:navigation',
-    'user:calculation',
-    'consciousness:state:changed',
-    'consciousness:level:changed',
-    'engine:registered',
-    'engine:action:requested',
-    'engine:action:completed',
-    'memory:sync:completed',
-    'memory:item:stored',
+    'ai:state-changed',
+    'ai:action-executed',
+    'ai:memory-updated',
   ];
 
   const unsubscribers: (() => void)[] = [];
