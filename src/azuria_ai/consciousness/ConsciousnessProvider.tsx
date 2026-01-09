@@ -348,7 +348,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         if (geminiApiKey) {
           // eslint-disable-next-line no-console
           console.warn('[ConsciousnessProvider] Using direct Gemini API (not recommended)');
-          void initGemini({ apiKey: geminiApiKey });
+          initGemini({ apiKey: geminiApiKey });
         } else {
           // eslint-disable-next-line no-console
           console.error('[ConsciousnessProvider] No Gemini configuration found (neither Supabase nor API key)');

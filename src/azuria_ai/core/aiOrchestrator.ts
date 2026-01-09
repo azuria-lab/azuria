@@ -841,10 +841,10 @@ function generateInsight(insight: GenerateInsightParam): void {
   }
   if (insight?.eventLog || insight?.flowData || insight?.userHistory) {
     const behaviorSignals: import('../engines/behaviorEngine').BehaviorSignals = {
-      eventLog: Array.isArray(insight.eventLog) ? (insight.eventLog as unknown[]) as import('../engines/behaviorEngine').EventLogEntry[] : undefined,
-      flowData: (insight.flowData as unknown) as import('../engines/behaviorEngine').FlowData | undefined,
-      userState: (insight.userState as unknown) as import('../engines/behaviorEngine').UserState | undefined,
-      userHistory: Array.isArray(insight.userHistory) ? (insight.userHistory as unknown[]) as import('../engines/behaviorEngine').UserHistoryEntry[] : undefined,
+      eventLog: Array.isArray(insight.eventLog) ? insight.eventLog as import('../engines/behaviorEngine').EventLogEntry[] : undefined,
+      flowData: insight.flowData as import('../engines/behaviorEngine').FlowData | undefined,
+      userState: insight.userState as import('../engines/behaviorEngine').UserState | undefined,
+      userHistory: Array.isArray(insight.userHistory) ? insight.userHistory as import('../engines/behaviorEngine').UserHistoryEntry[] : undefined,
     };
     analyzeBehavior(behaviorSignals);
   }

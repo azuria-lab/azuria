@@ -467,7 +467,7 @@ export function getEnginesMigrationStatus(): {
     total: engines.length,
     usingGovernedEmit,
     usingDirectEmit,
-    engines: engines.sort((a, b) => b.emissions - a.emissions),
+    engines: engines.toSorted((a, b) => b.emissions - a.emissions),
   };
 }
 

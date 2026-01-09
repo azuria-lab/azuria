@@ -33,8 +33,11 @@ export interface DetectedEngine {
   /** Linhas que usam emitEvent */
   emitEventLines: number[];
   /** Nível de esforço de migração (1-5) */
-  migrationEffort: 1 | 2 | 3 | 4 | 5;
+  migrationEffort: MigrationEffort;
 }
+
+/** Nível de esforço para migração */
+export type MigrationEffort = 1 | 2 | 3 | 4 | 5;
 
 /** Resultado da análise */
 export interface AnalysisResult {
@@ -159,7 +162,7 @@ class ${className}Wrapper extends BaseEngine {
   ${engine.emittedEvents
     .map(
       (event) => `
-  async emit${event.replace(/[:-]/g, '_')}(payload: unknown): Promise<void> {
+  async emit${event.replaceAll(/[:-]/g, '_')}(payload: unknown): Promise<void> {
     await this.emit('${event}' as EventType, payload);
   }`
     )

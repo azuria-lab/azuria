@@ -89,14 +89,14 @@ export async function installCompatibilityAdapter(): Promise<void> {
     stats.bySource.set(source, (stats.bySource.get(source) ?? 0) + 1);
 
     // Se GovernedEmitter disponível, usar
-    if (governedEmitterModule && governedEmitterModule.isGovernedEmitterEnabled()) {
+    if (governedEmitterModule?.isGovernedEmitterEnabled()) {
       governedEmitterModule.governedEmit(eventType, payload, {
         source,
         priority: options?.priority,
       });
-    } else {
+    } else if (originalEmitEvent) {
       // Fallback para emissão direta
-      originalEmitEvent!(eventType, payload, options);
+      originalEmitEvent(eventType, payload, options);
     }
   };
 

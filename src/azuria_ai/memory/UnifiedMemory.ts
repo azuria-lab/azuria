@@ -1041,7 +1041,7 @@ export function recall(query: {
   }
 
   // Ordenar por relevância e limitar
-  return results.sort((a, b) => b.relevance - a.relevance).slice(0, limit);
+  return results.toSorted((a, b) => b.relevance - a.relevance).slice(0, limit);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

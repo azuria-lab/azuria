@@ -279,7 +279,7 @@ function createInitialCoreState(): CoreState {
     },
 
     systemHealth: {
-      overallScore: 1.0,
+      overallScore: 1,
       activeEngines: [],
       lastErrors: [],
       aiAvailability: {
@@ -349,7 +349,7 @@ export function initUnifiedStore(storeConfig: StoreConfig = {}): void {
           ...parsed,
           core: {
             ...createInitialCoreState(),
-            ...(parsed.core ?? {}),
+            ...(parsed.core || createInitialCoreState()),
           },
         };
         log('Restored state from localStorage');
@@ -612,7 +612,7 @@ export function updateCoreState(
 export function updateCoreSection<K extends keyof CoreState>(
   section: K,
   updates: Partial<CoreState[K]>,
-  options: UpdateOptions = { source: 'unknown' }
+  options: UpdateOptions = defaultUpdateOptions
 ): void {
   const current = store.core[section];
 
@@ -643,7 +643,7 @@ export function updateCoreSection<K extends keyof CoreState>(
 export function updateEngineSlice<T>(
   engineId: string,
   updates: Partial<T>,
-  options: UpdateOptions = { source: 'unknown' }
+  options: UpdateOptions = defaultUpdateOptions
 ): boolean {
   const slice = store.engines[engineId];
 

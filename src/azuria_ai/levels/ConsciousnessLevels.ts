@@ -51,6 +51,9 @@ export type FeatureCategory =
   | 'debugging'         // Debugging e logs
   | 'system';           // Sistema interno
 
+/** Tier de usuário */
+export type UserTier = 'FREE' | 'PRO' | 'ENTERPRISE';
+
 /** Permissão de acesso */
 export interface FeaturePermission {
   /** Categoria da funcionalidade */
@@ -60,7 +63,7 @@ export interface FeaturePermission {
   /** Se USER pode acessar */
   userAccess: boolean;
   /** Se requer tier específico para USER */
-  requiredTier?: 'FREE' | 'PRO' | 'ENTERPRISE';
+  requiredTier?: UserTier;
   /** Descrição */
   description: string;
 }

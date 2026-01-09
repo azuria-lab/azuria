@@ -62,11 +62,11 @@ import { type DashboardData, useCognitiveDashboard } from './useCognitiveDashboa
 
 interface CognitiveDashboardProps {
   /** Modo compacto */
-  compact?: boolean;
+  readonly compact?: boolean;
   /** Classe CSS adicional */
-  className?: string;
+  readonly className?: string;
   /** Callback ao fechar */
-  onClose?: () => void;
+  readonly onClose?: () => void;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -74,24 +74,33 @@ interface CognitiveDashboardProps {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /** Card de Status do Nucleus */
-function NucleusStatusCard({
-  data,
-  onTogglePause,
-}: {
-  data: DashboardData;
-  onTogglePause: () => void;
-}) {
-  const statusColor = data.nucleus.isRunning
-    ? data.nucleus.isPaused
-      ? 'text-yellow-500'
-      : 'text-green-500'
-    : 'text-red-500';
+interface NucleusStatusCardProps {
+  readonly data: DashboardData;
+  readonly onTogglePause: () => void;
+}
 
-  const statusText = data.nucleus.isRunning
-    ? data.nucleus.isPaused
-      ? 'Pausado'
-      : 'Ativo'
-    : 'Inativo';
+function NucleusStatusCard({ data, onTogglePause }: NucleusStatusCardProps) {
+  // Helper functions to avoid nested ternaries
+  const getStatusColor = () => {
+    if (!data.nucleus.isRunning) {return 'text-red-500';}
+    if (data.nucleus.isPaused) {return 'text-yellow-500';}
+    return 'text-green-500';
+  };
+
+  const getStatusText = () => {
+    if (!data.nucleus.isRunning) {return 'Inativo';}
+    if (data.nucleus.isPaused) {return 'Pausado';}
+    return 'Ativo';
+  };
+
+  const getBadgeVariant = (): 'default' | 'secondary' | 'destructive' => {
+    if (!data.nucleus.isRunning) {return 'destructive';}
+    if (data.nucleus.isPaused) {return 'secondary';}
+    return 'default';
+  };
+
+  const statusColor = getStatusColor();
+  const statusText = getStatusText();
 
   return (
     <Card>
@@ -101,9 +110,7 @@ function NucleusStatusCard({
             <Brain className={cn('h-5 w-5', statusColor)} />
             <CardTitle className="text-lg">Central Nucleus</CardTitle>
           </div>
-          <Badge
-            variant={data.nucleus.isRunning ? (data.nucleus.isPaused ? 'secondary' : 'default') : 'destructive'}
-          >
+          <Badge variant={getBadgeVariant()}>
             {statusText}
           </Badge>
         </div>
@@ -178,7 +185,11 @@ function NucleusStatusCard({
 }
 
 /** Card de Engines */
-function EnginesCard({ data }: { data: DashboardData }) {
+interface EnginesCardProps {
+  readonly data: DashboardData;
+}
+
+function EnginesCard({ data }: EnginesCardProps) {
   const activeEngines = data.engines.filter((e) => e.active);
   const inactiveEngines = data.engines.filter((e) => !e.active);
 
@@ -219,11 +230,11 @@ function EnginesCard({ data }: { data: DashboardData }) {
 }
 
 /** Linha de Engine */
-function EngineRow({
-  engine,
-}: {
-  engine: DashboardData['engines'][0];
-}) {
+interface EngineRowProps {
+  readonly engine: DashboardData['engines'][0];
+}
+
+function EngineRow({ engine }: EngineRowProps) {
   const categoryColors: Record<string, string> = {
     cognitive: 'bg-purple-500',
     operational: 'bg-blue-500',
@@ -287,7 +298,11 @@ function EngineRow({
 }
 
 /** Card de Eventos */
-function EventsCard({ data }: { data: DashboardData }) {
+interface EventsCardProps {
+  readonly data: DashboardData;
+}
+
+function EventsCard({ data }: EventsCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -357,7 +372,11 @@ function EventsCard({ data }: { data: DashboardData }) {
 }
 
 /** Card de Governança */
-function GovernanceCard({ data }: { data: DashboardData }) {
+interface GovernanceCardProps {
+  readonly data: DashboardData;
+}
+
+function GovernanceCard({ data }: GovernanceCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -434,7 +453,11 @@ function GovernanceCard({ data }: { data: DashboardData }) {
 }
 
 /** Card de Memória */
-function MemoryCard({ data }: { data: DashboardData }) {
+interface MemoryCardProps {
+  readonly data: DashboardData;
+}
+
+function MemoryCard({ data }: MemoryCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -487,7 +510,7 @@ function MemoryCard({ data }: { data: DashboardData }) {
           </div>
 
           {/* Sync */}
-          {data.memory.syncEnabled && data.memory.lastSyncAt && (
+          {Boolean(data.memory.syncEnabled && data.memory.lastSyncAt) && (
             <>
               <Separator />
               <div className="flex items-center justify-between text-sm">
@@ -503,7 +526,11 @@ function MemoryCard({ data }: { data: DashboardData }) {
 }
 
 /** Card de Estado */
-function StateCard({ data }: { data: DashboardData }) {
+interface StateCardProps {
+  readonly data: DashboardData;
+}
+
+function StateCard({ data }: StateCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -578,7 +605,11 @@ function StateCard({ data }: { data: DashboardData }) {
 }
 
 /** Card de Alertas */
-function AlertsCard({ data }: { data: DashboardData }) {
+interface AlertsCardProps {
+  readonly data: DashboardData;
+}
+
+function AlertsCard({ data }: AlertsCardProps) {
   const hasAlerts = data.alerts.length > 0;
 
   return (
@@ -603,9 +634,9 @@ function AlertsCard({ data }: { data: DashboardData }) {
         <CardContent>
           <ScrollArea className="h-[120px]">
             <div className="space-y-2">
-              {data.alerts.map((alert, idx) => (
+              {data.alerts.map((alert) => (
                 <div
-                  key={idx}
+                  key={`${alert.message}-${alert.timestamp}`}
                   className={cn(
                     'p-2 rounded-md text-sm',
                     alert.severity === 'error' && 'bg-red-500/10 text-red-500',
