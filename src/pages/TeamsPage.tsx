@@ -2840,23 +2840,11 @@ export default function TeamsPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-3">Habilidades</h3>
                     <div className="flex flex-wrap gap-2">
-                      {selectedMember.role === "admin" 
-                        ? ["Gestão de Equipes", "Estratégia", "Liderança", "Planejamento"].map((skill) => (
-                            <Badge key={skill} variant="secondary" className="px-3 py-1">
-                              {skill}
-                            </Badge>
-                          ))
-                        : selectedMember.role === "manager"
-                        ? ["Scrum", "Gestão de Projetos", "Comunicação", "Agile"].map((skill) => (
-                            <Badge key={skill} variant="secondary" className="px-3 py-1">
-                              {skill}
-                            </Badge>
-                          ))
-                        : ["Desenvolvimento", "Colaboração", "Resolução de Problemas"].map((skill) => (
-                            <Badge key={skill} variant="secondary" className="px-3 py-1">
-                              {skill}
-                            </Badge>
-                          ))}
+                      {getMemberSkills(selectedMember.role).map((skill) => (
+                        <Badge key={skill} variant="secondary" className="px-3 py-1">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
 
