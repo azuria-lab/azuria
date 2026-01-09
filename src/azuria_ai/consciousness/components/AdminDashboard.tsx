@@ -312,7 +312,6 @@ export const AdminDashboard: React.FC = () => {
             />
             Auto-refresh
           </label>
-
           <button
             onClick={refreshStats}
             disabled={refreshing}
