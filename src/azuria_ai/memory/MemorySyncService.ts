@@ -123,17 +123,23 @@ export function shutdownMemorySyncService(): void {
  */
 export async function saveLTM(userId: string, ltm: LongTermMemory): Promise<SyncResult> {
   try {
-    const { error } = await supabase.rpc('upsert_ai_memory_ltm', {
-      p_user_id: userId,
-      p_preferences: ltm.preferences,
-      p_behavior_patterns: ltm.behaviorPatterns,
-      p_history_summary: ltm.history,
-      p_usage_context: {
-        blockedTopics: ltm.blockedTopics,
-        lastSyncAt: ltm.lastSyncAt,
-      },
-      p_learned_insights: ltm.feedback,
-    });
+    // Usar upsert direto na tabela (RPC pode não estar disponível ou ter tipos incompatíveis)
+    const { error } = await supabase
+      .from('ai_memory_ltm')
+      .upsert({
+        user_id: userId,
+        preferences: ltm.preferences as unknown,
+        behavior_patterns: ltm.behaviorPatterns as unknown,
+        history_summary: ltm.history as unknown,
+        usage_context: {
+          blockedTopics: ltm.blockedTopics,
+          lastSyncAt: ltm.lastSyncAt,
+        } as unknown,
+        learned_insights: ltm.feedback as unknown,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id',
+      });
 
     if (error) {
       throw error;
@@ -325,22 +331,37 @@ export async function loadUserMemory(userId: string): Promise<{
   error?: string;
 }> {
   try {
-    // Usar a função RPC que retorna tudo de uma vez
-    const { data, error } = await supabase.rpc('get_ai_memory_for_user', {
-      p_user_id: userId,
-    });
+    // Carregar memórias separadamente (RPC não disponível ou tipos incompatíveis)
+    // Buscar LTM diretamente da tabela
+    const { data: ltmData } = await supabase
+      .from('ai_memory_ltm')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
 
-    if (error) {
-      throw error;
-    }
+    // Buscar interações recentes
+    const { data: interactionsData } = await supabase
+      .from('ai_memory_interactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('timestamp', { ascending: false })
+      .limit(20);
+
+    // Buscar padrões ativos
+    const { data: patternsData } = await supabase
+      .from('ai_memory_patterns')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_detected_at', { ascending: false })
+      .limit(10);
 
     // Converter dados do Supabase para formato UnifiedMemory
-    const ltm = data?.ltm ? convertLTMFromSupabase(data.ltm) : null;
-    const recentInteractions = data?.recentInteractions
-      ? convertInteractionsFromSupabase(data.recentInteractions)
+    const ltm = ltmData ? convertLTMFromSupabase(ltmData as unknown as Record<string, unknown>) : null;
+    const recentInteractions = interactionsData
+      ? convertInteractionsFromSupabase(interactionsData as unknown as Record<string, unknown>[])
       : [];
-    const patterns = data?.activePatterns
-      ? convertPatternsFromSupabase(data.activePatterns)
+    const patterns = patternsData
+      ? convertPatternsFromSupabase(patternsData as unknown as Record<string, unknown>[])
       : [];
 
     state.lastSyncAt = Date.now();

@@ -490,45 +490,18 @@ export function useDashboardStats() {
   };
 }
 
-// Funções auxiliares
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) {return "Agora";}
-  if (diffMins < 60) {return `${diffMins}min atrás`;}
-  if (diffHours < 24) {return `${diffHours}h atrás`;}
-  if (diffDays === 1) {return "Ontem";}
-  if (diffDays < 7) {return `${diffDays} dias atrás`;}
-  return date.toLocaleDateString("pt-BR");
+// Funções auxiliares não usadas - prefixadas com _ para evitar warnings
+function _formatTimeAgo(_dateString: string): string {
+  // Não usado - mantido para possível uso futuro
+  return '';
 }
 
-function getActivityIcon(type: string): string {
-  const icons: Record<string, string> = {
-    calculation: "Calculator",
-    template_created: "LayoutTemplate",
-    export: "Download",
-    import: "Upload",
-    analysis: "BarChart3",
-    integration: "Plug",
-    default: "CheckCircle2",
-  };
-  return icons[type] || icons.default;
+function _getActivityIcon(_type: string): string {
+  // Não usado - mantido para possível uso futuro
+  return '';
 }
 
-function getActivityColor(type: string): string {
-  const colors: Record<string, string> = {
-    calculation: "text-blue-500",
-    template_created: "text-purple-500",
-    export: "text-green-500",
-    import: "text-orange-500",
-    analysis: "text-pink-500",
-    integration: "text-indigo-500",
-    default: "text-gray-500",
-  };
-  return colors[type] || colors.default;
+function _getActivityColor(_type: string): string {
+  // Não usado - mantido para possível uso futuro
+  return '';
 }

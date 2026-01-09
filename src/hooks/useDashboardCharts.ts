@@ -87,7 +87,7 @@ export function useDashboardCharts(period: '7D' | '30D' | '90D' = '30D') {
       // Processar cálculos simples
       (simpleCalculations || []).forEach(calc => {
         try {
-          const result = calc.result as any;
+          const result = calc.result as { sellingPrice?: number; finalPrice?: number; price?: number };
           // Verificar diferentes possíveis estruturas do result
           const price = result?.sellingPrice || result?.finalPrice || result?.price;
           if (price && typeof price === 'number' && price > 0) {
@@ -121,7 +121,10 @@ export function useDashboardCharts(period: '7D' | '30D' | '90D' = '30D') {
           if (!groupedByDate.has(dateKey)) {
             groupedByDate.set(dateKey, []);
           }
-          groupedByDate.get(dateKey)!.push(calc.price);
+          const dateCalculations = groupedByDate.get(dateKey);
+          if (dateCalculations) {
+            dateCalculations.push(calc.price);
+          }
         } catch (e) {
           logger.warn("⚠️ Erro ao processar data do cálculo:", e, calc);
         }

@@ -766,7 +766,7 @@ export {
   recordUserAction,
   recordNavigation,
   recordError as recordContextError,
-  recordCalculation,
+  recordCalculation as recordContextCalculation,
   recordInputInteraction,
   detectSkillLevel,
   updateSkillLevel,

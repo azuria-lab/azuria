@@ -100,10 +100,10 @@ export function useTeam(teamId: string | null): UseTeamReturn {
         
        
       const { data: teamTasks, error: tasksError } = await supabase
-        .from("team_tasks" as any)
+        .from("team_tasks")
         .select("*")
         .eq("team_id", teamId)
-        .order("created_at", { ascending: false }) as any;
+        .order("created_at", { ascending: false });
 
       if (tasksError) {throw tasksError;}
 
