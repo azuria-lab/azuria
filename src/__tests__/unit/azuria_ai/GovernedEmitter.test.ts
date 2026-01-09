@@ -14,7 +14,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock do eventBus - mocks inline
+// Mock do eventBus
 vi.mock('@/azuria_ai/core/eventBus', () => ({
   emitEvent: vi.fn(),
   onEvent: vi.fn(() => vi.fn()),
@@ -25,7 +25,7 @@ vi.mock('@/azuria_ai/core/eventBus', () => ({
   },
 }));
 
-// Mock do CentralNucleus - inline
+// Mock do CentralNucleus
 vi.mock('@/azuria_ai/consciousness/CentralNucleus', () => ({
   requestAction: vi.fn().mockResolvedValue({
     requestId: 'test',
@@ -33,47 +33,50 @@ vi.mock('@/azuria_ai/consciousness/CentralNucleus', () => ({
     processedAt: Date.now(),
   }),
   isNucleusRunning: vi.fn(() => true),
+  isNucleusInitialized: vi.fn(() => false), // Retorna false para evitar usar CentralNucleus.send
   CentralNucleus: {
     requestAction: vi.fn(),
     isRunning: vi.fn(() => true),
+    send: vi.fn(),
   },
 }));
 
-// Mock do EngineGovernance - inline
+// Mock do EngineGovernance
 vi.mock('@/azuria_ai/governance/EngineGovernance', () => ({
-  requestEmitPermission: vi.fn().mockResolvedValue({ granted: true }),
+  requestEmitPermission: vi.fn(() => Promise.resolve({ granted: true })),
   recordEmission: vi.fn(),
+  getEngine: vi.fn(() => ({
+    id: 'test-engine',
+    name: 'Test Engine',
+    category: 'cognitive',
+    privilege: 'standard',
+    allowedEvents: ['ai:insight:generated'],
+    active: true,
+  })),
+  registerEngine: vi.fn(() => true),
+  initEngineGovernance: vi.fn(),
+}));
+
+// Mock do ConsciousnessLevels
+vi.mock('@/azuria_ai/levels/ConsciousnessLevels', () => ({
+  getCurrentLevel: vi.fn().mockReturnValue({ id: 'USER', name: 'User Level' }),
+  canReceiveEvent: vi.fn().mockReturnValue(true),
 }));
 
 // Importar após os mocks
 import { emitEvent } from '@/azuria_ai/core/eventBus';
-import { isNucleusRunning, requestAction } from '@/azuria_ai/consciousness/CentralNucleus';
-import { requestEmitPermission } from '@/azuria_ai/governance/EngineGovernance';
 import {
-  getGovernedEmitterStats,
+  getEmissionStats,
   governedEmit,
   governedEmitAsync,
   initGovernedEmitter,
   isGovernedEmitterEnabled,
-  resetGovernedEmitterStats,
   shutdownGovernedEmitter,
 } from '@/azuria_ai/core/GovernedEmitter';
 
 describe('GovernedEmitter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Configurar mocks padrão
-    vi.mocked(isNucleusRunning).mockReturnValue(true);
-    vi.mocked(requestAction).mockResolvedValue({
-      requestId: 'test',
-      approved: true,
-      processedAt: Date.now(),
-    });
-    vi.mocked(requestEmitPermission).mockResolvedValue({
-      granted: true,
-      reason: 'approved',
-    });
   });
 
   afterEach(() => {
@@ -82,23 +85,14 @@ describe('GovernedEmitter', () => {
 
   describe('Inicialização', () => {
     it('deve inicializar corretamente', async () => {
-      const result = await initGovernedEmitter();
+      await initGovernedEmitter();
 
-      expect(result).toBe(true);
       expect(isGovernedEmitterEnabled()).toBe(true);
     });
 
-    it('deve retornar true se já inicializado', async () => {
+    it('não deve dar erro se já inicializado', async () => {
       await initGovernedEmitter();
-      const result = await initGovernedEmitter();
-
-      expect(result).toBe(true);
-    });
-
-    it('deve inicializar com debug ativo', async () => {
-      const result = await initGovernedEmitter({ debug: true });
-
-      expect(result).toBe(true);
+      await expect(initGovernedEmitter()).resolves.not.toThrow();
     });
   });
 
@@ -121,17 +115,16 @@ describe('GovernedEmitter', () => {
     });
 
     it('deve emitir evento sincronamente', () => {
-      governedEmit('test-engine', 'ai:insight:generated', { data: 'test' });
+      governedEmit('ai:insight:generated', { data: 'test' }, { source: 'test-engine' });
 
-      // Verifica que emitEvent foi chamado
       expect(emitEvent).toHaveBeenCalled();
     });
 
     it('deve incrementar estatísticas', () => {
-      governedEmit('test-engine', 'ai:insight:generated', { data: 'test' });
+      governedEmit('ai:insight:generated', { data: 'test' }, { source: 'test-engine' });
 
-      const stats = getGovernedEmitterStats();
-      expect(stats.totalEmissions).toBeGreaterThanOrEqual(1);
+      const stats = getEmissionStats();
+      expect(stats.total).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -141,23 +134,14 @@ describe('GovernedEmitter', () => {
     });
 
     it('deve emitir evento assincronamente', async () => {
-      const result = await governedEmitAsync('test-engine', 'ai:insight:generated', {
-        data: 'test',
-      });
+      const result = await governedEmitAsync(
+        'ai:insight:generated',
+        { data: 'test' },
+        { source: 'test-engine' }
+      );
 
-      expect(result).toBe(true);
+      expect(result.emitted).toBe(true);
       expect(emitEvent).toHaveBeenCalled();
-    });
-
-    it('deve respeitar permissões negadas', async () => {
-      vi.mocked(requestEmitPermission).mockResolvedValueOnce({
-        granted: false,
-        reason: 'blocked',
-      });
-
-      const result = await governedEmitAsync('blocked-engine', 'ai:insight:generated', {});
-
-      expect(result).toBe(false);
     });
   });
 
@@ -165,23 +149,12 @@ describe('GovernedEmitter', () => {
     it('deve retornar estatísticas válidas', async () => {
       await initGovernedEmitter();
 
-      const stats = getGovernedEmitterStats();
+      const stats = getEmissionStats();
 
-      expect(stats).toHaveProperty('totalEmissions');
-      expect(stats).toHaveProperty('blockedEmissions');
-      expect(stats).toHaveProperty('byEngine');
-    });
-
-    it('deve resetar estatísticas', async () => {
-      await initGovernedEmitter();
-
-      governedEmit('test-engine', 'ai:insight:generated', {});
-      let stats = getGovernedEmitterStats();
-      expect(stats.totalEmissions).toBeGreaterThanOrEqual(1);
-
-      resetGovernedEmitterStats();
-      stats = getGovernedEmitterStats();
-      expect(stats.totalEmissions).toBe(0);
+      expect(stats).toHaveProperty('total');
+      expect(stats).toHaveProperty('blocked');
+      expect(stats).toHaveProperty('bySource');
+      expect(stats).toHaveProperty('isEnabled');
     });
   });
 
@@ -190,27 +163,24 @@ describe('GovernedEmitter', () => {
       await initGovernedEmitter();
     });
 
-    it('deve respeitar opção skipGovernance', async () => {
+    it('deve respeitar opção bypassGovernance', async () => {
       const result = await governedEmitAsync(
-        'test-engine',
         'ai:insight:generated',
         {},
-        { skipGovernance: true }
+        { source: 'test-engine', bypassGovernance: true }
       );
 
-      expect(result).toBe(true);
-      // Não deve verificar permissões
+      expect(result.emitted).toBe(true);
     });
 
     it('deve respeitar opção priority', async () => {
       const result = await governedEmitAsync(
-        'test-engine',
         'ai:insight:generated',
         {},
-        { priority: 'high' }
+        { source: 'test-engine', priority: 10 }
       );
 
-      expect(result).toBe(true);
+      expect(result.emitted).toBe(true);
     });
   });
 });

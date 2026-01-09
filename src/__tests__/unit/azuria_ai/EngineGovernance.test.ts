@@ -73,11 +73,9 @@ describe('EngineGovernance', () => {
     });
 
     it('deve registrar engine corretamente', () => {
-      const result = registerEngine({
-        id: 'test-engine',
+      const result = registerEngine('test-engine', {
         name: 'Test Engine',
-        category: 'insight',
-        privileges: ['emit_events'],
+        category: 'cognitive',
       });
 
       expect(result).toBe(true);
@@ -85,18 +83,14 @@ describe('EngineGovernance', () => {
     });
 
     it('deve listar engines registrados', () => {
-      registerEngine({
-        id: 'engine-1',
+      registerEngine('engine-1', {
         name: 'Engine 1',
-        category: 'insight',
-        privileges: ['emit_events'],
+        category: 'cognitive',
       });
 
-      registerEngine({
-        id: 'engine-2',
+      registerEngine('engine-2', {
         name: 'Engine 2',
-        category: 'action',
-        privileges: ['execute_actions'],
+        category: 'operational',
       });
 
       const engines = listEngines();
@@ -105,11 +99,9 @@ describe('EngineGovernance', () => {
     });
 
     it('deve desregistrar engine corretamente', () => {
-      registerEngine({
-        id: 'to-remove',
+      registerEngine('to-remove', {
         name: 'To Remove',
-        category: 'insight',
-        privileges: [],
+        category: 'cognitive',
       });
 
       expect(getEngine('to-remove')).toBeDefined();
@@ -123,11 +115,10 @@ describe('EngineGovernance', () => {
   describe('Permissões de Emissão', () => {
     beforeEach(() => {
       initEngineGovernance();
-      registerEngine({
-        id: 'emit-engine',
+      registerEngine('emit-engine', {
         name: 'Emit Engine',
-        category: 'insight',
-        privileges: ['emit_events'],
+        category: 'cognitive',
+        allowedEvents: ['ai:insight:generated'],
       });
     });
 
@@ -148,11 +139,9 @@ describe('EngineGovernance', () => {
   describe('Permissões de Ação', () => {
     beforeEach(() => {
       initEngineGovernance();
-      registerEngine({
-        id: 'action-engine',
+      registerEngine('action-engine', {
         name: 'Action Engine',
-        category: 'action',
-        privileges: ['execute_actions'],
+        category: 'operational',
       });
     });
 
@@ -173,9 +162,9 @@ describe('EngineGovernance', () => {
 
       const stats = getGovernanceStats();
 
-      expect(stats).toHaveProperty('totalEmissions');
-      expect(stats).toHaveProperty('totalActions');
-      expect(stats).toHaveProperty('engineCount');
+      expect(stats).toHaveProperty('totalRequests');
+      expect(stats).toHaveProperty('granted');
+      expect(stats).toHaveProperty('enginesRegistered');
     });
   });
 
@@ -183,8 +172,8 @@ describe('EngineGovernance', () => {
     it('deve ter métodos essenciais', () => {
       expect(EngineGovernance).toHaveProperty('init');
       expect(EngineGovernance).toHaveProperty('shutdown');
-      expect(EngineGovernance).toHaveProperty('registerEngine');
-      expect(EngineGovernance).toHaveProperty('requestEmitPermission');
+      expect(EngineGovernance).toHaveProperty('register');
+      expect(EngineGovernance).toHaveProperty('requestEmit');
     });
   });
 });
