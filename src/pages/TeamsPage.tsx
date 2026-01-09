@@ -255,6 +255,209 @@ const getMemberJobTitle = (role: string): string => {
   return "Desenvolvedor";
 };
 
+const getMemberDescription = (role: string): string => {
+  if (role === "admin") {
+    return "Administrador responsável pela gestão estratégica do time e definição de diretrizes. Focado em resultados e crescimento da equipe.";
+  }
+  if (role === "manager") {
+    return "Gerente de projetos com experiência em coordenação de equipes e entrega de resultados. Especialista em metodologias ágeis.";
+  }
+  return "Membro dedicado do time, comprometido com a excelência e colaboração. Sempre em busca de aprender e contribuir.";
+};
+
+const getMemberSkills = (role: string): string[] => {
+  if (role === "admin") {
+    return ["Liderança", "Estratégia", "Tomada de Decisão", "Gestão"];
+  }
+  if (role === "manager") {
+    return ["Scrum", "Gestão de Projetos", "Comunicação", "Agile"];
+  }
+  return ["Desenvolvimento", "Colaboração", "Resolução de Problemas"];
+};
+
+// Componente de coluna droppable - extraído para evitar nested component
+interface DroppableColumnProps {
+  status: TaskStatus;
+  children: ReactNode;
+}
+
+const DroppableColumn = ({ status, children }: DroppableColumnProps) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+    data: {
+      type: 'column',
+      status,
+    },
+  });
+
+  const config = statusConfig[status];
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      initial={false}
+      animate={{
+        scale: isOver ? 1.01 : 1,
+        borderColor: isOver ? config.accentColor : undefined,
+      }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className={cn(
+        "flex flex-col rounded-2xl border transition-all duration-300 min-h-[450px]",
+        "bg-background/50 backdrop-blur-sm",
+        "border-border/60 shadow-sm hover:shadow-md",
+        isOver && "shadow-xl border-2"
+      )}
+      style={{
+        borderColor: isOver ? config.accentColor : undefined,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Componente de card de tarefa - extraído para evitar nested component
+interface TaskCardProps {
+  task: Task;
+  members: TeamMember[];
+  getInitials: (name: string) => string;
+  getPriorityColor: (priority: TaskPriority) => string;
+}
+
+const TaskCard = ({ task, members, getInitials, getPriorityColor }: TaskCardProps) => {
+  const _StatusIcon = statusConfig[task.status].icon;
+  const completedChecklist = task.checklist?.filter((item) => item.isCompleted).length || 0;
+  const totalChecklist = task.checklist?.length || 0;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: task.id,
+    data: {
+      type: 'task',
+      task,
+      status: task.status,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: isDragging ? 'none' : transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="bg-card border border-border rounded-lg p-4 opacity-40"
+      >
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm text-foreground mb-1">
+              {task.title}
+            </h4>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, x: 4 }}
+      transition={{ duration: 0.2 }}
+      className="bg-card border border-border rounded-lg p-4 hover:bg-white dark:hover:bg-gray-900 hover:border-primary/50 transition-all cursor-grab active:cursor-grabbing group shadow-sm hover:shadow-md"
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h4 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary transition-colors">
+            {task.title}
+          </h4>
+          {task.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+              {task.description}
+            </p>
+          )}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Editar</DropdownMenuItem>
+            <DropdownMenuItem>Duplicar</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {task.checklist && totalChecklist > 0 && (
+        <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <CheckCircle2 className="h-3 w-3" />
+          <span>{completedChecklist}/{totalChecklist} concluído</span>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1">
+          {task.assignedTo?.slice(0, 3).map((userId) => {
+            const member = members.find((m) => m.userId === userId);
+            return member ? (
+              <Avatar key={userId} className="h-6 w-6 border-2 border-background">
+                <AvatarImage src={member.avatar} />
+                <AvatarFallback className="text-[10px]">
+                  {getInitials(member.name)}
+                </AvatarFallback>
+              </Avatar>
+            ) : null;
+          })}
+          {task.assignedTo && task.assignedTo.length > 3 && (
+            <span className="text-xs text-muted-foreground">+{task.assignedTo.length - 3}</span>
+          )}
+        </div>
+        <Badge className={cn("text-xs", getPriorityColor(task.priority))}>
+          {priorityConfig[task.priority].label}
+        </Badge>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {task.tags.slice(0, 2).map((tag) => (
+            <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
+              {tag}
+            </Badge>
+          ))}
+          {task.tags.length > 2 && (
+            <span className="text-xs text-muted-foreground">+{task.tags.length - 2}</span>
+          )}
+        </div>
+        {task.dueDate && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            <span>{new Date(task.dueDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 export default function TeamsPage() {
   const { userProfile, user } = useAuthContext();
   const consciousness = useConsciousnessContext();
@@ -1220,176 +1423,6 @@ export default function TeamsPage() {
   const currentUserId = userProfile?.id || "user-1";
   const currentUserName = userProfile?.name || "Você";
 
-  // Componente de coluna droppable
-  const DroppableColumn = ({ status, children }: { status: TaskStatus; children: ReactNode }) => {
-    const { setNodeRef, isOver } = useDroppable({
-      id: status,
-      data: {
-        type: 'column',
-        status,
-      },
-    });
-
-    const config = statusConfig[status];
-
-    return (
-      <motion.div
-        ref={setNodeRef}
-        initial={false}
-        animate={{
-          scale: isOver ? 1.01 : 1,
-          borderColor: isOver ? config.accentColor : undefined,
-        }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        className={cn(
-          "flex flex-col rounded-2xl border transition-all duration-300 min-h-[450px]",
-          "bg-background/50 backdrop-blur-sm",
-          "border-border/60 shadow-sm hover:shadow-md",
-          isOver && "shadow-xl border-2"
-        )}
-        style={{
-          borderColor: isOver ? config.accentColor : undefined,
-        }}
-      >
-        {children}
-      </motion.div>
-    );
-  };
-
-  const TaskCard = ({ task }: { task: Task }) => {
-    const _StatusIcon = statusConfig[task.status].icon;
-    const completedChecklist = task.checklist?.filter((item) => item.isCompleted).length || 0;
-    const totalChecklist = task.checklist?.length || 0;
-
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ 
-      id: task.id,
-      data: {
-        type: 'task',
-        task,
-        status: task.status,
-      },
-    });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition: isDragging ? 'none' : transition,
-      opacity: isDragging ? 0.4 : 1,
-    };
-
-    if (isDragging) {
-      return (
-        <div
-          ref={setNodeRef}
-          style={style}
-          className="bg-card border border-border rounded-lg p-4 opacity-40"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm text-foreground mb-1">
-                {task.title}
-              </h4>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <motion.div
-        ref={setNodeRef}
-        style={style}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.02, x: 4 }}
-        transition={{ duration: 0.2 }}
-        className="bg-card border border-border rounded-lg p-4 hover:bg-white dark:hover:bg-gray-900 hover:border-primary/50 transition-all cursor-grab active:cursor-grabbing group shadow-sm hover:shadow-md"
-        {...attributes}
-        {...listeners}
-      >
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h4 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary transition-colors">
-              {task.title}
-            </h4>
-            {task.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                {task.description}
-              </p>
-            )}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Editar</DropdownMenuItem>
-              <DropdownMenuItem>Duplicar</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {task.checklist && totalChecklist > 0 && (
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <CheckCircle2 className="h-3 w-3" />
-            <span>{completedChecklist}/{totalChecklist} concluído</span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1">
-            {task.assignedTo?.slice(0, 3).map((userId) => {
-              const member = members.find((m) => m.userId === userId);
-              return member ? (
-                <Avatar key={userId} className="h-6 w-6 border-2 border-background">
-                  <AvatarImage src={member.avatar} />
-                  <AvatarFallback className="text-[10px]">
-                    {getInitials(member.name)}
-                  </AvatarFallback>
-                </Avatar>
-              ) : null;
-            })}
-            {task.assignedTo && task.assignedTo.length > 3 && (
-              <span className="text-xs text-muted-foreground">+{task.assignedTo.length - 3}</span>
-            )}
-          </div>
-          <Badge className={cn("text-xs", getPriorityColor(task.priority))}>
-            {priorityConfig[task.priority].label}
-          </Badge>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {task.tags.slice(0, 2).map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
-                {tag}
-              </Badge>
-            ))}
-            {task.tags.length > 2 && (
-              <span className="text-xs text-muted-foreground">+{task.tags.length - 2}</span>
-            )}
-          </div>
-          {task.dueDate && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>{new Date(task.dueDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
-            </div>
-          )}
-        </div>
-      </motion.div>
-    );
-  };
-
   return (
     <>
       <Helmet>
@@ -1528,26 +1561,15 @@ export default function TeamsPage() {
                     <CardContent>
                       <div className="space-y-3">
                         {members.slice(0, 3).map((member) => (
-                          <motion.div
+                          <motion.button
                             key={member.id}
                             whileHover={{ scale: 1.02, x: 4 }}
                             transition={{ duration: 0.2 }}
-                          >
-                            <div
-                              role="button"
-                              tabIndex={0}
-                              onClick={() => {
-                                setSelectedMember(member);
-                                setActiveTab("members");
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
-                                  setSelectedMember(member);
-                                  setActiveTab("members");
-                                }
-                              }}
-                              className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px]"
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setActiveTab("members");
+                            }}
+                            className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px] w-full text-left"
                             >
                               <Avatar className="h-10 w-10 flex-shrink-0">
                                 <AvatarImage src={member.avatar} />
@@ -1565,8 +1587,7 @@ export default function TeamsPage() {
                                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 truncate">{member.email}</p>
                               </div>
                               <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            </div>
-                          </motion.div>
+                          </motion.button>
                         ))}
                       </div>
                       <Button 
@@ -1600,22 +1621,12 @@ export default function TeamsPage() {
                             }
                           };
                           return (
-                            <motion.div
+                            <motion.button
                               key={task.id}
                               whileHover={{ scale: 1.02, x: 4 }}
                               transition={{ duration: 0.2 }}
-                            >
-                              <div
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => setActiveTab("tasks")}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    setActiveTab("tasks");
-                                  }
-                                }}
-                                className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px]"
+                              onClick={() => setActiveTab("tasks")}
+                              className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px] w-full text-left"
                               >
                                 <div className={`p-2 rounded-lg ${getStatusColor(task.status)} flex-shrink-0`}>
                                   <StatusIcon className="h-5 w-5 text-white" />
@@ -1634,8 +1645,7 @@ export default function TeamsPage() {
                                   </p>
                                 </div>
                                 <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                              </div>
-                            </motion.div>
+                            </motion.button>
                           );
                         })}
                       </div>
@@ -1858,7 +1868,7 @@ export default function TeamsPage() {
                                 strategy={verticalListSortingStrategy}
                               >
                                 {columnTasks.map((task) => (
-                                  <TaskCard key={task.id} task={task} />
+                                  <TaskCard key={task.id} task={task} members={members} getInitials={getInitials} getPriorityColor={getPriorityColor} />
                                 ))}
                               </SortableContext>
                               {columnTasks.length === 0 && (
@@ -1948,7 +1958,7 @@ export default function TeamsPage() {
                 ) : (
                   <div className="space-y-2">
                     {filteredTasks.map((task) => (
-                      <TaskCard key={task.id} task={task} />
+                      <TaskCard key={task.id} task={task} members={members} getInitials={getInitials} getPriorityColor={getPriorityColor} />
                     ))}
                     {filteredTasks.length === 0 && (
                       <Card>
@@ -2629,14 +2639,14 @@ export default function TeamsPage() {
                         { icon: CheckCircle2, text: "Todas as tarefas serão excluídas" },
                         { icon: MessageCircle, text: "Todas as conversas serão perdidas" },
                         { icon: AlertCircle, text: "Histórico e dados não poderão ser recuperados" },
-                      ].map((item, index) => {
+                      ].map((item, idx) => {
                         const Icon = item.icon;
                         return (
                           <motion.div
-                            key={index}
+                            key={item.text}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.15 + index * 0.05 }}
+                            transition={{ delay: 0.15 + idx * 0.05 }}
                             className="flex items-center gap-3 text-sm text-muted-foreground"
                           >
                             <Icon className="h-4 w-4 flex-shrink-0" />
@@ -2649,7 +2659,6 @@ export default function TeamsPage() {
                 </div>
               </motion.div>
 
-              {/* Confirmation Input */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -2800,11 +2809,7 @@ export default function TeamsPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">Sobre</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {selectedMember.role === "admin" 
-                        ? "Administrador responsável pela gestão estratégica do time e definição de diretrizes. Focado em resultados e crescimento da equipe."
-                        : selectedMember.role === "manager"
-                        ? "Gerente de projetos com experiência em coordenação de equipes e entrega de resultados. Especialista em metodologias ágeis."
-                        : "Membro dedicado do time, comprometido com a excelência e colaboração. Sempre em busca de aprender e contribuir."}
+                      {getMemberDescription(selectedMember.role)}
                     </p>
                   </div>
 

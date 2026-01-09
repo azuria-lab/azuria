@@ -220,7 +220,7 @@ export const AdminDashboard: React.FC = () => {
     
     return {
       events: {
-        received: 0, // TODO: conectar com ConsciousnessCore.getStats()
+        received: 0, // Stats will be connected via ConsciousnessCore.getStats() in future iteration
         processed: 0,
         filtered: 0,
       },
@@ -312,7 +312,7 @@ export const AdminDashboard: React.FC = () => {
             />
             Auto-refresh
           </label>
-          
+
           <button
             onClick={refreshStats}
             disabled={refreshing}
