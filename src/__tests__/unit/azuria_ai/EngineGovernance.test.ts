@@ -118,14 +118,15 @@ describe('EngineGovernance', () => {
       registerEngine('emit-engine', {
         name: 'Emit Engine',
         category: 'cognitive',
-        allowedEvents: ['ai:insight:generated'],
+        allowedEvents: ['insight:generated'],
       });
     });
 
     it('deve verificar permissão de emissão', async () => {
       const result = await requestEmitPermission({
         engineId: 'emit-engine',
-        eventType: 'ai:insight:generated',
+        eventType: 'insight:generated',
+        payload: { data: 'test' },
       });
 
       expect(result).toHaveProperty('granted');

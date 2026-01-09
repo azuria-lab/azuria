@@ -19,8 +19,7 @@ vi.mock('@/azuria_ai/core/eventBus', () => ({
   emitEvent: vi.fn(),
   onEvent: vi.fn(() => vi.fn()),
   EventTypes: {
-    AI_INSIGHT_GENERATED: 'ai:insight:generated',
-    AI_SUGGESTION_CREATED: 'ai:suggestion:created',
+    INSIGHT_GENERATED: 'insight:generated',
     USER_ACTION: 'user:action',
   },
 }));
@@ -50,7 +49,7 @@ vi.mock('@/azuria_ai/governance/EngineGovernance', () => ({
     name: 'Test Engine',
     category: 'cognitive',
     privilege: 'standard',
-    allowedEvents: ['ai:insight:generated'],
+    allowedEvents: ['insight:generated'],
     active: true,
   })),
   registerEngine: vi.fn(() => true),
@@ -115,13 +114,13 @@ describe('GovernedEmitter', () => {
     });
 
     it('deve emitir evento sincronamente', () => {
-      governedEmit('ai:insight:generated', { data: 'test' }, { source: 'test-engine' });
+      governedEmit('insight:generated', { data: 'test' }, { source: 'test-engine' });
 
       expect(emitEvent).toHaveBeenCalled();
     });
 
     it('deve incrementar estatísticas', () => {
-      governedEmit('ai:insight:generated', { data: 'test' }, { source: 'test-engine' });
+      governedEmit('insight:generated', { data: 'test' }, { source: 'test-engine' });
 
       const stats = getEmissionStats();
       expect(stats.total).toBeGreaterThanOrEqual(1);
@@ -135,7 +134,7 @@ describe('GovernedEmitter', () => {
 
     it('deve emitir evento assincronamente', async () => {
       const result = await governedEmitAsync(
-        'ai:insight:generated',
+        'insight:generated',
         { data: 'test' },
         { source: 'test-engine' }
       );
@@ -165,7 +164,7 @@ describe('GovernedEmitter', () => {
 
     it('deve respeitar opção bypassGovernance', async () => {
       const result = await governedEmitAsync(
-        'ai:insight:generated',
+        'insight:generated',
         {},
         { source: 'test-engine', bypassGovernance: true }
       );
@@ -175,7 +174,7 @@ describe('GovernedEmitter', () => {
 
     it('deve respeitar opção priority', async () => {
       const result = await governedEmitAsync(
-        'ai:insight:generated',
+        'insight:generated',
         {},
         { source: 'test-engine', priority: 10 }
       );
