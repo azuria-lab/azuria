@@ -69,6 +69,7 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
 
     for (const pattern of dangerousPatterns) {
       if (pattern.test(url)) {
+        // eslint-disable-next-line no-console
         console.warn('Dangerous URL pattern detected');
         return '';
       }
@@ -110,11 +111,13 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
         // Only allow data URLs for images
         return url;
       } else {
+        // eslint-disable-next-line no-console
         console.warn('Invalid URL scheme:', urlObj.protocol);
         return '';
       }
-    } catch (e) {
+    } catch (_e) {
       // URL parsing failed - likely invalid format
+      // eslint-disable-next-line no-console
       console.warn('Invalid URL format');
       return '';
     }

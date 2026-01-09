@@ -342,7 +342,7 @@ export default function AdvancedCalculator({ userId: _userId }: AdvancedCalculat
         title: "Template aplicado!",
         description: `Configurações do template "${template.name}" foram aplicadas com sucesso.`,
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Erro ao aplicar template",
         description: "Houve um problema ao aplicar as configurações do template.",

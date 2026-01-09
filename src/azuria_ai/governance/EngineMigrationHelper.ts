@@ -61,17 +61,14 @@ export interface AnalysisResult {
 // MAPEAMENTO DE CATEGORIAS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const CATEGORY_KEYWORDS: Record<EngineCategory, string[]> = {
+const CATEGORY_KEYWORDS: Partial<Record<EngineCategory, string[]>> = {
   cognitive: ['cognitive', 'think', 'reason', 'analyze', 'pattern', 'learning'],
-  emotional: ['emotion', 'affective', 'sentiment', 'mood', 'feeling'],
-  behavioral: ['behavior', 'action', 'user', 'intent', 'context'],
+  operational: ['behavior', 'action', 'user', 'intent', 'context'],
   governance: ['governance', 'policy', 'ethics', 'audit', 'safety', 'limit'],
-  communication: ['brand', 'voice', 'tone', 'persona', 'story', 'explanation'],
-  market: ['market', 'price', 'pricing', 'bidding', 'revenue', 'competitive'],
-  evolution: ['evolution', 'improvement', 'feedback', 'adaptive', 'tuning'],
+  communication: ['brand', 'voice', 'tone', 'persona', 'story', 'explanation', 'emotion', 'affective', 'sentiment', 'mood', 'feeling'],
+  learning: ['evolution', 'improvement', 'feedback', 'adaptive', 'tuning'],
   system: ['system', 'orchestr', 'core', 'engine', 'mind'],
-  utility: ['util', 'helper', 'tool', 'ocr', 'import'],
-  other: [],
+  utility: ['util', 'helper', 'tool', 'ocr', 'import', 'market', 'price', 'pricing', 'bidding', 'revenue', 'competitive'],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -56,7 +56,6 @@ interface EmissionStats {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 let isEnabled = false;
-let nucleusModule: typeof import('../consciousness/CentralNucleus') | null = null;
 let governanceModule: typeof import('../governance/EngineGovernance') | null = null;
 let levelsModule: typeof import('../levels/ConsciousnessLevels') | null = null;
 
@@ -122,9 +121,9 @@ export async function initGovernedEmitter(): Promise<void> {
  */
 export function shutdownGovernedEmitter(): void {
   isEnabled = false;
-  nucleusModule = null;
   governanceModule = null;
   levelsModule = null;
+  knownEngines.clear();
   stats.total = 0;
   stats.blocked = 0;
   stats.bypassedByGovernance = 0;
