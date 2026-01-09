@@ -284,9 +284,9 @@ export function useAllFeaturesData() {
 
       // Processar documentos
       const docsData = documents.status === 'fulfilled' ? (documents.value.data || []) : [];
-      const validDocs = docsData.filter((d: any) => d.status === "valido").length;
-      const expiringDocs = docsData.filter((d: any) => d.status === "proximo_vencimento").length;
-      const expiredDocs = docsData.filter((d: any) => d.status === "vencido").length;
+      const validDocs = docsData.filter((d: { status?: string }) => d.status === "valido").length;
+      const expiringDocs = docsData.filter((d: { status?: string }) => d.status === "proximo_vencimento").length;
+      const expiredDocs = docsData.filter((d: { status?: string }) => d.status === "vencido").length;
 
       setData({
         calculations: {
