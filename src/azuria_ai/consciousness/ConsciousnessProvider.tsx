@@ -260,7 +260,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   };
 
   // Helper para inicializar Gemini
-  const initializeGemini = () => {
+  const initializeGemini = useCallback(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL 
       || import.meta.env.VITE_SUPABASE_CLOUD_URL
       || 'https://crpzkppsriranmeumfqs.supabase.co';
@@ -281,7 +281,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       return true;
     }
     return false;
-  };
+  }, [config?.geminiApiKey]);
 
   const initialize = useCallback(async () => {
     if (legacyState.initialized || legacyState.loading || initializationStarted.current) {
@@ -416,6 +416,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
     config, 
     location.pathname,
     initializeSecondaryEngines,
+    initializeGemini,
   ]);
   
   // ═══════════════════════════════════════════════════════════════════════════

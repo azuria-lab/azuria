@@ -16,10 +16,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Mock do eventBus
 vi.mock('@/azuria_ai/core/eventBus', () => ({
   emitEvent: vi.fn(),
-  onEvent: vi.fn(() => vi.fn()),
+  on: vi.fn(() => vi.fn()),
 }));
 
-import { emitEvent, onEvent } from '@/azuria_ai/core/eventBus';
+import { emitEvent } from '@/azuria_ai/core/eventBus';
 import {
   clearRecordings,
   deleteRecording,

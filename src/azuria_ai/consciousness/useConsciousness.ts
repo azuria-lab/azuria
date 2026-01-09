@@ -22,7 +22,6 @@ import {
 } from './ConsciousnessCore';
 import { 
   getGlobalState, 
-  type GlobalStateShape,
   subscribeToState,
 } from './GlobalState';
 import type { CognitiveRole, NormalizedEvent, OutputMessage, SubscriptionTier } from './types';
@@ -235,6 +234,7 @@ export function useConsciousness(
   // Enviar evento
   const send = useCallback((type: string, payload?: Record<string, unknown>) => {
     if (!state.initialized) {
+      // eslint-disable-next-line no-console
       console.warn('[useConsciousness] Not initialized');
       return;
     }
@@ -341,7 +341,7 @@ export function useConsciousness(
         shutdown();
       }
     };
-  }, []);
+  }, [shutdown, state.initialized]);
 
   // Auto-expirar mensagens por TTL
   useEffect(() => {

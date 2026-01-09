@@ -78,6 +78,7 @@ export async function callGeminiViaEdgeFunction(
   });
 
   if (!result.success) {
+    // eslint-disable-next-line no-console
     console.error('[EdgeFunctionHelper] Error calling azuria-chat:', result.error);
     return null;
   }

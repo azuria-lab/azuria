@@ -421,7 +421,7 @@ export function resetMetrics(): void {
 
 /** Métricas do Nucleus */
 export const NucleusMetrics = {
-  actionProcessed: (result: 'approved' | 'rejected', engine: string) =>
+  actionProcessed: (result: 'success' | 'failure' | 'blocked', engine: string) =>
     incrementCounter('nucleus.action.processed', 1, { result, engine }),
 
   cycleCompleted: (durationMs: number) =>

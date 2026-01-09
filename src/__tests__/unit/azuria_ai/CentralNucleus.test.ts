@@ -142,9 +142,10 @@ describe('CentralNucleus', () => {
       await initNucleus();
 
       const request: ActionRequest = {
-        id: 'test-1',
-        type: 'insight',
-        source: 'test-engine',
+        requestId: 'test-1',
+        source: 'engine',
+        sourceName: 'test-engine',
+        actionType: 'emit',
         payload: { data: 'test' },
         priority: 'normal',
       };

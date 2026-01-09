@@ -183,7 +183,11 @@ export async function initNucleus(config: NucleusConfig = {}): Promise<{
     (m) => {
       m.initUnifiedStore({ debug: config.debug, persist: false });
       if (config.userId || config.role || config.tier) {
-        m.initializeWithUser(config.userId ?? null, config.role ?? 'USER', config.tier ?? 'FREE');
+        const role = config.role ?? 'USER';
+        const tier = config.tier ?? 'FREE';
+        // Converter CognitiveRole de types.ts para UnifiedStateStore.ts
+        const unifiedRole = (role === 'SYSTEM' ? 'USER' : role) as 'ADMIN' | 'USER';
+        m.initializeWithUser(config.userId ?? null, unifiedRole, tier);
       }
     }
   );
@@ -274,9 +278,8 @@ export async function initNucleus(config: NucleusConfig = {}): Promise<{
   try {
     engineGovernanceModule = await import('../governance/EngineGovernance');
     engineGovernanceModule.initEngineGovernance({
-      debug: config.debug,
-      defaultPolicy: 'ask', // Por padrão, engines pedem permissão
-      bypassDuringMigration: true, // Durante migração, permitir bypass
+      debug: config.debug ?? false,
+      strictMode: false, // Por padrão, não exige aprovação estrita
     });
     log('✓ EngineGovernance initialized');
   } catch (error) {
@@ -846,17 +849,16 @@ async function checkEnginePermission(request: ActionRequest): Promise<boolean> {
   }
   
   // Verificar se engine está habilitado
-  if (!engine.enabled) {return false;}
+  if (!engine.active) {return false;}
   
   // Solicitar permissão para a ação
-  const permission = await engineGovernanceModule.requestActionPermission({
+  const permission = await engineGovernanceModule.requestActionPermission(
     engineId,
-    actionType: 'execute',
-    payload: request.payload,
-    priority: request.priority,
-  });
+    'execute',
+    request.payload
+  );
   
-  return permission.approved;
+  return permission.granted;
 }
 
 async function checkGovernance(request: ActionRequest): Promise<boolean> {

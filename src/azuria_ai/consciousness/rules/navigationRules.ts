@@ -118,7 +118,7 @@ function isFirstVisit(screen: string): boolean {
   return visitCount <= 1;
 }
 
-function getTimeOnPreviousScreen(previousPath: string): number {
+function getTimeOnPreviousScreen(_previousPath: string): number {
   const state = getGlobalState();
   const lastAction = state.currentMoment.lastActionAt;
   return Date.now() - lastAction;
@@ -156,7 +156,7 @@ export const navFirstVisitRule = {
     return isFirstVisit(targetScreen);
   },
   
-  decide: (ctx: DecisionContext): Decision => {
+  decide: (_ctx: DecisionContext): Decision => {
     // Notificações de primeira visita desativadas
     return {
       type: 'silence',
@@ -268,7 +268,7 @@ export const navSuggestNextStepRule = {
   
   decide: (ctx: DecisionContext): Decision => {
     const payload = ctx.event.payload as { from: string; to: string };
-    const previousScreenInfo = getScreenInfo(payload.from);
+    getScreenInfo(payload.from); // Verificar se existe informação da tela anterior
     const state = getGlobalState();
     
     // Verificar se completou algum cálculo

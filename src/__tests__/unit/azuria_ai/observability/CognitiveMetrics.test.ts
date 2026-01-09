@@ -210,10 +210,10 @@ describe('CognitiveMetrics', () => {
 
   describe('Pre-defined metrics', () => {
     it('should record nucleus metrics', () => {
-      NucleusMetrics.actionProcessed('approved', 'insight-engine');
+      NucleusMetrics.actionProcessed('success', 'insight-engine');
       NucleusMetrics.error('timeout');
 
-      expect(getCounter('nucleus.action.processed', { result: 'approved', engine: 'insight-engine' })).toBe(1);
+      expect(getCounter('nucleus.action.processed', { result: 'success', engine: 'insight-engine' })).toBe(1);
       expect(getCounter('nucleus.error', { type: 'timeout' })).toBe(1);
     });
   });

@@ -57,6 +57,7 @@ const Templates = lazy(() => import("./pages/Templates"));
 const CollaborationPage = lazy(() => import("./pages/CollaborationPage"));
 const TeamsPage = lazy(() => 
   import("./pages/TeamsPage").catch((error) => {
+    // eslint-disable-next-line no-console
     console.error("Erro ao carregar TeamsPage:", error);
     // Retornar um componente de fallback em caso de erro
     return { default: () => <div>Erro ao carregar a página de Equipes. Por favor, recarregue a página.</div> };

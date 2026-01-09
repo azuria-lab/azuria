@@ -63,7 +63,7 @@ describe('EngineGovernance', () => {
     });
 
     it('deve inicializar com configuração', () => {
-      expect(() => initEngineGovernance({ maxEngines: 100 })).not.toThrow();
+      expect(() => initEngineGovernance({ strictMode: true, debug: true })).not.toThrow();
     });
   });
 
@@ -147,11 +147,11 @@ describe('EngineGovernance', () => {
     });
 
     it('deve verificar permissão de ação', async () => {
-      const result = await requestActionPermission({
-        engineId: 'action-engine',
-        actionType: 'update',
-        payload: {},
-      });
+      const result = await requestActionPermission(
+        'action-engine',
+        'update',
+        {}
+      );
 
       expect(result).toHaveProperty('granted');
     });
