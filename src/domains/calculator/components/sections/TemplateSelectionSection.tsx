@@ -28,8 +28,9 @@ const saveRecentTemplate = (templateId: string) => {
     const recent = JSON.parse(localStorage.getItem(RECENT_TEMPLATES_KEY) || '[]') as string[];
     const updated = [templateId, ...recent.filter(id => id !== templateId)].slice(0, 4); // Máximo 4
     localStorage.setItem(RECENT_TEMPLATES_KEY, JSON.stringify(updated));
-  } catch (error) {
-    console.error('Erro ao salvar template recente:', error);
+  } catch (_error) {
+    // eslint-disable-next-line no-console
+    console.error('Erro ao salvar template recente');
   }
 };
 
@@ -37,8 +38,9 @@ const saveRecentTemplate = (templateId: string) => {
 const getRecentTemplates = (): string[] => {
   try {
     return JSON.parse(localStorage.getItem(RECENT_TEMPLATES_KEY) || '[]') as string[];
-  } catch (error) {
-    console.error('Erro ao obter templates recentes:', error);
+  } catch (_error) {
+    // eslint-disable-next-line no-console
+    console.error('Erro ao obter templates recentes');
     return [];
   }
 };
@@ -123,7 +125,7 @@ export default function TemplateSelectionSection({ onTemplateSelect }: TemplateS
     Icon: typeof Zap,
     onClick: () => void,
     index: number,
-    isRecent = false,
+    _isRecent = false,
     badge?: string,
     metadata?: { label: string; value: string }[]
   ) => {

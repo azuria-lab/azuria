@@ -67,8 +67,7 @@ const CATEGORY_KEYWORDS: Partial<Record<EngineCategory, string[]>> = {
   governance: ['governance', 'policy', 'ethics', 'audit', 'safety', 'limit'],
   communication: ['brand', 'voice', 'tone', 'persona', 'story', 'explanation', 'emotion', 'affective', 'sentiment', 'mood', 'feeling'],
   learning: ['evolution', 'improvement', 'feedback', 'adaptive', 'tuning'],
-  system: ['system', 'orchestr', 'core', 'engine', 'mind'],
-  utility: ['util', 'helper', 'tool', 'ocr', 'import', 'market', 'price', 'pricing', 'bidding', 'revenue', 'competitive'],
+  utility: ['util', 'helper', 'tool', 'ocr', 'import', 'market', 'price', 'pricing', 'bidding', 'revenue', 'competitive', 'system', 'orchestr', 'core', 'engine', 'mind'],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════

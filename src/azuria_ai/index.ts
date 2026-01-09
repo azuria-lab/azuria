@@ -416,17 +416,14 @@ export {
   getCurrentContext,
   recordCalculation,
   recordPattern,
-  forceSync,
   onSync,
-  recall,
   type MemoryConfig,
   type RecentInteraction,
   type RecallResult,
-  type STMState,
-  type WMState,
-  type LTMState,
-  type DetectedPattern,
-  type MemoryStats,
+  type ShortTermMemory,
+  type WorkingMemory,
+  type LongTermMemory,
+  type DetectedPattern as MemoryDetectedPattern,
 } from './memory';
 
 // ============================================================================

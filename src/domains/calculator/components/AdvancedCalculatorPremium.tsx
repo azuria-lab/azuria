@@ -250,10 +250,7 @@ export default function AdvancedCalculatorPremium({ userId: _userId }: AdvancedC
         const value = defaults?.[key];
         return typeof value === 'string' ? value : (typeof value === 'number' ? value.toString() : fallback);
       };
-      const getNumber = (key: string, fallback: number): number => {
-        const value = defaults?.[key];
-        return typeof value === 'number' ? value : fallback;
-      };
+      // getNumber não usado - removido
       const getBoolean = (key: string, fallback: boolean): boolean => {
         const value = defaults?.[key];
         return typeof value === 'boolean' ? value : fallback;

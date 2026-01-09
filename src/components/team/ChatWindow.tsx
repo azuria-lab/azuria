@@ -197,8 +197,8 @@ export default function ChatWindow({
       // Remover @Azuria do texto para enviar à IA
       const cleanMessage = messageContent.replace(/@Azuria\s*/gi, "").trim();
       
-      // Criar contexto com informações do projeto
-      const projectContext = {
+      // Criar contexto com informações do projeto (não usado atualmente)
+      const _projectContext = {
         chatId,
         chatName,
         isGroup,

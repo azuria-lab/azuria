@@ -68,8 +68,9 @@ export default function CreateTemplateDialog({
         setCategory("outros");
         onOpenChange(false);
       }
-    } catch (error) {
-      console.error("Erro ao criar template:", error);
+    } catch (_error) {
+      // eslint-disable-next-line no-console
+      console.error("Erro ao criar template");
     } finally {
       setIsCreating(false);
     }
