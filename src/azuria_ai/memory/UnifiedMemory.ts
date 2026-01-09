@@ -815,11 +815,70 @@ export function unblockTopic(topic: string): void {
 // SINCRONIZAÇÃO COM SUPABASE
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Helpers para loadFromSupabase
+
+/** Converte preferências do Supabase para formato LTM */
+function convertPreferencesToLTM(
+  preferences: Record<string, unknown>, 
+  ltm: LongTermMemory
+): void {
+  ltm.preferences = [
+    { key: 'skillLevel', value: preferences.skill_level as string, confidence: 1, observations: 1, updatedAt: Date.now() },
+    { key: 'suggestionFrequency', value: preferences.suggestion_frequency as string, confidence: 1, observations: 1, updatedAt: Date.now() },
+    { key: 'explanationLevel', value: preferences.explanation_level as string, confidence: 1, observations: 1, updatedAt: Date.now() },
+    { key: 'proactiveAssistance', value: preferences.proactive_assistance as boolean, confidence: 1, observations: 1, updatedAt: Date.now() },
+  ];
+
+  ltm.blockedTopics = ((preferences.blocked_topics || []) as string[]).map((topic: string) => ({
+    topic,
+    blockedAt: Date.now(),
+    reason: 'restored_from_preferences',
+  }));
+}
+
+/** Tipo para mensagem do Supabase */
+interface SupabaseMessage {
+  topic?: string;
+  outcome?: string;
+}
+
+/** Analisa mensagens e extrai feedback para LTM */
+function analyzeMessagesForFeedback(
+  messages: SupabaseMessage[], 
+  ltm: LongTermMemory
+): void {
+  const feedbackMap: Record<string, { positive: number; negative: number }> = {};
+
+  for (const msg of messages) {
+    if (!msg.topic || !msg.outcome) {continue;}
+    
+    if (!feedbackMap[msg.topic]) {
+      feedbackMap[msg.topic] = { positive: 0, negative: 0 };
+    }
+    if (msg.outcome === 'accepted') {
+      feedbackMap[msg.topic].positive++;
+    } else if (msg.outcome === 'dismissed') {
+      feedbackMap[msg.topic].negative++;
+    }
+  }
+
+  for (const [topic, counts] of Object.entries(feedbackMap)) {
+    ltm.feedback.push({
+      topic,
+      totalFeedback: counts.positive + counts.negative,
+      positive: counts.positive,
+      negative: counts.negative,
+      averageScore: counts.positive / (counts.positive + counts.negative) * 5,
+      lastFeedbackAt: Date.now(),
+    });
+  }
+}
+// ═══════════════════════════════════════════════════════════════════════════════
+
 /**
  * Carrega LTM do Supabase
  */
 async function loadFromSupabase(): Promise<LongTermMemory | null> {
-  // Importar dinamicamente para evitar dependência circular
   try {
     const { loadPreferences, loadRecentMessages, loadUserMetrics } = await import(
       '../consciousness/persistence/SupabasePersistence'
@@ -835,60 +894,14 @@ async function loadFromSupabase(): Promise<LongTermMemory | null> {
       return null;
     }
 
-    // Construir LTM a partir dos dados carregados
     const ltm = createInitialLTM(state.config.userId);
 
-    // Converter preferências
     if (preferences) {
-      ltm.preferences = [
-        { key: 'skillLevel', value: preferences.skill_level, confidence: 1, observations: 1, updatedAt: Date.now() },
-        { key: 'suggestionFrequency', value: preferences.suggestion_frequency, confidence: 1, observations: 1, updatedAt: Date.now() },
-        { key: 'explanationLevel', value: preferences.explanation_level, confidence: 1, observations: 1, updatedAt: Date.now() },
-        { key: 'proactiveAssistance', value: preferences.proactive_assistance, confidence: 1, observations: 1, updatedAt: Date.now() },
-      ];
-
-      ltm.blockedTopics = (preferences.blocked_topics || []).map((topic: string) => ({
-        topic,
-        blockedAt: Date.now(),
-        reason: 'restored_from_preferences',
-      }));
+      convertPreferencesToLTM(preferences as Record<string, unknown>, ltm);
     }
 
-    // Analisar mensagens para extrair padrões
     if (messages.length > 0) {
-      const topicCounts: Record<string, number> = {};
-      const feedbackMap: Record<string, { positive: number; negative: number }> = {};
-
-      for (const msg of messages) {
-        // Contar tópicos
-        if (msg.topic) {
-          topicCounts[msg.topic] = (topicCounts[msg.topic] || 0) + 1;
-        }
-
-        // Contar feedback por tópico
-        if (msg.topic && msg.outcome) {
-          if (!feedbackMap[msg.topic]) {
-            feedbackMap[msg.topic] = { positive: 0, negative: 0 };
-          }
-          if (msg.outcome === 'accepted') {
-            feedbackMap[msg.topic].positive++;
-          } else if (msg.outcome === 'dismissed') {
-            feedbackMap[msg.topic].negative++;
-          }
-        }
-      }
-
-      // Converter para feedback acumulado
-      for (const [topic, counts] of Object.entries(feedbackMap)) {
-        ltm.feedback.push({
-          topic,
-          totalFeedback: counts.positive + counts.negative,
-          positive: counts.positive,
-          negative: counts.negative,
-          averageScore: counts.positive / (counts.positive + counts.negative) * 5,
-          lastFeedbackAt: Date.now(),
-        });
-      }
+      analyzeMessagesForFeedback(messages as SupabaseMessage[], ltm);
     }
 
     ltm.lastSyncAt = Date.now();
@@ -972,6 +985,44 @@ export interface RecallResult {
   data: unknown;
 }
 
+/** Verifica se texto contém topic (case-insensitive) */
+function matchesTopic(text: string, topic?: string): boolean {
+  if (!topic) {return true;}
+  return text.toLowerCase().includes(topic.toLowerCase());
+}
+
+/** Busca interações recentes */
+function recallInteractions(
+  memory: UnifiedMemoryState, 
+  topic: string | undefined, 
+  cutoff: number
+): RecallResult[] {
+  return memory.stm.recentInteractions
+    .filter(i => i.timestamp >= cutoff && matchesTopic(i.description, topic))
+    .map(i => ({ type: 'interaction' as const, relevance: 0.8, data: i }));
+}
+
+/** Busca padrões */
+function recallPatterns(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+  return memory.wm.patterns
+    .filter(p => matchesTopic(p.description, topic))
+    .map(p => ({ type: 'pattern' as const, relevance: p.confidence, data: p }));
+}
+
+/** Busca preferências */
+function recallPreferences(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+  return memory.ltm.preferences
+    .filter(p => matchesTopic(p.key, topic))
+    .map(p => ({ type: 'preference' as const, relevance: p.confidence, data: p }));
+}
+
+/** Busca feedback */
+function recallFeedback(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+  return memory.ltm.feedback
+    .filter(f => matchesTopic(f.topic, topic))
+    .map(f => ({ type: 'feedback' as const, relevance: f.averageScore / 5, data: f }));
+}
+
 /**
  * Busca na memória por contexto semântico
  */
@@ -983,64 +1034,24 @@ export function recall(query: {
 }): RecallResult[] {
   if (!state.memory) {return [];}
 
-  const results: RecallResult[] = [];
   const { topic, type, timeWindow, limit = 10 } = query;
   const cutoff = timeWindow ? Date.now() - timeWindow : 0;
+  const results: RecallResult[] = [];
 
-  // Buscar em interações recentes
+  // Usar helpers para cada tipo de busca
   if (!type || type === 'interaction') {
-    for (const interaction of state.memory.stm.recentInteractions) {
-      if (interaction.timestamp < cutoff) {continue;}
-      if (topic && !interaction.description.toLowerCase().includes(topic.toLowerCase())) {continue;}
-
-      results.push({
-        type: 'interaction',
-        relevance: 0.8,
-        data: interaction,
-      });
-    }
+    results.push(...recallInteractions(state.memory, topic, cutoff));
   }
-
-  // Buscar em padrões
   if (!type || type === 'pattern') {
-    for (const pattern of state.memory.wm.patterns) {
-      if (topic && !pattern.description.toLowerCase().includes(topic.toLowerCase())) {continue;}
-
-      results.push({
-        type: 'pattern',
-        relevance: pattern.confidence,
-        data: pattern,
-      });
-    }
+    results.push(...recallPatterns(state.memory, topic));
   }
-
-  // Buscar em preferências
   if (!type || type === 'preference') {
-    for (const pref of state.memory.ltm.preferences) {
-      if (topic && !pref.key.toLowerCase().includes(topic.toLowerCase())) {continue;}
-
-      results.push({
-        type: 'preference',
-        relevance: pref.confidence,
-        data: pref,
-      });
-    }
+    results.push(...recallPreferences(state.memory, topic));
   }
-
-  // Buscar em feedback
   if (!type || type === 'feedback') {
-    for (const fb of state.memory.ltm.feedback) {
-      if (topic && !fb.topic.toLowerCase().includes(topic.toLowerCase())) {continue;}
-
-      results.push({
-        type: 'feedback',
-        relevance: fb.averageScore / 5,
-        data: fb,
-      });
-    }
+    results.push(...recallFeedback(state.memory, topic));
   }
 
-  // Ordenar por relevância e limitar
   return results.toSorted((a, b) => b.relevance - a.relevance).slice(0, limit);
 }
 

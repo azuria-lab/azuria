@@ -259,6 +259,30 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
     return 10;
   };
 
+  // Helper para inicializar Gemini
+  const initializeGemini = () => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL 
+      || import.meta.env.VITE_SUPABASE_CLOUD_URL
+      || 'https://crpzkppsriranmeumfqs.supabase.co';
+    
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+      || import.meta.env.VITE_SUPABASE_CLOUD_ANON_KEY
+      || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+      || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycHprcHBzcmlyYW5tZXVtZnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1ODkwNjcsImV4cCI6MjA3MjE2NTA2N30.OB2LjijKKxDJMg4zwv-ky-u2yH4MUbeUpe-YPi37WnM';
+
+    if (supabaseUrl && supabaseAnonKey) {
+      return initGemini({ supabaseUrl, supabaseAnonKey, edgeFunctionName: 'azuria-chat' });
+    }
+    
+    // Fallback: API direta
+    const geminiApiKey = config?.geminiApiKey ?? import.meta.env.VITE_GEMINI_API_KEY;
+    if (geminiApiKey) {
+      initGemini({ apiKey: geminiApiKey });
+      return true;
+    }
+    return false;
+  };
+
   const initialize = useCallback(async () => {
     if (legacyState.initialized || legacyState.loading || initializationStarted.current) {
       return;
@@ -314,46 +338,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       }
       
       // 2. Inicializar Gemini via Supabase Edge Function (recomendado)
-      // Tentar múltiplas variáveis de ambiente (compatibilidade com diferentes configurações)
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL 
-        || import.meta.env.VITE_SUPABASE_CLOUD_URL
-        || 'https://crpzkppsriranmeumfqs.supabase.co'; // Fallback hardcoded (mesmo do client.ts)
-      
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-        || import.meta.env.VITE_SUPABASE_CLOUD_ANON_KEY
-        || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-        || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNycHprcHBzcmlyYW5tZXVtZnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1ODkwNjcsImV4cCI6MjA3MjE2NTA2N30.OB2LjijKKxDJMg4zwv-ky-u2yH4MUbeUpe-YPi37WnM'; // Fallback hardcoded
-      
-      // eslint-disable-next-line no-console
-      console.log('[ConsciousnessProvider] Initializing Gemini...', {
-        hasSupabaseUrl: !!supabaseUrl,
-        hasSupabaseAnonKey: !!supabaseAnonKey,
-        supabaseUrl: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'missing',
-      });
-      
-      let geminiInitialized = false;
-      if (supabaseUrl && supabaseAnonKey) {
-        geminiInitialized = initGemini({
-          supabaseUrl,
-          supabaseAnonKey,
-          edgeFunctionName: 'azuria-chat',
-        });
-        // eslint-disable-next-line no-console
-        console.log('[ConsciousnessProvider] Gemini initialization result:', geminiInitialized);
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn('[ConsciousnessProvider] Supabase credentials not found, trying direct API...');
-        // Fallback: API direta (não recomendado em produção)
-        const geminiApiKey = config?.geminiApiKey ?? import.meta.env.VITE_GEMINI_API_KEY;
-        if (geminiApiKey) {
-          // eslint-disable-next-line no-console
-          console.warn('[ConsciousnessProvider] Using direct Gemini API (not recommended)');
-          initGemini({ apiKey: geminiApiKey });
-        } else {
-          // eslint-disable-next-line no-console
-          console.error('[ConsciousnessProvider] No Gemini configuration found (neither Supabase nor API key)');
-        }
-      }
+      initializeGemini();
       
       // 3. Inicializar AIRouter (após Gemini estar inicializado)
       initAIRouter({

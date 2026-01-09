@@ -766,6 +766,106 @@ async function evaluateCalculation(calcData: CalcData): Promise<{
   return consolidateInsights(insights);
 }
 
+// === Helpers para generateInsight ===
+
+/** Verifica estabilidade e bloqueia se risco crítico */
+function checkStabilityRisk(insight: GenerateInsightParam, stage: 'pre-insight' | 'post-insight'): boolean {
+  const stability = predictStabilityFailure({ 
+    load: insight?.state?.load, 
+    contradictions: insight?.contradictions, 
+    loopsDetected: insight?.loops 
+  });
+  if (stability.risk >= 0.8) {
+    emitEvent('ai:stability-alert', { 
+      severity: 'critical', 
+      riskLevel: stability.risk, 
+      details: { stage } 
+    }, { source: 'aiOrchestrator', priority: 10 });
+    return true; // Deve bloquear
+  }
+  return false;
+}
+
+/** Valida governança e ética */
+function validateGovernanceAndEthics(insight: GenerateInsightParam): { blocked: boolean; reason?: string } {
+  const scopeCheck = blockIfOutsideScope(insight as Record<string, unknown>);
+  if (scopeCheck.blocked === true || scopeCheck.valid === false) {
+    emitEvent('ai:unsafe-output-blocked', { insight, reason: scopeCheck.reason }, { source: 'aiOrchestrator', priority: 10 });
+    recordDecision({ insight, status: 'blocked', reason: scopeCheck.reason });
+    return { blocked: true, reason: scopeCheck.reason };
+  }
+  const ethics = enforceEthics(insight as Record<string, unknown>);
+  if (ethics.blocked) {
+    return { blocked: true, reason: 'ethics' };
+  }
+  return { blocked: false };
+}
+
+/** Verifica comportamento de runaway */
+function checkRunawayBehavior(insight: GenerateInsightParam): boolean {
+  checkCriticalBoundaries({ 
+    load: insight?.state?.load as number, 
+    actionsPerMinute: insight?.state?.actionsPerMinute as number 
+  });
+  const actions = Array.isArray(insight?.actions) 
+    ? insight.actions.filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null) 
+    : [];
+  if (detectRunawayBehavior(actions)) {
+    applySafetyBreak({ reason: 'runaway_behavior', state: insight?.state });
+    return true;
+  }
+  return false;
+}
+
+/** Gera mensagem afetiva baseada em emoção e persona */
+function generateAffectiveMessage(emotionType: string | undefined, persona: PersonaKey | undefined): string | undefined {
+  if (!emotionType || !persona) {return undefined;}
+  
+  const responseMap: Record<string, (params: { persona: PersonaKey }) => string> = {
+    'frustration': respondWithSimplification,
+    'hesitation': respondWithEncouragement,
+    'confidence': respondWithConfidenceBoost,
+    'confusion': respondWithReassurance,
+    'achievement': respondWithEmpathy,
+  };
+  
+  const responder = responseMap[emotionType];
+  return responder ? responder({ persona }) : undefined;
+}
+
+/** Type guard para validar PersonaKey */
+function isValidPersonaKey(value: unknown): value is PersonaKey {
+  if (typeof value !== 'string') {return false;}
+  const validKeys: PersonaKey[] = [
+    'iniciante-inseguro',
+    'intermediario-crescimento',
+    'avancado-lucro',
+    'comercial-agressivo',
+    'operador-analitico',
+  ];
+  return validKeys.includes(value as PersonaKey);
+}
+
+/** Analisa comportamento do usuário se dados disponíveis */
+function analyzeBehaviorIfAvailable(insight: GenerateInsightParam): void {
+  if (!insight?.eventLog && !insight?.flowData && !insight?.userHistory) {return;}
+  
+  const behaviorSignals: import('../engines/behaviorEngine').BehaviorSignals = {
+    eventLog: Array.isArray(insight.eventLog) ? insight.eventLog as import('../engines/behaviorEngine').EventLogEntry[] : undefined,
+    flowData: insight.flowData as import('../engines/behaviorEngine').FlowData | undefined,
+    userState: insight.userState as import('../engines/behaviorEngine').UserState | undefined,
+    userHistory: Array.isArray(insight.userHistory) ? insight.userHistory as import('../engines/behaviorEngine').UserHistoryEntry[] : undefined,
+  };
+  analyzeBehavior(behaviorSignals);
+}
+
+/** Infere emoção do usuário se estado disponível */
+function inferEmotionIfAvailable(insight: GenerateInsightParam): void {
+  const userStateValue = insight.userState || insight.data?.userState;
+  if (userStateValue && typeof userStateValue === 'object' && userStateValue !== null) {
+    inferUserEmotion(userStateValue as Record<string, unknown>, { payload: insight as Record<string, unknown> });
+  }
+}
 
 /**
  * Gera um insight e emite evento para exibição
@@ -783,109 +883,47 @@ function generateInsight(insight: GenerateInsightParam): void {
     target: 'insight',
   });
   
-  // Use metaSnapshot for logging
   // eslint-disable-next-line no-console
   console.debug('Meta snapshot:', metaSnapshot);
   
   // Preparar dados completos do insight
   const tone = (insight.brandTone || 'padrao') as import('../engines/brandVoiceEngine').ToneProfileKey;
   const refinedMessage = rewriteWithBrandVoice(insight.message ?? '', tone);
-  const userStateValue = insight.userState || insight.data?.userState;
-  if (userStateValue && typeof userStateValue === 'object' && userStateValue !== null) {
-    inferUserEmotion(userStateValue as Record<string, unknown>, { payload: insight as Record<string, unknown> });
-  }
-  const preStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
-  if (preStability.risk >= 0.8) {
-    emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: preStability.risk, details: { stage: 'pre-insight' } }, { source: 'aiOrchestrator', priority: 10 });
-    return;
-  }
+  inferEmotionIfAvailable(insight);
+  
+  // Verificações de segurança usando helpers
+  if (checkStabilityRisk(insight, 'pre-insight')) {return;}
   if (!ensureTruthBeforeAction({ context: insight, state: insight.data })) {
     emitTruthAlert('critical', { reason: 'pre-check-failed', insight });
     return;
   }
+  
   const emotionState = getEmotionState();
-  // Governance validation
-  const scopeCheck = blockIfOutsideScope(insight as Record<string, unknown>);
-  if (scopeCheck.blocked === true || scopeCheck.valid === false) {
-    emitEvent('ai:unsafe-output-blocked', { insight, reason: scopeCheck.reason }, { source: 'aiOrchestrator', priority: 10 });
-    recordDecision({ insight, status: 'blocked', reason: scopeCheck.reason });
-    return;
-  }
-  const ethics = enforceEthics(insight as Record<string, unknown>);
-  if (ethics.blocked) {
-    return;
-  }
-  checkCriticalBoundaries({ load: insight?.state?.load as number, actionsPerMinute: insight?.state?.actionsPerMinute as number });
-  const actions = Array.isArray(insight?.actions) ? insight.actions.filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null) : [];
-  if (detectRunawayBehavior(actions)) {
-    applySafetyBreak({ reason: 'runaway_behavior', state: insight?.state });
-    return;
-  }
-  const postStability = predictStabilityFailure({ load: insight?.state?.load, contradictions: insight?.contradictions, loopsDetected: insight?.loops });
-  if (postStability.risk >= 0.8) {
-    emitEvent('ai:stability-alert', { severity: 'critical', riskLevel: postStability.risk, details: { stage: 'post-insight' } }, { source: 'aiOrchestrator', priority: 10 });
-    return;
-  }
+  const governance = validateGovernanceAndEthics(insight);
+  if (governance.blocked) {return;}
+  if (checkRunawayBehavior(insight)) {return;}
+  if (checkStabilityRisk(insight, 'post-insight')) {return;}
+  
+  // Validar e corrigir mensagem se necessário
   const validated = validateInsight(insight as Record<string, unknown>);
-  let safeMessage = refinedMessage;
-  if (!validated.valid) {
-    safeMessage = correctIfUnsafe(refinedMessage);
-  }
+  const safeMessage = validated.valid ? refinedMessage : correctIfUnsafe(refinedMessage);
+  
   const postTruthOk = ensureTruthAfterAction({ reality: insight?.reality, perceived: insight?.data });
   if (!postTruthOk) {
     emitTruthAlert('warning', { reason: 'post-check-failed', insight });
   }
+  
   const downgraded = downgradeSeverityIfNeeded(insight as Record<string, unknown>);
   if (validated.corrected) {
     emitEvent('ai:decision-corrected', { insight }, { source: 'aiOrchestrator', priority: 7 });
   }
-  if (insight?.eventLog || insight?.flowData || insight?.userHistory) {
-    const behaviorSignals: import('../engines/behaviorEngine').BehaviorSignals = {
-      eventLog: Array.isArray(insight.eventLog) ? insight.eventLog as import('../engines/behaviorEngine').EventLogEntry[] : undefined,
-      flowData: insight.flowData as import('../engines/behaviorEngine').FlowData | undefined,
-      userState: insight.userState as import('../engines/behaviorEngine').UserState | undefined,
-      userHistory: Array.isArray(insight.userHistory) ? insight.userHistory as import('../engines/behaviorEngine').UserHistoryEntry[] : undefined,
-    };
-    analyzeBehavior(behaviorSignals);
-  }
-  let affectiveMessage: string | undefined;
-  const emotionType = emotionState.type;
   
-  // Type guard para validar se persona é um PersonaKey válido
-  const isValidPersonaKey = (value: unknown): value is PersonaKey => {
-    if (typeof value !== 'string') {return false;}
-    const validKeys: PersonaKey[] = [
-      'iniciante-inseguro',
-      'intermediario-crescimento',
-      'avancado-lucro',
-      'comercial-agressivo',
-      'operador-analitico',
-    ];
-    return validKeys.includes(value as PersonaKey);
-  };
+  analyzeBehaviorIfAvailable(insight);
   
+  // Gerar mensagem afetiva
   const persona = isValidPersonaKey(insight.persona) ? insight.persona : undefined;
-  if (emotionType && persona) {
-    switch (emotionType) {
-      case 'frustration':
-        affectiveMessage = respondWithSimplification({ persona });
-        break;
-      case 'hesitation':
-        affectiveMessage = respondWithEncouragement({ persona });
-        break;
-      case 'confidence':
-        affectiveMessage = respondWithConfidenceBoost({ persona });
-        break;
-      case 'confusion':
-        affectiveMessage = respondWithReassurance({ persona });
-        break;
-      case 'achievement':
-        affectiveMessage = respondWithEmpathy({ persona });
-        break;
-      default:
-        break;
-    }
-  }
+  const affectiveMessage = generateAffectiveMessage(emotionState.type, persona);
+
   const insightData = {
     type: insight.type,
     severity: downgraded.severity || insight.severity || 'medium',
