@@ -69,6 +69,7 @@ export default function DashboardHeader() {
     { label: "Dashboard", path: "/dashboard", icon: Home },
     { label: "Calculadora Rápida", path: "/calculadora-rapida", icon: Gauge },
     { label: "Azuria AI", path: "/azuria-ia", icon: Brain },
+    { label: "Sistema Cognitivo", path: "/sistema-cognitivo", icon: Brain },
     { label: "Analytics", path: "/analytics", icon: BarChart3 },
     { label: "Marketplaces", path: "/marketplace", icon: ShoppingBag },
     { label: "Configurações", path: "/configuracoes", icon: Settings },

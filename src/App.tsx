@@ -78,6 +78,7 @@ const DocumentosPage = lazy(() => import("./pages/DocumentosPage"));
 
 // AI Module Pages - Unified
 const AzuriaAIHub = lazy(() => import("./pages/AzuriaAIHub"));
+const CognitiveDashboardPage = lazy(() => import("./pages/CognitiveDashboardPage"));
 
 // Domain Providers
 import { AuthProvider } from "@/domains/auth";
@@ -211,6 +212,16 @@ const App = () => {
                           <ProtectedRoute>
                             <DashboardLayout>
                               <AzuriaAIHub />
+                            </DashboardLayout>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/sistema-cognitivo"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardLayout>
+                              <CognitiveDashboardPage />
                             </DashboardLayout>
                           </ProtectedRoute>
                         }
