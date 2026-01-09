@@ -417,7 +417,7 @@ export const calcInputChangedRule = {
     return {
       type: 'silence',
       reason: 'Usuário digitando - aguardar conclusão',
-      confidence: 1.0,
+      confidence: 1,
       shouldLog: false,
     };
   },

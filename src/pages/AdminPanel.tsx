@@ -85,7 +85,7 @@ export default function AdminPanel() {
 
       if (error) {throw error;}
       const mapped: AdminUser[] = (data || []).map((u) => ({
-        id: u.id as string,
+        id: u.id,
         email: (u as { email: string | null }).email ?? "",
         name: (u as { name?: string | null }).name ?? null,
         is_pro: Boolean((u as { is_pro: boolean | null }).is_pro),
@@ -128,7 +128,7 @@ export default function AdminPanel() {
 
       toast({
         title: "Status atualizado",
-        description: `Usuário ${!currentStatus ? 'promovido para PRO' : 'rebaixado para FREE'}`,
+        description: `Usuário ${currentStatus ? 'rebaixado para FREE' : 'promovido para PRO'}`,
       });
     } catch (error) {
       logger.error("Erro ao atualizar status:", error);
@@ -257,7 +257,7 @@ export default function AdminPanel() {
                         placeholder="Digite o email para buscar..."
                         value={searchEmail}
                         onChange={(e) => setSearchEmail(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && searchUsers()}
+                        onKeyDown={(e) => e.key === 'Enter' && searchUsers()}
                       />
                     </div>
                     <div className="flex items-end">

@@ -281,6 +281,7 @@ export const AdminDashboard: React.FC = () => {
           <button
             onClick={refreshStats}
             disabled={refreshing}
+            aria-label="Atualizar estatísticas"
             className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 
                        text-slate-400 hover:text-white transition-all"
           >

@@ -43,12 +43,15 @@ export interface PersistedRecordingItem {
   sequence_number: number;
 }
 
+/** Severidade do alerta */
+export type AlertSeverity = 'info' | 'warning' | 'critical';
+
 export interface PersistedAlert {
   id: string;
   alert_id: string;
   rule_id: string;
   rule_name: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: AlertSeverity;
   metric_name: string;
   metric_value: number;
   threshold: number;
@@ -279,7 +282,7 @@ export async function saveAlert(alert: {
   alertId: string;
   ruleId: string;
   ruleName: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: AlertSeverity;
   metricName: string;
   metricValue: number;
   threshold: number;

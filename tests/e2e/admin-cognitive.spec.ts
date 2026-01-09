@@ -55,8 +55,8 @@ test.describe('Admin Panel Access', () => {
     test.skip(!process.env.TEST_USER_EMAIL, 'Requires TEST_USER_EMAIL env var');
     
     await page.goto('/login');
-    await page.fill('input[type="email"]', process.env.TEST_USER_EMAIL!);
-    await page.fill('input[type="password"]', process.env.TEST_USER_PASSWORD!);
+    await page.fill('input[type="email"]', process.env.TEST_USER_EMAIL ?? '');
+    await page.fill('input[type="password"]', process.env.TEST_USER_PASSWORD ?? '');
     await page.click('button[type="submit"]');
     
     await page.goto('/admin');
@@ -282,7 +282,7 @@ test.describe('Metrics API', () => {
 
   test('should enforce rate limiting', async ({ request }) => {
     // Fazer muitas requisições rapidamente
-    const requests = Array(65).fill(null).map(() => 
+    const requests = new Array(65).fill(null).map(() => 
       request.get('/api/metrics')
     );
     

@@ -622,10 +622,13 @@ function ImportCard({ onImport }: Readonly<{ onImport: (json: string) => boolean
     try {
       const text = await file.text();
       const success = onImport(text);
-      if (!success) {
-        setError('Arquivo inválido');
-      } else {
+      if (success) {
         setError(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } else {
+        setError('Arquivo inválido');
       }
     } catch {
       setError('Erro ao ler arquivo');

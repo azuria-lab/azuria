@@ -209,9 +209,9 @@ function formatPrometheus(data: MetricData): string {
 function sanitizeMetricName(name: string): string {
   return name
     .replaceAll(/[{}]/g, '')
-    .replaceAll(/[^a-zA-Z0-9_]/g, '_')
+    .replaceAll(/\W/g, '_')
     .replaceAll(/_{2,}/g, '_')
-    .replaceAll(/^_|_$/g, '');
+    .replaceAll(/(?:^_)|(?:_$)/g, '');
 }
 
 /**

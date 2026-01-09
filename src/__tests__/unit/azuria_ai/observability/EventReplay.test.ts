@@ -153,7 +153,7 @@ describe('EventReplay', () => {
       const recording = stopRecording();
       expect(recording).not.toBeNull();
 
-      const json = exportRecording(recording as EventRecording);
+      const json = exportRecording(recording);
       const parsed = JSON.parse(json);
 
       expect(parsed.id).toBe(recording?.id);
