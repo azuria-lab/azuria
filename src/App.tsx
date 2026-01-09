@@ -78,7 +78,7 @@ const DocumentosPage = lazy(() => import("./pages/DocumentosPage"));
 
 // AI Module Pages - Unified
 const AzuriaAIHub = lazy(() => import("./pages/AzuriaAIHub"));
-const CognitiveDashboardPage = lazy(() => import("./pages/CognitiveDashboardPage"));
+// CognitiveDashboardPage moved to AdminPanel - redirects to /admin?tab=cognitive
 
 // Domain Providers
 import { AuthProvider } from "@/domains/auth";
@@ -219,11 +219,7 @@ const App = () => {
                       <Route
                         path="/sistema-cognitivo"
                         element={
-                          <ProtectedRoute>
-                            <DashboardLayout>
-                              <CognitiveDashboardPage />
-                            </DashboardLayout>
-                          </ProtectedRoute>
+                          <Navigate to="/admin?tab=cognitive" replace />
                         }
                       />
                       

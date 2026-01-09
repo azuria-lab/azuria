@@ -11,24 +11,37 @@ import { Label } from "@/components/ui/label";
 import type { Database } from "@/types/supabase";
 import { 
   BarChart3, 
+  Bell,
+  Brain,
   CreditCard, 
   Crown, 
   DollarSign, 
   Settings,
   Shield,
   TrendingUp,
-  Users
+  Users,
+  Video
 } from "lucide-react";
+
+// Componentes do Sistema Cognitivo (Modo Deus)
+import { 
+  AlertsPanel, 
+  CognitiveDashboard, 
+  EventReplayPanel, 
+  MetricsDashboard 
+} from '@/components/ai/consciousness';
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { logger } from "@/services/logger";
 
 export default function AdminPanel() {
   const { user: _user, userProfile: _userProfile } = useAuthContext();
   const { data: isAdmin, isLoading } = useIsAdminOrOwner();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'users';
   const [searchEmail, setSearchEmail] = useState("");
   type AdminUser = { id: string; email: string | null; name?: string | null; is_pro: boolean; created_at: string };
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -202,8 +215,8 @@ export default function AdminPanel() {
           </div>
 
           {/* Tabs principais */}
-          <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue={defaultTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
                 Usuários
@@ -211,6 +224,10 @@ export default function AdminPanel() {
               <TabsTrigger value="subscriptions">
                 <CreditCard className="h-4 w-4 mr-2" />
                 Assinaturas
+              </TabsTrigger>
+              <TabsTrigger value="cognitive">
+                <Brain className="h-4 w-4 mr-2" />
+                IA Cognitiva
               </TabsTrigger>
               <TabsTrigger value="analytics">
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -305,6 +322,104 @@ export default function AdminPanel() {
                   </ul>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                SISTEMA COGNITIVO - MODO DEUS (Admin Only)
+                ═══════════════════════════════════════════════════════════════════ */}
+            <TabsContent value="cognitive" className="space-y-6">
+              {/* Info Card */}
+              <Card className="border-purple-200 bg-purple-50/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-purple-800">
+                    <Brain className="h-5 w-5" />
+                    Sistema Cognitivo - Modo Deus
+                  </CardTitle>
+                  <CardDescription className="text-purple-600">
+                    Monitoramento e controle do núcleo de consciência, engines e governança da IA
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              {/* Sub-tabs do Sistema Cognitivo */}
+              <Tabs defaultValue="dashboard" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                    <Brain className="h-4 w-4" />
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="metrics" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Métricas</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="alerts" className="flex items-center gap-2">
+                    <Bell className="h-4 w-4" />
+                    <span className="hidden sm:inline">Alertas</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="replay" className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    <span className="hidden sm:inline">Replay</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="dashboard" className="space-y-6 mt-4">
+                  <CognitiveDashboard />
+                  
+                  {/* Cards Informativos */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">CentralNucleus</CardTitle>
+                        <CardDescription>Núcleo de Consciência</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-xs text-muted-foreground">
+                          Coordena todos os engines, processa eventos e mantém o estado 
+                          global do sistema de IA.
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">EngineGovernance</CardTitle>
+                        <CardDescription>Sistema de Permissões</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-xs text-muted-foreground">
+                          Controla quais engines podem emitir eventos e executar ações,
+                          baseado em privilégios e categorias.
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">UnifiedMemory</CardTitle>
+                        <CardDescription>Sistema de Memória</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-xs text-muted-foreground">
+                          Gerencia memória de curto prazo (STM), trabalho (WM) e longo prazo
+                          (LTM) com sync Supabase.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="metrics" className="mt-4">
+                  <MetricsDashboard />
+                </TabsContent>
+
+                <TabsContent value="alerts" className="mt-4">
+                  <AlertsPanel />
+                </TabsContent>
+
+                <TabsContent value="replay" className="mt-4">
+                  <EventReplayPanel />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-6">
