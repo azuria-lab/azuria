@@ -190,11 +190,11 @@ function checkLevelPermission(eventType: EventType): { allowed: boolean; reason?
     return { allowed: true };
   }
 
-  const canReceive = levelsModule.canReceiveEvent(currentLevel.id, eventType);
+  const canReceive = levelsModule.canReceiveEvent(currentLevel.role, eventType);
   if (!canReceive) {
     return {
       allowed: false,
-      reason: `event_filtered_for_level_${currentLevel.id}`,
+      reason: `event_filtered_for_level_${currentLevel.role}`,
     };
   }
 
@@ -213,7 +213,7 @@ function registerUnknownEngine(engineId: string): void {
     try {
       governanceModule.registerEngine(engineId, {
         name: engineId,
-        category: 'other',
+        category: 'utility',
         privilege: 'standard',
         // Permitir eventos comuns
         allowedEvents: [
@@ -291,24 +291,12 @@ export function governedEmit(
     // Não bloqueia, mas registra que foi filtrado
   }
 
-  // Emitir através do Nucleus se disponível
-  if (nucleusModule?.isNucleusInitialized()) {
-    nucleusModule.CentralNucleus.send({
-      type: eventType,
-      payload,
-      meta: {
-        source,
-        priority: options.priority,
-        timestamp: Date.now(),
-      },
-    });
-  } else {
-    // Fallback para emissão direta
-    directEmitEvent(eventType, payload, {
-      source,
-      priority: options.priority,
-    });
-  }
+  // Emitir através do eventBus (já conectado ao Nucleus via EventBridge)
+  // O Nucleus processa eventos automaticamente via EventBridge
+  directEmitEvent(eventType, payload as Record<string, unknown>, {
+    source,
+    priority: options.priority,
+  });
 
   // Registrar emissão na governança
   if (governanceModule && !SYSTEM_ENGINES.has(source)) {

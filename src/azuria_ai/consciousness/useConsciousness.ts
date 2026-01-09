@@ -14,7 +14,6 @@ import {
   initConsciousness,
   onDecision,
   onOutput,
-  type ProcessingResult,
   provideFeedback,
   sendEvent,
   shutdownConsciousness,

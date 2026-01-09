@@ -359,7 +359,7 @@ export {
   filterEventsForRole,
   checkActionPermission,
   getLevelStats,
-  recordSuggestionShown,
+  recordSuggestionShown as recordLevelSuggestionShown,
   recordInsightGenerated,
   recordActionExecuted,
   recordEventProcessed,

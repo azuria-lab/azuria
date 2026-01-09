@@ -901,7 +901,7 @@ function handleCoreOutput(output: OutputMessage): void {
 /**
  * Distribui um evento aprovado para os engines via EventBusProxy
  */
-function distributeEventToEngines(event: import('./PerceptionGate').NormalizedEvent): void {
+function distributeEventToEngines(event: import('./types').NormalizedEvent): void {
   if (!eventBusProxyModule) {
     return;
   }

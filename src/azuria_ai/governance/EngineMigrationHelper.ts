@@ -85,12 +85,12 @@ export function inferCategory(filename: string): EngineCategory {
   const lowerName = filename.toLowerCase();
 
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (keywords.some((kw) => lowerName.includes(kw))) {
+    if (keywords && keywords.some((kw) => lowerName.includes(kw))) {
       return category as EngineCategory;
     }
   }
 
-  return 'other';
+  return 'utility'; // Default para utility ao invés de 'other'
 }
 
 /**
