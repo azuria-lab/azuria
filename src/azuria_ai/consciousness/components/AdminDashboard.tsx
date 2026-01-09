@@ -68,22 +68,29 @@ interface DashboardStats {
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENTES AUXILIARES
 // ═══════════════════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+type Trend = 'up' | 'down' | 'neutral';
+type StatusBadge = 'active' | 'warning' | 'error' | 'inactive';
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const getTrendColor = (trend: 'up' | 'down' | 'neutral'): string => {
+const getTrendColor = (trend: Trend): string => {
   if (trend === 'up') {return 'text-emerald-400';}
   if (trend === 'down') {return 'text-red-400';}
   return 'text-slate-400';
 };
 
-const getTrendLabel = (trend: 'up' | 'down' | 'neutral'): string => {
+const getTrendLabel = (trend: Trend): string => {
   if (trend === 'up') {return 'Aumentando';}
   if (trend === 'down') {return 'Diminuindo';}
   return 'Estável';
 };
 
-const getStatusDotClass = (status: 'active' | 'warning' | 'error' | 'inactive'): string => {
+const getStatusDotClass = (status: StatusBadge): string => {
   if (status === 'active') {return 'bg-emerald-400 animate-pulse';}
   if (status === 'warning') {return 'bg-amber-400';}
   if (status === 'error') {return 'bg-red-400';}
@@ -96,7 +103,7 @@ const getHealthLabel = (score: number): string => {
   return 'Atenção';
 };
 
-const getHealthTrend = (score: number): 'up' | 'down' | 'neutral' => {
+const getHealthTrend = (score: number): Trend => {
   if (score >= 90) {return 'up';}
   if (score < 70) {return 'down';}
   return 'neutral';

@@ -234,12 +234,25 @@ interface Chat {
   isOnline?: boolean;
 }
 
-// Helper function for role labels
+// Helper functions for role labels
 const getRoleLabel = (role: string): string => {
   if (role === "admin") {return "Administrador";}
   if (role === "manager") {return "Gerente";}
   if (role === "member") {return "Membro";}
   return "Visualizador";
+};
+
+const getMemberRoleTitle = (role: string): string => {
+  if (role === "admin") {return "Administrador";}
+  if (role === "manager") {return "Gerente de Projetos";}
+  if (role === "member") {return "Membro do Time";}
+  return "Visualizador";
+};
+
+const getMemberJobTitle = (role: string): string => {
+  if (role === "admin") {return "Diretor de Operações";}
+  if (role === "manager") {return "Gerente de Projetos";}
+  return "Desenvolvedor";
 };
 
 export default function TeamsPage() {
@@ -1649,7 +1662,7 @@ export default function TeamsPage() {
                           Membros do Time
                         </CardTitle>
                         <CardDescription>
-                          {members.length} membro{members.length !== 1 ? "s" : ""} ativo{members.length !== 1 ? "s" : ""}
+                          {members.length} membro{members.length === 1 ? "" : "s"} ativo{members.length === 1 ? "" : "s"}
                         </CardDescription>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1696,9 +1709,7 @@ export default function TeamsPage() {
                             </div>
                             <p className="text-xs text-muted-foreground mb-2">{member.email}</p>
                             <Badge variant="secondary" className="mb-3">
-                              {member.role === "admin" ? "Administrador" : 
-                              member.role === "manager" ? "Gerente" : 
-                              member.role === "member" ? "Membro" : "Visualizador"}
+                              {getRoleLabel(member.role)}
                             </Badge>
                             <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-border">
                               <div className="text-center">
@@ -2722,9 +2733,7 @@ export default function TeamsPage() {
                               )}
                             </div>
                             <p className="text-muted-foreground mb-2">
-                              {selectedMember.role === "admin" ? "Administrador" : 
-                               selectedMember.role === "manager" ? "Gerente de Projetos" : 
-                               selectedMember.role === "member" ? "Membro do Time" : "Visualizador"}
+                              {getMemberRoleTitle(selectedMember.role)}
                             </p>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1.5">
@@ -2811,9 +2820,7 @@ export default function TeamsPage() {
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sm text-foreground">
-                            {selectedMember.role === "admin" ? "Diretor de Operações" : 
-                             selectedMember.role === "manager" ? "Gerente de Projetos" : 
-                             "Desenvolvedor"}
+                            {getMemberJobTitle(selectedMember.role)}
                           </p>
                           <p className="text-xs text-muted-foreground">Azuria</p>
                           <p className="text-xs text-muted-foreground">

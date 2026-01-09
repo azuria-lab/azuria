@@ -62,7 +62,7 @@ const state: NotificationState = {
  * Verifica se o browser suporta notificações
  */
 export function isNotificationSupported(): boolean {
-  return typeof globalThis.window !== 'undefined' && 'Notification' in globalThis.window;
+  return globalThis.window !== undefined && 'Notification' in globalThis.window;
 }
 
 /**
