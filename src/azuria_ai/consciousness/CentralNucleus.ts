@@ -177,71 +177,55 @@ export async function initNucleus(config: NucleusConfig = {}): Promise<{
   nucleusState.config = config;
 
   // 0. Inicializar UnifiedStateStore (estado centralizado)
-  try {
-    unifiedStateModule = await import('../state/UnifiedStateStore');
-    unifiedStateModule.initUnifiedStore({
-      debug: config.debug,
-      persist: false, // Por agora, não persistir
-    });
-    
-    // Inicializar com dados do usuário
-    if (config.userId || config.role || config.tier) {
-      unifiedStateModule.initializeWithUser(
-        config.userId ?? null,
-        config.role ?? 'USER',
-        config.tier ?? 'FREE'
-      );
+  unifiedStateModule = await tryInitModule(
+    'UnifiedStateStore',
+    () => import('../state/UnifiedStateStore'),
+    (m) => {
+      m.initUnifiedStore({ debug: config.debug, persist: false });
+      if (config.userId || config.role || config.tier) {
+        m.initializeWithUser(config.userId ?? null, config.role ?? 'USER', config.tier ?? 'FREE');
+      }
     }
-    log('✓ UnifiedStateStore initialized');
-  } catch (error) {
-    warn('UnifiedStateStore not available:', error);
-  }
+  );
 
   // 0.5. Inicializar ConsciousnessLevels (separação ADMIN/USER)
-  try {
-    levelsModule = await import('../levels/ConsciousnessLevels');
-    levelsModule.initLevels({ debug: config.debug });
-    
-    // Ativar nível baseado no role do usuário
-    const role = config.role ?? 'USER';
-    levelsModule.activateLevel(role);
-    
-    log(`✓ ConsciousnessLevels initialized (${role})`);
-  } catch (error) {
-    warn('ConsciousnessLevels not available:', error);
-  }
+  const role = config.role ?? 'USER';
+  levelsModule = await tryInitModule(
+    `ConsciousnessLevels (${role})`,
+    () => import('../levels/ConsciousnessLevels'),
+    (m) => {
+      m.initLevels({ debug: config.debug });
+      m.activateLevel(role);
+    }
+  );
 
   // 0.6. Inicializar UnifiedMemory (sistema de memória)
-  try {
-    memoryModule = await import('../memory/UnifiedMemory');
-    await memoryModule.initMemory({
-      userId: config.userId ?? 'anonymous',
-      enableSync: !!config.userId, // Só sincroniza se tiver userId
-      syncInterval: 60000, // 1 minuto
-      debug: config.debug ?? false,
-    });
-    log('✓ UnifiedMemory initialized');
-  } catch (error) {
-    warn('UnifiedMemory not available:', error);
-  }
+  memoryModule = await tryInitModule(
+    'UnifiedMemory',
+    () => import('../memory/UnifiedMemory'),
+    async (m) => {
+      await m.initMemory({
+        userId: config.userId ?? 'anonymous',
+        enableSync: !!config.userId,
+        syncInterval: 60000,
+        debug: config.debug ?? false,
+      });
+    }
+  );
 
   // 0.7. Inicializar GovernedEmitter (emissão governada)
-  try {
-    governedEmitterModule = await import('../core/GovernedEmitter');
-    await governedEmitterModule.initGovernedEmitter();
-    log('✓ GovernedEmitter initialized');
-  } catch (error) {
-    warn('GovernedEmitter not available:', error);
-  }
+  governedEmitterModule = await tryInitModule(
+    'GovernedEmitter',
+    () => import('../core/GovernedEmitter'),
+    async (m) => { await m.initGovernedEmitter(); }
+  );
 
-  // 0.8. Instalar CompatibilityAdapter (cobertura imediata para engines legado)
-  try {
-    const compatAdapter = await import('../governance/CompatibilityAdapter');
-    await compatAdapter.installCompatibilityAdapter();
-    log('✓ CompatibilityAdapter installed - all emitEvent() now governed');
-  } catch (error) {
-    warn('CompatibilityAdapter not available:', error);
-  }
+  // 0.8. Instalar CompatibilityAdapter
+  await tryInitModule(
+    'CompatibilityAdapter',
+    () => import('../governance/CompatibilityAdapter'),
+    async (m) => { await m.installCompatibilityAdapter(); }
+  );
 
   // 1. Inicializar ConsciousnessCore (o cérebro)
   try {

@@ -309,7 +309,7 @@ export const AdminDashboard: React.FC = () => {
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
               className="rounded bg-slate-700 border-slate-600"
-            />
+            />{' '}
             Auto-refresh
           </label>
           <button
