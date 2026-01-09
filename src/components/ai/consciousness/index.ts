@@ -10,3 +10,6 @@
 
 export { CognitiveDashboard } from './CognitiveDashboard';
 export { useCognitiveDashboard, type DashboardData, type EngineData, type SystemAlert, type UseCognitiveDashboardReturn } from './useCognitiveDashboard';
+export { MetricsDashboard } from './MetricsDashboard';
+export { EventReplayPanel } from './EventReplayPanel';
+export { AlertsPanel } from './AlertsPanel';

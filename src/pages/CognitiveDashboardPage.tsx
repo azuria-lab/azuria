@@ -9,10 +9,10 @@
  * @module pages/CognitiveDashboardPage
  */
 
-import { ArrowLeft, Brain, ExternalLink, Info } from 'lucide-react';
+import { ArrowLeft, BarChart3, Bell, Brain, ExternalLink, Info, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { CognitiveDashboard } from '@/components/ai/consciousness';
+import { AlertsPanel, CognitiveDashboard, EventReplayPanel, MetricsDashboard } from '@/components/ai/consciousness';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function CognitiveDashboardPage() {
   return (
@@ -66,50 +67,86 @@ export default function CognitiveDashboardPage() {
         </AlertDescription>
       </Alert>
 
-      {/* Dashboard Principal */}
-      <CognitiveDashboard />
+      {/* Tabs com todos os painéis */}
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            <span className="hidden sm:inline">Dashboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="metrics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Métricas</span>
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Alertas</span>
+          </TabsTrigger>
+          <TabsTrigger value="replay" className="flex items-center gap-2">
+            <Video className="h-4 w-4" />
+            <span className="hidden sm:inline">Replay</span>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Cards Informativos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">CentralNucleus</CardTitle>
-            <CardDescription>Núcleo de Consciência</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Coordena todos os engines, processa eventos e mantém o estado 
-              global do sistema de IA.
-            </p>
-          </CardContent>
-        </Card>
+        <TabsContent value="dashboard" className="space-y-6">
+          {/* Dashboard Principal */}
+          <CognitiveDashboard />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">EngineGovernance</CardTitle>
-            <CardDescription>Sistema de Permissões</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Controla quais engines podem emitir eventos e executar ações,
-              baseado em privilégios e categorias.
-            </p>
-          </CardContent>
-        </Card>
+          {/* Cards Informativos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">CentralNucleus</CardTitle>
+                <CardDescription>Núcleo de Consciência</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Coordena todos os engines, processa eventos e mantém o estado 
+                  global do sistema de IA.
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">UnifiedMemory</CardTitle>
-            <CardDescription>Sistema de Memória</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Gerencia memória de curto prazo (STM), trabalho (WM) e longo prazo
-              (LTM) com sync Supabase.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">EngineGovernance</CardTitle>
+                <CardDescription>Sistema de Permissões</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Controla quais engines podem emitir eventos e executar ações,
+                  baseado em privilégios e categorias.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">UnifiedMemory</CardTitle>
+                <CardDescription>Sistema de Memória</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Gerencia memória de curto prazo (STM), trabalho (WM) e longo prazo
+                  (LTM) com sync Supabase.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="metrics">
+          <MetricsDashboard />
+        </TabsContent>
+
+        <TabsContent value="alerts">
+          <AlertsPanel />
+        </TabsContent>
+
+        <TabsContent value="replay">
+          <EventReplayPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

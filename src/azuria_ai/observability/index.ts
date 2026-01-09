@@ -84,3 +84,34 @@ export {
   type ReplayOptions,
   type ReplayState,
 } from './EventReplay';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ALERTAS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  CognitiveAlerts,
+  DEFAULT_ALERT_RULES,
+  acknowledgeAlert,
+  acknowledgeAllAlerts,
+  addAlertRule,
+  checkAlertsNow,
+  clearActiveAlerts,
+  clearAlertHistory,
+  getActiveAlerts,
+  getAlertHistory,
+  getAlertRules,
+  getAlertStats,
+  initAlerts,
+  loadDefaultRules,
+  removeAlertRule,
+  shutdownAlerts,
+  toggleAlertRule,
+  updateAlertRule,
+  type AlertRule,
+  type AlertSeverity,
+  type AlertsConfig,
+  type AlertsState,
+  type ComparisonOperator,
+  type TriggeredAlert,
+} from './CognitiveAlerts';
