@@ -68,6 +68,43 @@ interface DashboardStats {
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENTES AUXILIARES
 // ═══════════════════════════════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const getTrendColor = (trend: 'up' | 'down' | 'neutral'): string => {
+  if (trend === 'up') {return 'text-emerald-400';}
+  if (trend === 'down') {return 'text-red-400';}
+  return 'text-slate-400';
+};
+
+const getTrendLabel = (trend: 'up' | 'down' | 'neutral'): string => {
+  if (trend === 'up') {return 'Aumentando';}
+  if (trend === 'down') {return 'Diminuindo';}
+  return 'Estável';
+};
+
+const getStatusDotClass = (status: 'active' | 'warning' | 'error' | 'inactive'): string => {
+  if (status === 'active') {return 'bg-emerald-400 animate-pulse';}
+  if (status === 'warning') {return 'bg-amber-400';}
+  if (status === 'error') {return 'bg-red-400';}
+  return 'bg-slate-400';
+};
+
+const getHealthLabel = (score: number): string => {
+  if (score >= 90) {return 'Excelente';}
+  if (score >= 70) {return 'Bom';}
+  return 'Atenção';
+};
+
+const getHealthTrend = (score: number): 'up' | 'down' | 'neutral' => {
+  if (score >= 90) {return 'up';}
+  if (score < 70) {return 'down';}
+  return 'neutral';
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════════
 
 const StatCard: React.FC<{
   title: string;
@@ -101,12 +138,8 @@ const StatCard: React.FC<{
       <div className="mt-3 flex items-center gap-1">
         {trend === 'up' && <TrendingUp className="w-3 h-3 text-emerald-400" />}
         {trend === 'down' && <TrendingDown className="w-3 h-3 text-red-400" />}
-        <span className={`text-xs ${
-          trend === 'up' ? 'text-emerald-400' : 
-          trend === 'down' ? 'text-red-400' : 
-          'text-slate-400'
-        }`}>
-          {trend === 'up' ? 'Aumentando' : trend === 'down' ? 'Diminuindo' : 'Estável'}
+        <span className={`text-xs ${getTrendColor(trend)}`}>
+          {getTrendLabel(trend)}
         </span>
       </div>
     )}
@@ -154,12 +187,7 @@ const StatusBadge: React.FC<{
       inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium
       rounded-full border ${colors[status]}
     `}>
-      <span className={`w-1.5 h-1.5 rounded-full ${
-        status === 'active' ? 'bg-emerald-400 animate-pulse' :
-        status === 'warning' ? 'bg-amber-400' :
-        status === 'error' ? 'bg-red-400' :
-        'bg-slate-400'
-      }`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotClass(status)}`} />
       {label}
     </span>
   );
@@ -295,11 +323,9 @@ export const AdminDashboard: React.FC = () => {
         <StatCard
           title="Saúde do Sistema"
           value={`${stats.system.healthScore.toFixed(0)}%`}
-          subtitle={stats.system.healthScore >= 90 ? 'Excelente' : 
-                   stats.system.healthScore >= 70 ? 'Bom' : 'Atenção'}
+          subtitle={getHealthLabel(stats.system.healthScore)}
           icon={<Activity className="w-5 h-5 text-cyan-400" />}
-          trend={stats.system.healthScore >= 90 ? 'up' : 
-                stats.system.healthScore < 70 ? 'down' : 'neutral'}
+          trend={getHealthTrend(stats.system.healthScore)}
           color="cyan"
         />
         
@@ -489,7 +515,7 @@ export const AdminDashboard: React.FC = () => {
               className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/30"
             >
               <p className="text-xs text-slate-400 capitalize">
-                {reason.replace(/_/g, ' ')}
+                {reason.replaceAll('_', ' ')}
               </p>
               <p className="text-xl font-bold text-violet-400 mt-1">{count}</p>
             </div>

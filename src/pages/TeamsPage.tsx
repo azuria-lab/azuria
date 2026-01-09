@@ -234,6 +234,14 @@ interface Chat {
   isOnline?: boolean;
 }
 
+// Helper function for role labels
+const getRoleLabel = (role: string): string => {
+  if (role === "admin") {return "Administrador";}
+  if (role === "manager") {return "Gerente";}
+  if (role === "member") {return "Membro";}
+  return "Visualizador";
+};
+
 export default function TeamsPage() {
   const { userProfile, user } = useAuthContext();
   const consciousness = useConsciousnessContext();
@@ -387,7 +395,7 @@ export default function TeamsPage() {
       return;
     }
 
-    const roleKey = newRoleName.trim().toLowerCase().replace(/\s+/g, '_');
+    const roleKey = newRoleName.trim().toLowerCase().replaceAll(/\s+/g, '_');
     
     // Verificar se já existe
     if (customRoles.includes(roleKey) || ['member', 'manager', 'admin'].includes(roleKey)) {
@@ -499,7 +507,7 @@ export default function TeamsPage() {
     return filteredRooms.map((room) => {
       // Buscar membros da sala (em produção, buscar do backend)
       const roomMembers = members.filter((_m) =>
-        room.members_count ? true : false // Simplificado - em produção buscar do backend
+        Boolean(room.members_count) // Simplificado - em produção buscar do backend
       );
 
       // Buscar status do usuário se for conversa privada
@@ -958,9 +966,7 @@ export default function TeamsPage() {
     const rows = members.map((member) => [
       member.name,
       member.email,
-      member.role === "admin" ? "Administrador" : 
-      member.role === "manager" ? "Gerente" : 
-      member.role === "member" ? "Membro" : "Visualizador",
+      getRoleLabel(member.role),
       member.isActive ? "Ativo" : "Inativo",
       new Date(member.joinedAt).toLocaleDateString("pt-BR"),
     ]);
@@ -979,7 +985,7 @@ export default function TeamsPage() {
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
 
     toast({
       title: "Exportação concluída",
@@ -1038,7 +1044,7 @@ export default function TeamsPage() {
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")),
+      ...rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")),
     ].join("\n");
 
     // Criar blob e fazer download
@@ -1050,11 +1056,11 @@ export default function TeamsPage() {
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
 
     toast({
       title: "Exportação concluída",
-      description: `O relatório com ${tasks.length} tarefa${tasks.length !== 1 ? "s" : ""} foi exportado com sucesso.`,
+      description: `O relatório com ${tasks.length} tarefa${tasks.length === 1 ? "" : "s"} foi exportado com sucesso.`,
     });
   };
 
@@ -1461,14 +1467,14 @@ export default function TeamsPage() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="border-l-4" style={{ borderLeftColor: '#898989' }}>
+                  <Card className="border-l-4 border-l-gray-500">
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground">Conversas Ativas</p>
                           <p className="text-2xl font-bold">{chats.length}</p>
                         </div>
-                        <MessageCircle className="h-8 w-8 opacity-50" style={{ color: '#898989' }} />
+                        <MessageCircle className="h-8 w-8 opacity-50 text-gray-500" />
                       </div>
                     </CardContent>
                   </Card>
@@ -1515,9 +1521,18 @@ export default function TeamsPage() {
                             transition={{ duration: 0.2 }}
                           >
                             <div
+                              role="button"
+                              tabIndex={0}
                               onClick={() => {
                                 setSelectedMember(member);
                                 setActiveTab("members");
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setSelectedMember(member);
+                                  setActiveTab("members");
+                                }
                               }}
                               className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px]"
                             >
@@ -1578,7 +1593,15 @@ export default function TeamsPage() {
                               transition={{ duration: 0.2 }}
                             >
                               <div
+                                role="button"
+                                tabIndex={0}
                                 onClick={() => setActiveTab("tasks")}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setActiveTab("tasks");
+                                  }
+                                }}
                                 className="flex items-center gap-3 p-3 sm:p-4 rounded-lg border hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-pointer min-h-[60px]"
                               >
                                 <div className={`p-2 rounded-lg ${getStatusColor(task.status)} flex-shrink-0`}>
