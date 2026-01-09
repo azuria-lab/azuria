@@ -252,6 +252,13 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   // INICIALIZAÇÃO PRINCIPAL
   // ═══════════════════════════════════════════════════════════════════════════
   
+  // Helper para obter max insights baseado no tier
+  const getMaxInsights = (tier: string): number => {
+    if (tier === 'FREE') {return 3;}
+    if (tier === 'PRO') {return 5;}
+    return 10;
+  };
+
   const initialize = useCallback(async () => {
     if (legacyState.initialized || legacyState.loading || initializationStarted.current) {
       return;
@@ -263,13 +270,6 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
     try {
       const role = determineRole();
       const tier = determineTier();
-      
-      // Helper para rate limit baseado em tier
-      const getMaxInsights = (t: string): number => {
-        if (t === 'FREE') {return 3;}
-        if (t === 'PRO') {return 5;}
-        return 10;
-      };
       
       // 1. INICIALIZAR CENTRAL NUCLEUS (único ponto de entrada)
       // O Nucleus inicializa ConsciousnessCore + Delegados internamente

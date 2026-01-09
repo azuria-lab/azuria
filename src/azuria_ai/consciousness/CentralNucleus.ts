@@ -137,6 +137,27 @@ const nucleusState: NucleusState = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// HELPERS DE INICIALIZAÇÃO
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Helper para inicializar módulo com tratamento de erro
+async function tryInitModule<T>(
+  name: string,
+  initFn: () => Promise<T>,
+  onSuccess?: (module: T) => void
+): Promise<T | null> {
+  try {
+    const module = await initFn();
+    onSuccess?.(module);
+    log(`✓ ${name} initialized`);
+    return module;
+  } catch (error) {
+    warn(`${name} not available:`, error);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // INICIALIZAÇÃO
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -799,78 +820,79 @@ function processStateUpdateRequest(request: ActionRequest): ActionResponse {
   };
 }
 
-async function checkGovernance(request: ActionRequest): Promise<boolean> {
-  // 1. Verificar níveis de consciência (ADMIN vs USER)
-  if (levelsModule) {
-    const currentLevel = levelsModule.getCurrentLevel();
-    
-    if (currentLevel) {
-      // Se a fonte é um engine, verificar se o nível atual pode usá-lo
-      if (request.source === 'engine') {
-        if (!levelsModule.canUseEngine(currentLevel.role, request.sourceName)) {
-          if (nucleusState.config.debug) {
-            warn(`Engine ${request.sourceName} não permitido para nível ${currentLevel.role}`);
-          }
-          return false;
-        }
-      }
-      
-      // Verificar limite de sugestões
-      if (request.actionType === 'emit' && levelsModule.hasReachedSuggestionLimit()) {
-        if (nucleusState.config.debug) {
-          warn('Limite de sugestões atingido');
-        }
-        return false;
-      }
+// Helper para verificar níveis de consciência
+function checkLevelsGovernance(request: ActionRequest): boolean | null {
+  if (!levelsModule) {return null;}
+  
+  const currentLevel = levelsModule.getCurrentLevel();
+  if (!currentLevel) {return null;}
+  
+  // Se a fonte é um engine, verificar se o nível atual pode usá-lo
+  if (request.source === 'engine' && !levelsModule.canUseEngine(currentLevel.role, request.sourceName)) {
+    if (nucleusState.config.debug) {
+      warn(`Engine ${request.sourceName} não permitido para nível ${currentLevel.role}`);
     }
+    return false;
   }
+  
+  // Verificar limite de sugestões
+  if (request.actionType === 'emit' && levelsModule.hasReachedSuggestionLimit()) {
+    if (nucleusState.config.debug) {
+      warn('Limite de sugestões atingido');
+    }
+    return false;
+  }
+  
+  return null; // Continuar verificação
+}
 
-  // 2. Se EngineGovernance não está disponível, permitir por padrão
-  if (!engineGovernanceModule) {
+// Helper para verificar permissão de engine
+async function checkEnginePermission(request: ActionRequest): Promise<boolean> {
+  if (!engineGovernanceModule) {return true;}
+  
+  const engineId = request.sourceName;
+  const engine = engineGovernanceModule.getEngine(engineId);
+  
+  // Se engine não registrado, permitir durante migração
+  if (!engine) {
+    if (nucleusState.config.debug) {
+      warn(`Engine não registrado: ${engineId}`);
+    }
     return true;
   }
+  
+  // Verificar se engine está habilitado
+  if (!engine.enabled) {return false;}
+  
+  // Solicitar permissão para a ação
+  const permission = await engineGovernanceModule.requestActionPermission({
+    engineId,
+    actionType: 'execute',
+    payload: request.payload,
+    priority: request.priority,
+  });
+  
+  return permission.approved;
+}
+
+async function checkGovernance(request: ActionRequest): Promise<boolean> {
+  // 1. Verificar níveis de consciência (ADMIN vs USER)
+  const levelsResult = checkLevelsGovernance(request);
+  if (levelsResult === false) {return false;}
+
+  // 2. Se EngineGovernance não está disponível, permitir por padrão
+  if (!engineGovernanceModule) {return true;}
 
   // 3. Se a fonte é um engine, verificar permissão via EngineGovernance
   if (request.source === 'engine') {
-    const engineId = request.sourceName;
-    const engine = engineGovernanceModule.getEngine(engineId);
-
-    // Se engine não registrado, bloquear (modo estrito) ou permitir (modo migração)
-    if (!engine) {
-      if (nucleusState.config.debug) {
-        warn(`Engine não registrado: ${engineId}`);
-      }
-      // Durante migração, permitir engines não registrados
-      return true;
-    }
-
-    // Verificar se engine está habilitado
-    if (!engine.enabled) {
-      return false;
-    }
-
-    // Solicitar permissão para a ação
-    const permission = await engineGovernanceModule.requestActionPermission({
-      engineId,
-      actionType: 'execute',
-      payload: request.payload,
-      priority: request.priority,
-    });
-
-    return permission.approved;
+    return checkEnginePermission(request);
   }
 
   // 4. Para delegados, sempre permitir (eles já passaram pelo Nucleus)
-  if (request.source.includes('delegate')) {
-    return true;
-  }
+  if (request.source.includes('delegate')) {return true;}
 
-  // 5. Agentes precisam de permissão
-  if (request.source === 'agent') {
-    // Por agora, sempre permitir agentes
-    // FUTURE: Implementar governança de agentes
-    return true;
-  }
+  // 5. Agentes precisam de permissão (por agora, sempre permitir)
+  if (request.source === 'agent') {return true;}
 
   return true;
 }

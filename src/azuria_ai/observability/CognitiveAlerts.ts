@@ -130,21 +130,73 @@ function getMetricValue(rule: AlertRule): number {
 }
 
 function formatOperator(operator: ComparisonOperator): string {
-  switch (operator) {
-    case 'gt':
-      return '>';
-    case 'gte':
-      return '>=';
-    case 'lt':
-      return '<';
-    case 'lte':
-      return '<=';
-    case 'eq':
-      return '==';
-    case 'neq':
-      return '!=';
-    default:
-      return operator;
+  const operatorMap: Record<ComparisonOperator, string> = {
+    gt: '>',
+    gte: '>=',
+    lt: '<',
+    lte: '<=',
+    eq: '==',
+    neq: '!=',
+  };
+  return operatorMap[operator] ?? operator;
+}
+
+// Helper para obter função de log baseada na severidade
+function getLogFunction(severity: AlertSeverity): typeof console.info {
+  if (severity === 'critical' || severity === 'error') {
+    // eslint-disable-next-line no-console
+    return console.error;
+  }
+  if (severity === 'warning') {
+    // eslint-disable-next-line no-console
+    return console.warn;
+  }
+  // eslint-disable-next-line no-console
+  return console.info;
+}
+
+// Helper para criar alerta
+function createAlert(rule: AlertRule, value: number, now: number): TriggeredAlert {
+  return {
+    id: generateAlertId(),
+    ruleId: rule.id,
+    ruleName: rule.name,
+    severity: rule.severity,
+    message: `${rule.name}: ${rule.metric} ${formatOperator(rule.operator)} ${rule.threshold} (atual: ${value.toFixed(2)})`,
+    currentValue: value,
+    threshold: rule.threshold,
+    timestamp: now,
+    acknowledged: false,
+  };
+}
+
+// Helper para processar novo alerta
+function processNewAlert(ruleId: string, rule: AlertRule, value: number, now: number): void {
+  const alert = createAlert(rule, value, now);
+
+  state.activeAlerts.set(ruleId, alert);
+  state.alertHistory.push(alert);
+  state.lastTriggered.set(ruleId, now);
+
+  // Limitar histórico
+  if (state.alertHistory.length > config.maxAlerts) {
+    state.alertHistory.shift();
+  }
+
+  // Callback e log
+  config.onAlert?.(alert);
+  const logFn = getLogFunction(rule.severity);
+  logFn(`[CognitiveAlerts] ${alert.message}`);
+}
+
+// Helper para resolver alerta ativo
+function resolveActiveAlert(ruleId: string, rule: AlertRule): void {
+  const activeAlert = state.activeAlerts.get(ruleId);
+  if (activeAlert) {
+    state.activeAlerts.delete(ruleId);
+    config.onResolve?.(activeAlert);
+    // eslint-disable-next-line no-console
+    console.info(`[CognitiveAlerts] Resolved: ${rule.name}`);
   }
 }
 
@@ -164,59 +216,10 @@ function checkRules(): void {
     const value = getMetricValue(rule);
     const triggered = compare(value, rule.operator, rule.threshold);
 
-    if (triggered) {
-      // Novo alerta ou atualização
-      if (!state.activeAlerts.has(ruleId)) {
-        const alert: TriggeredAlert = {
-          id: generateAlertId(),
-          ruleId: rule.id,
-          ruleName: rule.name,
-          severity: rule.severity,
-          message: `${rule.name}: ${rule.metric} ${formatOperator(rule.operator)} ${rule.threshold} (atual: ${value.toFixed(2)})`,
-          currentValue: value,
-          threshold: rule.threshold,
-          timestamp: now,
-          acknowledged: false,
-        };
-
-        state.activeAlerts.set(ruleId, alert);
-        state.alertHistory.push(alert);
-        state.lastTriggered.set(ruleId, now);
-
-        // Limitar histórico
-        if (state.alertHistory.length > config.maxAlerts) {
-          state.alertHistory.shift();
-        }
-
-        // Callback
-        config.onAlert?.(alert);
-
-        // Log
-        const getLogFunction = (severity: AlertSeverity) => {
-          if (severity === 'critical' || severity === 'error') {
-            // eslint-disable-next-line no-console
-            return console.error;
-          }
-          if (severity === 'warning') {
-            // eslint-disable-next-line no-console
-            return console.warn;
-          }
-          // eslint-disable-next-line no-console
-          return console.info;
-        };
-
-        const logFn = getLogFunction(rule.severity);
-        logFn(`[CognitiveAlerts] ${alert.message}`);
-      }
-    } else {
-      // Resolver alerta se estava ativo
-      const activeAlert = state.activeAlerts.get(ruleId);
-      if (activeAlert) {
-        state.activeAlerts.delete(ruleId);
-        config.onResolve?.(activeAlert);
-        // eslint-disable-next-line no-console
-        console.info(`[CognitiveAlerts] Resolved: ${rule.name}`);
-      }
+    if (triggered && !state.activeAlerts.has(ruleId)) {
+      processNewAlert(ruleId, rule, value, now);
+    } else if (!triggered) {
+      resolveActiveAlert(ruleId, rule);
     }
   }
 }
