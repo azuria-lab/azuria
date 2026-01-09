@@ -15,6 +15,105 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// RATE LIMITING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface RateLimitEntry {
+  count: number;
+  firstRequest: number;
+  lastRequest: number;
+}
+
+// In-memory rate limit store (per instance)
+// For production, use Redis or Upstash
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+const RATE_LIMIT_CONFIG = {
+  windowMs: 60 * 1000, // 1 minute window
+  maxRequests: 60, // 60 requests per minute (1 per second avg)
+  maxRequestsPost: 30, // 30 POST requests per minute
+  cleanupIntervalMs: 5 * 60 * 1000, // Clean up every 5 minutes
+};
+
+// Cleanup old entries periodically
+let lastCleanup = Date.now();
+
+function cleanupRateLimitStore(): void {
+  const now = Date.now();
+  if (now - lastCleanup < RATE_LIMIT_CONFIG.cleanupIntervalMs) {return;}
+
+  lastCleanup = now;
+  const cutoff = now - RATE_LIMIT_CONFIG.windowMs * 2;
+
+  for (const [key, entry] of rateLimitStore.entries()) {
+    if (entry.lastRequest < cutoff) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
+function getClientIP(req: VercelRequest): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  if (Array.isArray(forwarded)) {
+    return forwarded[0];
+  }
+  return req.headers['x-real-ip'] as string || 'unknown';
+}
+
+function checkRateLimit(
+  clientIP: string,
+  method: string
+): { allowed: boolean; remaining: number; resetIn: number } {
+  cleanupRateLimitStore();
+
+  const now = Date.now();
+  const key = `${clientIP}:${method}`;
+  const maxRequests = method === 'POST' 
+    ? RATE_LIMIT_CONFIG.maxRequestsPost 
+    : RATE_LIMIT_CONFIG.maxRequests;
+
+  let entry = rateLimitStore.get(key);
+
+  // First request or window expired
+  if (!entry || now - entry.firstRequest > RATE_LIMIT_CONFIG.windowMs) {
+    entry = { count: 1, firstRequest: now, lastRequest: now };
+    rateLimitStore.set(key, entry);
+    return { 
+      allowed: true, 
+      remaining: maxRequests - 1,
+      resetIn: RATE_LIMIT_CONFIG.windowMs,
+    };
+  }
+
+  // Within window
+  entry.count++;
+  entry.lastRequest = now;
+
+  const resetIn = RATE_LIMIT_CONFIG.windowMs - (now - entry.firstRequest);
+
+  if (entry.count > maxRequests) {
+    return { 
+      allowed: false, 
+      remaining: 0,
+      resetIn,
+    };
+  }
+
+  return { 
+    allowed: true, 
+    remaining: maxRequests - entry.count,
+    resetIn,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// METRICS STORAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 // Simulated metrics storage (in production, this would come from a real source)
 // This is a placeholder since the actual metrics are client-side
 interface MetricData {
@@ -120,6 +219,27 @@ export default async function handler(
   // Handle OPTIONS (preflight)
   if (req.method === 'OPTIONS') {
     res.status(200).end();
+    return;
+  }
+
+  // Rate limiting
+  const clientIP = getClientIP(req);
+  const rateLimit = checkRateLimit(clientIP, req.method || 'GET');
+
+  // Add rate limit headers
+  res.setHeader('X-RateLimit-Limit', req.method === 'POST' 
+    ? RATE_LIMIT_CONFIG.maxRequestsPost 
+    : RATE_LIMIT_CONFIG.maxRequests);
+  res.setHeader('X-RateLimit-Remaining', rateLimit.remaining);
+  res.setHeader('X-RateLimit-Reset', Math.ceil(rateLimit.resetIn / 1000));
+
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', Math.ceil(rateLimit.resetIn / 1000));
+    res.status(429).json({
+      error: 'Too Many Requests',
+      message: `Rate limit exceeded. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`,
+      retryAfter: Math.ceil(rateLimit.resetIn / 1000),
+    });
     return;
   }
 

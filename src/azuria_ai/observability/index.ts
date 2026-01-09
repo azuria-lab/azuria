@@ -115,3 +115,46 @@ export {
   type ComparisonOperator,
   type TriggeredAlert,
 } from './CognitiveAlerts';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PERSISTÊNCIA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  RecordingPersistence,
+  saveRecording as saveRecordingToSupabase,
+  loadRecording as loadRecordingFromSupabase,
+  listRecordings as listRecordingsFromSupabase,
+  deleteRecording as deleteRecordingFromSupabase,
+  archiveRecording,
+  saveAlert as saveAlertToSupabase,
+  updateAlertStatus,
+  listAlerts as listAlertsFromSupabase,
+  getAlertStats as getAlertStatsFromSupabase,
+  type PersistedRecording,
+  type PersistedRecordingItem,
+  type PersistedAlert,
+  type PersistenceResult,
+} from './RecordingPersistence';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTIFICAÇÕES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export {
+  AlertNotifications,
+  initNotifications,
+  disableNotifications,
+  requestNotificationPermission,
+  isNotificationSupported,
+  getNotificationPermission,
+  notifyAlert,
+  notifyAlertResolved,
+  updateNotificationConfig,
+  getNotificationConfig,
+  getNotificationState,
+  connectToAlertSystem,
+  disconnectFromAlertSystem,
+  type NotificationConfig,
+  type NotificationState,
+} from './AlertNotifications';
