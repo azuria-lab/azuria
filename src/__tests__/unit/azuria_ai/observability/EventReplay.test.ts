@@ -197,14 +197,14 @@ describe('EventReplay', () => {
             id: 'event-1',
             timestamp: Date.now() - 50,
             relativeTime: 0,
-            eventType: 'ai:insight:generated',
+            eventType: 'insight:generated',
             payload: { test: true },
           },
           {
             id: 'event-2',
             timestamp: Date.now(),
             relativeTime: 50,
-            eventType: 'ai:suggestion:created',
+            eventType: 'ai:predictive-insight',
             payload: { test: true },
           },
         ],
@@ -236,7 +236,7 @@ describe('EventReplay', () => {
             id: 'event-1',
             timestamp: Date.now(),
             relativeTime: 0,
-            eventType: 'ai:insight:generated',
+            eventType: 'insight:generated',
             payload: { data: 'test' },
           },
         ],
@@ -247,7 +247,7 @@ describe('EventReplay', () => {
         dryRun: false,
       });
 
-      expect(emitEvent).toHaveBeenCalledWith('ai:insight:generated', { data: 'test' });
+      expect(emitEvent).toHaveBeenCalledWith('insight:generated', { data: 'test' });
     });
 
     it('should call onBeforeEvent callback', async () => {
@@ -263,7 +263,7 @@ describe('EventReplay', () => {
             id: 'event-1',
             timestamp: Date.now(),
             relativeTime: 0,
-            eventType: 'ai:insight:generated',
+            eventType: 'insight:generated',
             payload: {},
           },
         ],
@@ -293,14 +293,14 @@ describe('EventReplay', () => {
             id: 'event-1',
             timestamp: Date.now(),
             relativeTime: 0,
-            eventType: 'ai:insight:generated',
+            eventType: 'insight:generated',
             payload: {},
           },
           {
             id: 'event-2',
             timestamp: Date.now(),
             relativeTime: 0,
-            eventType: 'ai:suggestion:created',
+            eventType: 'ai:predictive-insight',
             payload: {},
           },
         ],
@@ -311,7 +311,7 @@ describe('EventReplay', () => {
       await replay(mockRecording, {
         speed: 100,
         dryRun: true,
-        filterEventTypes: ['ai:insight:generated'],
+        filterEventTypes: ['insight:generated'],
         onAfterEvent,
       });
 

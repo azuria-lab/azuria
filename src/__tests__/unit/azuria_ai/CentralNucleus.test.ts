@@ -19,9 +19,9 @@ vi.mock('@/azuria_ai/core/eventBus', () => ({
   onEvent: vi.fn(() => vi.fn()),
   offEvent: vi.fn(),
   EventTypes: {
-    AI_INSIGHT_GENERATED: 'ai:insight:generated',
-    AI_SUGGESTION_CREATED: 'ai:suggestion:created',
-    CONSCIOUSNESS_STATE_CHANGED: 'consciousness:state:changed',
+    INSIGHT_GENERATED: 'insight:generated',
+    AI_PREDICTIVE_INSIGHT: 'ai:predictive-insight',
+    AI_STATE_CHANGED: 'ai:state-changed',
   },
 }));
 
