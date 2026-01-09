@@ -17,7 +17,7 @@
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * Regras:
- * 1. Todo engine deve se registrar via registerEngine()
+ * 1. Cada engine deve se registrar via registerEngine()
  * 2. Antes de emitir, chamar requestEmitPermission()
  * 3. Antes de executar ação, chamar requestActionPermission()
  * 4. O Nucleus pode revogar permissões a qualquer momento
@@ -25,7 +25,7 @@
  * @module azuria_ai/governance/EngineGovernance
  */
 
-import { type ActionRequest, type ActionResponse, CentralNucleus, requestAction } from '../consciousness/CentralNucleus';
+import { type ActionRequest, requestAction } from '../consciousness/CentralNucleus';
 import type { EventType } from '../core/eventBus';
 
 // ═══════════════════════════════════════════════════════════════════════════════

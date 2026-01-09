@@ -264,6 +264,13 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       const role = determineRole();
       const tier = determineTier();
       
+      // Helper para rate limit baseado em tier
+      const getMaxInsights = (t: string): number => {
+        if (t === 'FREE') {return 3;}
+        if (t === 'PRO') {return 5;}
+        return 10;
+      };
+      
       // 1. INICIALIZAR CENTRAL NUCLEUS (único ponto de entrada)
       // O Nucleus inicializa ConsciousnessCore + Delegados internamente
       const nucleusResult = await initNucleus({
@@ -274,7 +281,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
           enabled: true,
           debug: config?.debug ?? import.meta.env.DEV,
           rateLimit: {
-            maxUserInsightsPerMinute: tier === 'FREE' ? 3 : tier === 'PRO' ? 5 : 10,
+            maxUserInsightsPerMinute: getMaxInsights(tier),
             maxAdminInsightsPerMinute: 10,
             dismissCooldown: 30000,
           },
@@ -341,7 +348,7 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         if (geminiApiKey) {
           // eslint-disable-next-line no-console
           console.warn('[ConsciousnessProvider] Using direct Gemini API (not recommended)');
-          geminiInitialized = initGemini({ apiKey: geminiApiKey });
+          void initGemini({ apiKey: geminiApiKey });
         } else {
           // eslint-disable-next-line no-console
           console.error('[ConsciousnessProvider] No Gemini configuration found (neither Supabase nor API key)');
@@ -455,6 +462,21 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
       return newMessages;
     });
     
+    // Helper para converter severity para priority
+    const getPriority = (sev: string): Suggestion['priority'] => {
+      if (sev === 'critical') {return 'critical';}
+      if (sev === 'high') {return 'high';}
+      if (sev === 'medium') {return 'medium';}
+      return 'low';
+    };
+    
+    // Helper para calcular confidence
+    const getConfidence = (sev: string): number => {
+      if (sev === 'critical') {return 0.9;}
+      if (sev === 'high') {return 0.7;}
+      return 0.5;
+    };
+    
     // Atualizar estado legado também
     setLegacyState(prev => {
       const suggestion: Suggestion = {
@@ -463,14 +485,12 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
         category: 'general' as Suggestion['category'],
         title: message.title,
         message: message.message,
-        priority: (message.severity === 'critical' ? 'critical' : 
-                 message.severity === 'high' ? 'high' : 
-                 message.severity === 'medium' ? 'medium' : 'low') as Suggestion['priority'],
+        priority: getPriority(message.severity),
         context: { screen: message.context.screen },
         metadata: {
           createdAt: message.context.timestamp,
           source: 'consciousness-core',
-          confidence: message.severity === 'critical' ? 0.9 : message.severity === 'high' ? 0.7 : 0.5,
+          confidence: getConfidence(message.severity),
         },
         status: 'pending' as Suggestion['status'],
       };

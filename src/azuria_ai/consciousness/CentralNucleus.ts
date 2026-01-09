@@ -868,7 +868,7 @@ async function checkGovernance(request: ActionRequest): Promise<boolean> {
   // 5. Agentes precisam de permissão
   if (request.source === 'agent') {
     // Por agora, sempre permitir agentes
-    // TODO: Implementar governança de agentes
+    // FUTURE: Implementar governança de agentes
     return true;
   }
 
@@ -898,13 +898,21 @@ function distributeEventToEngines(event: import('./PerceptionGate').NormalizedEv
     return;
   }
 
+  // Helper para converter prioridade
+  const getPriorityValue = (p: string): number => {
+    if (p === 'critical') { return 3; }
+    if (p === 'high') { return 2; }
+    return 1;
+  };
+
   // Converter NormalizedEvent para AzuriaEvent
+  const eventPriority = getPriorityValue(event.priority);
   const azuriaEvent = {
     tipo: event.type as import('../core/eventBus').EventType,
     payload: event.payload,
     timestamp: event.timestamp,
     source: event.source,
-    priority: event.priority === 'critical' ? 3 : event.priority === 'high' ? 2 : 1,
+    priority: eventPriority,
     metadata: {
       ...event.metadata,
       nucleusApproved: true,

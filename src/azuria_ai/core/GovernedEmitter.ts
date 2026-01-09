@@ -292,7 +292,7 @@ export function governedEmit(
   }
 
   // Emitir através do Nucleus se disponível
-  if (nucleusModule && nucleusModule.isNucleusInitialized()) {
+  if (nucleusModule?.isNucleusInitialized()) {
     nucleusModule.CentralNucleus.send({
       type: eventType,
       payload,
@@ -341,19 +341,20 @@ export async function governedEmitAsync(
     return { emitted: true, blocked: false };
   }
 
+  // Converter prioridade numérica para string
+  const getPriorityString = (p?: number): 'critical' | 'high' | 'low' | 'normal' => {
+    if (p === 10) {return 'critical';}
+    if (p && p >= 7) {return 'high';}
+    if (p && p <= 2) {return 'low';}
+    return 'normal';
+  };
+
   // Solicitar permissão assíncrona
   const permission = await governanceModule.requestEmitPermission({
     engineId: source,
     eventType,
     payload,
-    priority:
-      options.priority === 10
-        ? 'critical'
-        : options.priority && options.priority >= 7
-          ? 'high'
-          : options.priority && options.priority <= 2
-            ? 'low'
-            : 'normal',
+    priority: getPriorityString(options.priority),
   });
 
   if (!permission.granted) {

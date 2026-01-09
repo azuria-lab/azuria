@@ -34,7 +34,6 @@
 import { eventBus, type EventType } from '../core/eventBus';
 import {
   type EngineCategory,
-  EngineGovernance,
   type EnginePrivilege,
   recordEmission,
   registerEngine,
@@ -95,6 +94,16 @@ export abstract class BaseEngine {
 
     // Auto-registrar no sistema de governança
     this.register(config);
+  }
+
+  /**
+   * Converte string de prioridade para valor numérico
+   */
+  private getPriorityValue(priority?: string): number {
+    if (priority === 'critical') {return 10;}
+    if (priority === 'high') {return 7;}
+    if (priority === 'low') {return 1;}
+    return 5;
   }
 
   /**
@@ -219,9 +228,10 @@ export abstract class BaseEngine {
     payload: unknown,
     priority?: string
   ): void {
+    const priorityValue = this.getPriorityValue(priority);
     eventBus.emit(eventType, payload, {
       source: this.id,
-      priority: priority === 'critical' ? 10 : priority === 'high' ? 7 : priority === 'low' ? 1 : 5,
+      priority: priorityValue,
     });
   }
 

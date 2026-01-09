@@ -655,7 +655,7 @@ export function updateEngineSlice<T>(
   // Verificar se a fonte tem permissão
   if (options.source !== engineId && options.source !== 'nucleus' && options.source !== 'core') {
     // Durante migração, permitir escrita de qualquer fonte
-    // TODO: Remover após migração completa
+    // FUTURE: Remover após migração completa
     if (config.debug) {
       warn(`Cross-slice write from ${options.source} to ${engineId} (allowed during migration)`);
     }
@@ -748,7 +748,10 @@ export function onSliceChange<T>(
   if (!sliceListeners.has(engineId)) {
     sliceListeners.set(engineId, new Set());
   }
-  sliceListeners.get(engineId)!.add(listener as SliceListener<unknown>);
+  const listeners = sliceListeners.get(engineId);
+  if (listeners) {
+    listeners.add(listener as SliceListener<unknown>);
+  }
   return () => sliceListeners.get(engineId)?.delete(listener as SliceListener<unknown>);
 }
 

@@ -260,7 +260,7 @@ export {
 
 /**
  * @description UnifiedStateStore é o único sistema de estado do Azuria.
- * Centraliza todo o estado da aplicação em um único lugar.
+ * Centraliza completamente o estado da aplicação em um único lugar.
  * 
  * @example
  * ```typescript
