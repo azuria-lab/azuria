@@ -276,12 +276,12 @@ function RecordingControls({
   liveEvents,
   onStart,
   onStop,
-}: {
+}: Readonly<{
   recordingActive: boolean;
   liveEvents: RecordedEvent[];
   onStart: (name?: string) => void;
   onStop: () => void;
-}) {
+}>) {
   const [recordingName, setRecordingName] = useState('');
 
   return (
@@ -303,7 +303,25 @@ function RecordingControls({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {!recordingActive ? (
+          {recordingActive ? (
+            <>
+              <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-md">
+                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-sm font-medium">Gravando...</span>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  {liveEvents.length} eventos
+                </span>
+              </div>
+              <Button
+                onClick={onStop}
+                variant="destructive"
+                className="w-full"
+              >
+                <Square className="mr-2 h-4 w-4" />
+                Parar Gravação
+              </Button>
+            </>
+          ) : (
             <>
               <div className="space-y-2">
                 <Label htmlFor="recording-name">Nome da Gravação</Label>
@@ -319,50 +337,6 @@ function RecordingControls({
                 Iniciar Gravação
               </Button>
             </>
-          ) : (
-            <>
-              <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium">Gravando...</p>
-                  <p className="text-xs text-muted-foreground">
-                    {liveEvents.length} eventos capturados
-                  </p>
-                </div>
-                <div className="text-2xl font-mono">
-                  {formatDuration(
-                    liveEvents.length > 0
-                      ? Date.now() - liveEvents[0].timestamp + liveEvents[0].relativeTime
-                      : 0
-                  )}
-                </div>
-              </div>
-
-              {/* Live events preview */}
-              {liveEvents.length > 0 && (
-                <ScrollArea className="h-[100px] border rounded-lg p-2">
-                  <div className="space-y-1">
-                    {liveEvents.slice(-5).map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex items-center justify-between text-xs"
-                      >
-                        <span className="font-mono truncate max-w-[150px]">
-                          {event.eventType}
-                        </span>
-                        <span className="text-muted-foreground">
-                          +{event.relativeTime}ms
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-
-              <Button variant="destructive" className="w-full" onClick={onStop}>
-                <Square className="h-4 w-4 mr-2" />
-                Parar Gravação
-              </Button>
-            </>
           )}
         </div>
       </CardContent>
@@ -376,12 +350,12 @@ function ReplayControls({
   onPause,
   onResume,
   onAbort,
-}: {
+}: Readonly<{
   playback: PlaybackState;
   onPause: () => void;
   onResume: () => void;
   onAbort: () => void;
-}) {
+}>) {
   if (playback.status === 'idle' || !playback.recording) {
     return null;
   }
@@ -436,12 +410,12 @@ function RecordingsList({
   onReplay,
   onDelete,
   onExport,
-}: {
+}: Readonly<{
   recordings: EventRecording[];
   onReplay: (recording: EventRecording, options?: Partial<ReplayOptions>) => void;
   onDelete: (id: string) => void;
   onExport: (recording: EventRecording) => void;
-}) {
+}>) {
   const [selectedRecording, setSelectedRecording] = useState<EventRecording | null>(null);
   const [replaySpeed, setReplaySpeed] = useState(1);
   const [dryRun, setDryRun] = useState(false);
@@ -637,7 +611,7 @@ function RecordingsList({
 }
 
 /** Card de Importação */
-function ImportCard({ onImport }: { onImport: (json: string) => boolean }) {
+function ImportCard({ onImport }: Readonly<{ onImport: (json: string) => boolean }>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -678,6 +652,7 @@ function ImportCard({ onImport }: { onImport: (json: string) => boolean }) {
           type="file"
           accept=".json"
           onChange={handleFileSelect}
+          aria-label="Selecionar arquivo JSON para importação"
           className="hidden"
         />
         <Button
@@ -717,7 +692,7 @@ function formatDuration(ms: number): string {
 // COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function EventReplayPanel({ className }: EventReplayPanelProps) {
+export function EventReplayPanel({ className }: Readonly<EventReplayPanelProps>) {
   const {
     recordings,
     recordingActive,

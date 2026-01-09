@@ -115,7 +115,7 @@ function useMetrics(refreshInterval: number) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /** Card de Visão Geral */
-function OverviewCard({ snapshot }: { snapshot: MetricsSnapshot }) {
+function OverviewCard({ snapshot }: { readonly snapshot: MetricsSnapshot }) {
   const counterCount = Object.keys(snapshot.counters).length;
   const gaugeCount = Object.keys(snapshot.gauges).length;
   const histogramCount = Object.keys(snapshot.histograms).length;
@@ -162,7 +162,7 @@ function OverviewCard({ snapshot }: { snapshot: MetricsSnapshot }) {
 }
 
 /** Card de Contadores */
-function CountersCard({ counters }: { counters: Record<string, number> }) {
+function CountersCard({ counters }: { readonly counters: Record<string, number> }) {
   const entries = Object.entries(counters).sort(([, a], [, b]) => b - a);
 
   return (
@@ -207,7 +207,7 @@ function CountersCard({ counters }: { counters: Record<string, number> }) {
 }
 
 /** Card de Gauges */
-function GaugesCard({ gauges }: { gauges: Record<string, number> }) {
+function GaugesCard({ gauges }: { readonly gauges: Record<string, number> }) {
   const entries = Object.entries(gauges);
 
   return (
@@ -245,7 +245,7 @@ function GaugesCard({ gauges }: { gauges: Record<string, number> }) {
 }
 
 /** Card de Histogramas */
-function HistogramsCard({ histograms }: { histograms: Record<string, number[]> }) {
+function HistogramsCard({ histograms }: { readonly histograms: Record<string, number[]> }) {
   const entries = Object.entries(histograms).filter(([, values]) => values.length > 0);
 
   return (
@@ -268,7 +268,7 @@ function HistogramsCard({ histograms }: { histograms: Record<string, number[]> }
               {entries.map(([name, values]) => {
                 const sorted = [...values].sort((a, b) => a - b);
                 const min = sorted[0];
-                const max = sorted[sorted.length - 1];
+                const max = sorted.at(-1) ?? 0;
                 const avg = values.reduce((a, b) => a + b, 0) / values.length;
                 const p50 = sorted[Math.floor(sorted.length * 0.5)];
                 const p95 = sorted[Math.floor(sorted.length * 0.95)];
@@ -321,7 +321,7 @@ function HistogramsCard({ histograms }: { histograms: Record<string, number[]> }
 }
 
 /** Card de Métricas Agregadas */
-function AggregationsCard({ metrics }: { metrics: Record<string, MetricAggregation> }) {
+function AggregationsCard({ metrics }: Readonly<{ metrics: Record<string, MetricAggregation> }>) {
   const entries = Object.values(metrics).sort((a, b) => b.lastUpdated - a.lastUpdated);
 
   return (
@@ -390,7 +390,7 @@ function AggregationsCard({ metrics }: { metrics: Record<string, MetricAggregati
 }
 
 /** Card do Nucleus */
-function NucleusMetricsCard({ snapshot }: { snapshot: MetricsSnapshot }) {
+function NucleusMetricsCard({ snapshot }: Readonly<{ snapshot: MetricsSnapshot }>) {
   const nucleusMetrics = Object.entries(snapshot.counters).filter(([name]) =>
     name.startsWith('nucleus.')
   );
@@ -447,7 +447,7 @@ function NucleusMetricsCard({ snapshot }: { snapshot: MetricsSnapshot }) {
 }
 
 /** Card de Eventos */
-function EventsMetricsCard({ snapshot }: { snapshot: MetricsSnapshot }) {
+function EventsMetricsCard({ snapshot }: Readonly<{ snapshot: MetricsSnapshot }>) {
   const eventMetrics = Object.entries(snapshot.counters).filter(([name]) =>
     name.startsWith('events.')
   );
@@ -546,7 +546,7 @@ function formatUptime(ms: number): string {
 export function MetricsDashboard({
   className,
   autoRefreshInterval = 2000,
-}: MetricsDashboardProps) {
+}: Readonly<MetricsDashboardProps>) {
   const { snapshot, isLoading, autoRefresh, setAutoRefresh, refresh } =
     useMetrics(autoRefreshInterval);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('json');

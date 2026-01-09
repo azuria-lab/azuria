@@ -565,7 +565,7 @@ export function unregisterEngineSlice(engineId: string): void {
  */
 export function updateCoreState(
   updates: Partial<CoreState>,
-  options: UpdateOptions = { source: 'unknown' }
+  options: UpdateOptions = defaultUpdateOptions
 ): void {
   const changedPaths: string[] = [];
 

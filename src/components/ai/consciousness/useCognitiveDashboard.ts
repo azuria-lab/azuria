@@ -210,12 +210,12 @@ async function collectDashboardData(): Promise<DashboardData> {
         nucleusData.currentLevel = stats.currentLevel || 'USER';
       }
     }
-  } catch (_e) {
+  } catch (error_) {
     // Nucleus não disponível
     alerts.push({
       severity: 'warning',
       title: 'CentralNucleus',
-      message: 'Não foi possível carregar dados do Nucleus',
+      message: `Não foi possível carregar dados do Nucleus: ${String(error_)}`,
       timestamp: Date.now(),
     });
   }
@@ -272,8 +272,13 @@ async function collectDashboardData(): Promise<DashboardData> {
         }));
       }
     }
-  } catch (_e) {
-    // Governance não disponível
+  } catch (error_) {
+    alerts.push({
+      severity: 'info',
+      title: 'Governance',
+      message: `Governance não disponível: ${String(error_)}`,
+      timestamp: Date.now(),
+    });
   }
 
   // Coletar dados do CompatibilityAdapter
@@ -288,8 +293,13 @@ async function collectDashboardData(): Promise<DashboardData> {
       const stats = adapter.getCompatibilityAdapterStats();
       governanceData.adapterIntercepted = stats.totalIntercepted;
     }
-  } catch (_e) {
-    // Adapter não disponível
+  } catch (error_) {
+    alerts.push({
+      severity: 'info',
+      title: 'Adapter',
+      message: `Compatibility Adapter não disponível: ${String(error_)}`,
+      timestamp: Date.now(),
+    });
   }
 
   // Coletar dados do UnifiedStateStore
@@ -333,8 +343,13 @@ async function collectDashboardData(): Promise<DashboardData> {
         });
       }
     }
-  } catch (_e) {
-    // Store não disponível
+  } catch (error_) {
+    alerts.push({
+      severity: 'info',
+      title: 'State Store',
+      message: `Unified State Store não disponível: ${String(error_)}`,
+      timestamp: Date.now(),
+    });
   }
 
   // Coletar dados do UnifiedMemory
@@ -365,8 +380,13 @@ async function collectDashboardData(): Promise<DashboardData> {
         };
       }
     }
-  } catch (_e) {
-    // Memory não disponível
+  } catch (error_) {
+    alerts.push({
+      severity: 'info',
+      title: 'Memory',
+      message: `Unified Memory não disponível: ${String(error_)}`,
+      timestamp: Date.now(),
+    });
   }
 
   // Coletar dados do GovernedEmitter
@@ -386,8 +406,13 @@ async function collectDashboardData(): Promise<DashboardData> {
         eventsData.recentByType = { ...stats.byEventType };
       }
     }
-  } catch (_e) {
-    // Emitter não disponível
+  } catch (error_) {
+    alerts.push({
+      severity: 'info',
+      title: 'Emitter',
+      message: `Governed Emitter não disponível: ${String(error_)}`,
+      timestamp: Date.now(),
+    });
   }
 
   // Verificar se Nucleus não está rodando
@@ -436,8 +461,8 @@ export function useCognitiveDashboard(): UseCognitiveDashboardReturn {
       const newData = await collectDashboardData();
       setData(newData);
       setError(null);
-    } catch (_e) {
-      setError(String(e));
+    } catch (error_) {
+      setError(String(error_));
     } finally {
       setIsLoading(false);
     }
@@ -455,9 +480,9 @@ export function useCognitiveDashboard(): UseCognitiveDashboardReturn {
 
       // Refresh após toggle
       setTimeout(refresh, 100);
-    } catch (_e) {
+    } catch (error_) {
       // eslint-disable-next-line no-console
-      console.error('Failed to toggle pause:', _e);
+      console.error('Failed to toggle pause:', error_);
     }
   }, [data?.nucleus.isPaused, refresh]);
 
@@ -470,8 +495,8 @@ export function useCognitiveDashboard(): UseCognitiveDashboardReturn {
     data,
     isLoading,
     error,
-    refresh,
-    togglePause,
+    refresh: () => { void refresh(); },
+    togglePause: () => { void togglePause(); },
   };
 }
 

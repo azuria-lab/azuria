@@ -402,7 +402,7 @@ export function getCurrentLevel(): LevelContext | null {
 export function hasFeatureAccess(
   role: CognitiveRole,
   category: FeatureCategory,
-  tier?: 'FREE' | 'PRO' | 'ENTERPRISE'
+  tier?: UserTier
 ): boolean {
   const permission = FEATURE_PERMISSIONS.find((p) => p.category === category);
 
@@ -561,7 +561,7 @@ export function getLevelStats(): LevelContext['stats'] | null {
 export interface PermissionCheckResult {
   allowed: boolean;
   reason?: string;
-  requiredTier?: 'FREE' | 'PRO' | 'ENTERPRISE';
+  requiredTier?: UserTier;
 }
 
 /**
@@ -574,7 +574,7 @@ export function checkActionPermission(
     engineId?: string;
     eventType?: string;
   },
-  userTier?: 'FREE' | 'PRO' | 'ENTERPRISE'
+  userTier?: UserTier
 ): PermissionCheckResult {
   if (!state.currentLevel) {
     return { allowed: false, reason: 'no_active_level' };

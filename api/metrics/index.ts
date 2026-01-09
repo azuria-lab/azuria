@@ -144,23 +144,29 @@ function formatPrometheus(data: MetricData): string {
   const prefix = 'azuria_cognitive';
 
   // Add metadata
-  lines.push(`# HELP ${prefix}_info Azuria Cognitive System Information`);
-  lines.push(`# TYPE ${prefix}_info gauge`);
-  lines.push(`${prefix}_info{version="1.0.0"} 1`);
-  lines.push('');
+  lines.push(
+    `# HELP ${prefix}_info Azuria Cognitive System Information`,
+    `# TYPE ${prefix}_info gauge`,
+    `${prefix}_info{version="1.0.0"} 1`,
+    ''
+  );
 
   // Counters
   for (const [key, value] of Object.entries(data.counters)) {
     const safeName = sanitizeMetricName(key);
-    lines.push(`# TYPE ${prefix}_${safeName}_total counter`);
-    lines.push(`${prefix}_${safeName}_total ${value}`);
+    lines.push(
+      `# TYPE ${prefix}_${safeName}_total counter`,
+      `${prefix}_${safeName}_total ${value}`
+    );
   }
 
   // Gauges
   for (const [key, value] of Object.entries(data.gauges)) {
     const safeName = sanitizeMetricName(key);
-    lines.push(`# TYPE ${prefix}_${safeName} gauge`);
-    lines.push(`${prefix}_${safeName} ${value}`);
+    lines.push(
+      `# TYPE ${prefix}_${safeName} gauge`,
+      `${prefix}_${safeName} ${value}`
+    );
   }
 
   // Histograms
@@ -171,9 +177,11 @@ function formatPrometheus(data: MetricData): string {
     const sorted = [...values].sort((a, b) => a - b);
     const sum = values.reduce((a, b) => a + b, 0);
 
-    lines.push(`# TYPE ${prefix}_${safeName} histogram`);
-    lines.push(`${prefix}_${safeName}_count ${values.length}`);
-    lines.push(`${prefix}_${safeName}_sum ${sum}`);
+    lines.push(
+      `# TYPE ${prefix}_${safeName} histogram`,
+      `${prefix}_${safeName}_count ${values.length}`,
+      `${prefix}_${safeName}_sum ${sum}`
+    );
 
     // Buckets
     const buckets = [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
@@ -185,10 +193,12 @@ function formatPrometheus(data: MetricData): string {
   }
 
   // Uptime
-  lines.push('');
-  lines.push(`# HELP ${prefix}_uptime_seconds System uptime in seconds`);
-  lines.push(`# TYPE ${prefix}_uptime_seconds gauge`);
-  lines.push(`${prefix}_uptime_seconds ${Math.floor(data.uptimeMs / 1000)}`);
+  lines.push(
+    '',
+    `# HELP ${prefix}_uptime_seconds System uptime in seconds`,
+    `# TYPE ${prefix}_uptime_seconds gauge`,
+    `${prefix}_uptime_seconds ${Math.floor(data.uptimeMs / 1000)}`
+  );
 
   return lines.join('\n');
 }
@@ -198,10 +208,10 @@ function formatPrometheus(data: MetricData): string {
  */
 function sanitizeMetricName(name: string): string {
   return name
-    .replace(/[{}]/g, '')
-    .replace(/[^a-zA-Z0-9_]/g, '_')
-    .replace(/_{2,}/g, '_')
-    .replace(/^_|_$/g, '');
+    .replaceAll(/[{}]/g, '')
+    .replaceAll(/[^a-zA-Z0-9_]/g, '_')
+    .replaceAll(/_{2,}/g, '_')
+    .replaceAll(/^_|_$/g, '');
 }
 
 /**

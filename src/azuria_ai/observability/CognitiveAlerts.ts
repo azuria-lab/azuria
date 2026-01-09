@@ -192,14 +192,20 @@ function checkRules(): void {
         config.onAlert?.(alert);
 
         // Log
-        const logFn = rule.severity === 'critical' || rule.severity === 'error'
+        const getLogFunction = (severity: AlertSeverity) => {
+          if (severity === 'critical' || severity === 'error') {
+            // eslint-disable-next-line no-console
+            return console.error;
+          }
+          if (severity === 'warning') {
+            // eslint-disable-next-line no-console
+            return console.warn;
+          }
           // eslint-disable-next-line no-console
-          ? console.error
-          : rule.severity === 'warning'
-            // eslint-disable-next-line no-console
-            ? console.warn
-            // eslint-disable-next-line no-console
-            : console.info;
+          return console.info;
+        };
+
+        const logFn = getLogFunction(rule.severity);
         logFn(`[CognitiveAlerts] ${alert.message}`);
       }
     } else {

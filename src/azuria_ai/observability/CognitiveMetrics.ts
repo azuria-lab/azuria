@@ -365,13 +365,17 @@ export function exportPrometheus(): string {
   const lines: string[] = [];
 
   for (const [key, value] of counters) {
-    lines.push(`# TYPE ${key} counter`);
-    lines.push(`${key} ${value}`);
+    lines.push(
+      `# TYPE ${key} counter`,
+      `${key} ${value}`
+    );
   }
 
   for (const [key, value] of gauges) {
-    lines.push(`# TYPE ${key} gauge`);
-    lines.push(`${key} ${value}`);
+    lines.push(
+      `# TYPE ${key} gauge`,
+      `${key} ${value}`
+    );
   }
 
   for (const [key, values] of histograms) {
@@ -380,13 +384,15 @@ export function exportPrometheus(): string {
     const sorted = [...values].sort((a, b) => a - b);
     const sum = values.reduce((a, b) => a + b, 0);
 
-    lines.push(`# TYPE ${key} histogram`);
-    lines.push(`${key}_count ${values.length}`);
-    lines.push(`${key}_sum ${sum}`);
-    lines.push(`${key}_bucket{le="0.5"} ${sorted.filter((v) => v <= getPercentile(key, 50)).length}`);
-    lines.push(`${key}_bucket{le="0.9"} ${sorted.filter((v) => v <= getPercentile(key, 90)).length}`);
-    lines.push(`${key}_bucket{le="0.99"} ${sorted.filter((v) => v <= getPercentile(key, 99)).length}`);
-    lines.push(`${key}_bucket{le="+Inf"} ${values.length}`);
+    lines.push(
+      `# TYPE ${key} histogram`,
+      `${key}_count ${values.length}`,
+      `${key}_sum ${sum}`,
+      `${key}_bucket{le="0.5"} ${sorted.filter((v) => v <= getPercentile(key, 50)).length}`,
+      `${key}_bucket{le="0.9"} ${sorted.filter((v) => v <= getPercentile(key, 90)).length}`,
+      `${key}_bucket{le="0.99"} ${sorted.filter((v) => v <= getPercentile(key, 99)).length}`,
+      `${key}_bucket{le="+Inf"} ${values.length}`
+    );
   }
 
   return lines.join('\n');

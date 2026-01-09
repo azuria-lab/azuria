@@ -205,8 +205,8 @@ export function stopRecording(): EventRecording | null {
 
   const endedAt = Date.now();
   const recording: EventRecording = {
-    id: state.currentRecordingId!,
-    name: state.currentRecordingId!,
+    id: state.currentRecordingId ?? 'unknown',
+    name: state.currentRecordingId ?? 'unknown',
     startedAt: recordingStartTime,
     endedAt,
     duration: endedAt - recordingStartTime,
@@ -286,15 +286,15 @@ export async function replay(
 
     // Filtrar por tipo de evento
     if (opts.filterEventTypes && opts.filterEventTypes.length > 0) {
-      events = events.filter((e) => opts.filterEventTypes!.includes(e.eventType));
+      events = events.filter((e) => opts.filterEventTypes.includes(e.eventType));
     }
 
     // Filtrar por tempo
     if (opts.startFromTime !== undefined) {
-      events = events.filter((e) => e.relativeTime >= opts.startFromTime!);
+      events = events.filter((e) => e.relativeTime >= opts.startFromTime);
     }
     if (opts.stopAtTime !== undefined) {
-      events = events.filter((e) => e.relativeTime <= opts.stopAtTime!);
+      events = events.filter((e) => e.relativeTime <= opts.stopAtTime);
     }
 
     let lastTime = 0;

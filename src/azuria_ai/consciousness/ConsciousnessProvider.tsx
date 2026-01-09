@@ -673,18 +673,18 @@ export const ConsciousnessProvider: React.FC<ConsciousnessProviderProps> = ({
   useEffect(() => {
     if (activeMessages.length === 0) {return;}
     
-    const checkExpiry = () => {
+    const filterExpiredMessages = (msg: typeof activeMessages[0]) => {
       const now = Date.now();
-      setActiveMessages(prev => 
-        prev.filter(msg => {
-          const expiresAt = msg.context.timestamp + msg.ttl;
-          if (now >= expiresAt) {
-            provideFeedback(msg.semanticHash, msg.context.screen, 'ignored');
-            return false;
-          }
-          return true;
-        })
-      );
+      const expiresAt = msg.context.timestamp + msg.ttl;
+      if (now >= expiresAt) {
+        provideFeedback(msg.semanticHash, msg.context.screen, 'ignored');
+        return false;
+      }
+      return true;
+    };
+    
+    const checkExpiry = () => {
+      setActiveMessages(prev => prev.filter(filterExpiredMessages));
     };
     
     const interval = setInterval(checkExpiry, 1000);
