@@ -1228,12 +1228,7 @@ export default function TeamsPage() {
 
     const rows = tasksState.map((task) => {
       const assignedMembers = task.assignedTo
-        ? task.assignedTo
-            .map((userId) => {
-              const member = members.find((m) => m.userId === userId);
-              return member ? member.name : userId;
-            })
-            .join("; ")
+        ? task.assignedTo.map(getMemberNameFromId).join("; ")
         : "Não atribuído";
 
       const createdByMember = members.find((m) => m.userId === task.createdBy);
@@ -1417,6 +1412,21 @@ export default function TeamsPage() {
 
   const getPriorityColor = (priority: TaskPriority) => {
     return priorityConfig[priority].color;
+  };
+
+  // Helper para mapear membros atribuídos - evita nested function
+  const getMemberNameFromId = (userId: string): string => {
+    const member = members.find((m) => m.userId === userId);
+    return member ? member.name : userId;
+  };
+
+  // Helper para toggle de seleção de membro - evita nested function
+  const toggleMemberSelection = (userId: string) => {
+    setNewTaskAssignedTo((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const selectedChat = chats.find((chat) => chat.id === selectedChatId);
@@ -2319,13 +2329,7 @@ export default function TeamsPage() {
                     return (
                       <motion.div
                         key={member.id}
-                        onClick={() => {
-                          setNewTaskAssignedTo((prev) =>
-                            prev.includes(member.userId)
-                              ? prev.filter((id) => id !== member.userId)
-                              : [...prev, member.userId]
-                          );
-                        }}
+                        onClick={() => toggleMemberSelection(member.userId)}
                         whileTap={{ scale: 0.95 }}
                         animate={{
                           scale: isSelected ? 1.05 : 1,
