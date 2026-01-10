@@ -180,16 +180,18 @@ export async function loadRecording(
     const startedAt = new Date(recordingData.started_at as string).getTime();
     const endedAt = recordingData.ended_at ? new Date(recordingData.ended_at as string).getTime() : Date.now();
     const eventRecording: EventRecording = {
-      id: recording.session_id,
-      name: recording.name || `Recording ${recording.session_id}`,
+      id: recordingData.session_id as string,
+      name: (recordingData.name as string) || `Recording ${recordingData.session_id}`,
       startedAt,
       endedAt,
       duration: endedAt - startedAt,
-      eventCount: recording.event_count || 0,
-      events: (items || []).map((item) => ({
-        type: item.event_type,
-        data: item.event_data as Record<string, unknown>,
-        timestamp: new Date(item.timestamp).getTime(),
+      eventCount: (recordingData.event_count as number) || 0,
+      events: ((items || []) as Array<Record<string, unknown>>).map((item) => ({
+        id: String(item.id || ''),
+        timestamp: new Date(item.timestamp as string).getTime(),
+        relativeTime: (item.relative_time_ms as number) || 0,
+        eventType: item.event_type as EventType,
+        payload: item.event_data || {},
       })),
       metadata: {
         eventTypes: (recordingData.event_types as string[]) || [],
