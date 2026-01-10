@@ -85,9 +85,10 @@ export class SecurityMiddleware {
     // Use non-greedy matching with proper boundaries to prevent ReDoS
     const xssPatterns = [
       // Script tags - match tag opening and closing with non-greedy content and length limit
-      // Use bounded quantifiers and avoid overly complex patterns to prevent ReDoS
-      // Process script tags more carefully with explicit boundaries
-      /<script(?:\s[^>]*)?>[\s\S]{0,50000}?<\/script\s*>/gi,
+      // Use bounded quantifiers with explicit character matching to prevent ReDoS
+      // Match script tag with attribute list (limited length) and content (limited length)
+      // Process script tags more carefully with explicit boundaries and Unicode support
+      /<script(?:\s+[^>]{0,200})?\s*>[\s\S]{0,10000}?<\/script\s*>/giu,
       // Iframe tags
       /<iframe[^>]*>[\s\S]*?<\/iframe\s*>/gi,
       // Dangerous protocols - use word boundary
@@ -95,9 +96,11 @@ export class SecurityMiddleware {
       /\bdata\s*:\s*text\/html/gi,  // Block data URLs with HTML
       /\bvbscript\s*:/gi,
       // Event handlers with quotes - limit length to prevent ReDoS
-      /\bon\w+\s*=\s*["'][^"']{0,1000}["']/gi,
+      // Use Unicode flag and explicit character class for multi-byte support
+      /\bon[a-zA-Z0-9]+\s*=\s*["'][^"']{0,1000}["']/giu,
       // Event handlers without quotes - match until space or > with limit
-      /\bon\w+\s*=\s*[^\s>]{0,1000}/gi,
+      // Use Unicode flag for proper multi-byte character handling
+      /\bon[a-zA-Z0-9]+\s*=\s*[^\s>]{0,1000}/giu,
       // Dangerous attributes on tags
       /<img[^>]*\bonerror\s*=/gi,
       /<svg[^>]*\bonload\s*=/gi,
@@ -201,16 +204,19 @@ export class SecurityMiddleware {
     // Remove event handlers with proper Unicode-aware matching and length limits
     // IMPORTANTE: Processar caracteres Unicode corretamente para evitar bypasses multi-byte
     // Use bounded quantifiers with explicit character classes to prevent ReDoS
+    // Process Unicode multi-byte characters correctly by using Unicode-aware regex
     // First pass: event handlers with quotes - handle Unicode properly
     // Match onEventName="value" or onEventName='value' with explicit limits
-    // Process Unicode characters by matching any character except quote, but with length limit
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'][^"']{0,500}["']/gu, '');
-    // Second pass: event handlers without quotes - handle Unicode characters  
+    // Use Unicode flag (u) and match Unicode characters properly
+    // Split into smaller chunks to handle multi-byte characters correctly
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'](?:[^"']|(?:\u{10000}-\u{10FFFF}|[\uD800-\uDBFF][\uDC00-\uDFFF])){0,500}["']/gu, '');
+    // Second pass: event handlers without quotes - handle Unicode characters
     // Ensure we match specific event handler patterns, not arbitrary content
-    // Use Unicode flag (u) to properly handle multi-byte characters
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^\s>]{0,500}/gu, '');
+    // Use Unicode-aware matching with explicit bounds to handle multi-byte characters
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*(?:[^\s>]|(?:\u{10000}-\u{10FFFF}|[\uD800-\uDBFF][\uDC00-\uDFFF])){0,500}/gu, '');
     // Third pass: Catch any remaining event handlers with mixed quotes/unicode
     // This handles edge cases where multi-byte characters might bypass previous patterns
+    // Use simpler pattern that works with all Unicode characters
     sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^>]{0,500}(?:\s|>)/gu, '');
 
     // Validate and sanitize dangerous URL schemes

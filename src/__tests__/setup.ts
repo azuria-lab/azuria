@@ -162,21 +162,45 @@ console.error = (...args: unknown[]) => {
   
   // Only log if no sensitive data detected
   // IMPORTANTE: Em ambiente de teste, suprimimos completamente logs que possam conter dados sensíveis
-  // Mesmo com filtros, é mais seguro não logar nada em testes
+  // Mesmo com filtros, é mais seguro não logar nada em testes para evitar vazamento de dados
   if (!hasSensitiveData) {
     // Sanitizar argumentos antes de logar para garantir que não há dados sensíveis
+    // Verificar cada argumento individualmente para maior segurança
     const sanitizedArgs = args.map(arg => {
       if (typeof arg === 'string') {
-        // Limitar tamanho e remover possíveis padrões sensíveis
+        // Limitar tamanho para evitar logs excessivos
         const limited = arg.substring(0, 100);
-        // Verificar novamente após limitar
-        const hasSensitive = sensitivePatterns.some(p => p.test(limited));
+        // Verificar novamente após limitar - usar substring curto para evitar ReDoS
+        const shortCheck = limited.substring(0, 50);
+        let hasSensitive = false;
+        try {
+          hasSensitive = sensitivePatterns.some(p => {
+            // Limitar o teste para evitar ReDoS
+            return p.test(shortCheck);
+          });
+        } catch {
+          // Se houver erro (possível ReDoS), assumir sensível
+          hasSensitive = true;
+        }
         return hasSensitive ? '[Sensitive data removed]' : limited;
       }
       // Para objetos, não fazer JSON.stringify (pode expor dados sensíveis)
+      // Em ambiente de teste, substituir objetos por placeholder seguro
       return '[Object]';
     });
-    originalError(...sanitizedArgs);
+    // Verificar uma última vez antes de logar
+    const finalCheck = sanitizedArgs.join(' ').substring(0, 50);
+    const stillHasSensitive = sensitivePatterns.some(p => {
+      try {
+        return p.test(finalCheck);
+      } catch {
+        return true; // Em caso de erro, assumir sensível
+      }
+    });
+    if (!stillHasSensitive) {
+      originalError(...sanitizedArgs);
+    }
+    // Se ainda tiver dados sensíveis após sanitização, não logar nada
   }
   // Silently suppress logs that might contain sensitive data in tests
 }
