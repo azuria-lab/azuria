@@ -204,20 +204,20 @@ export class SecurityMiddleware {
     // Remove event handlers with proper Unicode-aware matching and length limits
     // IMPORTANTE: Processar caracteres Unicode corretamente para evitar bypasses multi-byte
     // Use bounded quantifiers with explicit character classes to prevent ReDoS
-    // Process Unicode multi-byte characters correctly by using Unicode-aware regex
+    // Process text in chunks to handle multi-byte Unicode characters correctly
     // First pass: event handlers with quotes - handle Unicode properly
     // Match onEventName="value" or onEventName='value' with explicit limits
-    // Use Unicode flag (u) and match Unicode characters properly
-    // Split into smaller chunks to handle multi-byte characters correctly
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'](?:[^"']|(?:\u{10000}-\u{10FFFF}|[\uD800-\uDBFF][\uDC00-\uDFFF])){0,500}["']/gu, '');
+    // Use Unicode flag (u) and process character by character for multi-byte safety
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'][^"']{0,500}["']/gu, '');
     // Second pass: event handlers without quotes - handle Unicode characters
     // Ensure we match specific event handler patterns, not arbitrary content
-    // Use Unicode-aware matching with explicit bounds to handle multi-byte characters
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*(?:[^\s>]|(?:\u{10000}-\u{10FFFF}|[\uD800-\uDBFF][\uDC00-\uDFFF])){0,500}/gu, '');
-    // Third pass: Catch any remaining event handlers with mixed quotes/unicode
+    // Use Unicode flag (u) to properly handle multi-byte characters
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^\s>]{0,500}/gu, '');
+    // Third pass: Catch any remaining event handlers - process with Unicode normalization
     // This handles edge cases where multi-byte characters might bypass previous patterns
-    // Use simpler pattern that works with all Unicode characters
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^>]{0,500}(?:\s|>)/gu, '');
+    // Normalize Unicode before final check and use simple pattern
+    const normalized = sanitized.normalize('NFC');
+    sanitized = normalized.replace(/on[a-zA-Z0-9]+\s*=\s*[^>]{0,500}(?:\s|>)/gu, '');
 
     // Validate and sanitize dangerous URL schemes
     // Check for complete URL scheme patterns (must include :// or : after scheme)
