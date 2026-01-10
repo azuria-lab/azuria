@@ -897,7 +897,7 @@ async function loadFromSupabase(): Promise<LongTermMemory | null> {
     const ltm = createInitialLTM(state.config.userId);
 
     if (preferences) {
-      convertPreferencesToLTM(preferences as Record<string, unknown>, ltm);
+      convertPreferencesToLTM(preferences, ltm);
     }
 
     if (messages.length > 0) {
@@ -931,10 +931,16 @@ async function syncToSupabase(): Promise<void> {
       prefs[pref.key] = pref.value;
     }
 
+    const { savePreferences } = await import('../consciousness/persistence/SupabasePersistence');
+    // Importar tipos necessários para o cast
+    type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+    type SuggestionFrequency = 'high' | 'medium' | 'low' | 'minimal';
+    type ExplanationLevel = 'detailed' | 'brief' | 'none';
+
     await savePreferences({
-      skill_level: (prefs.skillLevel as string) ?? 'beginner',
-      suggestion_frequency: (prefs.suggestionFrequency as string) ?? 'medium',
-      explanation_level: (prefs.explanationLevel as string) ?? 'detailed',
+      skill_level: (prefs.skillLevel as SkillLevel) ?? ('beginner' as SkillLevel),
+      suggestion_frequency: (prefs.suggestionFrequency as SuggestionFrequency) ?? ('medium' as SuggestionFrequency),
+      explanation_level: (prefs.explanationLevel as ExplanationLevel) ?? ('detailed' as ExplanationLevel),
       proactive_assistance: (prefs.proactiveAssistance as boolean) ?? true,
       blocked_topics: state.memory.ltm.blockedTopics.map((t) => t.topic),
     });
@@ -993,7 +999,7 @@ function matchesTopic(text: string, topic?: string): boolean {
 
 /** Busca interações recentes */
 function recallInteractions(
-  memory: UnifiedMemoryState, 
+  memory: UnifiedMemory, 
   topic: string | undefined, 
   cutoff: number
 ): RecallResult[] {
@@ -1003,21 +1009,21 @@ function recallInteractions(
 }
 
 /** Busca padrões */
-function recallPatterns(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+function recallPatterns(memory: UnifiedMemory, topic: string | undefined): RecallResult[] {
   return memory.wm.patterns
     .filter(p => matchesTopic(p.description, topic))
     .map(p => ({ type: 'pattern' as const, relevance: p.confidence, data: p }));
 }
 
 /** Busca preferências */
-function recallPreferences(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+function recallPreferences(memory: UnifiedMemory, topic: string | undefined): RecallResult[] {
   return memory.ltm.preferences
     .filter(p => matchesTopic(p.key, topic))
     .map(p => ({ type: 'preference' as const, relevance: p.confidence, data: p }));
 }
 
 /** Busca feedback */
-function recallFeedback(memory: UnifiedMemoryState, topic: string | undefined): RecallResult[] {
+function recallFeedback(memory: UnifiedMemory, topic: string | undefined): RecallResult[] {
   return memory.ltm.feedback
     .filter(f => matchesTopic(f.topic, topic))
     .map(f => ({ type: 'feedback' as const, relevance: f.averageScore / 5, data: f }));

@@ -155,8 +155,8 @@ export function useTeam(teamId: string | null): UseTeamReturn {
     try {
         
        
-      const { data, error: insertError } = await supabase
-        .from("team_tasks" as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error: insertError } = await (supabase.from("team_tasks" as any) as any)
         .insert({
           team_id: teamId,
           title: task.title,
@@ -171,7 +171,7 @@ export function useTeam(teamId: string | null): UseTeamReturn {
           attachments: task.attachments || [],
         })
         .select()
-        .single() as any;
+        .single();
 
       if (insertError) {throw insertError;}
 

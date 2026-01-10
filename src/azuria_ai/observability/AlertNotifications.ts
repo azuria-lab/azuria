@@ -129,12 +129,14 @@ export function disableNotifications(): void {
 const SEVERITY_ICONS: Record<AlertSeverity, string> = {
   info: 'ℹ️',
   warning: '⚠️',
+  error: '❌',
   critical: '🚨',
 };
 
 const SEVERITY_COLORS: Record<AlertSeverity, { title: string; variant: 'default' | 'destructive' }> = {
   info: { title: 'Informação', variant: 'default' },
   warning: { title: 'Aviso', variant: 'default' },
+  error: { title: 'Erro', variant: 'destructive' },
   critical: { title: 'Crítico', variant: 'destructive' },
 };
 

@@ -564,6 +564,7 @@ export default function TeamsPage() {
           }
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Erro ao carregar/criar equipe:", err);
       }
     };
