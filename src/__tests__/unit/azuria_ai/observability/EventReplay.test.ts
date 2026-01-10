@@ -16,7 +16,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Mock do eventBus
 vi.mock('@/azuria_ai/core/eventBus', () => ({
   emitEvent: vi.fn(),
-  on: vi.fn(() => vi.fn()),
+  on: vi.fn(() => vi.fn()), // on retorna uma função unsubscribe
+  unsubscribeFromEvent: vi.fn(() => true),
 }));
 
 import { emitEvent } from '@/azuria_ai/core/eventBus';
