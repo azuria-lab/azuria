@@ -11,7 +11,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
-import type { EventRecording } from './EventReplay';
+import type { EventRecording, RecordedEvent } from './EventReplay';
+import type { EventType } from '../core/eventBus';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -84,9 +85,9 @@ export async function saveRecording(
   description?: string
 ): Promise<PersistenceResult<string>> {
   try {
-    // 1. Inserir metadata da gravação
-    const { data: recordingData, error: recordingError } = await supabase
-      .from('event_recordings')
+    // 1. Inserir metadata da gravação (tabela pode não existir no schema atual)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: recordingData, error: recordingError } = await (supabase.from('event_recordings' as any) as any)
       .insert({
         session_id: recording.id,
         name: name || `Recording ${new Date(recording.startedAt).toLocaleString('pt-BR')}`,
@@ -106,7 +107,10 @@ export async function saveRecording(
       return { success: false, error: recordingError?.message || 'Failed to save recording' };
     }
 
-    const recordingId = (recordingData as { id: string }).id;
+    const recordingId = (recordingData as { id: string })?.id;
+    if (!recordingId) {
+      return { success: false, error: 'Failed to get recording ID' };
+    }
 
     // 2. Inserir eventos em batches (max 100 por vez)
     const BATCH_SIZE = 100;
@@ -121,14 +125,15 @@ export async function saveRecording(
 
     for (let i = 0; i < events.length; i += BATCH_SIZE) {
       const batch = events.slice(i, i + BATCH_SIZE);
-      const { error: itemsError } = await supabase
-        .from('event_recording_items')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: itemsError } = await (supabase.from('event_recording_items' as any) as any)
         .insert(batch);
 
       if (itemsError) {
         logger.error('[RecordingPersistence] Error saving events batch:', itemsError);
         // Tentar deletar a gravação parcial
-        await supabase.from('event_recordings').delete().eq('id', recordingId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('event_recordings' as any) as any).delete().eq('id', recordingId);
         return { success: false, error: itemsError.message };
       }
     }
@@ -148,9 +153,9 @@ export async function loadRecording(
   recordingId: string
 ): Promise<PersistenceResult<EventRecording>> {
   try {
-    // 1. Buscar metadata
-    const { data: recording, error: recordingError } = await supabase
-      .from('event_recordings')
+    // 1. Buscar metadata (tabela pode não existir no schema atual)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: recording, error: recordingError } = await (supabase.from('event_recordings' as any) as any)
       .select('*')
       .eq('id', recordingId)
       .single();
@@ -160,8 +165,8 @@ export async function loadRecording(
     }
 
     // 2. Buscar eventos ordenados
-    const { data: items, error: itemsError } = await supabase
-      .from('event_recording_items')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: items, error: itemsError } = await (supabase.from('event_recording_items' as any) as any)
       .select('*')
       .eq('recording_id', recordingId)
       .order('sequence_number', { ascending: true });
@@ -171,8 +176,9 @@ export async function loadRecording(
     }
 
     // 3. Converter para formato EventRecording
-    const startedAt = new Date(recording.started_at).getTime();
-    const endedAt = recording.ended_at ? new Date(recording.ended_at).getTime() : Date.now();
+    const recordingData = recording as Record<string, unknown>;
+    const startedAt = new Date(recordingData.started_at as string).getTime();
+    const endedAt = recordingData.ended_at ? new Date(recordingData.ended_at as string).getTime() : Date.now();
     const eventRecording: EventRecording = {
       id: recording.session_id,
       name: recording.name || `Recording ${recording.session_id}`,
@@ -186,7 +192,7 @@ export async function loadRecording(
         timestamp: new Date(item.timestamp).getTime(),
       })),
       metadata: {
-        eventTypes: recording.event_types || [],
+        eventTypes: (recordingData.event_types as string[]) || [],
       },
     };
 
@@ -241,8 +247,8 @@ export async function deleteRecording(
   recordingId: string
 ): Promise<PersistenceResult<void>> {
   try {
-    const { error } = await supabase
-      .from('event_recordings')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('event_recordings' as any) as any)
       .delete()
       .eq('id', recordingId);
 
@@ -263,8 +269,8 @@ export async function archiveRecording(
   recordingId: string
 ): Promise<PersistenceResult<void>> {
   try {
-    const { error } = await supabase
-      .from('event_recordings')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('event_recordings' as any) as any)
       .update({ status: 'archived' })
       .eq('id', recordingId);
 
