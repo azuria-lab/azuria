@@ -442,7 +442,7 @@ export async function getAlertStats(since?: Date): Promise<PersistenceResult<{
       bySeverity: {
         info: alerts.filter((a) => (a.severity as string) === 'info').length,
         warning: alerts.filter((a) => (a.severity as string) === 'warning').length,
-        critical: alerts.filter((a) => a.severity === 'critical').length,
+        critical: alerts.filter((a) => (a.severity as string) === 'critical').length,
       },
     };
 
