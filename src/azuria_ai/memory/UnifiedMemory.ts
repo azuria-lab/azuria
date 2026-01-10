@@ -931,16 +931,15 @@ async function syncToSupabase(): Promise<void> {
       prefs[pref.key] = pref.value;
     }
 
-    const { savePreferences } = await import('../consciousness/persistence/SupabasePersistence');
-    // Importar tipos necessários para o cast
-    type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
-    type SuggestionFrequency = 'high' | 'medium' | 'low' | 'minimal';
-    type ExplanationLevel = 'detailed' | 'brief' | 'none';
+    // Tipos para os casts
+    type SkillLevelType = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+    type SuggestionFrequencyType = 'high' | 'medium' | 'low' | 'minimal';
+    type ExplanationLevelType = 'detailed' | 'brief' | 'none';
 
     await savePreferences({
-      skill_level: (prefs.skillLevel as SkillLevel) ?? ('beginner' as SkillLevel),
-      suggestion_frequency: (prefs.suggestionFrequency as SuggestionFrequency) ?? ('medium' as SuggestionFrequency),
-      explanation_level: (prefs.explanationLevel as ExplanationLevel) ?? ('detailed' as ExplanationLevel),
+      skill_level: (prefs.skillLevel as SkillLevelType) ?? ('beginner' as SkillLevelType),
+      suggestion_frequency: (prefs.suggestionFrequency as SuggestionFrequencyType) ?? ('medium' as SuggestionFrequencyType),
+      explanation_level: (prefs.explanationLevel as ExplanationLevelType) ?? ('detailed' as ExplanationLevelType),
       proactive_assistance: (prefs.proactiveAssistance as boolean) ?? true,
       blocked_topics: state.memory.ltm.blockedTopics.map((t) => t.topic),
     });
