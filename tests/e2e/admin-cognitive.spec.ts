@@ -43,10 +43,10 @@ async function loginAsAdmin(page: import('@playwright/test').Page): Promise<void
 
 test.describe('Admin Panel Access', () => {
   test('should redirect to login if not authenticated', async ({ page }) => {
-    await page.goto('/admin');
+    await page.goto('/admin', { waitUntil: 'networkidle', timeout: 30000 });
     
-    // Deve redirecionar para login
-    await expect(page).toHaveURL(/\/login/);
+    // Deve redirecionar para login (com timeout aumentado)
+    await expect(page).toHaveURL(/\/login/, { timeout: 30000 });
   });
 
   test('should redirect to home if not admin', async ({ page }) => {

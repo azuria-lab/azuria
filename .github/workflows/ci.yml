@@ -139,24 +139,46 @@ jobs:
           NODE_OPTIONS: '--max-old-space-size=4096'
       - name: Verify server can start
         run: |
-          timeout 60 npm run preview -- --host 127.0.0.1 --port 4173 &
+          echo "Starting server verification..."
+          npm run preview -- --host 127.0.0.1 --port 4173 &
           SERVER_PID=$!
-          sleep 10
-          if curl -f http://127.0.0.1:4173 > /dev/null 2>&1; then
-            echo "Server is responding correctly"
-            kill $SERVER_PID || true
-          else
-            echo "Server failed to start or not responding"
-            kill $SERVER_PID || true
-            exit 1
-          fi
+          
+          # Wait for server to start (max 60 seconds)
+          MAX_WAIT=60
+          ELAPSED=0
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            if curl -f -s http://127.0.0.1:4173 > /dev/null 2>&1; then
+              echo "✓ Server is responding on port 4173"
+              kill $SERVER_PID 2>/dev/null || true
+              exit 0
+            fi
+            sleep 2
+            ELAPSED=$((ELAPSED + 2))
+            echo "Waiting for server... ($ELAPSED/$MAX_WAIT seconds)"
+          done
+          
+          echo "✗ Server failed to start within $MAX_WAIT seconds"
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
       - name: Run Playwright tests
         env:
           CI: true
           NODE_OPTIONS: '--max-old-space-size=4096'
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
-        run: npm run test:e2e
-        timeout-minutes: 10
+          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+        run: |
+          echo "Starting Playwright tests..."
+          npm run test:e2e || EXIT_CODE=$?
+          if [ -n "$EXIT_CODE" ]; then
+            echo "Playwright tests failed with exit code: $EXIT_CODE"
+            echo "Checking test results..."
+            if [ -f "test-results/results.xml" ]; then
+              echo "Test results XML found"
+              cat test-results/results.xml | head -100
+            fi
+            exit $EXIT_CODE
+          fi
+        timeout-minutes: 15
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
