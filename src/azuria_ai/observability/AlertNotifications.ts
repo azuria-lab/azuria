@@ -280,19 +280,26 @@ export function connectToAlertSystem(): void {
     return;
   }
 
-  unsubscribe = on('system:alert:triggered', (event: AzuriaEvent) => {
+  const { on, unsubscribeFromEvent } = await import('@/azuria_ai/core/eventBus');
+  
+  const subId1 = on('system:alert:triggered', (event: AzuriaEvent) => {
     const alert = event.payload as TriggeredAlert;
     if (alert) {
       notifyAlert(alert);
     }
   });
 
-  on('system:alert:resolved', (event: AzuriaEvent) => {
+  const subId2 = on('system:alert:resolved', (event: AzuriaEvent) => {
     const alert = event.payload as TriggeredAlert;
     if (alert) {
       notifyAlertResolved(alert);
     }
   });
+
+  unsubscribe = () => {
+    unsubscribeFromEvent(subId1);
+    unsubscribeFromEvent(subId2);
+  };
 
   logger.info('[AlertNotifications] Connected to alert system');
 }
