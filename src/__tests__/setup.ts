@@ -189,16 +189,43 @@ console.error = (...args: unknown[]) => {
       return '[Object]';
     });
     // Verificar uma última vez antes de logar
-    const finalCheck = sanitizedArgs.join(' ').substring(0, 50);
-    const stillHasSensitive = sensitivePatterns.some(p => {
-      try {
-        return p.test(finalCheck);
-      } catch {
-        return true; // Em caso de erro, assumir sensível
+    // Em ambiente de teste, por segurança, não logar nada se houver qualquer dúvida
+    // Criar uma string segura para verificação final
+    const finalCheck = sanitizedArgs
+      .filter(arg => typeof arg === 'string')
+      .join(' ')
+      .substring(0, 50);
+    
+    let stillHasSensitive = false;
+    try {
+      // Verificar apenas strings curtas para evitar ReDoS
+      if (finalCheck.length > 0) {
+        stillHasSensitive = sensitivePatterns.some(p => {
+          try {
+            // Limitar ainda mais o teste para segurança
+            return p.test(finalCheck.substring(0, 30));
+          } catch {
+            return true; // Em caso de erro, assumir sensível
+          }
+        });
       }
-    });
+    } catch {
+      // Se houver qualquer erro, não logar
+      stillHasSensitive = true;
+    }
+    
+    // Em ambiente de teste, por máxima segurança, não logar dados que passaram por sanitização
+    // Substituir todos os argumentos por placeholders seguros
     if (!stillHasSensitive) {
-      originalError(...sanitizedArgs);
+      // Criar argumentos completamente seguros para teste
+      const safeArgs = sanitizedArgs.map((arg, idx) => {
+        if (typeof arg === 'string' && arg.length > 0) {
+          // Em testes, mostrar apenas primeiro caractere para debug, mas sem dados sensíveis
+          return `[String:${arg.length}chars]`;
+        }
+        return `[Arg${idx}]`;
+      });
+      originalError(...safeArgs);
     }
     // Se ainda tiver dados sensíveis após sanitização, não logar nada
   }
