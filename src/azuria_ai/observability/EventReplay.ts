@@ -25,7 +25,7 @@
  * @module azuria_ai/observability/EventReplay
  */
 
-import { emitEvent, type EventType, on } from '../core/eventBus';
+import { emitEvent, type EventType, on, unsubscribeFromEvent } from '../core/eventBus';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -171,14 +171,16 @@ export function startRecording(name?: string): string {
     'ai:memory-updated',
   ];
 
-  const unsubscribers: (() => void)[] = [];
+  const subscriptionIds: string[] = [];
   for (const eventType of eventTypes) {
-    const unsub = on(eventType, (payload) => handleEvent(eventType, payload));
-    unsubscribers.push(unsub);
+    const subId = on(eventType, (payload) => handleEvent(eventType, payload));
+    subscriptionIds.push(subId);
   }
 
   eventSubscription = () => {
-    unsubscribers.forEach((unsub) => unsub());
+    subscriptionIds.forEach((id) => {
+      unsubscribeFromEvent(id);
+    });
   };
 
   // eslint-disable-next-line no-console

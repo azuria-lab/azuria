@@ -95,27 +95,27 @@ export async function saveRecording(
         ended_at: recording.endedAt ? new Date(recording.endedAt).toISOString() : null,
         duration_ms: recording.endedAt ? recording.endedAt - recording.startedAt : null,
         event_count: recording.events.length,
-        event_types: recording.eventTypes,
+        event_types: (recording.metadata?.eventTypes as string[]) || [],
         status: 'completed',
       })
       .select('id')
       .single();
 
-    if (recordingError) {
+    if (recordingError || !recordingData) {
       logger.error('[RecordingPersistence] Error saving recording:', recordingError);
-      return { success: false, error: recordingError.message };
+      return { success: false, error: recordingError?.message || 'Failed to save recording' };
     }
 
-    const recordingId = recordingData.id;
+    const recordingId = (recordingData as { id: string }).id;
 
     // 2. Inserir eventos em batches (max 100 por vez)
     const BATCH_SIZE = 100;
     const events = recording.events.map((event, index) => ({
       recording_id: recordingId,
-      event_type: event.type,
-      event_data: event.data || {},
+      event_type: event.eventType,
+      event_data: event.payload || {},
       timestamp: new Date(event.timestamp).toISOString(),
-      relative_time_ms: event.timestamp - recording.startTime,
+      relative_time_ms: event.timestamp - recording.startedAt,
       sequence_number: index,
     }));
 
