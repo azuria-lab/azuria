@@ -33,8 +33,8 @@ async function loginAsAdmin(page: import('@playwright/test').Page): Promise<void
   // Submeter
   await page.click('button[type="submit"]');
   
-  // Aguardar redirecionamento
-  await page.waitForURL(/\/(dashboard|admin)/, { timeout: 10000 });
+  // Aguardar redirecionamento (aumentado timeout para CI)
+  await page.waitForURL(/\/(dashboard|admin)/, { timeout: 30000 });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
