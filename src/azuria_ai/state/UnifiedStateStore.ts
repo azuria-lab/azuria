@@ -629,7 +629,7 @@ export function updateCoreSection<K extends keyof CoreState>(
       ...updates,
     };
   } else {
-    (store.core as Record<string, unknown>)[section] = updates;
+    (store.core as unknown as Record<string, unknown>)[section] = updates;
   }
 
   store.core.lastUpdatedAt = Date.now();

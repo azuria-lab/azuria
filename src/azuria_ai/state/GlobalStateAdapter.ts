@@ -205,10 +205,13 @@ export async function migrateToUnifiedStore(): Promise<{
         'idle': 'idle',
         'início': 'input',
         'meio': 'processing',
-        'fim': 'completed',
+        'fim': 'result',
         'input': 'input',
         'processing': 'processing',
-        'completed': 'completed',
+        'completed': 'result',
+        'result': 'result',
+        'review': 'review',
+        'export': 'export',
       };
       return phaseMap[phase] || 'idle';
     };
@@ -219,7 +222,10 @@ export async function migrateToUnifiedStore(): Promise<{
         'browsing': 'browsing',
         'calculating': 'calculating',
         'analyzing': 'analyzing',
-        'deciding': 'deciding',
+        'editing': 'editing',
+        'reviewing': 'reviewing',
+        'learning': 'learning',
+        'deciding': 'analyzing',
         'ativo': 'browsing',
         'hesitando': 'browsing',
       };

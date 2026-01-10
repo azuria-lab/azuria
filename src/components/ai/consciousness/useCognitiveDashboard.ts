@@ -138,14 +138,17 @@ async function collectNucleusData(): Promise<CollectResult<typeof defaultNucleus
   const data = { ...defaultNucleusData };
   try {
     const nucleus = await import('@/azuria_ai/consciousness/CentralNucleus');
-    if (nucleus.isNucleusRunning) {data.isRunning = nucleus.isNucleusRunning();}
-    if (nucleus.getNucleusStats) {
-      const stats = nucleus.getNucleusStats();
-      if (stats) {
-        data.uptimeMs = stats.uptimeMs;
-        data.cycleCount = stats.cycleCount;
-        data.pendingActions = stats.pendingActions;
-        data.currentLevel = stats.currentLevel || 'USER';
+    if (nucleus.CentralNucleus?.isInitialized) {
+      data.isRunning = nucleus.CentralNucleus.isInitialized();
+    }
+    if (nucleus.CentralNucleus?.getStats) {
+      const stats = nucleus.CentralNucleus.getStats();
+      if (stats && typeof stats === 'object' && 'nucleus' in stats) {
+        const nucleusStats = stats.nucleus as Record<string, unknown>;
+        data.uptimeMs = (nucleusStats.uptimeMs as number) || 0;
+        data.cycleCount = (nucleusStats.cycleCount as number) || 0;
+        data.pendingActions = (nucleusStats.pendingActions as number) || 0;
+        data.currentLevel = (nucleusStats.currentLevel as string) || 'USER';
       }
     }
     return { data };
