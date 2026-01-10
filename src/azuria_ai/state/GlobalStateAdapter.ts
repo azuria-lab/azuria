@@ -190,13 +190,59 @@ export async function migrateToUnifiedStore(): Promise<{
     // Obter estado atual do antigo
     const oldState = oldGlobalState.getGlobalState();
 
+    // Funções auxiliares para mapear tipos entre módulos
+    const mapCognitiveRole = (role: string): UnifiedStateStore.CognitiveRole => {
+      if (role === 'ADMIN' || role === 'USER') {
+        return role as UnifiedStateStore.CognitiveRole;
+      }
+      return 'USER'; // 'SYSTEM' não existe em UnifiedStateStore
+    };
+
+    const mapFlowPhase = (phase: string): UnifiedStateStore.FlowPhase => {
+      const phaseMap: Record<string, UnifiedStateStore.FlowPhase> = {
+        'idle': 'idle',
+        'início': 'input',
+        'meio': 'processing',
+        'fim': 'completed',
+        'input': 'input',
+        'processing': 'processing',
+        'completed': 'completed',
+      };
+      return phaseMap[phase] || 'idle';
+    };
+
+    const mapUserActivity = (activity: string): UnifiedStateStore.UserActivityState => {
+      const activityMap: Record<string, UnifiedStateStore.UserActivityState> = {
+        'idle': 'idle',
+        'browsing': 'browsing',
+        'calculating': 'calculating',
+        'analyzing': 'analyzing',
+        'deciding': 'deciding',
+      };
+      return activityMap[activity] || 'idle';
+    };
+
+    const mapSuggestionFrequency = (freq: string): 'low' | 'medium' | 'high' => {
+      if (freq === 'minimal') {return 'low';}
+      if (freq === 'low' || freq === 'medium' || freq === 'high') {return freq;}
+      return 'medium';
+    };
+
+    const mapExplanationLevel = (level: string): 'minimal' | 'normal' | 'detailed' => {
+      if (level === 'brief') {return 'minimal';}
+      if (level === 'none') {return 'minimal';}
+      if (level === 'detailed') {return 'detailed';}
+      if (level === 'normal') {return 'normal';}
+      return 'detailed';
+    };
+
     // Mapear para o novo formato
     const coreUpdates: Partial<CoreState> = {
       currentMoment: {
         timestamp: oldState.currentMoment?.timestamp ?? Date.now(),
         screen: oldState.currentMoment?.screen ?? '/',
-        flowPhase: oldState.currentMoment?.flowPhase ?? 'idle',
-        userActivity: oldState.currentMoment?.userActivity ?? 'idle',
+        flowPhase: mapFlowPhase(oldState.currentMoment?.flowPhase ?? 'idle'),
+        userActivity: mapUserActivity(oldState.currentMoment?.userActivity ?? 'idle'),
         silenceRequested: oldState.currentMoment?.silenceRequested ?? false,
         silenceUntil: oldState.currentMoment?.silenceUntil ?? null,
         lastUserAction: oldState.currentMoment?.lastUserAction ?? null,
@@ -204,18 +250,19 @@ export async function migrateToUnifiedStore(): Promise<{
       },
       identity: {
         id: oldState.identity?.id ?? null,
-        role: oldState.identity?.role ?? 'USER',
+        role: mapCognitiveRole(oldState.identity?.role ?? 'USER'),
         tier: oldState.identity?.tier ?? 'FREE',
         skillLevel: oldState.identity?.skillLevel ?? 'beginner',
         preferences: {
-          suggestionFrequency: oldState.identity?.preferences?.suggestionFrequency ?? 'medium',
-          explanationLevel: oldState.identity?.preferences?.explanationLevel ?? 'detailed',
+          suggestionFrequency: mapSuggestionFrequency(oldState.identity?.preferences?.suggestionFrequency ?? 'medium'),
+          explanationLevel: mapExplanationLevel(oldState.identity?.preferences?.explanationLevel ?? 'detailed'),
           proactiveAssistance: oldState.identity?.preferences?.proactiveAssistance ?? true,
         },
       },
       session: oldState.session ?? getCoreSection('session'),
       systemHealth: oldState.systemHealth ?? getCoreSection('systemHealth'),
-      pendingActions: oldState.pendingActions ?? [],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pendingActions: (oldState.pendingActions ?? []) as any,
       initialized: oldState.initialized ?? false,
     };
 

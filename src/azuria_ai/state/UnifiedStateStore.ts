@@ -206,6 +206,13 @@ export interface UpdateOptions {
   silent?: boolean;
 }
 
+/** Opções padrão de atualização */
+const defaultUpdateOptions: UpdateOptions = {
+  source: 'system',
+  notify: true,
+  silent: false,
+};
+
 /** Listener de mudanças */
 export type StateListener = (
   state: UnifiedState,
@@ -585,12 +592,12 @@ export function updateCoreState(
         existing !== null &&
         !Array.isArray(existing)
       ) {
-        (store.core as Record<string, unknown>)[key] = {
-          ...existing,
-          ...value,
+        (store.core as unknown as Record<string, unknown>)[key] = {
+          ...(existing as Record<string, unknown>),
+          ...(value as Record<string, unknown>),
         };
       } else {
-        (store.core as Record<string, unknown>)[key] = value;
+        (store.core as unknown as Record<string, unknown>)[key] = value;
       }
     }
   }
@@ -617,7 +624,7 @@ export function updateCoreSection<K extends keyof CoreState>(
   const current = store.core[section];
 
   if (typeof current === 'object' && current !== null) {
-    (store.core as Record<string, unknown>)[section] = {
+    (store.core as unknown as Record<string, unknown>)[section] = {
       ...current,
       ...updates,
     };
