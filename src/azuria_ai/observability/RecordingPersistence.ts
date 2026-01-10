@@ -11,7 +11,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/services/logger';
-import type { EventRecording, RecordedEvent } from './EventReplay';
+import type { EventRecording } from './EventReplay';
 import type { EventType } from '../core/eventBus';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -213,8 +213,8 @@ export async function listRecordings(options?: {
   offset?: number;
 }): Promise<PersistenceResult<PersistedRecording[]>> {
   try {
-    let query = supabase
-      .from('event_recordings')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase.from('event_recordings' as any) as any)
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -305,8 +305,8 @@ export async function saveAlert(alert: {
   message?: string;
 }): Promise<PersistenceResult<string>> {
   try {
-    const { data, error } = await supabase
-      .from('cognitive_alerts_history')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('cognitive_alerts_history' as any) as any)
       .insert({
         alert_id: alert.alertId,
         rule_id: alert.ruleId,
@@ -326,7 +326,7 @@ export async function saveAlert(alert: {
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: data.id };
+    return { success: true, data: (data as { id: string })?.id || '' };
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -350,8 +350,8 @@ export async function updateAlertStatus(
       updates.resolved_at = new Date().toISOString();
     }
 
-    const { error } = await supabase
-      .from('cognitive_alerts_history')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('cognitive_alerts_history' as any) as any)
       .update(updates)
       .eq('alert_id', alertId);
 
@@ -375,8 +375,8 @@ export async function listAlerts(options?: {
   since?: Date;
 }): Promise<PersistenceResult<PersistedAlert[]>> {
   try {
-    let query = supabase
-      .from('cognitive_alerts_history')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase.from('cognitive_alerts_history' as any) as any)
       .select('*')
       .order('triggered_at', { ascending: false });
 
@@ -419,8 +419,8 @@ export async function getAlertStats(since?: Date): Promise<PersistenceResult<{
   bySeverity: Record<string, number>;
 }>> {
   try {
-    let query = supabase
-      .from('cognitive_alerts_history')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase.from('cognitive_alerts_history' as any) as any)
       .select('status, severity');
 
     if (since) {
@@ -433,15 +433,15 @@ export async function getAlertStats(since?: Date): Promise<PersistenceResult<{
       return { success: false, error: error.message };
     }
 
-    const alerts = data || [];
+    const alerts = ((data || []) as Array<Record<string, unknown>>);
     const stats = {
       total: alerts.length,
-      active: alerts.filter((a) => a.status === 'active').length,
-      acknowledged: alerts.filter((a) => a.status === 'acknowledged').length,
-      resolved: alerts.filter((a) => a.status === 'resolved').length,
+      active: alerts.filter((a) => (a.status as string) === 'active').length,
+      acknowledged: alerts.filter((a) => (a.status as string) === 'acknowledged').length,
+      resolved: alerts.filter((a) => (a.status as string) === 'resolved').length,
       bySeverity: {
-        info: alerts.filter((a) => a.severity === 'info').length,
-        warning: alerts.filter((a) => a.severity === 'warning').length,
+        info: alerts.filter((a) => (a.severity as string) === 'info').length,
+        warning: alerts.filter((a) => (a.severity as string) === 'warning').length,
         critical: alerts.filter((a) => a.severity === 'critical').length,
       },
     };
