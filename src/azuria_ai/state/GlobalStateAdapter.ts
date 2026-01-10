@@ -18,6 +18,7 @@
 import {
   type CognitiveRole,
   type CoreState,
+  type FlowPhase,
   getCoreSection,
   getCoreState,
   initializeWithUser,
@@ -30,6 +31,7 @@ import {
   UnifiedStateStore,
   updateCoreSection,
   updateCoreState,
+  type UserActivityState,
 } from './UnifiedStateStore';
 
 // Re-exportar tipos do antigo GlobalState para compatibilidade
@@ -191,15 +193,15 @@ export async function migrateToUnifiedStore(): Promise<{
     const oldState = oldGlobalState.getGlobalState();
 
     // Funções auxiliares para mapear tipos entre módulos
-    const mapCognitiveRole = (role: string): UnifiedStateStore.CognitiveRole => {
+    const mapCognitiveRole = (role: string): CognitiveRole => {
       if (role === 'ADMIN' || role === 'USER') {
-        return role as UnifiedStateStore.CognitiveRole;
+        return role as CognitiveRole;
       }
       return 'USER'; // 'SYSTEM' não existe em UnifiedStateStore
     };
 
-    const mapFlowPhase = (phase: string): UnifiedStateStore.FlowPhase => {
-      const phaseMap: Record<string, UnifiedStateStore.FlowPhase> = {
+    const mapFlowPhase = (phase: string): FlowPhase => {
+      const phaseMap: Record<string, FlowPhase> = {
         'idle': 'idle',
         'início': 'input',
         'meio': 'processing',
@@ -211,13 +213,15 @@ export async function migrateToUnifiedStore(): Promise<{
       return phaseMap[phase] || 'idle';
     };
 
-    const mapUserActivity = (activity: string): UnifiedStateStore.UserActivityState => {
-      const activityMap: Record<string, UnifiedStateStore.UserActivityState> = {
+    const mapUserActivity = (activity: string): UserActivityState => {
+      const activityMap: Record<string, UserActivityState> = {
         'idle': 'idle',
         'browsing': 'browsing',
         'calculating': 'calculating',
         'analyzing': 'analyzing',
         'deciding': 'deciding',
+        'ativo': 'browsing',
+        'hesitando': 'browsing',
       };
       return activityMap[activity] || 'idle';
     };
