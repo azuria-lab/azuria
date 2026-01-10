@@ -153,7 +153,7 @@ export function notifyAlert(alert: TriggeredAlert): void {
 
   const icon = SEVERITY_ICONS[alert.severity];
   const title = `${icon} ${alert.ruleName}`;
-  const body = alert.message || `${alert.metricName}: ${alert.metricValue.toFixed(2)} (threshold: ${alert.threshold})`;
+  const body = alert.message || `${alert.ruleName}: ${alert.currentValue.toFixed(2)} (threshold: ${alert.threshold})`;
 
   // Toast notification (in-app)
   if (state.config.toastNotifications) {
@@ -267,7 +267,7 @@ export function getNotificationState(): NotificationState {
 // INTEGRAÇÃO COM COGNITIVE ALERTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { eventBus, type EventBusEvent } from '@/azuria_ai/events/EventBus';
+import { type AzuriaEvent, on } from '@/azuria_ai/core/eventBus';
 
 let unsubscribe: (() => void) | null = null;
 
@@ -280,15 +280,17 @@ export function connectToAlertSystem(): void {
     return;
   }
 
-  unsubscribe = eventBus.on('system:alert:triggered', (event: EventBusEvent<TriggeredAlert>) => {
-    if (event.data) {
-      notifyAlert(event.data);
+  unsubscribe = on('system:alert:triggered', (event: AzuriaEvent) => {
+    const alert = event.payload as TriggeredAlert;
+    if (alert) {
+      notifyAlert(alert);
     }
   });
 
-  eventBus.on('system:alert:resolved', (event: EventBusEvent<TriggeredAlert>) => {
-    if (event.data) {
-      notifyAlertResolved(event.data);
+  on('system:alert:resolved', (event: AzuriaEvent) => {
+    const alert = event.payload as TriggeredAlert;
+    if (alert) {
+      notifyAlertResolved(alert);
     }
   });
 

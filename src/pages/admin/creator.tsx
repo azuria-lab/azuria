@@ -10,8 +10,10 @@ import { CopilotPanel } from '../../components/creator/CopilotPanel';
 
 export default function CreatorPage() {
   const [counters, setCounters] = useState({ critical: 0, high: 0 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [modules, setModules] = useState<any[]>([]);
   const [roadmap, setRoadmap] = useState<string[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [timeline, setTimeline] = useState<any[]>([]);
 
   useEffect(() => {
@@ -20,7 +22,9 @@ export default function CreatorPage() {
       .then((r) => r.json())
       .then((r) => {
         const data = r.data || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const critical = data.filter((a: any) => a.severity === 'critical').length;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const high = data.filter((a: any) => a.severity === 'high').length;
         setCounters({ critical, high });
         setTimeline(

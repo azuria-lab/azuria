@@ -234,13 +234,7 @@ interface Chat {
   isOnline?: boolean;
 }
 
-// Helper functions for role labels
-const getRoleLabel = (role: string): string => {
-  if (role === "admin") {return "Administrador";}
-  if (role === "manager") {return "Gerente";}
-  if (role === "member") {return "Membro";}
-  return "Visualizador";
-};
+// getRoleLabel não usado - existe versão local no componente
 
 const getMemberRoleTitle = (role: string): string => {
   if (role === "admin") {return "Administrador";}
@@ -747,7 +741,7 @@ export default function TeamsPage() {
         isArchived: false, // Em produção, buscar do backend (chat_room_members.is_archived)
       };
     });
-  }, [backendRooms, deletedChatIds]);
+  }, [backendRooms, deletedChatIds, members]);
 
   // Criar sala padrão "Chat do Time" se não existir
   useEffect(() => {

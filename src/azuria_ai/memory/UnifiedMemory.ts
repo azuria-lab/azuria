@@ -897,7 +897,7 @@ async function loadFromSupabase(): Promise<LongTermMemory | null> {
     const ltm = createInitialLTM(state.config.userId);
 
     if (preferences) {
-      convertPreferencesToLTM(preferences, ltm);
+      convertPreferencesToLTM(preferences as unknown as Record<string, unknown>, ltm);
     }
 
     if (messages.length > 0) {

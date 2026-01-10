@@ -89,11 +89,11 @@ export async function saveRecording(
       .from('event_recordings')
       .insert({
         session_id: recording.id,
-        name: name || `Recording ${new Date(recording.startTime).toLocaleString('pt-BR')}`,
+        name: name || `Recording ${new Date(recording.startedAt).toLocaleString('pt-BR')}`,
         description: description || null,
-        started_at: new Date(recording.startTime).toISOString(),
-        ended_at: recording.endTime ? new Date(recording.endTime).toISOString() : null,
-        duration_ms: recording.endTime ? recording.endTime - recording.startTime : null,
+        started_at: new Date(recording.startedAt).toISOString(),
+        ended_at: recording.endedAt ? new Date(recording.endedAt).toISOString() : null,
+        duration_ms: recording.endedAt ? recording.endedAt - recording.startedAt : null,
         event_count: recording.events.length,
         event_types: recording.eventTypes,
         status: 'completed',
@@ -171,16 +171,23 @@ export async function loadRecording(
     }
 
     // 3. Converter para formato EventRecording
+    const startedAt = new Date(recording.started_at).getTime();
+    const endedAt = recording.ended_at ? new Date(recording.ended_at).getTime() : Date.now();
     const eventRecording: EventRecording = {
       id: recording.session_id,
-      startTime: new Date(recording.started_at).getTime(),
-      endTime: recording.ended_at ? new Date(recording.ended_at).getTime() : undefined,
+      name: recording.name || `Recording ${recording.session_id}`,
+      startedAt,
+      endedAt,
+      duration: endedAt - startedAt,
+      eventCount: recording.event_count || 0,
       events: (items || []).map((item) => ({
         type: item.event_type,
         data: item.event_data as Record<string, unknown>,
         timestamp: new Date(item.timestamp).getTime(),
       })),
-      eventTypes: recording.event_types || [],
+      metadata: {
+        eventTypes: recording.event_types || [],
+      },
     };
 
     return { success: true, data: eventRecording };

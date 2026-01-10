@@ -25,7 +25,7 @@
  * @module azuria_ai/observability/EventReplay
  */
 
-import { emitEvent, type EventType, onEvent } from '../core/eventBus';
+import { emitEvent, type EventType, on } from '../core/eventBus';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIPOS
@@ -173,7 +173,7 @@ export function startRecording(name?: string): string {
 
   const unsubscribers: (() => void)[] = [];
   for (const eventType of eventTypes) {
-    const unsub = onEvent(eventType, (payload) => handleEvent(eventType, payload));
+    const unsub = on(eventType, (payload) => handleEvent(eventType, payload));
     unsubscribers.push(unsub);
   }
 

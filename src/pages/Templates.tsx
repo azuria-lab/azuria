@@ -10,7 +10,7 @@ import AppleCarousel from "@/components/templates/AppleCarousel";
 import { RAPID_TEMPLATES } from "@/data/rapidTemplates";
 import { ERP_INTEGRATIONS } from "@/data/advancedTemplates";
 import { MARKETPLACE_TEMPLATES_CONFIG, marketplaceConfigToTemplateData } from "@/data/marketplaceTemplatesConfig";
-import { Package, ShoppingCart, Store } from "lucide-react";
+// Package, ShoppingCart, Store não usados - removidos
 
 const Templates = () => {
   const navigate = useNavigate();
@@ -29,10 +29,7 @@ const Templates = () => {
         const value = defaults?.[key];
         return typeof value === 'number' ? value : fallback;
       };
-      const getBoolean = (key: string, fallback: boolean): boolean => {
-        const value = defaults?.[key];
-        return typeof value === 'boolean' ? value : fallback;
-      };
+      // getBoolean não usado - removido
 
       // Converter para formato esperado pela calculadora avançada
       const templateData = {
