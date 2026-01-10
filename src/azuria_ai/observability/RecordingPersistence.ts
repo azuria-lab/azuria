@@ -219,22 +219,19 @@ export async function listRecordings(options?: {
       .order('created_at', { ascending: false });
 
     if (options?.status) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.eq('status', options.status);
     }
 
     if (options?.limit) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.limit(options.limit);
     }
 
     if (options?.offset) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.range(options.offset, options.offset + (options.limit || 50) - 1);
     }
 
-    // @ts-expect-error - Type inference issue with Supabase queries
-    const { data, error } = await query;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error }: { data: any; error: any } = await query;
 
     if (error) {
       return { success: false, error: error.message };
@@ -309,7 +306,7 @@ export async function saveAlert(alert: {
   message?: string;
 }): Promise<PersistenceResult<string>> {
   try {
-    // @ts-expect-error - Type inference issue with Supabase queries
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = await (supabase.from('cognitive_alerts_history' as any) as any)
       .insert({
         alert_id: alert.alertId,
@@ -326,7 +323,8 @@ export async function saveAlert(alert: {
       .select('id')
       .single();
 
-    const { data, error } = result;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error }: { data: any; error: any } = result;
 
     if (error) {
       return { success: false, error: error.message };
@@ -356,11 +354,12 @@ export async function updateAlertStatus(
       updates.resolved_at = new Date().toISOString();
     }
 
-    // @ts-expect-error - Type inference issue with Supabase queries
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = await (supabase.from('cognitive_alerts_history' as any) as any)
       .update(updates)
       .eq('alert_id', alertId);
-    const { error } = result;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error }: { error: any } = result;
 
     if (error) {
       return { success: false, error: error.message };
@@ -388,27 +387,23 @@ export async function listAlerts(options?: {
       .order('triggered_at', { ascending: false });
 
     if (options?.status) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.eq('status', options.status);
     }
 
     if (options?.severity) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.eq('severity', options.severity);
     }
 
     if (options?.since) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.gte('triggered_at', options.since.toISOString());
     }
 
     if (options?.limit) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.limit(options.limit);
     }
 
-    // @ts-expect-error - Type inference issue with Supabase queries
-    const { data, error } = await query;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error }: { data: any; error: any } = await query;
 
     if (error) {
       return { success: false, error: error.message };
@@ -436,12 +431,11 @@ export async function getAlertStats(since?: Date): Promise<PersistenceResult<{
       .select('status, severity');
 
     if (since) {
-      // @ts-expect-error - Type inference issue with Supabase queries
       query = query.gte('triggered_at', since.toISOString());
     }
 
-    // @ts-expect-error - Type inference issue with Supabase queries
-    const { data, error } = await query;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error }: { data: any; error: any } = await query;
 
     if (error) {
       return { success: false, error: error.message };
