@@ -117,27 +117,53 @@ console.error = (...args: unknown[]) => {
   // Only log if it's not suppressed and doesn't contain potential sensitive patterns
   
   // Check all arguments for sensitive data (not just first)
-  const allArgs = args.map(arg => 
-    typeof arg === 'string' ? arg : JSON.stringify(arg)
-  ).join(' ');
+  // IMPORTANTE: Não fazer JSON.stringify de todos os argumentos pois pode expor dados sensíveis
+  // Em vez disso, converter para string de forma segura
+  const allArgs = args.map(arg => {
+    if (typeof arg === 'string') {
+      return arg;
+    }
+    if (typeof arg === 'object' && arg !== null) {
+      // Para objetos, apenas usar toString() ou evitar logging
+      try {
+        return String(arg);
+      } catch {
+        return '[Object]';
+      }
+    }
+    return String(arg);
+  }).join(' ');
   
   // Improved pattern to catch more sensitive data patterns (API keys, tokens, passwords, etc.)
-  // Use word boundaries to avoid false positives
+  // Use word boundaries and bounded quantifiers to avoid ReDoS
   const sensitivePatterns = [
-    /\b(api[_-]?key|apikey)\s*[:=]\s*[\w\-._~+/]{10,}/i,
-    /\b(token|access[_-]?token|refresh[_-]?token)\s*[:=]\s*[\w\-._~+/]{10,}/i,
-    /\b(password|passwd|pwd|senha)\s*[:=]\s*[^\s]{4,}/i,
-    /\b(secret|secret[_-]?key)\s*[:=]\s*[\w\-._~+/]{10,}/i,
-    /\b(auth|authorization|bearer)\s*[:=]\s*[\w\-._~+/]{10,}/i,
-    /\beyJ[\w\-._~+/]{20,}/i, // JWT tokens (base64url encoded JSON)
-    /\b(sk|pk)_[a-zA-Z0-9]{32,}/i, // Stripe-like keys
-    /\bgh[oprs]_[a-zA-Z0-9]{36,}/i, // GitHub tokens
+    /\b(api[_-]?key|apikey)\s*[:=]\s*[a-zA-Z0-9\-._~+/]{10,100}/i,
+    /\b(token|access[_-]?token|refresh[_-]?token)\s*[:=]\s*[a-zA-Z0-9\-._~+/]{10,100}/i,
+    /\b(password|passwd|pwd|senha)\s*[:=]\s*[^\s]{4,100}/i,
+    /\b(secret|secret[_-]?key)\s*[:=]\s*[a-zA-Z0-9\-._~+/]{10,100}/i,
+    /\b(auth|authorization|bearer)\s*[:=]\s*[a-zA-Z0-9\-._~+/]{10,100}/i,
+    /\beyJ[a-zA-Z0-9\-._~+/]{20,500}/i, // JWT tokens (base64url encoded JSON)
+    /\b(sk|pk)_[a-zA-Z0-9]{32,100}/i, // Stripe-like keys
+    /\bgh[oprs]_[a-zA-Z0-9]{36,100}/i, // GitHub tokens
   ];
   
-  const hasSensitiveData = sensitivePatterns.some(pattern => pattern.test(allArgs));
+  // Test patterns but limit execution time to prevent ReDoS
+  let hasSensitiveData = false;
+  try {
+    hasSensitiveData = sensitivePatterns.some(pattern => {
+      // Use bounded matching with timeout-like check
+      const testStr = allArgs.substring(0, 10000); // Limit string length
+      return pattern.test(testStr);
+    });
+  } catch {
+    // Se houver erro (possível ReDoS), assumir que há dados sensíveis por segurança
+    hasSensitiveData = true;
+  }
   
+  // Only log if no sensitive data detected
   if (!hasSensitiveData) {
     originalError(...args);
   }
+  // Silently suppress logs that might contain sensitive data in tests
   // Silently suppress logs that might contain sensitive data in tests
 }

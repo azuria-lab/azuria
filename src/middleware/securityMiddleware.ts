@@ -84,8 +84,9 @@ export class SecurityMiddleware {
     // Use proper character classes for Unicode-aware matching
     // Use non-greedy matching with proper boundaries to prevent ReDoS
     const xssPatterns = [
-      // Script tags - match tag opening and closing with non-greedy content
-      /<script[^>]*>[\s\S]*?<\/script\s*>/gi,
+      // Script tags - match tag opening and closing with non-greedy content and length limit
+      // Use bounded quantifiers to prevent ReDoS attacks
+      /<script[^>]{0,100}>[\s\S]{0,10000}?<\/script\s*>/gi,
       // Iframe tags
       /<iframe[^>]*>[\s\S]*?<\/iframe\s*>/gi,
       // Dangerous protocols - use word boundary
@@ -197,10 +198,13 @@ export class SecurityMiddleware {
     sanitized = sanitized.replace(/<[^>]{0,10000}>/g, '');
 
     // Remove event handlers with proper Unicode-aware matching and length limits
+    // Use bounded quantifiers with explicit character classes to prevent ReDoS
     // First pass: event handlers with quotes (limit attribute value length)
-    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']{0,1000}["']/gi, '');
+    // Match onEventName="value" or onEventName='value' with explicit limits
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'][^"']{0,500}["']/gi, '');
     // Second pass: event handlers without quotes (match until space or > with limit)
-    sanitized = sanitized.replace(/on\w+\s*=\s*[^\s>]{0,1000}/gi, '');
+    // Ensure we match specific event handler patterns, not arbitrary content
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^\s>]{0,500}/gi, '');
 
     // Validate and sanitize dangerous URL schemes
     // Check for complete URL scheme patterns (must include :// or : after scheme)
