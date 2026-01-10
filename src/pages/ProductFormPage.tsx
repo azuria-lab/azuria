@@ -6,15 +6,21 @@ import {
   Camera, 
   CheckCircle2,
   ChevronDown,
+  Edit,
   FileText,
   FolderTree,
   Image as ImageIcon,
+  Info,
   Link as LinkIcon,
+  Lock,
   Package,
   Plus,
   Save,
+  Star,
   Tag,
+  Trash2,
   Video,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,12 +41,57 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+
+interface Supplier {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+  costPrice: string;
+  isDefault: boolean;
+}
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("caracteristicas");
+  const [suppliers, setSuppliers] = useState<Supplier[]>([
+    {
+      id: "1",
+      name: "MAC FRIO DISTRIBUIDORA LTDA",
+      description: "PRESSOSTATO BRAST 3 NIVEIS BWL11A W10171528",
+      code: "21941",
+      costPrice: "53,0000",
+      isDefault: true,
+    },
+  ]);
+  const [showSupplierDialog, setShowSupplierDialog] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [supplierForm, setSupplierForm] = useState({
+    name: "",
+    description: "",
+    code: "",
+    costPrice: "",
+    isDefault: false,
+  });
   
   // Form states
   const [formData, setFormData] = useState({
@@ -86,10 +137,110 @@ export default function ProductFormPage() {
     pisFixedValue: "",
     cofinsFixedValue: "",
     additionalTaxInfo: "",
+    // Estoque
+    stockMin: "1,00",
+    stockMax: "300,00",
+    crossdocking: "0",
+    stockLocation: "",
+    batchControl: false,
   });
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSupplierFormChange = (field: string, value: string | boolean) => {
+    setSupplierForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddSupplier = () => {
+    setEditingSupplier(null);
+    setSupplierForm({
+      name: "",
+      description: "",
+      code: "",
+      costPrice: "",
+      isDefault: false,
+    });
+    setShowSupplierDialog(true);
+  };
+
+  const handleEditSupplier = (supplier: Supplier) => {
+    setEditingSupplier(supplier);
+    setSupplierForm({
+      name: supplier.name,
+      description: supplier.description,
+      code: supplier.code,
+      costPrice: supplier.costPrice,
+      isDefault: supplier.isDefault,
+    });
+    setShowSupplierDialog(true);
+  };
+
+  const handleDeleteSupplier = (id: string) => {
+    setSuppliers(prev => prev.filter(s => s.id !== id));
+    toast({
+      title: "Fornecedor removido",
+      description: "Fornecedor removido com sucesso.",
+    });
+  };
+
+  const handleSetDefaultSupplier = (id: string) => {
+    setSuppliers(prev => prev.map(s => ({
+      ...s,
+      isDefault: s.id === id,
+    })));
+    toast({
+      title: "Fornecedor padrão",
+      description: "Fornecedor definido como padrão.",
+    });
+  };
+
+  const handleSaveSupplier = () => {
+    if (!supplierForm.name.trim() || !supplierForm.code.trim()) {
+      toast({
+        title: "Erro",
+        description: "Nome e código do fornecedor são obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (supplierForm.isDefault) {
+      setSuppliers(prev => prev.map(s => ({ ...s, isDefault: false })));
+    }
+
+    if (editingSupplier) {
+      setSuppliers(prev => prev.map(s => 
+        s.id === editingSupplier.id 
+          ? { ...s, ...supplierForm }
+          : { ...s, isDefault: supplierForm.isDefault ? false : s.isDefault }
+      ));
+      toast({
+        title: "Fornecedor atualizado",
+        description: "Fornecedor atualizado com sucesso.",
+      });
+    } else {
+      const newSupplier: Supplier = {
+        id: Date.now().toString(),
+        ...supplierForm,
+      };
+      setSuppliers(prev => [...prev, newSupplier]);
+      toast({
+        title: "Fornecedor adicionado",
+        description: "Fornecedor adicionado com sucesso.",
+      });
+    }
+    
+    setShowSupplierDialog(false);
+    setSupplierForm({
+      name: "",
+      description: "",
+      code: "",
+      costPrice: "",
+      isDefault: false,
+    });
+    setEditingSupplier(null);
   };
 
   const handleSave = () => {
@@ -435,12 +586,182 @@ export default function ProductFormPage() {
                     <p className="text-sm text-muted-foreground">Configurações adicionais</p>
                   </TabsContent>
 
-                  <TabsContent value="estoque" className="mt-6">
-                    <p className="text-sm text-muted-foreground">Gestão de estoque</p>
+                  <TabsContent value="estoque" className="mt-6 space-y-6">
+                    {/* Stock Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="stockMin">Mínimo</Label>
+                          <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <Input
+                          id="stockMin"
+                          type="number"
+                          step="0.01"
+                          value={formData.stockMin}
+                          onChange={(e) => handleInputChange("stockMin", e.target.value)}
+                          placeholder="0,00"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="stockMax">Máximo</Label>
+                          <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <Input
+                          id="stockMax"
+                          type="number"
+                          step="0.01"
+                          value={formData.stockMax}
+                          onChange={(e) => handleInputChange("stockMax", e.target.value)}
+                          placeholder="0,00"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="crossdocking">Crossdocking</Label>
+                          <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <Input
+                          id="crossdocking"
+                          type="number"
+                          value={formData.crossdocking}
+                          onChange={(e) => handleInputChange("crossdocking", e.target.value)}
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="stockLocation">Localização</Label>
+                          <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                        <Input
+                          id="stockLocation"
+                          value={formData.stockLocation}
+                          onChange={(e) => handleInputChange("stockLocation", e.target.value)}
+                          placeholder="Localização do produto no estoque"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Informational Message */}
+                    <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-blue-900 dark:text-blue-100">
+                          Para gerenciar o estoque acesse o módulo de Controle de Estoques
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Batch Control Section */}
+                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
+                      <div className="flex items-center gap-3">
+                        <Lock className="h-5 w-5 text-muted-foreground" />
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id="batchControl"
+                            checked={formData.batchControl}
+                            onCheckedChange={(checked) => handleInputChange("batchControl", checked)}
+                          />
+                          <Label htmlFor="batchControl" className="cursor-pointer font-medium">
+                            Controle de lote {formData.batchControl ? "ativado" : "desativado"}
+                          </Label>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          Novo
+                        </Badge>
+                        <Button variant="link" className="p-0 h-auto text-sm">
+                          Saiba mais
+                        </Button>
+                      </div>
+                    </div>
                   </TabsContent>
 
-                  <TabsContent value="fornecedores" className="mt-6">
-                    <p className="text-sm text-muted-foreground">Fornecedores</p>
+                  <TabsContent value="fornecedores" className="mt-6 space-y-4">
+                    {/* Suppliers Table */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-12">#</TableHead>
+                            <TableHead>Fornecedor</TableHead>
+                            <TableHead>Descrição no fornecedor</TableHead>
+                            <TableHead>Código no fornecedor</TableHead>
+                            <TableHead>Preço de custo</TableHead>
+                            <TableHead className="w-32">Padrão</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {suppliers.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                Nenhum fornecedor cadastrado
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            suppliers.map((supplier, index) => (
+                              <TableRow key={supplier.id}>
+                                <TableCell className="font-medium">{index + 1}</TableCell>
+                                <TableCell>{supplier.name}</TableCell>
+                                <TableCell className="text-muted-foreground">{supplier.description}</TableCell>
+                                <TableCell className="text-muted-foreground">{supplier.code}</TableCell>
+                                <TableCell className="font-medium">R$ {supplier.costPrice}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => handleSetDefaultSupplier(supplier.id)}
+                                      className="flex-shrink-0"
+                                      title={supplier.isDefault ? "Fornecedor padrão" : "Definir como padrão"}
+                                    >
+                                      {supplier.isDefault ? (
+                                        <CheckCircle2 className="h-4 w-4 text-green-600 fill-green-600" />
+                                      ) : (
+                                        <div className="h-4 w-4 rounded-full border-2 border-muted-foreground hover:border-green-600 transition-colors" />
+                                      )}
+                                    </button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 flex-shrink-0"
+                                      onClick={() => handleEditSupplier(supplier)}
+                                      title="Editar fornecedor"
+                                    >
+                                      <Edit className="h-4 w-4 text-blue-600" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 flex-shrink-0"
+                                      onClick={() => handleDeleteSupplier(supplier.id)}
+                                      title="Excluir fornecedor"
+                                    >
+                                      <Trash2 className="h-4 w-4 text-red-600" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Add Supplier Button */}
+                    <Button
+                      variant="outline"
+                      className="w-full border-dashed border-2"
+                      onClick={handleAddSupplier}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Adicionar fornecedor
+                    </Button>
                   </TabsContent>
 
                   <TabsContent value="tributacao" className="mt-6 space-y-6">
@@ -915,6 +1236,104 @@ export default function ProductFormPage() {
             </Card>
           </div>
         </div>
+
+        {/* Supplier Dialog */}
+        <Dialog open={showSupplierDialog} onOpenChange={setShowSupplierDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingSupplier ? "Editar Fornecedor" : "Adicionar Fornecedor"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingSupplier 
+                  ? "Edite as informações do fornecedor" 
+                  : "Adicione um novo fornecedor para este produto"}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="supplierName">Fornecedor *</Label>
+                <Input
+                  id="supplierName"
+                  value={supplierForm.name}
+                  onChange={(e) => handleSupplierFormChange("name", e.target.value)}
+                  placeholder="Nome do fornecedor"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="supplierDescription">Descrição no fornecedor</Label>
+                <Input
+                  id="supplierDescription"
+                  value={supplierForm.description}
+                  onChange={(e) => handleSupplierFormChange("description", e.target.value)}
+                  placeholder="Descrição do produto no fornecedor"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supplierCode">Código no fornecedor *</Label>
+                  <Input
+                    id="supplierCode"
+                    value={supplierForm.code}
+                    onChange={(e) => handleSupplierFormChange("code", e.target.value)}
+                    placeholder="Código do produto"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="supplierCostPrice">Preço de custo</Label>
+                  <Input
+                    id="supplierCostPrice"
+                    type="number"
+                    step="0.01"
+                    value={supplierForm.costPrice}
+                    onChange={(e) => handleSupplierFormChange("costPrice", e.target.value)}
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="supplierDefault"
+                  checked={supplierForm.isDefault}
+                  onCheckedChange={(checked) => handleSupplierFormChange("isDefault", checked)}
+                />
+                <Label htmlFor="supplierDefault" className="cursor-pointer">
+                  Definir como fornecedor padrão
+                </Label>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSupplierDialog(false);
+                  setEditingSupplier(null);
+                  setSupplierForm({
+                    name: "",
+                    description: "",
+                    code: "",
+                    costPrice: "",
+                    isDefault: false,
+                  });
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleSaveSupplier}
+              >
+                {editingSupplier ? "Salvar alterações" : "Adicionar fornecedor"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
