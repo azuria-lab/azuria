@@ -166,15 +166,27 @@ jobs:
           NODE_OPTIONS: '--max-old-space-size=4096'
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+          # Variáveis de teste (pode não ter credenciais, mas testes devem pular se necessário)
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
         run: |
           echo "Starting Playwright tests..."
-          npm run test:e2e || EXIT_CODE=$?
+          echo "Has admin credentials: $([ -n "$TEST_ADMIN_EMAIL" ] && echo 'yes' || echo 'no')"
+          npm run test:e2e 2>&1 | tee test-output.log || EXIT_CODE=$?
           if [ -n "$EXIT_CODE" ]; then
             echo "Playwright tests failed with exit code: $EXIT_CODE"
-            echo "Checking test results..."
+            echo "=== Last 50 lines of test output ==="
+            tail -50 test-output.log || true
+            echo "=== Checking test results ==="
             if [ -f "test-results/results.xml" ]; then
-              echo "Test results XML found"
-              cat test-results/results.xml | head -100
+              echo "Test results XML found:"
+              cat test-results/results.xml | head -200
+            else
+              echo "No test results XML found"
+            fi
+            if [ -d "playwright-report" ]; then
+              echo "Playwright report directory exists"
+              ls -la playwright-report/ | head -20
             fi
             exit $EXIT_CODE
           fi

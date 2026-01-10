@@ -16,17 +16,26 @@ import { expect, test } from '@playwright/test';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Assumindo que temos um usuário admin de teste
-const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@azuria.test';
-const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'TestAdmin123!';
+// Em CI, os testes que requerem login serão pulados se não houver credenciais
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || '';
+const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || '';
+const HAS_ADMIN_CREDENTIALS = !!(ADMIN_EMAIL && ADMIN_PASSWORD);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function loginAsAdmin(page: import('@playwright/test').Page): Promise<void> {
-  await page.goto('/login');
+  if (!HAS_ADMIN_CREDENTIALS) {
+    throw new Error('Admin credentials not configured');
+  }
+
+  await page.goto('/login', { waitUntil: 'networkidle', timeout: 30000 });
   
-  // Preencher credenciais
+  // Preencher credenciais (com retry em caso de elementos não carregarem)
+  await page.waitForSelector('input[type="email"]', { timeout: 10000 }).catch(() => {
+    // Se não encontrar, tentar outros seletores
+  });
   await page.fill('input[type="email"]', ADMIN_EMAIL);
   await page.fill('input[type="password"]', ADMIN_PASSWORD);
   
@@ -73,7 +82,7 @@ test.describe('Admin Panel Access', () => {
 test.describe('Cognitive Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Skip se não tem credenciais de admin
-    test.skip(!process.env.TEST_ADMIN_EMAIL, 'Requires TEST_ADMIN_EMAIL env var');
+    test.skip(!HAS_ADMIN_CREDENTIALS, 'Requires TEST_ADMIN_EMAIL and TEST_ADMIN_PASSWORD env vars');
     await loginAsAdmin(page);
   });
 
