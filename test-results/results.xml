@@ -1,56 +1,1163 @@
-<testsuites id="" name="" tests="12" failures="0" skipped="12" errors="0" time="0.054340999999999896">
-<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testsuites id="" name="" tests="69" failures="69" skipped="0" errors="0" time="34.25356">
+<testsuite name="admin-cognitive.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="chromium" tests="19" failures="19" skipped="0" time="0.557" errors="0">
+<testcase name="Admin Panel Access › should redirect to login if not authenticated" classname="admin-cognitive.spec.ts" time="0.007">
+<failure message="admin-cognitive.spec.ts:45:3 should redirect to login if not authenticated" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:45:3 › Admin Panel Access › should redirect to login if not authenticated 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Admin Panel Access › should redirect to home if not admin" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:52:3 should redirect to home if not admin" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:52:3 › Admin Panel Access › should redirect to home if not admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Cognitive Dashboard › should access cognitive dashboard via admin panel" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:80:3 should access cognitive dashboard via admin panel" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:80:3 › Cognitive Dashboard › should access cognitive dashboard via admin panel 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Cognitive Dashboard › should redirect from /sistema-cognitivo to admin" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:90:3 should redirect from /sistema-cognitivo to admin" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:90:3 › Cognitive Dashboard › should redirect from /sistema-cognitivo to admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should display cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:97:3 should display cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:97:3 › Cognitive Dashboard › should display cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should switch between cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:107:3 should switch between cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:107:3 › Cognitive Dashboard › should switch between cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should display metrics overview" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:136:3 should display metrics overview" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:136:3 › Metrics Dashboard › should display metrics overview ─
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should toggle auto-refresh" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:141:3 should toggle auto-refresh" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:141:3 › Metrics Dashboard › should toggle auto-refresh ──────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should export metrics as JSON" classname="admin-cognitive.spec.ts" time="0.007">
+<failure message="admin-cognitive.spec.ts:153:3 should export metrics as JSON" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:153:3 › Metrics Dashboard › should export metrics as JSON ───
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should display alerts interface" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:177:3 should display alerts interface" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:177:3 › Alerts Panel › should display alerts interface ──────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should show alert rules" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:183:3 should show alert rules" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:183:3 › Alerts Panel › should show alert rules ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should open create rule dialog" classname="admin-cognitive.spec.ts" time="0.007">
+<failure message="admin-cognitive.spec.ts:194:3 should open create rule dialog" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:194:3 › Alerts Panel › should open create rule dialog ───────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should display replay interface" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:219:3 should display replay interface" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:219:3 › Event Replay Panel › should display replay interface 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should start and stop recording" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:225:3 should start and stop recording" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:225:3 › Event Replay Panel › should start and stop recording 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should change playback speed" classname="admin-cognitive.spec.ts" time="0.007">
+<failure message="admin-cognitive.spec.ts:239:3 should change playback speed" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:239:3 › Event Replay Panel › should change playback speed ───
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return prometheus format by default" classname="admin-cognitive.spec.ts" time="0.052">
+<failure message="admin-cognitive.spec.ts:254:3 should return prometheus format by default" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:254:3 › Metrics API › should return prometheus format by default 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "text/plain"
+    Received string:    "text/html"
+
+      256 |     
+      257 |     expect(response.ok()).toBeTruthy();
+    > 258 |     expect(response.headers()['content-type']).toContain('text/plain');
+          |                                                ^
+      259 |     
+      260 |     const text = await response.text();
+      261 |     expect(text).toContain('azuria_cognitive');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:258:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return JSON format when requested" classname="admin-cognitive.spec.ts" time="0.054">
+<failure message="admin-cognitive.spec.ts:264:3 should return JSON format when requested" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:264:3 › Metrics API › should return JSON format when requested 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "application/json"
+    Received string:    "text/html"
+
+      266 |     
+      267 |     expect(response.ok()).toBeTruthy();
+    > 268 |     expect(response.headers()['content-type']).toContain('application/json');
+          |                                                ^
+      269 |     
+      270 |     const json = await response.json();
+      271 |     expect(json).toHaveProperty('counters');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:268:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should include rate limit headers" classname="admin-cognitive.spec.ts" time="0.052">
+<failure message="admin-cognitive.spec.ts:276:3 should include rate limit headers" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:276:3 › Metrics API › should include rate limit headers ─────
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      277 |     const response = await request.get('/api/metrics');
+      278 |     
+    > 279 |     expect(response.headers()['x-ratelimit-limit']).toBeDefined();
+          |                                                     ^
+      280 |     expect(response.headers()['x-ratelimit-remaining']).toBeDefined();
+      281 |   });
+      282 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:279:53
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should enforce rate limiting" classname="admin-cognitive.spec.ts" time="0.312">
+<failure message="admin-cognitive.spec.ts:283:3 should enforce rate limiting" type="FAILURE">
+<![CDATA[  [chromium] › admin-cognitive.spec.ts:283:3 › Metrics API › should enforce rate limiting ──────────
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      291 |     // Pelo menos uma deve ser rate limited (429)
+      292 |     const rateLimited = responses.filter(r => r.status() === 429);
+    > 293 |     expect(rateLimited.length).toBeGreaterThan(0);
+          |                                ^
+      294 |   });
+      295 | });
+      296 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:293:32
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testsuite name="app.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="chromium" tests="4" failures="4" skipped="0" time="0.02" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:8:3 should load homepage successfully" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:8:3 › Azuria E2E Tests › should load homepage successfully ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:17:3 should have working navigation" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:17:3 › Azuria E2E Tests › should have working navigation ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:28:3 should work on different viewports" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:28:3 › Azuria E2E Tests › should work on different viewports ────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:40:3 should load within acceptable time" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:40:3 › Azuria E2E Tests › should load within acceptable time ────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\chromium_headless_shell-1194\chrome-win\headless_shell.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="app.spec.ts" timestamp="2025-12-25T14:11:15.153Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testsuite name="admin-cognitive.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="firefox" tests="19" failures="19" skipped="0" time="0.531" errors="0">
+<testcase name="Admin Panel Access › should redirect to login if not authenticated" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:45:3 should redirect to login if not authenticated" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:45:3 › Admin Panel Access › should redirect to login if not authenticated 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Admin Panel Access › should redirect to home if not admin" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:52:3 should redirect to home if not admin" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:52:3 › Admin Panel Access › should redirect to home if not admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Cognitive Dashboard › should access cognitive dashboard via admin panel" classname="admin-cognitive.spec.ts" time="0.01">
+<failure message="admin-cognitive.spec.ts:80:3 should access cognitive dashboard via admin panel" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:80:3 › Cognitive Dashboard › should access cognitive dashboard via admin panel 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
-<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0">
-<skipped>
-</skipped>
+<testcase name="Cognitive Dashboard › should redirect from /sistema-cognitivo to admin" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:90:3 should redirect from /sistema-cognitivo to admin" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:90:3 › Cognitive Dashboard › should redirect from /sistema-cognitivo to admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should display cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:97:3 should display cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:97:3 › Cognitive Dashboard › should display cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should switch between cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.007">
+<failure message="admin-cognitive.spec.ts:107:3 should switch between cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:107:3 › Cognitive Dashboard › should switch between cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should display metrics overview" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:136:3 should display metrics overview" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:136:3 › Metrics Dashboard › should display metrics overview ──
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should toggle auto-refresh" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:141:3 should toggle auto-refresh" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:141:3 › Metrics Dashboard › should toggle auto-refresh ───────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should export metrics as JSON" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:153:3 should export metrics as JSON" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:153:3 › Metrics Dashboard › should export metrics as JSON ────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should display alerts interface" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:177:3 should display alerts interface" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:177:3 › Alerts Panel › should display alerts interface ───────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should show alert rules" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:183:3 should show alert rules" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:183:3 › Alerts Panel › should show alert rules ───────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should open create rule dialog" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:194:3 should open create rule dialog" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:194:3 › Alerts Panel › should open create rule dialog ────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should display replay interface" classname="admin-cognitive.spec.ts" time="0.012">
+<failure message="admin-cognitive.spec.ts:219:3 should display replay interface" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:219:3 › Event Replay Panel › should display replay interface ─
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should start and stop recording" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:225:3 should start and stop recording" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:225:3 › Event Replay Panel › should start and stop recording ─
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should change playback speed" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:239:3 should change playback speed" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:239:3 › Event Replay Panel › should change playback speed ────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return prometheus format by default" classname="admin-cognitive.spec.ts" time="0.045">
+<failure message="admin-cognitive.spec.ts:254:3 should return prometheus format by default" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:254:3 › Metrics API › should return prometheus format by default 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "text/plain"
+    Received string:    "text/html"
+
+      256 |     
+      257 |     expect(response.ok()).toBeTruthy();
+    > 258 |     expect(response.headers()['content-type']).toContain('text/plain');
+          |                                                ^
+      259 |     
+      260 |     const text = await response.text();
+      261 |     expect(text).toContain('azuria_cognitive');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:258:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return JSON format when requested" classname="admin-cognitive.spec.ts" time="0.045">
+<failure message="admin-cognitive.spec.ts:264:3 should return JSON format when requested" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:264:3 › Metrics API › should return JSON format when requested 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "application/json"
+    Received string:    "text/html"
+
+      266 |     
+      267 |     expect(response.ok()).toBeTruthy();
+    > 268 |     expect(response.headers()['content-type']).toContain('application/json');
+          |                                                ^
+      269 |     
+      270 |     const json = await response.json();
+      271 |     expect(json).toHaveProperty('counters');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:268:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should include rate limit headers" classname="admin-cognitive.spec.ts" time="0.042">
+<failure message="admin-cognitive.spec.ts:276:3 should include rate limit headers" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:276:3 › Metrics API › should include rate limit headers ──────
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      277 |     const response = await request.get('/api/metrics');
+      278 |     
+    > 279 |     expect(response.headers()['x-ratelimit-limit']).toBeDefined();
+          |                                                     ^
+      280 |     expect(response.headers()['x-ratelimit-remaining']).toBeDefined();
+      281 |   });
+      282 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:279:53
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should enforce rate limiting" classname="admin-cognitive.spec.ts" time="0.311">
+<failure message="admin-cognitive.spec.ts:283:3 should enforce rate limiting" type="FAILURE">
+<![CDATA[  [firefox] › admin-cognitive.spec.ts:283:3 › Metrics API › should enforce rate limiting ───────────
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      291 |     // Pelo menos uma deve ser rate limited (429)
+      292 |     const rateLimited = responses.filter(r => r.status() === 429);
+    > 293 |     expect(rateLimited.length).toBeGreaterThan(0);
+          |                                ^
+      294 |   });
+      295 | });
+      296 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:293:32
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="firefox" tests="4" failures="4" skipped="0" time="0.02" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0.004">
+<failure message="app.spec.ts:8:3 should load homepage successfully" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:8:3 › Azuria E2E Tests › should load homepage successfully ───────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0.006">
+<failure message="app.spec.ts:17:3 should have working navigation" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:17:3 › Azuria E2E Tests › should have working navigation ─────────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:28:3 should work on different viewports" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:28:3 › Azuria E2E Tests › should work on different viewports ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:40:3 should load within acceptable time" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:40:3 › Azuria E2E Tests › should load within acceptable time ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\firefox-1495\firefox\firefox.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="admin-cognitive.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="webkit" tests="19" failures="19" skipped="0" time="0.513" errors="0">
+<testcase name="Admin Panel Access › should redirect to login if not authenticated" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:45:3 should redirect to login if not authenticated" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:45:3 › Admin Panel Access › should redirect to login if not authenticated 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Admin Panel Access › should redirect to home if not admin" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:52:3 should redirect to home if not admin" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:52:3 › Admin Panel Access › should redirect to home if not admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should access cognitive dashboard via admin panel" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:80:3 should access cognitive dashboard via admin panel" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:80:3 › Cognitive Dashboard › should access cognitive dashboard via admin panel 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should redirect from /sistema-cognitivo to admin" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:90:3 should redirect from /sistema-cognitivo to admin" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:90:3 › Cognitive Dashboard › should redirect from /sistema-cognitivo to admin 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should display cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:97:3 should display cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:97:3 › Cognitive Dashboard › should display cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Cognitive Dashboard › should switch between cognitive sub-tabs" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:107:3 should switch between cognitive sub-tabs" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:107:3 › Cognitive Dashboard › should switch between cognitive sub-tabs 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should display metrics overview" classname="admin-cognitive.spec.ts" time="0.004">
+<failure message="admin-cognitive.spec.ts:136:3 should display metrics overview" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:136:3 › Metrics Dashboard › should display metrics overview ───
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should toggle auto-refresh" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:141:3 should toggle auto-refresh" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:141:3 › Metrics Dashboard › should toggle auto-refresh ────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics Dashboard › should export metrics as JSON" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:153:3 should export metrics as JSON" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:153:3 › Metrics Dashboard › should export metrics as JSON ─────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should display alerts interface" classname="admin-cognitive.spec.ts" time="0.008">
+<failure message="admin-cognitive.spec.ts:177:3 should display alerts interface" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:177:3 › Alerts Panel › should display alerts interface ────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should show alert rules" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:183:3 should show alert rules" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:183:3 › Alerts Panel › should show alert rules ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Alerts Panel › should open create rule dialog" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:194:3 should open create rule dialog" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:194:3 › Alerts Panel › should open create rule dialog ─────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should display replay interface" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:219:3 should display replay interface" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:219:3 › Event Replay Panel › should display replay interface ──
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should start and stop recording" classname="admin-cognitive.spec.ts" time="0.005">
+<failure message="admin-cognitive.spec.ts:225:3 should start and stop recording" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:225:3 › Event Replay Panel › should start and stop recording ──
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Event Replay Panel › should change playback speed" classname="admin-cognitive.spec.ts" time="0.006">
+<failure message="admin-cognitive.spec.ts:239:3 should change playback speed" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:239:3 › Event Replay Panel › should change playback speed ─────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return prometheus format by default" classname="admin-cognitive.spec.ts" time="0.048">
+<failure message="admin-cognitive.spec.ts:254:3 should return prometheus format by default" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:254:3 › Metrics API › should return prometheus format by default 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "text/plain"
+    Received string:    "text/html"
+
+      256 |     
+      257 |     expect(response.ok()).toBeTruthy();
+    > 258 |     expect(response.headers()['content-type']).toContain('text/plain');
+          |                                                ^
+      259 |     
+      260 |     const text = await response.text();
+      261 |     expect(text).toContain('azuria_cognitive');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:258:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should return JSON format when requested" classname="admin-cognitive.spec.ts" time="0.051">
+<failure message="admin-cognitive.spec.ts:264:3 should return JSON format when requested" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:264:3 › Metrics API › should return JSON format when requested 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "application/json"
+    Received string:    "text/html"
+
+      266 |     
+      267 |     expect(response.ok()).toBeTruthy();
+    > 268 |     expect(response.headers()['content-type']).toContain('application/json');
+          |                                                ^
+      269 |     
+      270 |     const json = await response.json();
+      271 |     expect(json).toHaveProperty('counters');
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:268:48
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should include rate limit headers" classname="admin-cognitive.spec.ts" time="0.041">
+<failure message="admin-cognitive.spec.ts:276:3 should include rate limit headers" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:276:3 › Metrics API › should include rate limit headers ───────
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      277 |     const response = await request.get('/api/metrics');
+      278 |     
+    > 279 |     expect(response.headers()['x-ratelimit-limit']).toBeDefined();
+          |                                                     ^
+      280 |     expect(response.headers()['x-ratelimit-remaining']).toBeDefined();
+      281 |   });
+      282 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:279:53
+]]>
+</failure>
+</testcase>
+<testcase name="Metrics API › should enforce rate limiting" classname="admin-cognitive.spec.ts" time="0.294">
+<failure message="admin-cognitive.spec.ts:283:3 should enforce rate limiting" type="FAILURE">
+<![CDATA[  [webkit] › admin-cognitive.spec.ts:283:3 › Metrics API › should enforce rate limiting ────────────
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      291 |     // Pelo menos uma deve ser rate limited (429)
+      292 |     const rateLimited = responses.filter(r => r.status() === 429);
+    > 293 |     expect(rateLimited.length).toBeGreaterThan(0);
+          |                                ^
+      294 |   });
+      295 | });
+      296 |
+        at C:\Projects\azuria\tests\e2e\admin-cognitive.spec.ts:293:32
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2026-01-10T11:25:53.655Z" hostname="webkit" tests="4" failures="4" skipped="0" time="0.019" errors="0">
+<testcase name="Azuria E2E Tests › should load homepage successfully" classname="app.spec.ts" time="0.005">
+<failure message="app.spec.ts:8:3 should load homepage successfully" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:8:3 › Azuria E2E Tests › should load homepage successfully ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should have working navigation" classname="app.spec.ts" time="0.006">
+<failure message="app.spec.ts:17:3 should have working navigation" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:17:3 › Azuria E2E Tests › should have working navigation ──────────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should work on different viewports" classname="app.spec.ts" time="0.004">
+<failure message="app.spec.ts:28:3 should work on different viewports" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:28:3 › Azuria E2E Tests › should work on different viewports ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Azuria E2E Tests › should load within acceptable time" classname="app.spec.ts" time="0.004">
+<failure message="app.spec.ts:40:3 should load within acceptable time" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:40:3 › Azuria E2E Tests › should load within acceptable time ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\rfref\AppData\Local\ms-playwright\webkit-2215\Playwright.exe
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
 </testsuite>
 </testsuites>
