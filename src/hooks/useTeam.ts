@@ -99,8 +99,8 @@ export function useTeam(teamId: string | null): UseTeamReturn {
       
         
        
-      const { data: teamTasks, error: tasksError } = await supabase
-        .from("team_tasks")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: teamTasks, error: tasksError } = await (supabase.from("team_tasks" as any) as any)
         .select("*")
         .eq("team_id", teamId)
         .order("created_at", { ascending: false });

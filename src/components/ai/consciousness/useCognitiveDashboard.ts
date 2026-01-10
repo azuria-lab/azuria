@@ -369,10 +369,11 @@ export function useCognitiveDashboard(): UseCognitiveDashboardReturn {
     try {
       const nucleus = await import('@/azuria_ai/consciousness/CentralNucleus');
 
+      // CentralNucleus não tem pauseNucleus/resumeNucleus, usa requestSilence/disableSilence
       if (data?.nucleus.isPaused) {
-        nucleus.resumeNucleus?.();
+        nucleus.CentralNucleus?.disableSilence();
       } else {
-        nucleus.pauseNucleus?.();
+        nucleus.CentralNucleus?.requestSilence(60000); // 60 segundos de silêncio
       }
 
       // Refresh após toggle

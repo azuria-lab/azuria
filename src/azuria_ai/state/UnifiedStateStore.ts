@@ -592,9 +592,13 @@ export function updateCoreState(
         existing !== null &&
         !Array.isArray(existing)
       ) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const existingRecord = existing as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const valueRecord = value as any;
         (store.core as unknown as Record<string, unknown>)[key] = {
-          ...(existing as Record<string, unknown>),
-          ...(value as Record<string, unknown>),
+          ...existingRecord,
+          ...valueRecord,
         };
       } else {
         (store.core as unknown as Record<string, unknown>)[key] = value;
