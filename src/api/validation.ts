@@ -67,12 +67,23 @@ export function sanitizeString(input: string): string {
   } else {
     // Se já estiver parcialmente escapado, escapar apenas caracteres não escapados
     // Usar regex negativo lookahead para evitar double escaping
+    // Primeiro, escapar & que não são parte de entidades HTML
+    result = result.replaceAll(/&(?!amp;|lt;|gt;|quot;|#x27;|#39;)/g, '&amp;');
+    // Depois, escapar < que não são parte de tags HTML
+    result = result.replaceAll(/<(?!\/?[a-zA-Z][^>]*>)/g, '&lt;');
+    // Escapar > que não são parte de &lt;
+    result = result.replaceAll(/>/g, '&gt;');
+    // Escapar " que não são parte de &quot;
+    result = result.replaceAll(/"/g, '&quot;');
+    // Escapar ' que não são parte de &#x27; ou &#39;
+    result = result.replaceAll(/'/g, '&#x27;');
+    // Limpar double escaping caso tenha ocorrido
     result = result
-      .replaceAll(/&(?!amp;|lt;|gt;|quot;|#x27;|#39;)/g, '&amp;') // Só escapa & se não for entidade HTML
-      .replaceAll(/<(?!\/?[a-zA-Z][^>]*>)/g, '&lt;') // Só escapa < se não for início de tag válida
-      .replaceAll(/(?<!&lt;)>/g, '&gt;') // Só escapa > se não for parte de &lt;
-      .replaceAll(/(?<!&quot;)"/g, '&quot;') // Só escapa " se não for parte de &quot;
-      .replaceAll(/(?<!&#x27;|&#39;)'/g, '&#x27;'); // Só escapa ' se não for parte de entidade
+      .replaceAll('&amp;amp;', '&amp;')
+      .replaceAll('&amp;lt;', '&lt;')
+      .replaceAll('&amp;gt;', '&gt;')
+      .replaceAll('&amp;quot;', '&quot;')
+      .replaceAll('&amp;#x27;', '&#x27;');
   }
   
   // Remove caracteres de controle (exceto newline \n=0x0A, carriage return \r=0x0D, tab \t=0x09)

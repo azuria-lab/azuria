@@ -85,27 +85,37 @@ export const generateCalculationPDF = (data: PdfData): void => {
   doc.text('Resultados do Cálculo', margin, yPosition);
   yPosition += 10;
 
+  // Helper para formatar números (evita double replacement)
+  const formatNumber = (value: number): string => {
+    const numStr = value.toFixed(2);
+    // Garantir que só fazemos replace uma vez (não fazer double replace)
+    if (numStr.includes(',')) {
+      return numStr; // Já está formatado
+    }
+    return numStr.replace(/\./g, ','); // Replace todas as ocorrências de . por ,
+  };
+
   // Highlight main results
   doc.setFillColor(240, 248, 255);
   doc.rect(margin, yPosition, pageWidth - 2 * margin, 40, 'F');
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
-  doc.text(`Preço de Venda: R$ ${data.result.sellingPrice.toFixed(2).replace('.', ',')}`, margin + 10, yPosition + 15);
-  doc.text(`Lucro Líquido: R$ ${data.result.profit.toFixed(2).replace('.', ',')}`, margin + 10, yPosition + 30);
+  doc.text(`Preço de Venda: R$ ${formatNumber(data.result.sellingPrice)}`, margin + 10, yPosition + 15);
+  doc.text(`Lucro Líquido: R$ ${formatNumber(data.result.profit)}`, margin + 10, yPosition + 30);
 
   yPosition += 50;
 
   // Detailed breakdown
   const resultsData = [
-    ['Custo Total', `R$ ${data.result.breakdown.totalCost.toFixed(2).replace('.', ',')}`],
-    ['Margem de Lucro', `R$ ${data.result.breakdown.marginAmount.toFixed(2).replace('.', ',')}`],
-    ['Impostos/Taxas', `R$ ${data.result.breakdown.taxAmount.toFixed(2).replace('.', ',')}`],
-    ['Taxa do Cartão', `R$ ${data.result.breakdown.cardFeeAmount.toFixed(2).replace('.', ',')}`],
-    ['Outros Custos', `R$ ${data.result.breakdown.otherCostsValue.toFixed(2).replace('.', ',')}`],
-    ['Frete', `R$ ${data.result.breakdown.shippingValue.toFixed(2).replace('.', ',')}`],
-    ['Preço de Venda', `R$ ${data.result.sellingPrice.toFixed(2).replace('.', ',')}`],
-    ['Lucro Líquido', `R$ ${data.result.profit.toFixed(2).replace('.', ',')}`],
+    ['Custo Total', `R$ ${formatNumber(data.result.breakdown.totalCost)}`],
+    ['Margem de Lucro', `R$ ${formatNumber(data.result.breakdown.marginAmount)}`],
+    ['Impostos/Taxas', `R$ ${formatNumber(data.result.breakdown.taxAmount)}`],
+    ['Taxa do Cartão', `R$ ${formatNumber(data.result.breakdown.cardFeeAmount)}`],
+    ['Outros Custos', `R$ ${formatNumber(data.result.breakdown.otherCostsValue)}`],
+    ['Frete', `R$ ${formatNumber(data.result.breakdown.shippingValue)}`],
+    ['Preço de Venda', `R$ ${formatNumber(data.result.sellingPrice)}`],
+    ['Lucro Líquido', `R$ ${formatNumber(data.result.profit)}`],
     ['Margem Líquida', `${data.result.breakdown.realMarginPercent.toFixed(2)}%`]
   ];
 
