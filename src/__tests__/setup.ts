@@ -115,8 +115,26 @@ console.error = (...args: unknown[]) => {
   // In test environment, completely suppress error logs that might contain sensitive data
   // This prevents any sensitive information from being logged during tests
   // Only log if it's not suppressed and doesn't contain potential sensitive patterns
-  const firstArg = typeof args[0] === 'string' ? args[0] : '';
-  const hasSensitiveData = /(api[_-]?key|token|password|secret|auth|bearer|eyJ[\w\-._~+/]+)/i.test(firstArg);
+  
+  // Check all arguments for sensitive data (not just first)
+  const allArgs = args.map(arg => 
+    typeof arg === 'string' ? arg : JSON.stringify(arg)
+  ).join(' ');
+  
+  // Improved pattern to catch more sensitive data patterns (API keys, tokens, passwords, etc.)
+  // Use word boundaries to avoid false positives
+  const sensitivePatterns = [
+    /\b(api[_-]?key|apikey)\s*[:=]\s*[\w\-._~+/]{10,}/i,
+    /\b(token|access[_-]?token|refresh[_-]?token)\s*[:=]\s*[\w\-._~+/]{10,}/i,
+    /\b(password|passwd|pwd|senha)\s*[:=]\s*[^\s]{4,}/i,
+    /\b(secret|secret[_-]?key)\s*[:=]\s*[\w\-._~+/]{10,}/i,
+    /\b(auth|authorization|bearer)\s*[:=]\s*[\w\-._~+/]{10,}/i,
+    /\beyJ[\w\-._~+/]{20,}/i, // JWT tokens (base64url encoded JSON)
+    /\b(sk|pk)_[a-zA-Z0-9]{32,}/i, // Stripe-like keys
+    /\bgh[oprs]_[a-zA-Z0-9]{36,}/i, // GitHub tokens
+  ];
+  
+  const hasSensitiveData = sensitivePatterns.some(pattern => pattern.test(allArgs));
   
   if (!hasSensitiveData) {
     originalError(...args);

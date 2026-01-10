@@ -82,20 +82,28 @@ export class SecurityMiddleware {
     }
 
     // Use proper character classes for Unicode-aware matching
-    // [\s\S] matches any character including newlines (safer than .* with /s flag)
+    // Use non-greedy matching with proper boundaries to prevent ReDoS
     const xssPatterns = [
-      /<script[\s\S]*?>[\s\S]*?<\/script>/gi,
-      /<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi,
-      /javascript\s*:/gi,
-      /data\s*:\s*text\/html/gi,  // Block data URLs with HTML
-      /vbscript\s*:/gi,
-      /on\w+\s*=\s*["'][\s\S]*?["']/gi,  // Event handlers with quotes
-      /on\w+\s*=\s*[^\s>]*/gi,  // Event handlers without quotes
-      /<img[^>]*onerror[^>]*>/gi,
-      /<svg[^>]*onload[^>]*>/gi,
-      /<body[^>]*onload[^>]*>/gi,
-      /<style[^>]*>[\s\S]*?<\/style>/gi,  // Style tags
-      /<link[^>]*href\s*=\s*["']javascript:/gi  // Link tags with javascript
+      // Script tags - match tag opening and closing with non-greedy content
+      /<script[^>]*>[\s\S]*?<\/script\s*>/gi,
+      // Iframe tags
+      /<iframe[^>]*>[\s\S]*?<\/iframe\s*>/gi,
+      // Dangerous protocols - use word boundary
+      /\bjavascript\s*:/gi,
+      /\bdata\s*:\s*text\/html/gi,  // Block data URLs with HTML
+      /\bvbscript\s*:/gi,
+      // Event handlers with quotes - limit length to prevent ReDoS
+      /\bon\w+\s*=\s*["'][^"']{0,1000}["']/gi,
+      // Event handlers without quotes - match until space or > with limit
+      /\bon\w+\s*=\s*[^\s>]{0,1000}/gi,
+      // Dangerous attributes on tags
+      /<img[^>]*\bonerror\s*=/gi,
+      /<svg[^>]*\bonload\s*=/gi,
+      /<body[^>]*\bonload\s*=/gi,
+      // Style tags with content
+      /<style[^>]*>[\s\S]{0,10000}?<\/style\s*>/gi,
+      // Link tags with javascript
+      /<link[^>]*href\s*=\s*["']javascript:/gi
     ];
 
     for (const pattern of xssPatterns) {
@@ -184,13 +192,15 @@ export class SecurityMiddleware {
     // Normalize Unicode characters first (handles multi-byte characters properly)
     let sanitized = input.normalize('NFC');
 
-    // Remove HTML tags - use [\s\S] to match all characters including newlines and Unicode
-    sanitized = sanitized.replace(/<[^>]*>/g, '');
+    // Remove HTML tags - match all characters including newlines and Unicode
+    // Use non-greedy matching with length limit to prevent ReDoS
+    sanitized = sanitized.replace(/<[^>]{0,10000}>/g, '');
 
-    // Remove event handlers with proper Unicode-aware matching
-    sanitized = sanitized
-      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-      .replace(/on\w+\s*=\s*[^\s>]*/gi, '');
+    // Remove event handlers with proper Unicode-aware matching and length limits
+    // First pass: event handlers with quotes (limit attribute value length)
+    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']{0,1000}["']/gi, '');
+    // Second pass: event handlers without quotes (match until space or > with limit)
+    sanitized = sanitized.replace(/on\w+\s*=\s*[^\s>]{0,1000}/gi, '');
 
     // Validate and sanitize dangerous URL schemes
     // Check for complete URL scheme patterns (must include :// or : after scheme)

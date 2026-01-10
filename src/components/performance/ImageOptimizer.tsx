@@ -95,7 +95,8 @@ const ImageOptimizer: React.FC<ImageOptimizerProps> = ({
       
       if (allowedSchemes.includes(urlObj.protocol)) {
         // HTTP/HTTPS URLs are safe
-        if (url.includes('unsplash.com')) {
+        // Check hostname from parsed URL object instead of string substring (more secure)
+        if (urlObj.hostname === 'unsplash.com' || urlObj.hostname.endsWith('.unsplash.com')) {
           const params = new URLSearchParams();
           if (width) {params.set('w', width.toString());}
           if (height) {params.set('h', height.toString());}

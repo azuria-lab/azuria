@@ -51,12 +51,29 @@ export function sanitizeString(input: string): string {
   result = result.replaceAll('\0', '');
   
   // Escape HTML entities básicos
-  result = result
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#x27;');
+  // IMPORTANTE: Fazer replace de & primeiro para evitar double escaping
+  // Verificar se já está escapado antes de fazer escape novamente
+  const hasHtmlEntities = /&(?:amp|lt|gt|quot|#x27|#39);/.test(result);
+  
+  if (!hasHtmlEntities) {
+    // Só fazer escape se não estiver já escapado
+    // Fazer replace de & primeiro para evitar transformar &amp; em &amp;amp;
+    result = result
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#x27;');
+  } else {
+    // Se já estiver parcialmente escapado, escapar apenas caracteres não escapados
+    // Usar regex negativo lookahead para evitar double escaping
+    result = result
+      .replaceAll(/&(?!amp;|lt;|gt;|quot;|#x27;|#39;)/g, '&amp;') // Só escapa & se não for entidade HTML
+      .replaceAll(/<(?!\/?[a-zA-Z][^>]*>)/g, '&lt;') // Só escapa < se não for início de tag válida
+      .replaceAll(/(?<!&lt;)>/g, '&gt;') // Só escapa > se não for parte de &lt;
+      .replaceAll(/(?<!&quot;)"/g, '&quot;') // Só escapa " se não for parte de &quot;
+      .replaceAll(/(?<!&#x27;|&#39;)'/g, '&#x27;'); // Só escapa ' se não for parte de entidade
+  }
   
   // Remove caracteres de controle (exceto newline \n=0x0A, carriage return \r=0x0D, tab \t=0x09)
   // eslint-disable-next-line no-control-regex

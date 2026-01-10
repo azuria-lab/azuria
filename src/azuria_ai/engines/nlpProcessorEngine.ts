@@ -173,9 +173,10 @@ const INTENT_PATTERNS: Record<UserIntent, RegExp[]> = {
  * Padrões para extração de entidades
  */
 const ENTITY_PATTERNS: Record<EntityType, RegExp> = {
-  currency: /R\$\s*[\d.,]+|[\d.,]+\s*reais?/gi,
-  percentage: /[\d.,]+\s*%|[\d.,]+\s*por\s*cento/gi,
-  number: /\b[\d.,]+\b/g,
+  // Usar caracteres específicos ao invés de ranges amplos
+  currency: /R\$\s*[0-9][0-9.,]*|[0-9][0-9.,]*\s*reais?/gi,
+  percentage: /[0-9][0-9.,]*\s*%|[0-9][0-9.,]*\s*por\s*cento/gi,
+  number: /\b[0-9][0-9.,]*\b/g,
   calculator_type: /markup|margem|bdi|pre[çc]o|custo|imposto|tributo/gi,
   concept: /markup|margem|lucro|bdi|custo|despesa|receita|faturamento/gi,
   action: /calcul(ar|e)|export(ar|e)|compar(ar|e)|entender|ajuda/gi,

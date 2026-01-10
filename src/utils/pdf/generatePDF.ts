@@ -44,9 +44,19 @@ export const generatePDF = async (
   doc.setDrawColor(220, 220, 220);
   doc.line(20, 47, 190, 47);
 
+  // Helper para formatar números (evita double replacement)
+  const formatNumber = (value: string | number): string => {
+    const numStr = typeof value === 'string' ? value : value.toString();
+    // Garantir que só fazemos replace uma vez (não fazer double replace)
+    if (numStr.includes(',')) {
+      return numStr; // Já está formatado
+    }
+    return numStr.replace(/\./g, ','); // Replace todas as ocorrências de . por ,
+  };
+
   // Tabela com informações de entrada
   const inputData = [
-    ["Custo do Produto", `R$ ${item.cost.replace(".", ",")}`],
+    ["Custo do Produto", `R$ ${formatNumber(item.cost)}`],
     ["Margem de Lucro", `${item.margin}%`],
   ];
 
@@ -59,13 +69,13 @@ export const generatePDF = async (
   }
 
   if (item.otherCosts) {
-    inputData.push(["Outros Custos", `R$ ${item.otherCosts.replace(".", ",")}`]);
+    inputData.push(["Outros Custos", `R$ ${formatNumber(item.otherCosts)}`]);
   }
 
   if (item.shipping) {
     inputData.push([
       "Frete", 
-      `R$ ${item.shipping.replace(".", ",")}${item.includeShipping ? " (incluído no preço)" : ""}`
+      `R$ ${formatNumber(item.shipping)}${item.includeShipping ? " (incluído no preço)" : ""}`
     ]);
   }
 
