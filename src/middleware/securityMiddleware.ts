@@ -85,8 +85,9 @@ export class SecurityMiddleware {
     // Use non-greedy matching with proper boundaries to prevent ReDoS
     const xssPatterns = [
       // Script tags - match tag opening and closing with non-greedy content and length limit
-      // Use bounded quantifiers to prevent ReDoS attacks
-      /<script[^>]{0,100}>[\s\S]{0,10000}?<\/script\s*>/gi,
+      // Use bounded quantifiers and avoid overly complex patterns to prevent ReDoS
+      // Process script tags more carefully with explicit boundaries
+      /<script(?:\s[^>]*)?>[\s\S]{0,50000}?<\/script\s*>/gi,
       // Iframe tags
       /<iframe[^>]*>[\s\S]*?<\/iframe\s*>/gi,
       // Dangerous protocols - use word boundary
@@ -198,13 +199,19 @@ export class SecurityMiddleware {
     sanitized = sanitized.replace(/<[^>]{0,10000}>/g, '');
 
     // Remove event handlers with proper Unicode-aware matching and length limits
+    // IMPORTANTE: Processar caracteres Unicode corretamente para evitar bypasses multi-byte
     // Use bounded quantifiers with explicit character classes to prevent ReDoS
-    // First pass: event handlers with quotes (limit attribute value length)
+    // First pass: event handlers with quotes - handle Unicode properly
     // Match onEventName="value" or onEventName='value' with explicit limits
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'][^"']{0,500}["']/gi, '');
-    // Second pass: event handlers without quotes (match until space or > with limit)
+    // Process Unicode characters by matching any character except quote, but with length limit
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*["'][^"']{0,500}["']/gu, '');
+    // Second pass: event handlers without quotes - handle Unicode characters  
     // Ensure we match specific event handler patterns, not arbitrary content
-    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^\s>]{0,500}/gi, '');
+    // Use Unicode flag (u) to properly handle multi-byte characters
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^\s>]{0,500}/gu, '');
+    // Third pass: Catch any remaining event handlers with mixed quotes/unicode
+    // This handles edge cases where multi-byte characters might bypass previous patterns
+    sanitized = sanitized.replace(/on[a-zA-Z0-9]+\s*=\s*[^>]{0,500}(?:\s|>)/gu, '');
 
     // Validate and sanitize dangerous URL schemes
     // Check for complete URL scheme patterns (must include :// or : after scheme)

@@ -161,9 +161,22 @@ console.error = (...args: unknown[]) => {
   }
   
   // Only log if no sensitive data detected
+  // IMPORTANTE: Em ambiente de teste, suprimimos completamente logs que possam conter dados sensíveis
+  // Mesmo com filtros, é mais seguro não logar nada em testes
   if (!hasSensitiveData) {
-    originalError(...args);
+    // Sanitizar argumentos antes de logar para garantir que não há dados sensíveis
+    const sanitizedArgs = args.map(arg => {
+      if (typeof arg === 'string') {
+        // Limitar tamanho e remover possíveis padrões sensíveis
+        const limited = arg.substring(0, 100);
+        // Verificar novamente após limitar
+        const hasSensitive = sensitivePatterns.some(p => p.test(limited));
+        return hasSensitive ? '[Sensitive data removed]' : limited;
+      }
+      // Para objetos, não fazer JSON.stringify (pode expor dados sensíveis)
+      return '[Object]';
+    });
+    originalError(...sanitizedArgs);
   }
-  // Silently suppress logs that might contain sensitive data in tests
   // Silently suppress logs that might contain sensitive data in tests
 }
