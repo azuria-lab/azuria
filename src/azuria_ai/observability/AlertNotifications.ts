@@ -267,7 +267,7 @@ export function getNotificationState(): NotificationState {
 // INTEGRAÇÃO COM COGNITIVE ALERTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { type AzuriaEvent, on } from '@/azuria_ai/core/eventBus';
+import { type AzuriaEvent, on, unsubscribeFromEvent } from '@/azuria_ai/core/eventBus';
 
 let unsubscribe: (() => void) | null = null;
 
@@ -280,8 +280,6 @@ export function connectToAlertSystem(): void {
     return;
   }
 
-  const { on, unsubscribeFromEvent } = await import('@/azuria_ai/core/eventBus');
-  
   const subId1 = on('system:alert:triggered', (event: AzuriaEvent) => {
     const alert = event.payload as TriggeredAlert;
     if (alert) {
